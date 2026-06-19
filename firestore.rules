@@ -1,0 +1,354 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasInstitutionalEmail() {
+      return signedIn()
+        && request.auth.token.email is string
+        && request.auth.token.email.matches('.*@tecplayacar[.]edu[.]mx$');
+    }
+
+    function userDocExists() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function isActiveUser() {
+      return userDocExists()
+        && currentUser().data.status == 'Activo';
+    }
+
+    function userRole() {
+      return currentUser().data.role;
+    }
+
+    function isSystemsMember() {
+      return isActiveUser()
+        && userRole() is string
+        && (
+          userRole().matches('.*Sistemas.*')
+          || userRole().matches('.*sistemas.*')
+        );
+    }
+
+    function isSystemsCoordinator() {
+      return isSystemsMember()
+        && (
+          userRole().matches('.*Coordinaci.*Sistemas.*')
+          || userRole().matches('.*Coordinador.*Sistemas.*')
+        );
+    }
+
+    function isAcademicCoordinator() {
+      return isActiveUser()
+        && userRole() is string
+        && (
+          userRole().matches('.*Acad.*')
+          || userRole().matches('.*acad.*')
+        )
+        && !userRole().matches('.*Sistemas.*')
+        && !userRole().matches('.*sistemas.*');
+    }
+
+    function hasModuleAccess(moduleKey) {
+      return isActiveUser()
+        && currentUser().data.access[moduleKey] == true;
+    }
+
+    function canReadInstitutionalCatalogs() {
+      return hasInstitutionalEmail() || isActiveUser();
+    }
+
+    function canReadUsersDirectory() {
+      return hasInstitutionalEmail() || isActiveUser();
+    }
+
+    function canManageUsers() {
+      return isSystemsCoordinator()
+        || (
+          isSystemsMember()
+          && hasModuleAccess('usuarios')
+        );
+    }
+
+    function canEditCycles() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('ciclos')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
+    function canEditNomenclatures() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('nomenclaturas')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
+    function canEditGroups() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('grupos')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
+    function canEditTeachers() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('docentes')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
+    function canCreatePendingTeacher() {
+      return hasInstitutionalEmail()
+        && request.resource.data.status == 'PENDIENTE'
+        && request.resource.data.origin == 'MANUAL'
+        && request.resource.data.normalizedMoodleUser is string
+        && request.resource.data.fullName is string
+        && request.resource.data.moodleUser is string;
+    }
+
+    function canUpdateOwnPendingTeacher(teacherId) {
+      return hasInstitutionalEmail()
+        && resource.data.status == 'PENDIENTE'
+        && resource.data.origin == 'MANUAL'
+        && request.resource.data.status == 'PENDIENTE'
+        && request.resource.data.origin == 'MANUAL'
+        && teacherId == request.resource.data.normalizedMoodleUser;
+    }
+
+    function canEditSubjects() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('asignaturas')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
+    function canReadAssignments() {
+      return isSystemsMember()
+        || isAcademicCoordinator()
+        || hasModuleAccess('asignaciones');
+    }
+
+    function canWriteAssignment(program) {
+      return isSystemsMember()
+        || (
+          isAcademicCoordinator()
+          && currentUser().data.assignedPrograms is list
+          && program in currentUser().data.assignedPrograms
+        );
+    }
+
+    function canReadSharedRequests() {
+      return isSystemsMember()
+        || isAcademicCoordinator()
+        || hasModuleAccess('solicitudes');
+    }
+
+    function canCreateSystemRequest() {
+      return (isActiveUser() || hasInstitutionalEmail())
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'PENDIENTE'
+        && request.resource.data.type in ['REABRIR_CAPTURA', 'ALTA_GRUPO', 'CAMBIAR_ID_ASIGNATURA', 'DOCENTE_NUEVO']
+        && request.resource.data.title is string
+        && request.resource.data.detail is string
+        && request.resource.data.cycle is string
+        && request.resource.data.createdAt is string
+        && request.resource.data.updatedAt is string;
+    }
+
+    function isOwnBootstrapUser(userId) {
+      return signedIn()
+        && userId == request.auth.uid
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.status == 'Inactivo';
+    }
+
+    function isOwnEmailBinding(userId) {
+      return signedIn()
+        && resource.data.authUid == null
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['authUid', 'updatedAt'])
+        && request.resource.data.authUid == request.auth.uid;
+    }
+
+    match /usuarios/{userId} {
+      allow read: if canReadUsersDirectory()
+        || userId == request.auth.uid
+        || resource.data.authUid == request.auth.uid
+        || resource.data.email == request.auth.token.email;
+
+      allow create: if canManageUsers()
+        || isOwnBootstrapUser(userId);
+
+      allow update: if canManageUsers()
+        || isOwnEmailBinding(userId);
+
+      allow delete: if canManageUsers();
+    }
+
+    match /roles_personalizados/{roleId} {
+      allow read: if isActiveUser() || hasInstitutionalEmail();
+      allow create, update, delete: if canManageUsers();
+    }
+
+    match /ciclos/{cycleId} {
+      allow read: if canReadInstitutionalCatalogs();
+      allow create, update, delete: if canEditCycles();
+    }
+
+    match /programas/{programId} {
+      allow read: if canReadInstitutionalCatalogs();
+      allow create, update, delete: if canEditNomenclatures();
+    }
+
+    match /nomenclaturas_programas/{nomenclatureId} {
+      allow read: if canReadInstitutionalCatalogs();
+      allow create, update, delete: if canEditNomenclatures();
+    }
+
+    match /grupos/{groupId} {
+      allow read: if canReadInstitutionalCatalogs();
+      allow create, update, delete: if canEditGroups();
+    }
+
+    match /docentes/{teacherId} {
+      allow read: if canReadInstitutionalCatalogs();
+
+      allow create: if teacherId == request.resource.data.normalizedMoodleUser
+        && (
+          canEditTeachers()
+          || canCreatePendingTeacher()
+        );
+
+      allow update: if canEditTeachers()
+        || canUpdateOwnPendingTeacher(teacherId);
+
+      allow delete: if canEditTeachers()
+        && resource.data.status == 'INACTIVO';
+    }
+
+    match /asignaturas/{subjectId} {
+      allow read: if canReadInstitutionalCatalogs();
+
+      allow create: if canEditSubjects()
+        && subjectId == request.resource.data.subjectId;
+
+      allow update: if canEditSubjects()
+        && request.resource.data.subjectId == resource.data.subjectId;
+
+      allow delete: if canEditSubjects();
+    }
+
+    match /asignaciones/{assignmentId} {
+      allow read: if canReadAssignments();
+
+      allow create: if canWriteAssignment(request.resource.data.program)
+        && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
+        && request.resource.data.cycle is string
+        && request.resource.data.group is string
+        && request.resource.data.subjectId is string
+        && request.resource.data.teacherMoodleUser is string;
+
+      allow update: if canWriteAssignment(request.resource.data.program)
+        && request.resource.data.program == resource.data.program
+        && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if false;
+    }
+
+    match /solicitudes_compartidas/{requestId} {
+      allow read: if canReadSharedRequests();
+
+      allow create: if canReadSharedRequests()
+        && request.resource.data.status == 'PENDIENTE';
+
+      allow update: if canReadSharedRequests();
+
+      allow delete: if false;
+    }
+
+    match /solicitudes_sistemas/{requestId} {
+      allow read: if isSystemsMember()
+        || (
+          (isActiveUser() || hasInstitutionalEmail())
+          && resource.data.requestedBy == request.auth.uid
+        );
+
+      allow create: if canCreateSystemRequest();
+
+      allow update: if isSystemsMember()
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.requestedBy == resource.data.requestedBy;
+
+      allow delete: if isSystemsMember()
+        || hasModuleAccess('solicitudes');
+    }
+
+    match /bitacora/{entryId} {
+      allow read: if isSystemsMember()
+        || hasModuleAccess('bitacora');
+
+      allow create: if isActiveUser();
+      allow update, delete: if false;
+    }
+
+    match /notificaciones/{notificationId} {
+      allow read: if isSystemsMember()
+        || (
+          isActiveUser()
+          && resource.data.target == 'COORDINACION_ACADEMICA'
+          && resource.data.targetUserId == request.auth.uid
+        );
+
+      allow create: if (isActiveUser() || hasInstitutionalEmail())
+        && request.resource.data.type in [
+          'DOCENTE_NUEVO',
+          'DOCENTE_VALIDADO',
+          'ASIGNACIONES_HITO',
+          'CLASE_COMPARTIDA',
+          'SOLICITUD_SISTEMAS'
+        ]
+        && (
+          request.resource.data.target == 'SISTEMAS'
+          || (
+            isSystemsMember()
+            && request.resource.data.target == 'COORDINACION_ACADEMICA'
+            && request.resource.data.targetUserId is string
+            && request.resource.data.targetUserId != ''
+          )
+        );
+
+      allow update: if (
+          isSystemsMember()
+          || (
+            isActiveUser()
+            && resource.data.target == 'COORDINACION_ACADEMICA'
+            && resource.data.targetUserId == request.auth.uid
+          )
+        )
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['readBy']);
+
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

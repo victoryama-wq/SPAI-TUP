@@ -1,0 +1,571 @@
+<section class="teachers-overview">
+  <section class="teachers-header">
+    <div>
+      <span>Catalogo global</span>
+      <h2>Docentes</h2>
+      <p>Alta manual, validacion por Sistemas y vista de base de Docentes.</p>
+    </div>
+
+    <div class="panel-tabs" aria-label="Subpaneles de docentes">
+      @if (isAcademicCoordination()) {
+        <button type="button" class="active" (click)="toggleAcademicTeacherView()">
+          {{ academicShowsGlobalTeachers ? 'Mis docentes' : 'Ver Global de docentes' }}
+        </button>
+        <button class="primary-tab-action" type="button" (click)="openManualModal()">
+          Nuevo docente
+        </button>
+      } @else {
+        <button class="primary-tab-action" type="button" (click)="openManualModal()">
+          Nuevo docente
+        </button>
+        <button
+          class="upload-tab-action"
+          type="button"
+          [class.active]="selectedPanel === 'csv'"
+          (click)="openCsvPicker(headerTeacherCsvInput)"
+        >
+          Cargar CSV
+        </button>
+        <input
+          #headerTeacherCsvInput
+          class="file-input-hidden"
+          type="file"
+          accept=".csv,text/csv"
+          (change)="importCsv($event)"
+        />
+        <button
+          class="template-tab-action"
+          type="button"
+          aria-label="Descargar plantilla CSV"
+          title="Descargar plantilla CSV"
+          (click)="downloadCsvTemplate()"
+        >
+          Plantilla CSV
+        </button>
+        <button type="button" [class.active]="selectedPanel === 'pending'" (click)="selectPanel('pending')">
+          Pendientes
+        </button>
+      }
+    </div>
+  </section>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ activeTeacherRecords().length }}</strong>
+      <span>Registrados</span>
+    </article>
+    <article>
+      <strong>{{ activeTeachersCount() }}</strong>
+      <span>Activos</span>
+    </article>
+    <article>
+      <strong>{{ pendingTeachersCount() }}</strong>
+      <span>Pendientes</span>
+    </article>
+    <article>
+      <strong>{{ inactiveTeachersCount() }}</strong>
+      <span>Inactivos</span>
+    </article>
+  </div>
+</section>
+
+@if (formMessage && !isManualModalOpen) {
+  <div class="feedback standalone-feedback dismissible-feedback">
+    <strong>{{ formMessage }}</strong>
+    <button type="button" aria-label="Cerrar mensaje" (click)="dismissFormMessage()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+}
+
+@if (teachersReadError()) {
+  <div class="feedback standalone-feedback has-errors dismissible-feedback">
+    <div>
+      <strong>No se pudieron cargar los docentes.</strong>
+      <span>{{ teachersReadError() }}</span>
+    </div>
+  </div>
+}
+
+@if (selectedPanel === 'csv' && (previewRows.length || csvImportMessage || csvImportErrors.length || !canManageTeachers())) {
+  <section class="import-panel compact-import-panel" aria-label="Carga CSV de docentes">
+    @if (!canManageTeachers()) {
+      <div class="feedback has-errors">
+        <span>La carga CSV esta disponible para Coordinacion de Sistemas.</span>
+      </div>
+    }
+
+    @if (csvImportMessage || csvImportErrors.length) {
+      <div class="feedback dismissible-feedback" [class.has-errors]="csvImportErrors.length">
+        <div>
+          @if (csvImportMessage) {
+            <strong>{{ csvImportMessage }}</strong>
+          }
+          @for (error of csvImportErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+        <button type="button" aria-label="Cerrar mensaje de importacion" (click)="dismissCsvFeedback()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (previewRows.length) {
+      <div class="preview-actions">
+        <strong>{{ validPreviewCount }} validas</strong>
+        <strong class="observed-count">{{ observedPreviewCount }} con observacion</strong>
+        <button class="secondary-action" type="button" (click)="cancelPreview()">Cancelar</button>
+        <button class="primary-action" type="button" [disabled]="validPreviewCount === 0" (click)="savePreview()">
+          Guardar validas
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fila</th>
+              <th>Docente</th>
+              <th>Usuario Moodle</th>
+              <th>Operacion</th>
+              <th>Estatus</th>
+              <th>Correo</th>
+              <th>Coordinador responsable</th>
+              <th>Observaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of previewRows; track row.rowNumber) {
+              <tr [class.observed-row]="row.observations.length">
+                <td>{{ row.rowNumber }}</td>
+                <td><strong>{{ row.fullName || 'Sin nombre' }}</strong></td>
+                <td>{{ row.moodleUser || '-' }}</td>
+                <td>{{ row.operation }}</td>
+                <td>{{ row.payload?.status || row.statusText || '-' }}</td>
+                <td>{{ row.email || '-' }}</td>
+                <td>{{ row.coordinators.length ? row.coordinators.join(', ') : '-' }}</td>
+                <td>
+                  @if (row.observations.length) {
+                    <div class="observations">
+                      @for (observation of row.observations; track observation) {
+                        <span>{{ observation }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="valid-label">Lista para guardar</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+
+<section class="table-panel" aria-label="Tabla de docentes">
+  <div class="panel-title">
+    <div>
+      <span>Control operativo</span>
+      <h3>
+        @if (!canManageTeachers()) {
+          {{ academicShowsGlobalTeachers ? 'Catalogo global' : 'Mis docentes' }}
+        } @else if (selectedPanel === 'mine') {
+          Mis docentes
+        } @else if (selectedPanel === 'pending') {
+          Pendientes de validacion
+        } @else {
+          Catalogo global
+        }
+      </h3>
+    </div>
+
+    <div class="filters">
+      @if (canManageTeachers() && selectedPanel !== 'catalog') {
+        <button class="secondary-action compact-action" type="button" (click)="selectPanel('catalog')">
+          Ver catálogo global
+        </button>
+      }
+      <label class="search-filter">
+        <span>Buscar</span>
+        <div class="search-control">
+          <input
+            type="search"
+            [value]="searchDraft"
+            (input)="updateSearchDraft($event)"
+            (keydown.enter)="applySearch()"
+            placeholder="Nombre completo o usuario Moodle"
+          />
+          <button class="search-action" type="button" (click)="applySearch()">Buscar</button>
+        </div>
+      </label>
+      <label>
+        <span>Estatus</span>
+        <select [value]="statusFilter" (change)="selectStatus($event)">
+          <option value="TODOS">Todos</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="VALIDADO">Activo</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Docente</th>
+          <th>Usuario Moodle</th>
+          <th>Estatus</th>
+          <th>Origen</th>
+          <th>Coordinacion asignada</th>
+          <th>Alta por</th>
+          <th>Correo</th>
+          <th>Actualizacion</th>
+          @if (canManageTeachers()) {
+            <th>Acciones</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (teacher of paginatedTeachers(); track teacher.id) {
+          <tr>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ teacher.fullName }}</strong>
+                <small>{{ teacher.teacherCode }}</small>
+              </div>
+            </td>
+            <td><strong class="moodle-user">{{ teacher.moodleUser }}</strong></td>
+            <td>
+              <span class="status-badge" [ngClass]="statusClass(teacher.status)">
+                {{ statusLabel(teacher.status) }}
+              </span>
+            </td>
+            <td>{{ teacher.origin }}</td>
+            <td>
+              <span class="program-tags">
+                {{ teacherCoordinatorNames(teacher) }}
+              </span>
+            </td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ teacher.createdByName }}</strong>
+                <small>{{ teacher.createdByRole }}</small>
+              </div>
+            </td>
+            <td>{{ teacher.email || '-' }}</td>
+            <td>{{ teacher.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            @if (canManageTeachers()) {
+              <td>
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="icon-row-action"
+                    aria-label="Cambiar asignacion"
+                    title="Cambiar asignacion"
+                    (click)="openAssignmentModal(teacher)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M12 5H8a5 5 0 0 0 0 10h1M12 19h4a5 5 0 0 0 0-10h-1"></path>
+                    </svg>
+                  </button>
+                  @if (teacher.status !== 'VALIDADO') {
+                    <button
+                      type="button"
+                      class="icon-row-action success-action"
+                      aria-label="Activar docente"
+                      title="Activar docente"
+                      (click)="updateTeacherStatus(teacher, 'VALIDADO')"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="icon-row-action"
+                    aria-label="Editar docente"
+                    title="Editar docente"
+                    (click)="openEditModal(teacher)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
+                  </button>
+                  @if (teacher.status !== 'INACTIVO') {
+                    <button
+                      type="button"
+                      class="icon-row-action danger-action"
+                      aria-label="Inactivar docente"
+                      title="Inactivar docente"
+                      (click)="updateTeacherStatus(teacher, 'INACTIVO')"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  }
+                  @if (teacher.status === 'INACTIVO') {
+                    <button
+                      type="button"
+                      class="icon-row-action danger-action"
+                      aria-label="Eliminar docente"
+                      title="Eliminar docente"
+                      (click)="deleteTeacher(teacher)"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"></path>
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="canManageTeachers() ? 9 : 8">
+              <div class="empty-state">
+                <strong>{{ emptyTeachersTitle() }}</strong>
+                <span>{{ emptyTeachersMessage() }}</span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (visiblePanelTeachers().length > 0) {
+    <div class="pagination-bar" aria-label="Paginacion de docentes">
+      <span>
+        Mostrando {{ paginationStart() }}-{{ paginationEnd() }} de {{ visiblePanelTeachers().length }} docentes
+      </span>
+
+      <div class="pagination-controls">
+        <label>
+          <span>Por pagina</span>
+          <select [value]="pageSize" (change)="selectPageSize($event)">
+            @for (option of pageSizeOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        </label>
+
+        <button type="button" [disabled]="currentSafePage() === 1" (click)="goToPreviousPage()">
+          Anterior
+        </button>
+        <strong>{{ currentSafePage() }} / {{ totalTeacherPages() }}</strong>
+        <button type="button" [disabled]="currentSafePage() === totalTeacherPages()" (click)="goToNextPage()">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (isManualModalOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeManualModal()">
+    <section
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manual-teacher-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Alta manual</span>
+          <h3 id="manual-teacher-title">Nuevo docente</h3>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeManualModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="teacher-form">
+        <label>
+          <span>Nombre completo *</span>
+          <input type="text" [(ngModel)]="manualForm.fullName" placeholder="JUAN PEREZ LOPEZ" />
+        </label>
+        <label>
+          <span>Usuario Moodle *</span>
+          <input type="text" [(ngModel)]="manualForm.moodleUser" placeholder="jperez" />
+        </label>
+        <label>
+          <span>Correo</span>
+          <div class="domain-field">
+            <input type="text" [(ngModel)]="manualForm.email" placeholder="juan.perez" />
+            <span>@tecplayacar.edu.mx</span>
+          </div>
+        </label>
+        @if (isAcademicCoordination()) {
+          <div class="static-form-field">
+            <span>Coordinador asignado</span>
+            <strong>{{ manualTeacherCoordinatorName() }}</strong>
+            <small>Se asignara automaticamente al guardar.</small>
+          </div>
+        }
+      </div>
+
+      @if (formErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of formErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeManualModal()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveManualTeacher()">Guardar docente</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (editModalTeacher) {
+  <div class="modal-backdrop" role="presentation" (click)="closeEditModal()">
+    <section
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-teacher-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Edicion de docente</span>
+          <h3 id="edit-teacher-title">Datos del docente</h3>
+          <p>Usuario Moodle: {{ editModalTeacher.moodleUser }}</p>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeEditModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="teacher-form">
+        <label>
+          <span>ID docente</span>
+          <input type="text" [(ngModel)]="editForm.teacherCode" placeholder="DOC-0001" />
+        </label>
+        <label>
+          <span>Nombre completo *</span>
+          <input type="text" [(ngModel)]="editForm.fullName" placeholder="JUAN PEREZ LOPEZ" />
+        </label>
+        <label>
+          <span>Correo</span>
+          <input type="email" [(ngModel)]="editForm.email" placeholder="juan.perez@tecplayacar.edu.mx" />
+        </label>
+        <div class="coordinator-field">
+          <span>Coordinacion asignada</span>
+          <div class="coordinator-checklist">
+            @for (coordinator of academicCoordinatorOptions(); track coordinator.id) {
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="isTeacherCoordinatorSelected(coordinator.id)"
+                  (change)="toggleTeacherCoordinator(coordinator.id)"
+                />
+                <span>
+                  <strong>{{ coordinator.name }}</strong>
+                  {{ coordinator.assignedPrograms.length ? coordinator.assignedPrograms.join(', ') : 'Sin programas asignados' }}
+                </span>
+              </label>
+            } @empty {
+              <div class="empty-state compact-empty">
+                <strong>Sin coordinaciones academicas activas</strong>
+                <span>Registra usuarios de coordinacion academica para asignar docentes.</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (formErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of formErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeEditModal()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveTeacherDetails()">Guardar cambios</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (assignmentModalTeacher) {
+  <div class="modal-backdrop" role="presentation" (click)="closeAssignmentModal()">
+    <section
+      class="modal-panel assignment-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="teacher-assignment-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Asignacion a coordinacion</span>
+          <h3 id="teacher-assignment-title">Coordinacion del docente</h3>
+          <p>{{ assignmentModalTeacher.fullName }} - {{ assignmentModalTeacher.moodleUser }}</p>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeAssignmentModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="assignment-list" aria-label="Coordinaciones disponibles">
+        @for (coordinator of academicCoordinatorOptions(); track coordinator.id) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isTeacherCoordinatorSelected(coordinator.id)"
+              (change)="toggleTeacherCoordinator(coordinator.id)"
+            />
+            <span>
+              <strong>{{ coordinator.name }}</strong>
+              {{ coordinator.assignedPrograms.length ? coordinator.assignedPrograms.join(', ') : 'Sin programas asignados' }}
+            </span>
+          </label>
+        } @empty {
+          <div class="empty-state">
+            <strong>Sin coordinaciones academicas activas</strong>
+            <span>Registra o activa usuarios de coordinacion academica para asignar docentes.</span>
+          </div>
+        }
+      </div>
+
+      @if (formErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of formErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeAssignmentModal()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveTeacherCoordinators()">Guardar asignacion</button>
+      </div>
+    </section>
+  </div>
+}

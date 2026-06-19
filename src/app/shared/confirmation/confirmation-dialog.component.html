@@ -1,0 +1,35 @@
+@if (dialog(); as item) {
+  <div class="confirmation-backdrop" role="presentation" (click)="cancel()">
+    <section
+      class="confirmation-panel"
+      [class.danger]="item.tone === 'danger'"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmation-title"
+      (click)="$event.stopPropagation()"
+    >
+      <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="cancel()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <div class="confirmation-copy">
+        <span>{{ item.tone === 'danger' ? 'Accion delicada' : 'Confirmacion' }}</span>
+        <h3 id="confirmation-title">{{ item.title }}</h3>
+        <p>{{ item.message }}</p>
+      </div>
+
+      <div class="confirmation-actions">
+        @if (item.showCancel) {
+          <button class="secondary-action" type="button" (click)="cancel()">
+            {{ item.cancelLabel }}
+          </button>
+        }
+        <button class="primary-action" type="button" [class.danger-action]="item.tone === 'danger'" (click)="accept()">
+          {{ item.confirmLabel }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

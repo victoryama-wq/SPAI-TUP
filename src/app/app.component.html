@@ -1,0 +1,261 @@
+@if (!hasActiveAccess()) {
+  <spai-login-page />
+} @else {
+  <div class="app-shell" [class.header-collapsed]="isHeaderCollapsed()">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+    @if (!isHeaderCollapsed()) {
+      <header class="institutional-header">
+        <div class="brand-lockup" aria-label="Tecnologico Universitario Playacar">
+          <img
+            src="brand/tup-logo-full.png"
+            alt="Tecnologico Universitario Playacar"
+          />
+        </div>
+
+        <div class="header-title-panel">
+          <h1>Sistema de Planeacion Academica Institucional</h1>
+        </div>
+
+        <div
+          class="nav-actions header-actions"
+          [class.menu-open]="isNotificationsMenuOpen() || isProfileMenuOpen()"
+          aria-label="Cuenta de usuario"
+        >
+          <div class="account-actions">
+            <button
+              class="icon-button notification-trigger"
+              type="button"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="isNotificationsMenuOpen()"
+              aria-label="Abrir notificaciones"
+              (click)="toggleNotificationsMenu()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path>
+              </svg>
+              @if (unreadSystemNotificationsCount() > 0) {
+                <strong class="account-badge" aria-label="Notificaciones sin leer">
+                  {{ unreadSystemNotificationsCount() > 99 ? '99+' : unreadSystemNotificationsCount() }}
+                </strong>
+              }
+            </button>
+
+            <button
+              class="user-button"
+              type="button"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="isProfileMenuOpen()"
+              aria-label="Abrir menu de usuario"
+              (click)="toggleProfileMenu()"
+            >
+              <span class="user-avatar">{{ userInitials() }}</span>
+              <span class="user-meta">
+                <strong>{{ userDisplayName() }}</strong>
+                <small>{{ userRoleLabel() }}</small>
+              </span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+
+            @if (isNotificationsMenuOpen()) {
+              <div class="notifications-menu" role="menu" aria-label="Notificaciones del sistema">
+                <div class="notifications-heading">
+                  <strong>Notificaciones</strong>
+                  @if (unreadSystemNotifications().length) {
+                    <button type="button" (click)="markAllNotificationsAsRead()">Marcar leidas</button>
+                  }
+                </div>
+
+                <div class="notifications-list">
+                  @for (notification of unreadSystemNotifications(); track notification.id) {
+                    <button
+                      class="notification-item"
+                      [class.unread]="isNotificationUnread(notification)"
+                      type="button"
+                      role="menuitem"
+                      (click)="openNotification(notification)"
+                    >
+                      <strong>{{ notification.title }}</strong>
+                      <span>{{ notification.message }}</span>
+                    </button>
+                  } @empty {
+                    <div class="notifications-empty">
+                      <strong>Sin notificaciones</strong>
+                      <span>No hay avisos pendientes por ahora.</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (isProfileMenuOpen()) {
+              <div class="profile-menu" role="menu" aria-label="Menu de usuario">
+                <button type="button" role="menuitem" (click)="toggleSession()">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
+                  </svg>
+                  <span>Salir del sistema</span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </header>
+    }
+
+    <section class="nav-region" aria-label="Navegacion del sistema">
+      @if (isHeaderCollapsed()) {
+        <button
+          class="nav-menu-toggle"
+          type="button"
+          [attr.aria-pressed]="isHeaderCollapsed()"
+          [attr.aria-label]="isHeaderCollapsed() ? 'Mostrar encabezado' : 'Ocultar encabezado'"
+          (click)="toggleHeader()"
+        >
+          <img src="brand/tup-button-logo.png" alt="" aria-hidden="true" />
+          <span>{{ isHeaderCollapsed() ? 'Mostrar encabezado' : 'Ocultar encabezado' }}</span>
+        </button>
+
+        <div class="compact-brand" aria-hidden="true">
+          <strong>SPAI</strong>
+          <span>Planeacion academica</span>
+        </div>
+      } @else {
+        <button
+          class="nav-menu-toggle nav-menu-toggle-inline"
+          type="button"
+          [attr.aria-pressed]="isHeaderCollapsed()"
+          aria-label="Ocultar encabezado"
+          (click)="toggleHeader()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+          <span>Ocultar encabezado</span>
+        </button>
+      }
+
+      <nav class="module-bar" aria-label="Navegacion principal">
+        <div class="module-scroll">
+          @for (item of visibleNavItems(); track item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+            >
+              <span class="nav-icon-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path [attr.d]="item.icon"></path>
+                </svg>
+                @if (navBadgeCount(item) > 0) {
+                  <strong class="nav-badge" aria-label="Solicitudes pendientes">
+                    {{ navBadgeCount(item) > 99 ? '99+' : navBadgeCount(item) }}
+                  </strong>
+                }
+              </span>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </div>
+
+        @if (isHeaderCollapsed()) {
+          <div
+            class="nav-actions"
+            [class.menu-open]="isNotificationsMenuOpen() || isProfileMenuOpen()"
+            aria-label="Cuenta de usuario"
+          >
+            <div class="account-actions">
+              <button
+                class="icon-button notification-trigger"
+                type="button"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="isNotificationsMenuOpen()"
+                aria-label="Abrir notificaciones"
+                (click)="toggleNotificationsMenu()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path>
+                </svg>
+                @if (unreadSystemNotificationsCount() > 0) {
+                  <strong class="account-badge" aria-label="Notificaciones sin leer">
+                    {{ unreadSystemNotificationsCount() > 99 ? '99+' : unreadSystemNotificationsCount() }}
+                  </strong>
+                }
+              </button>
+
+              <button
+                class="user-button"
+                type="button"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="isProfileMenuOpen()"
+                aria-label="Abrir menu de usuario"
+                (click)="toggleProfileMenu()"
+              >
+                <span>{{ userInitials() }}</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+
+              @if (isNotificationsMenuOpen()) {
+                <div class="notifications-menu" role="menu" aria-label="Notificaciones del sistema">
+                  <div class="notifications-heading">
+                    <strong>Notificaciones</strong>
+                    @if (unreadSystemNotifications().length) {
+                      <button type="button" (click)="markAllNotificationsAsRead()">Marcar leidas</button>
+                    }
+                  </div>
+
+                  <div class="notifications-list">
+                    @for (notification of unreadSystemNotifications(); track notification.id) {
+                      <button
+                        class="notification-item"
+                        [class.unread]="isNotificationUnread(notification)"
+                        type="button"
+                        role="menuitem"
+                        (click)="openNotification(notification)"
+                      >
+                        <strong>{{ notification.title }}</strong>
+                        <span>{{ notification.message }}</span>
+                      </button>
+                    } @empty {
+                      <div class="notifications-empty">
+                        <strong>Sin notificaciones</strong>
+                        <span>No hay avisos pendientes por ahora.</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (isProfileMenuOpen()) {
+                <div class="profile-menu" role="menu" aria-label="Menu de usuario">
+                  <button type="button" role="menuitem" (click)="toggleSession()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
+                    </svg>
+                    <span>Salir del sistema</span>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </nav>
+    </section>
+
+    <main class="content-shell" id="main-content" tabindex="-1">
+      <div class="content-inner">
+        <div class="context-row">
+          <strong>Ciclo activo: <span [class.pending]="!activeCycle()">{{ activeCycleLabel }}</span></strong>
+        </div>
+
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+}
+
+<spai-confirmation-dialog />

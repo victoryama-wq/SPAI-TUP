@@ -1,0 +1,281 @@
+<section class="users-header">
+  <div>
+    <span>Panel de Coordinación de Sistemas</span>
+    <h2>Control de accesos</h2>
+    <p>Alta institucional, roles operativos y estado de acceso para el equipo academico.</p>
+  </div>
+
+  <button class="primary-action" type="button" [disabled]="!canManageAccess()" (click)="openForm()">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14"></path>
+    </svg>
+    <span>Nuevo usuario</span>
+  </button>
+</section>
+
+<section class="quick-panels" aria-label="Resumen y configuracion de usuarios">
+  <spai-role-manager />
+
+  <section class="summary-grid" aria-label="Resumen de usuarios">
+    <article>
+      <strong>{{ users().length }}</strong>
+      <span>Usuarios registrados</span>
+    </article>
+    <article>
+      <strong>{{ activeUsersCount() }}</strong>
+      <span>Usuarios activos</span>
+    </article>
+    <article>
+      <strong>{{ coordinatorCount() }}</strong>
+      <span>Coordinadores</span>
+    </article>
+    <article>
+      <strong>{{ rolesAvailableCount() }}</strong>
+      <span>Roles disponibles</span>
+    </article>
+  </section>
+</section>
+
+@if (isFormOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeForm()">
+    <section
+      class="form-panel modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="new-user-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>{{ modalEyebrow }}</span>
+          <h3 id="new-user-title">{{ modalTitle }}</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar formulario" (click)="closeForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveUser()" class="user-form">
+        <label>
+          <span>Nombre completo</span>
+          <input type="text" formControlName="name" placeholder="Ej. Coordinacion Academica" />
+        </label>
+
+        <label>
+          <span>Usuario de correo</span>
+          <div class="email-field">
+            <input type="text" formControlName="email" placeholder="usuario" />
+            <span>{{ emailDomain }}</span>
+          </div>
+          @if (form.controls.email.touched && form.controls.email.hasError('emailUser')) {
+            <small class="field-error">Usa solo el usuario o un correo institucional @tecplayacar.edu.mx.</small>
+          }
+        </label>
+
+        <label>
+          <span>Rol</span>
+          <select formControlName="role" (change)="updateAccessForRole($any($event.target).value)">
+            @for (role of roleOptions(); track role.value) {
+              <option [value]="role.value">
+                {{ role.label }}{{ role.custom ? ' · personalizado' : '' }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Saludo</span>
+          <select formControlName="greetingGender">
+            @for (gender of greetingGenders; track gender) {
+              <option [value]="gender">
+                {{ gender === 'Femenino' ? 'Bienvenida' : 'Bienvenido' }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Estado</span>
+          <select formControlName="status">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+
+        <fieldset class="program-field">
+          <legend>Programas asignados</legend>
+          @if (hasProgramOptions()) {
+            <div class="program-options">
+              @for (program of programOptions(); track program.value) {
+                <label class="check-option">
+                  <input
+                    type="checkbox"
+                    [checked]="isProgramSelected(program.value)"
+                    (change)="toggleProgram(program.value, $any($event.target).checked)"
+                  />
+                  <span>{{ program.label }}</span>
+                </label>
+              }
+            </div>
+          } @else {
+            <div class="empty-programs">
+              <strong>Catalogo pendiente</strong>
+              <span>Las carreras se asignaran cuando se carguen en Nomenclaturas.</span>
+            </div>
+          }
+        </fieldset>
+
+        <fieldset class="program-field">
+          <legend>Accesos por modulo</legend>
+          @if (canEditModuleAccess()) {
+            <div class="access-options">
+              @for (module of moduleAccessOptions; track module.key) {
+                <label class="check-option">
+                  <input
+                    type="checkbox"
+                    [checked]="isModuleSelected(module.key)"
+                    [disabled]="!canToggleModuleAccess(module.key)"
+                    (change)="toggleModuleAccess(module.key, $any($event.target).checked)"
+                  />
+                  <span>{{ module.label }}</span>
+                </label>
+              }
+            </div>
+          } @else {
+            <div class="empty-programs">
+              <strong>Accesos definidos por rol</strong>
+              <span>Coordinacion de Sistemas conserva acceso total. Coordinacion Academica usa el panel academico.</span>
+            </div>
+          }
+        </fieldset>
+
+        @if (saveError()) {
+          <p class="save-error" role="alert">{{ saveError() }}</p>
+        }
+
+        <div class="form-actions">
+          <button class="secondary-action" type="button" [disabled]="isSaving()" (click)="closeForm()">Cancelar</button>
+          <button class="primary-action" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : submitLabel }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (usersReadError()) {
+  <section class="read-error" role="alert">
+    <strong>No se pudieron cargar los usuarios.</strong>
+    <span>{{ usersReadError() }}</span>
+    <small>{{ currentAccessDiagnostic() }}</small>
+  </section>
+}
+
+<section class="table-panel" aria-label="Tabla de usuarios">
+  <div class="panel-title">
+    <div>
+      <span>Directorio operativo</span>
+      <h3>Usuarios registrados</h3>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Accesos</th>
+          <th>Programas asignados</th>
+          <th>Estado</th>
+          <th>Firebase</th>
+          <th>Acciones de Coordinación de Sistemas</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>
+              <div class="user-cell">
+                <span class="avatar">{{ userInitials(user) }}</span>
+                <div>
+                  <strong>{{ user.name }}</strong>
+                  <small>{{ user.email }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge">{{ user.role }}</span>
+            </td>
+            <td>
+              <span class="access-list">{{ accessSummary(user) }}</span>
+            </td>
+            <td>
+              <span class="program-list">
+                {{ user.assignedPrograms.length ? user.assignedPrograms.join(', ') : 'Pendiente de nomenclaturas' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.inactive]="user.status === 'Inactivo'">
+                {{ user.status }}
+              </span>
+            </td>
+            <td>
+              <span class="firebase-note">{{ user.authUid || 'Auth UID pendiente' }}</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button
+                  class="edit-action icon-action"
+                  type="button"
+                  [disabled]="!canManageAccess()"
+                  aria-label="Editar usuario"
+                  title="Editar usuario"
+                  (click)="editUser(user)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  class="text-action icon-action"
+                  type="button"
+                  [disabled]="!canManageAccess()"
+                  [attr.aria-label]="statusActionLabel(user) + ' usuario'"
+                  [title]="statusActionLabel(user)"
+                  (click)="toggleStatus(user)"
+                >
+                  @if (user.status === 'Activo') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M18.4 5.6 5.6 18.4M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                  }
+                </button>
+                <button
+                  class="danger-action icon-action"
+                  type="button"
+                  [disabled]="!canManageAccess()"
+                  aria-label="Eliminar acceso"
+                  title="Eliminar acceso"
+                  (click)="deleteUserAccess(user)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

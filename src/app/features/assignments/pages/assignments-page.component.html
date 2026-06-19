@@ -1,0 +1,426 @@
+<section class="assignments-overview">
+  <section class="assignments-header">
+    <div class="header-copy">
+      <span>Planeacion academica</span>
+      <h2>Asignaciones</h2>
+      <p>Relaciona grupos del ciclo activo con asignaturas, docentes e ID asignatura para revision institucional.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="primary-action"
+        type="button"
+        [disabled]="!canManageAssignments() || !canCaptureAssignments()"
+        [title]="captureBlockedMessage() || 'Nueva asignacion'"
+        (click)="openAssignmentModal()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        <span>Nueva asignacion</span>
+      </button>
+    </div>
+  </section>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ visibleAssignments().length }}</strong>
+      <span>En vista actual</span>
+    </article>
+    <article>
+      <strong>{{ captureCount() }}</strong>
+      <span>En captura</span>
+    </article>
+    <article>
+      <strong>{{ reviewCount() }}</strong>
+      <span>En revision</span>
+    </article>
+    <article>
+      <strong>{{ validatedCount() }}</strong>
+      <span>Validadas</span>
+    </article>
+    <article>
+      <strong>{{ observedCount() }}</strong>
+      <span>Con observacion</span>
+    </article>
+  </div>
+</section>
+
+@if (formMessage && !isAssignmentModalOpen) {
+  <div class="feedback standalone-feedback">
+    <strong>{{ formMessage }}</strong>
+  </div>
+}
+
+@if (isReadinessAlertVisible() && assignmentReadinessMessages().length) {
+  <aside class="readiness-alert" role="alert" aria-live="polite">
+    <div>
+      <strong>Revisa antes de capturar</strong>
+      @for (message of assignmentReadinessMessages(); track message) {
+        <span>{{ message }}</span>
+      }
+    </div>
+    <button type="button" aria-label="Cerrar alerta" title="Cerrar alerta" (click)="dismissReadinessAlert()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+  </aside>
+}
+
+<section class="table-panel" aria-label="Tabla de asignaciones">
+  <div class="mode-tabs" aria-label="Asignaciones por modalidad">
+    @for (tab of modeTabs(); track tab.value) {
+      <button
+        type="button"
+        [class.active]="modeTab() === tab.value"
+        [class.tab-escolarizado]="tab.value === 'Escolarizado'"
+        [class.tab-ejecutivo]="tab.value === 'Ejecutivo'"
+        [class.tab-virtual]="tab.value === 'Virtual'"
+        [class.tab-salud]="tab.value === 'Salud'"
+        [class.tab-posgrados]="tab.value === 'Posgrados'"
+        [class.tab-especiales]="tab.value === 'Especiales'"
+        (click)="selectModeTab(tab.value)"
+      >
+        <span>{{ tab.label }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="panel-title">
+    <div>
+      <span>{{ canSeeAllAssignments() ? 'Vista Sistemas' : 'Vista Coordinacion' }}</span>
+      <h3>Asignaciones academicas</h3>
+    </div>
+
+    <div class="filters">
+      <div class="readonly-filter">
+        <span>Ciclo activo</span>
+        <strong>{{ activeCycleCode() }}</strong>
+      </div>
+      <label>
+        <span>Programa</span>
+        <select [value]="programFilter" (change)="selectProgramFilter($event)">
+          <option value="TODOS">Todos</option>
+          @for (program of visibleProgramCodes(); track program) {
+            <option [value]="program">{{ program }}</option>
+          }
+        </select>
+      </label>
+      @if (modeTab() === 'Especiales') {
+        <label>
+          <span>Matricula</span>
+          <input
+            type="search"
+            [value]="enrollmentFilter"
+            (input)="updateEnrollmentFilter($event)"
+            placeholder="Buscar matricula"
+          />
+        </label>
+      } @else {
+        <label>
+          <span>Grupo</span>
+          <select [value]="groupFilter" (change)="selectGroupFilter($event)">
+            <option value="TODOS">Todos</option>
+            @for (group of tableGroupOptions(); track group.id) {
+              @if (programFilter === 'TODOS' || group.programAbbreviation === programFilter) {
+                <option [value]="group.fullGroup">{{ group.fullGroup }}</option>
+              }
+            }
+          </select>
+        </label>
+      }
+      <label>
+        <span>Estado</span>
+        <select [value]="statusFilter" (change)="selectStatusFilter($event)">
+          <option value="TODOS">Todos</option>
+          <option value="EN_CAPTURA">En captura</option>
+          <option value="EN_REVISION">En revision</option>
+          <option value="VALIDADO">Validado</option>
+          <option value="CON_OBSERVACION">Con observacion</option>
+        </select>
+      </label>
+      <label>
+        <span>Docente</span>
+        <select [value]="teacherFilter" (change)="selectTeacherFilter($event)">
+          <option value="TODOS">Todos</option>
+          <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
+          @for (teacher of validatedTeachers(); track teacher.id) {
+            <option [value]="teacher.moodleUser">{{ teacher.fullName }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Asignatura</span>
+        <select [value]="subjectFilter" (change)="selectSubjectFilter($event)">
+          <option value="TODOS">Todas</option>
+          @for (subject of activeSubjects(); track subject.id) {
+            <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ciclo</th>
+          <th>ID asignatura</th>
+          <th>Asignatura</th>
+          <th>Programa</th>
+          <th>Grupo</th>
+          <th>Matriculas adicionales</th>
+          <th class="center-column">Estado</th>
+          <th>Observaciones</th>
+          <th>Compartida</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (assignment of visibleAssignments(); track assignment.id) {
+          <tr>
+            <td><strong>{{ assignment.cycle }}</strong></td>
+            <td><strong class="moodle-id">{{ assignment.moodleId }}</strong></td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ assignment.subjectId }}</strong>
+                <small>{{ assignment.subjectName }}</small>
+              </div>
+            </td>
+            <td><strong>{{ assignment.program }}</strong></td>
+            <td>{{ assignment.special ? 'Sin grupo' : assignment.group }}</td>
+            <td>
+              @if (assignment.special) {
+                <span class="enrollment-list">{{ assignment.studentEnrollments || 'Sin matricula' }}</span>
+              } @else if (assignment.studentEnrollments) {
+                <span class="enrollment-list">{{ assignment.studentEnrollments }}</span>
+              } @else {
+                <span class="pending-label">Sin matriculas adicionales</span>
+              }
+            </td>
+            <td class="center-column">
+              <span class="status-badge" [ngClass]="statusClass(assignment.status)">
+                {{ statusLabel(assignment.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="observation-cell">
+                {{ assignment.observations || 'Sin observaciones' }}
+              </div>
+            </td>
+            <td>
+              @if (assignment.shared) {
+                <div class="shared-indicator">
+                  <span class="shared-check" aria-label="Clase compartida">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                  </span>
+                  <button
+                    class="shared-view-action"
+                    type="button"
+                    [attr.aria-label]="sharedAssignmentDetails(assignment)"
+                    [title]="sharedAssignmentDetails(assignment)"
+                    (click)="showSharedAssignmentDetails(assignment)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </td>
+            <td>
+              <div class="row-actions">
+                <button
+                  type="button"
+                  class="icon-row-action"
+                  [disabled]="!canManageAssignments() || !canCaptureAssignments() || !canEditAssignment(assignment)"
+                  aria-label="Editar asignacion"
+                  title="Editar asignacion"
+                  (click)="editAssignment(assignment)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="icon-row-action"
+                  [disabled]="!canShareAssignment(assignment)"
+                  aria-label="Solicitar compartir asignacion"
+                  title="Solicitar compartir"
+                  (click)="shareAssignment(assignment)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="10">
+              <div class="empty-state">
+                <strong>Sin asignaciones registradas</strong>
+                <span>Crea una asignacion del ciclo activo con grupo, asignatura, docente e ID asignatura.</span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+@if (isAssignmentModalOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeAssignmentModal()">
+    <section
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="assignment-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Captura operativa</span>
+          <h3 id="assignment-title">{{ modalTitle }}</h3>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeAssignmentModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="assignment-form">
+        <label>
+          <span>Ciclo activo</span>
+          <input type="text" [(ngModel)]="assignmentForm.cycle" readonly />
+        </label>
+        @if (assignmentForm.special) {
+          <label>
+            <span>Programa *</span>
+            <select [(ngModel)]="assignmentForm.program">
+              <option value="">Seleccionar programa</option>
+              @for (program of destinationProgramOptions(); track program) {
+                <option [value]="program">{{ program }}</option>
+              }
+            </select>
+          </label>
+        } @else {
+          <label>
+            <span>{{ assignmentForm.shared ? 'Grupo base *' : 'Grupo *' }}</span>
+            <select [(ngModel)]="assignmentForm.group" (change)="onGroupChange()">
+              <option value="">Seleccionar grupo</option>
+              @for (group of destinationGroupOptions(); track group.id) {
+                <option [value]="group.fullGroup">{{ group.fullGroup }} - {{ group.programName }}</option>
+              }
+            </select>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" [(ngModel)]="assignmentForm.shared" (change)="onSharedChange()" />
+            <span>Es clase compartida</span>
+          </label>
+          @if (assignmentForm.shared) {
+            <label>
+              <span>Grupo a compartir *</span>
+              <select [(ngModel)]="assignmentForm.shareGroup">
+                <option value="">Seleccionar grupo</option>
+                @for (group of destinationGroupOptions(); track group.id) {
+                  @if (group.fullGroup !== assignmentForm.group) {
+                    <option [value]="group.fullGroup">{{ group.fullGroup }} - {{ group.programName }}</option>
+                  }
+                }
+              </select>
+            </label>
+          }
+        }
+        <label>
+          <span>Asignatura *</span>
+          <select [(ngModel)]="assignmentForm.subjectId">
+            <option value="">Seleccionar asignatura</option>
+            @for (subject of activeSubjects(); track subject.id) {
+              <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>ID asignatura *</span>
+          <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
+        </label>
+        <label>
+          <span>Docente *</span>
+          <select [(ngModel)]="assignmentForm.teacherMoodleUser">
+            <option value="">Seleccionar docente</option>
+            <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
+            @for (teacher of validatedTeachers(); track teacher.id) {
+              <option [value]="teacher.moodleUser">{{ teacher.fullName }} - {{ teacher.moodleUser }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Estado</span>
+          @if (canReviewAssignments()) {
+            <select [(ngModel)]="assignmentForm.status">
+              <option value="EN_CAPTURA">En captura</option>
+              <option value="EN_REVISION">En revision</option>
+              <option value="VALIDADO">Validado</option>
+              <option value="CON_OBSERVACION">Con observacion</option>
+            </select>
+          } @else {
+            <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
+          }
+        </label>
+        @if (!assignmentForm.special) {
+          <label class="compact-textarea-field">
+            <span>Matriculas adicionales</span>
+            <textarea
+              [(ngModel)]="assignmentForm.studentEnrollments"
+              rows="2"
+              placeholder="Una por linea o separadas por coma"
+            ></textarea>
+          </label>
+        }
+        @if (assignmentForm.special) {
+          <label class="wide-field">
+            <span>Matricula(s) *</span>
+            <textarea
+              [(ngModel)]="assignmentForm.studentEnrollments"
+              rows="4"
+              placeholder="Una matricula por linea, o separadas por coma"
+            ></textarea>
+          </label>
+        }
+        <label class="wide-field">
+          <span>Observaciones</span>
+          <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
+        </label>
+      </div>
+
+      @if (formErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of formErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeAssignmentModal()">Cancelar</button>
+        <button
+          class="primary-action"
+          type="button"
+          [disabled]="!canCaptureAssignments()"
+          (click)="saveAssignment()"
+        >
+          {{ submitLabel }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

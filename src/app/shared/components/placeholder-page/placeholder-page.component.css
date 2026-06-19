@@ -1,0 +1,34 @@
+.placeholder {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.placeholder span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.placeholder h2 {
+  color: #0f172a;
+  font-size: clamp(22px, 2.4vw, 30px);
+  margin: 8px 0;
+}
+
+.placeholder p {
+  color: #64748b;
+  margin: 0 0 18px;
+}
+
+.notice {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  color: #1d4ed8;
+  font-weight: 700;
+  padding: 14px 16px;
+}

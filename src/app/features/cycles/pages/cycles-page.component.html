@@ -1,0 +1,236 @@
+<section class="cycles-overview" aria-label="Resumen de ciclos">
+  <section class="cycles-header">
+    <div>
+      <span>Administración de ciclos</span>
+      <h2>Renovación de planeación académica</h2>
+      <p>Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.</p>
+    </div>
+
+    <button class="primary-action" type="button" (click)="openForm()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5v14M5 12h14"></path>
+      </svg>
+      <span>Nuevo ciclo</span>
+    </button>
+  </section>
+
+  <div class="cycle-summary">
+    <article class="active-card">
+      <span>Ciclo activo</span>
+      @if (activeCycle(); as cycle) {
+        <strong>{{ cycle.code }}</strong>
+        <p>{{ cycle.label }}</p>
+        <small>Captura: {{ formatDate(cycle.captureStartedAt) }}</small>
+      } @else {
+        <strong class="empty-active">Sin ciclo</strong>
+        <p>Activa un ciclo para iniciar la planeación.</p>
+        <small>Pendiente de configuración</small>
+      }
+    </article>
+
+    <article>
+      <strong>{{ cycles().length }}</strong>
+      <span>Ciclos registrados</span>
+    </article>
+    <article>
+      <strong>{{ planningCycles().length }}</strong>
+      <span>En preparación</span>
+    </article>
+    <article>
+      <strong>{{ captureCycles().length }}</strong>
+      <span>En captura</span>
+    </article>
+    <article>
+      <strong>{{ closedCycles().length }}</strong>
+      <span>Históricos</span>
+    </article>
+  </div>
+</section>
+
+@if (isFormOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeForm()">
+    <section
+      class="form-panel modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cycle-form-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>Alta de ciclo</span>
+          <h3 id="cycle-form-title">Datos del ciclo academico</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar formulario" (click)="closeForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveCycle()" class="cycle-form">
+        <label>
+          <span>Código de ciclo</span>
+          <input type="text" formControlName="code" placeholder="Ej. 26-3" />
+          @if (form.controls.code.touched && form.controls.code.hasError('required')) {
+            <small class="field-error">El codigo de ciclo es obligatorio.</small>
+          }
+          @if (form.controls.code.touched && form.controls.code.hasError('pattern')) {
+            <small class="field-error">Usa el formato 26-3.</small>
+          }
+          @if (duplicateCode) {
+            <small class="field-error">Ese ciclo ya existe.</small>
+          }
+        </label>
+
+        <label>
+          <span>Nombre visible</span>
+          <input type="text" formControlName="label" placeholder="Ej. Mayo - Agosto 2026" />
+          @if (form.controls.label.touched && form.controls.label.hasError('required')) {
+            <small class="field-error">El nombre visible es obligatorio.</small>
+          }
+        </label>
+
+        <label class="full-field">
+          <span>Observaciones</span>
+          <textarea
+            formControlName="notes"
+            rows="4"
+            placeholder="Notas internas para Sistemas"
+          ></textarea>
+        </label>
+
+        <div class="form-note">
+          <strong>Sin fechas obligatorias</strong>
+          <span>El ciclo se puede crear primero y activar en captura cuando Sistemas confirme el arranque.</span>
+        </div>
+
+        @if (formError) {
+          <div class="form-error" role="alert">
+            <strong>{{ formError }}</strong>
+            <small>{{ currentAccessDiagnostic() }}</small>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button class="secondary-action" type="button" [disabled]="isSaving" (click)="closeForm()">Cancelar</button>
+          <button class="primary-action" type="submit" [disabled]="isSaving">
+            {{ isSaving ? 'Guardando...' : 'Guardar ciclo' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+<section class="table-panel" aria-label="Tabla de ciclos">
+  <div class="panel-title">
+    <div>
+      <span>Control operativo</span>
+      <h3>Ciclos académicos</h3>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ciclo</th>
+          <th>Nombre</th>
+          <th>Estado</th>
+          <th>Creación</th>
+          <th>Captura</th>
+          <th>Cierre captura</th>
+          <th>Cierre</th>
+          <th>Observaciones</th>
+          <th>Acciones de Sistemas</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cycle of cycles(); track cycle.id) {
+          <tr>
+            <td><strong class="cycle-code">{{ cycle.code }}</strong></td>
+            <td>{{ cycle.label }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [class.capture]="cycle.status === 'Captura'"
+                [class.capture-closed]="cycle.status === 'Captura cerrada'"
+                [class.closed]="cycle.status === 'Cerrado'"
+              >
+                {{ cycle.status }}
+              </span>
+            </td>
+            <td>{{ formatDate(cycle.createdAt) }}</td>
+            <td>{{ formatDate(cycle.captureStartedAt) }}</td>
+            <td>{{ formatDate(cycle.captureClosedAt) }}</td>
+            <td>{{ formatDate(cycle.closedAt) }}</td>
+            <td>
+              <span class="notes">{{ cycle.notes || 'Sin observaciones' }}</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button
+                  class="capture-action icon-action"
+                  type="button"
+                  [disabled]="cycle.status !== 'Preparacion' && cycle.status !== 'Captura' && cycle.status !== 'Captura cerrada'"
+                  aria-label="Accion de captura"
+                  title="Accion de captura"
+                  (click)="
+                    cycle.status === 'Preparacion'
+                      ? startCapture(cycle)
+                      : cycle.status === 'Captura'
+                        ? closeCapture(cycle)
+                      : reopenCapture(cycle)
+                  "
+                >
+                  @if (cycle.status === 'Preparacion') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                  } @else if (cycle.status === 'Captura') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 3v18M5 8h14M5 16h14"></path>
+                    </svg>
+                  } @else if (cycle.status === 'Captura cerrada') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"></path>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M18 6 6 18M6 6l12 12"></path>
+                    </svg>
+                  }
+                </button>
+                <button
+                  class="text-action icon-action"
+                  type="button"
+                  [disabled]="cycle.status !== 'Captura cerrada'"
+                  aria-label="Cerrar ciclo"
+                  title="Cerrar ciclo"
+                  (click)="closeCycle(cycle)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 5h14v14H5zM9 9h6v6H9z"></path>
+                  </svg>
+                </button>
+                <button
+                  class="danger-action icon-action"
+                  type="button"
+                  [disabled]="!canDeleteCycle(cycle)"
+                  aria-label="Eliminar ciclo"
+                  title="Eliminar ciclo"
+                  (click)="deleteCycle(cycle)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,322 @@
+<section class="nomenclatures-overview">
+  <section class="nomenclatures-header">
+    <div>
+      <span>{{ canManageNomenclatures() ? 'Catalogo operativo' : 'Consulta operativa' }}</span>
+      <h2>Nomenclaturas de programas</h2>
+      <p>
+        {{
+          canManageNomenclatures()
+            ? 'Administra abreviaturas actuales y nuevos planes para validar importaciones de grupos.'
+            : 'Consulta las abreviaturas y planes registrados para validar grupos y asignaciones.'
+        }}
+      </p>
+    </div>
+
+    @if (canManageNomenclatures()) {
+      <div class="header-actions">
+        <label class="secondary-action import-action">
+          <span>Cargar CSV</span>
+          <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
+        </label>
+        <button
+          class="icon-template-action"
+          type="button"
+          aria-label="Descargar plantilla CSV"
+          title="Descargar plantilla CSV"
+          (click)="downloadCsvTemplate()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+          </svg>
+          <span>Plantilla</span>
+        </button>
+        <button class="primary-action" type="button" (click)="openForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          <span>Nueva nomenclatura</span>
+        </button>
+      </div>
+    } @else {
+      <div class="consultation-card">
+        <strong>Solo consulta</strong>
+      </div>
+    }
+
+    @if (csvImportMessage || csvImportErrors.length) {
+      <div class="import-feedback" [class.has-errors]="csvImportErrors.length">
+        @if (csvImportMessage) {
+          <strong>{{ csvImportMessage }}</strong>
+        }
+        @if (csvImportErrors.length) {
+          <strong>No se importo el CSV.</strong>
+          @for (error of csvImportErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ nomenclatures().length }}</strong>
+      <span>Nomenclaturas</span>
+    </article>
+    <article>
+      <strong>{{ activeNomenclaturesCount() }}</strong>
+      <span>Activas</span>
+    </article>
+    <article>
+      <strong>{{ inactiveNomenclaturesCount() }}</strong>
+      <span>Inactivas</span>
+    </article>
+    <article>
+      <strong>{{ registeredProgramsCount() }}</strong>
+      <span>Programas</span>
+    </article>
+    <article>
+      <strong>{{ usedNomenclaturesCount() }}</strong>
+      <span>Con uso historico</span>
+    </article>
+  </div>
+</section>
+
+@if (isFormOpen && canManageNomenclatures()) {
+  <div class="modal-backdrop" role="presentation" (click)="closeForm()">
+    <section
+      class="form-panel modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nomenclature-form-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>{{ modalEyebrow }}</span>
+          <h3 id="nomenclature-form-title">{{ modalTitle }}</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar formulario" (click)="closeForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveNomenclature()" class="nomenclature-form">
+        <label>
+          <span>Abreviatura</span>
+          <input type="text" formControlName="abbreviation" placeholder="Ej. ADEM" />
+          @if (duplicateAbbreviation) {
+            <small class="field-error">La abreviatura ya existe en el catalogo.</small>
+          }
+        </label>
+
+        <label>
+          <span>Nombre del programa</span>
+          <input type="text" formControlName="programName" placeholder="Ej. Administracion y Finanzas" />
+        </label>
+
+        <label>
+          <span>Coordinador responsable</span>
+          <select formControlName="coordinator">
+            <option value="">Selecciona coordinador</option>
+            @for (coordinator of coordinatorOptions(); track coordinator.label) {
+              <option [value]="coordinator.value">{{ coordinator.label }}</option>
+            }
+          </select>
+          @if (coordinatorOptions().length === 0) {
+            <small class="field-help">Registra usuarios activos con rol de coordinacion para asignarlos aqui.</small>
+          }
+        </label>
+
+        <label>
+          <span>Estado del programa</span>
+          <select formControlName="programStatus">
+            @for (status of programStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Nombre del plan</span>
+          <input type="text" formControlName="planName" placeholder="Ej. Plan 2023-2026" />
+        </label>
+
+        <label>
+          <span>Estado de abreviatura</span>
+          <select formControlName="status">
+            @for (status of nomenclatureStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="full-field">
+          <span>Observaciones</span>
+          <select formControlName="notes">
+            @for (area of institutionalAreas; track area) {
+              <option [value]="area">{{ area }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="form-note">
+          <strong>Regla de importacion</strong>
+          <span>Solo las abreviaturas activas seran validas para grupos nuevos. Las inactivas quedan para consulta historica.</span>
+        </div>
+
+        @if (saveError) {
+          <div class="form-error" role="alert">
+            {{ saveError }}
+          </div>
+        }
+
+        <div class="form-actions">
+          <button class="secondary-action" type="button" (click)="closeForm()">Cancelar</button>
+          <button class="primary-action" type="submit">{{ submitLabel }}</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+<section class="table-panel" aria-label="Tabla de nomenclaturas">
+  <div class="panel-title">
+    <div>
+      <h3>Abreviaturas registradas</h3>
+    </div>
+
+    <form class="table-filter" role="search" (submit)="$event.preventDefault(); applySearch()">
+      <label>
+        <span>Buscar nomenclatura</span>
+        <input
+          type="search"
+          [value]="searchDraft()"
+          placeholder="Abreviatura, programa, estado, plan o coordinador"
+          aria-label="Buscar por abreviatura, programa, estado, plan o coordinador"
+          (input)="updateSearchDraft($event)"
+        />
+      </label>
+
+      <button class="primary-action search-action" type="submit">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"></path>
+        </svg>
+        <span>Buscar</span>
+      </button>
+
+      @if (searchText()) {
+        <button class="secondary-action" type="button" (click)="clearSearch()">Limpiar</button>
+      }
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Abreviatura</th>
+          <th>Nombre del programa</th>
+          <th>Estado del programa</th>
+          <th>Nombre del plan</th>
+          <th>Estado de abreviatura</th>
+          <th>Coordinador responsable</th>
+          <th>Observaciones</th>
+          @if (canManageNomenclatures()) {
+            <th>Acciones de Sistemas</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (nomenclature of filteredNomenclatures(); track nomenclature.id) {
+          <tr>
+            <td><strong class="abbr-code">{{ nomenclature.abbreviation }}</strong></td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ nomenclature.programName }}</strong>
+              </div>
+            </td>
+            <td>{{ programStatusFor(nomenclature) }}</td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ nomenclature.planName }}</strong>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [class.inactive]="nomenclature.status === 'INACTIVA'">
+                {{ nomenclature.status }}
+              </span>
+            </td>
+            <td>{{ coordinatorFor(nomenclature) }}</td>
+            <td>
+              <span class="notes">{{ nomenclature.notes || 'Sin observaciones' }}</span>
+            </td>
+            @if (canManageNomenclatures()) {
+              <td>
+                <div class="table-actions">
+                  <button
+                    class="edit-action icon-action"
+                    type="button"
+                    aria-label="Editar nomenclatura"
+                    title="Editar nomenclatura"
+                    (click)="editNomenclature(nomenclature)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    class="text-action icon-action"
+                    type="button"
+                    [attr.aria-label]="statusActionLabel(nomenclature) + ' nomenclatura'"
+                    [title]="statusActionLabel(nomenclature)"
+                    (click)="toggleStatus(nomenclature)"
+                  >
+                    @if (nomenclature.status === 'ACTIVA') {
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18.4 5.6 5.6 18.4M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path>
+                      </svg>
+                    } @else {
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    }
+                  </button>
+                  <button
+                    class="danger-action icon-action"
+                    type="button"
+                    [disabled]="!canDelete(nomenclature)"
+                    aria-label="Eliminar nomenclatura"
+                    title="Eliminar nomenclatura"
+                    (click)="deleteNomenclature(nomenclature)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="tableColumnCount()">
+              <div class="empty-state">
+                <strong>{{ searchText() ? 'Sin resultados' : 'Sin nomenclaturas registradas' }}</strong>
+                <span>
+                  {{
+                    searchText()
+                      ? 'Ajusta la busqueda para consultar otras abreviaturas o programas.'
+                      : 'Sistemas debe cargarlas para preparar importaciones de grupos.'
+                  }}
+                </span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

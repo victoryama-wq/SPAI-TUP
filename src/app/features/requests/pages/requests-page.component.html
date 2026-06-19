@@ -1,0 +1,234 @@
+<section class="system-requests-panel main-system-requests" aria-labelledby="system-requests-title">
+  <div class="request-status-tabs" aria-label="Estados de solicitudes">
+    <button class="tab-pendiente" type="button" [class.active]="systemStatusFilter() === 'PENDIENTE'" (click)="systemStatusFilter.set('PENDIENTE')">
+      <span>Pendientes</span>
+    </button>
+    <button class="tab-proceso" type="button" [class.active]="systemStatusFilter() === 'EN_PROCESO'" (click)="systemStatusFilter.set('EN_PROCESO')">
+      <span>En proceso</span>
+    </button>
+    <button class="tab-atendida" type="button" [class.active]="systemStatusFilter() === 'ATENDIDA'" (click)="systemStatusFilter.set('ATENDIDA')">
+      <span>Atendidas</span>
+    </button>
+    <button class="tab-rechazada" type="button" [class.active]="systemStatusFilter() === 'RECHAZADA'" (click)="systemStatusFilter.set('RECHAZADA')">
+      <span>Rechazadas</span>
+    </button>
+    <button class="tab-todas" type="button" [class.active]="systemStatusFilter() === 'TODOS'" (click)="systemStatusFilter.set('TODOS')">
+      <span>Todas</span>
+    </button>
+  </div>
+
+  <div class="system-workspace">
+    <div class="system-main-column">
+    <div class="panel-title system-hero">
+      <div>
+        <span>Bandeja de Sistemas</span>
+        <h2 id="system-requests-title">Solicitudes a Sistemas</h2>
+        <p>Revisa y atiende las solicitudes enviadas por las coordinaciones academicas.</p>
+      </div>
+
+      <div class="system-summary">
+        <span><strong>{{ pendingSystemRequestsCount() }}</strong> Pendientes</span>
+        <span><strong>{{ inProgressSystemRequestsCount() }}</strong> En proceso</span>
+        <span><strong>{{ closedSystemRequestsCount() }}</strong> Cerradas</span>
+      </div>
+    </div>
+
+    <div class="system-inline-filters">
+      <label>
+        <span>Buscar</span>
+        <input
+          type="search"
+          [value]="systemSearchTerm()"
+          (input)="setSystemSearchTerm($any($event.target).value)"
+          placeholder="Solicitante, ciclo o detalle"
+        />
+      </label>
+
+      <label>
+        <span>Tipo</span>
+        <select [value]="systemTypeFilter()" (change)="selectSystemTypeFilter($event)">
+          <option value="TODOS">Todos</option>
+          @for (type of quickSystemRequestTypes(); track type) {
+            <option [value]="type">{{ systemRequestTypeLabel(type) }}</option>
+          }
+        </select>
+      </label>
+
+      <button class="filter-reset-action" type="button" (click)="clearSystemFilters()">Limpiar</button>
+    </div>
+
+  @if (formMessage && !isSystemResponseModalOpen) {
+    <div class="feedback compact-feedback">
+      <strong>{{ formMessage }}</strong>
+    </div>
+  }
+
+    <section class="system-request-list" aria-label="Lista de solicitudes a Sistemas">
+      @for (request of visibleSystemRequests(); track request.id) {
+        <article class="system-request-card">
+          <div class="system-request-main">
+            <span class="status-badge" [ngClass]="systemRequestStatusClass(request.status)">
+              {{ systemRequestStatusLabel(request.status) }}
+            </span>
+            <strong>{{ systemRequestTypeLabel(request.type) }}</strong>
+            <p>{{ request.detail }}</p>
+          </div>
+
+          <div class="system-request-meta">
+            <span>Ciclo: <strong>{{ request.cycle }}</strong></span>
+            <span>Solicita: <strong>{{ request.requestedByName }}</strong></span>
+            <span>Rol: <strong>{{ request.requestedByRole }}</strong></span>
+            <span>Fecha: <strong>{{ request.createdAt | date: 'short' }}</strong></span>
+          </div>
+
+          @if (request.systemResponse) {
+            <div class="system-response-note">
+              <span>Respuesta de Sistemas</span>
+              <p>{{ request.systemResponse }}</p>
+            </div>
+          }
+
+          <div class="row-actions system-request-actions">
+            <button
+              type="button"
+              class="icon-row-action"
+              [disabled]="!canRespondSystemRequest(request) || request.status === 'EN_PROCESO'"
+              aria-label="Marcar solicitud en proceso"
+              title="En proceso"
+              (click)="openSystemResponseModal(request, 'EN_PROCESO')"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="icon-row-action success-action"
+              [disabled]="!canRespondSystemRequest(request)"
+              aria-label="Marcar solicitud atendida"
+              title="Atendida"
+              (click)="openSystemResponseModal(request, 'ATENDIDA')"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="icon-row-action warning-action"
+              [disabled]="!canRespondSystemRequest(request)"
+              aria-label="Rechazar solicitud"
+              title="Rechazar"
+              (click)="openSystemResponseModal(request, 'RECHAZADA')"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+            @if (canDeleteSystemRequest()) {
+              <button
+                class="delete-request-action icon-row-action"
+                type="button"
+                aria-label="Eliminar solicitud"
+                title="Eliminar solicitud"
+                (click)="deleteSystemRequest(request)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                </svg>
+              </button>
+            }
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state compact-empty">
+          <strong>Sin solicitudes a Sistemas</strong>
+          <span>Las solicitudes creadas desde el dashboard de coordinacion apareceran aqui.</span>
+        </div>
+      }
+    </section>
+    </div>
+
+    <aside class="system-side-panel" aria-label="Herramientas de seguimiento de solicitudes">
+      <section class="side-card tracking-card">
+        <span>Seguimiento</span>
+        <h3>Estado de atencion</h3>
+        <p>{{ nextSystemAction() }}</p>
+      </section>
+
+      <section class="side-card">
+        <span>Por tipo</span>
+        <div class="type-summary-list">
+          @for (item of requestTypeSummary(); track item.label) {
+            <div>
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="side-card muted-side-card">
+        <span>Vista actual</span>
+        <strong>{{ visibleSystemRequests().length }}</strong>
+        <p>solicitudes visibles con los filtros aplicados.</p>
+      </section>
+    </aside>
+  </div>
+</section>
+
+@if (isSystemResponseModalOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeSystemResponseModal()">
+    <section
+      class="modal-panel compact-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="system-response-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Respuesta de Sistemas</span>
+          <h3 id="system-response-title">{{ systemRequestStatusLabel(systemResponseAction) }}</h3>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeSystemResponseModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedSystemRequest(); as request) {
+        <div class="response-summary">
+          <span>{{ systemRequestTypeLabel(request.type) }} - {{ request.cycle }}</span>
+          <strong>{{ request.requestedByName }}</strong>
+          <p>{{ request.detail }}</p>
+        </div>
+
+        <label class="response-field">
+          <span>Observaciones {{ systemResponseAction === 'RECHAZADA' ? '*' : '' }}</span>
+          <textarea
+            rows="5"
+            [(ngModel)]="systemResponseObservations"
+            placeholder="Respuesta o nota interna para dar seguimiento"
+          ></textarea>
+        </label>
+      }
+
+      @if (responseErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of responseErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeSystemResponseModal()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveSystemResponse()">
+          Guardar respuesta
+        </button>
+      </div>
+    </section>
+  </div>
+}

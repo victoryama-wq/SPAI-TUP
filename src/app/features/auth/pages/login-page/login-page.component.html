@@ -1,0 +1,81 @@
+<main class="login-shell" aria-labelledby="login-title">
+  <section class="login-panel">
+    <div class="login-brand">
+      <div class="brand-stage">
+        <div class="brand-message">
+          <img src="brand/tup-logo-full.png" alt="Tecnologico Universitario Playacar" />
+        </div>
+        <div class="mascot-frame" aria-hidden="true">
+          @for (pose of mascotPoses; track pose.key) {
+            <img
+              class="mascot-image"
+              [class.is-active]="mascotPose() === pose.key"
+              [src]="pose.src"
+              alt=""
+            />
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="login-content">
+      <p class="eyebrow">Sistema de Planeación Académica Institucional</p>
+      <h1 id="login-title">INICIO DE SESIÓN</h1>
+
+      @if (loginState() === 'loading') {
+        <div class="status-card" role="status">
+          <strong>Validando sesión</strong>
+          <span>Estamos revisando tu acceso institucional.</span>
+        </div>
+      }
+
+      @if (loginState() === 'signedOut') {
+        <button
+          class="google-button"
+          type="button"
+          [disabled]="busy()"
+          (click)="signIn()"
+        >
+          <span class="google-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path class="google-blue" d="M21.6 12.23c0-.78-.07-1.53-.2-2.23H12v4.22h5.38a4.6 4.6 0 0 1-1.99 3.02v2.51h3.22c1.89-1.74 2.99-4.3 2.99-7.52z"></path>
+              <path class="google-green" d="M12 22c2.7 0 4.96-.89 6.61-2.25l-3.22-2.51c-.9.6-2.04.95-3.39.95-2.6 0-4.81-1.75-5.6-4.12H3.08v2.59A9.98 9.98 0 0 0 12 22z"></path>
+              <path class="google-yellow" d="M6.4 14.07A6 6 0 0 1 6.08 12c0-.72.12-1.42.32-2.07V7.34H3.08A9.98 9.98 0 0 0 2 12c0 1.61.39 3.13 1.08 4.66l3.32-2.59z"></path>
+              <path class="google-red" d="M12 5.81c1.47 0 2.79.51 3.83 1.51l2.86-2.86C16.96 2.85 14.7 2 12 2a9.98 9.98 0 0 0-8.92 5.34L6.4 9.93C7.19 7.56 9.4 5.81 12 5.81z"></path>
+            </svg>
+          </span>
+          <span>{{ busy() ? 'Abriendo Google...' : 'Ingresar' }}</span>
+        </button>
+
+        <p>
+          Accede con tu correo institucional @tecplayacar.edu.mx
+        </p>
+      }
+
+      @if (loginState() === 'preparing') {
+        <div class="status-card" role="status">
+          <strong>Preparando tu perfil</strong>
+          <span>SPAI está creando tu registro inicial en Firestore.</span>
+        </div>
+      }
+
+      @if (loginState() === 'pending') {
+        <div class="status-card pending" role="status">
+          <strong>Acceso pendiente</strong>
+          <span>
+            {{ displayName() }} ya inició sesión. Sistemas debe activar tu usuario
+            y asignarte un rol antes de entrar al sistema.
+          </span>
+        </div>
+
+        <button class="secondary-button" type="button" (click)="signOut()">
+          Cambiar cuenta
+        </button>
+      }
+
+      @if (error()) {
+        <p class="login-error" role="alert">{{ error() }}</p>
+      }
+    </div>
+  </section>
+</main>

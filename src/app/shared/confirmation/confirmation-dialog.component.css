@@ -1,0 +1,154 @@
+.confirmation-backdrop {
+  align-items: center;
+  background: rgb(7 22 60 / 0.28);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 200;
+}
+
+.confirmation-panel {
+  background: #edf5ff;
+  border: 1px solid #9cc2ff;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgb(7 22 60 / 0.22);
+  color: #123c9c;
+  display: grid;
+  gap: 18px;
+  max-width: 560px;
+  padding: 20px 22px;
+  position: relative;
+  width: min(560px, 100%);
+}
+
+.confirmation-panel.danger {
+  background: #fff7f7;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.close-action {
+  align-items: center;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  height: 38px;
+  justify-content: center;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 38px;
+}
+
+.danger .close-action {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.close-action svg {
+  fill: none;
+  height: 20px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 20px;
+}
+
+.confirmation-copy {
+  display: grid;
+  gap: 8px;
+  padding-right: 46px;
+}
+
+.confirmation-copy span {
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.danger .confirmation-copy span {
+  color: #b91c1c;
+}
+
+.confirmation-copy h3 {
+  color: #07163c;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.danger .confirmation-copy h3 {
+  color: #7f1d1d;
+}
+
+.confirmation-copy p {
+  color: #123c9c;
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.danger .confirmation-copy p {
+  color: #991b1b;
+}
+
+.confirmation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.primary-action,
+.secondary-action {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 42px;
+  padding: 0 18px;
+}
+
+.primary-action {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.primary-action.danger-action {
+  background: #dc2626;
+}
+
+.secondary-action {
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+@media (max-width: 560px) {
+  .confirmation-panel {
+    padding: 18px;
+  }
+
+  .confirmation-copy {
+    padding-right: 42px;
+  }
+
+  .confirmation-actions {
+    justify-content: stretch;
+  }
+
+  .primary-action,
+  .secondary-action {
+    flex: 1 1 140px;
+  }
+}

@@ -1,0 +1,416 @@
+<section class="groups-overview">
+  <section class="groups-header">
+    <div>
+      <span>{{ canManageGroups() ? 'Administracion por ciclo' : 'Consulta por ciclo' }}</span>
+      <h2>Grupos academicos</h2>
+      <p>
+        {{
+          canManageGroups()
+            ? 'Importa grupos completos, valida abreviaturas y confirma modalidad, turno y area antes de guardar.'
+            : 'Consulta los grupos registrados por Sistemas para el ciclo activo o ciclos anteriores.'
+        }}
+      </p>
+    </div>
+
+    @if (canManageGroups()) {
+      <div class="header-actions">
+        <button class="primary-action" type="button" (click)="openManualGroupForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          <span>Nuevo grupo</span>
+        </button>
+        <label class="secondary-action import-action">
+          <span>Cargar CSV</span>
+          <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
+        </label>
+        <button
+          class="icon-template-action"
+          type="button"
+          aria-label="Descargar plantilla CSV"
+          title="Descargar plantilla CSV"
+          (click)="downloadCsvTemplate()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+          </svg>
+          <span>Plantilla</span>
+        </button>
+      </div>
+    } @else {
+      <div class="consultation-card">
+        <strong>Solo consulta</strong>
+      </div>
+    }
+
+    @if (csvImportMessage || csvImportErrors.length) {
+      <div class="import-feedback" [class.has-errors]="csvImportErrors.length">
+        @if (csvImportMessage) {
+          <strong>{{ csvImportMessage }}</strong>
+        }
+        @if (csvImportErrors.length) {
+          @for (error of csvImportErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ groups().length }}</strong>
+      <span>Grupos registrados</span>
+    </article>
+    <article>
+      <strong>{{ activeGroupsCount() }}</strong>
+      <span>Activos</span>
+    </article>
+    <article>
+      <strong>{{ cycleOptions().length }}</strong>
+      <span>Ciclos disponibles</span>
+    </article>
+    <article>
+      <strong>{{ nomenclatures().length }}</strong>
+      <span>Nomenclaturas</span>
+    </article>
+  </div>
+</section>
+
+@if (isManualGroupModalOpen && canManageGroups()) {
+  <div class="modal-backdrop" role="presentation" (click)="closeManualGroupForm()">
+    <section
+      class="form-panel modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manual-group-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>Alta individual</span>
+          <h3 id="manual-group-title">Nuevo grupo academico</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar formulario" (click)="closeManualGroupForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="manual-group-form">
+        <label>
+          <span>Grupo completo *</span>
+          <input
+            type="text"
+            [value]="manualGroupForm.fullGroup"
+            placeholder="Ej. 26-3 ENF 11 01A"
+            (input)="updateManualGroupField('fullGroup', $event)"
+          />
+        </label>
+
+        <label>
+          <span>Estado</span>
+          <select [value]="manualGroupForm.status" (change)="updateManualGroupField('status', $event)">
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="manual-help">
+        <strong>Formato requerido</strong>
+        <span>Usa ciclo, abreviatura, codigo y seccion. Ejemplo: 26-3 ENF 11 01A.</span>
+      </div>
+
+      @if (manualGroupErrors.length) {
+        <div class="import-feedback has-errors">
+          <strong>No se pudo guardar el grupo.</strong>
+          @for (error of manualGroupErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeManualGroupForm()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveManualGroup()">Guardar grupo</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (groupPendingDelete && canManageGroups()) {
+  <div class="modal-backdrop" role="presentation" (click)="cancelDeleteGroup()">
+    <section
+      class="form-panel modal-card delete-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-group-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>Accion de Sistemas</span>
+          <h3 id="delete-group-title">Eliminar grupo</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar confirmacion" (click)="cancelDeleteGroup()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="delete-summary">
+        <strong>{{ groupPendingDelete.fullGroup }}</strong>
+        <span>{{ groupPendingDelete.programName }} · {{ groupPendingDelete.status }}</span>
+        <p>Esta accion eliminara el grupo del catalogo operativo. Podras volver a cargarlo desde CSV si lo necesitas.</p>
+      </div>
+
+      @if (deleteGroupError) {
+        <div class="import-feedback has-errors">
+          <strong>No se pudo eliminar el grupo.</strong>
+          <span>{{ deleteGroupError }}</span>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="cancelDeleteGroup()">Cancelar</button>
+        <button class="danger-action" type="button" (click)="deleteSelectedGroup()">Eliminar</button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isCycleDeleteModalOpen && canManageGroups()) {
+  <div class="modal-backdrop" role="presentation" (click)="cancelDeleteCycleGroups()">
+    <section
+      class="form-panel modal-card delete-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-cycle-groups-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="panel-title">
+        <div>
+          <span>Accion de Sistemas</span>
+          <h3 id="delete-cycle-groups-title">Eliminar grupos de ciclo</h3>
+        </div>
+        <button class="icon-action" type="button" aria-label="Cerrar confirmacion" (click)="cancelDeleteCycleGroups()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="delete-summary">
+        <strong>Ciclo {{ selectedCycleCode }}</strong>
+        <span>{{ selectedCycleGroupsCount }} grupos seleccionados</span>
+        <p>Esta accion eliminara todos los grupos del ciclo seleccionado. Podras volver a cargarlos desde CSV.</p>
+      </div>
+
+      @if (deleteGroupError) {
+        <div class="import-feedback has-errors">
+          <strong>No se pudieron eliminar los grupos.</strong>
+          <span>{{ deleteGroupError }}</span>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="cancelDeleteCycleGroups()">Cancelar</button>
+        <button class="danger-action" type="button" (click)="deleteSelectedCycleGroups()">
+          Eliminar grupos
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (previewRows.length && canManageGroups()) {
+  <section class="preview-panel" aria-label="Vista previa de grupos">
+    <div class="panel-title">
+      <div>
+        <span>Revision antes de guardar</span>
+        <h3>Vista previa CSV</h3>
+      </div>
+      <div class="preview-actions">
+        <strong>{{ validPreviewCount }} validas</strong>
+        <strong class="observed-count">{{ observedPreviewCount }} con observacion</strong>
+        <button class="secondary-action" type="button" (click)="cancelPreview()">Cancelar</button>
+        <button class="primary-action" type="button" [disabled]="validPreviewCount === 0" (click)="savePreview()">
+          Guardar validas
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fila</th>
+            <th>Grupo completo</th>
+            <th>Ciclo</th>
+            <th>Siglas</th>
+            <th>Codigo</th>
+            <th>Seccion</th>
+            <th>Modalidad</th>
+            <th>Turno</th>
+            <th>Area academica</th>
+            <th>Programa</th>
+            <th>Estado</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of previewRows; track row.rowNumber) {
+            <tr [class.observed-row]="row.observations.length">
+              <td>{{ row.rowNumber }}</td>
+              <td><strong class="group-code">{{ row.payload?.fullGroup || row.sourceGroup || 'Sin grupo' }}</strong></td>
+              <td>{{ row.payload?.cycleCode || '-' }}</td>
+              <td>{{ row.payload?.programAbbreviation || '-' }}</td>
+              <td>{{ row.payload?.groupCode || '-' }}</td>
+              <td>{{ row.payload?.section || '-' }}</td>
+              <td>{{ row.payload?.modality || '-' }}</td>
+              <td>{{ row.payload?.shift || '-' }}</td>
+              <td>{{ row.payload?.academicArea || '-' }}</td>
+              <td>{{ row.programName || '-' }}</td>
+              <td>{{ row.payload?.status || row.activeText || '-' }}</td>
+              <td>
+                @if (row.observations.length) {
+                  <div class="observations">
+                    @for (observation of row.observations; track observation) {
+                      <span>{{ observation }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="valid-label">Lista para guardar</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+<section class="table-panel" aria-label="Tabla de grupos">
+  <div class="panel-title">
+    <div>
+      <span>Control operativo</span>
+      <h3>Grupos por ciclo</h3>
+    </div>
+
+    <div class="cycle-toolbar">
+      @if (isAcademicCoordinator()) {
+        <label class="group-scope-filter">
+          <span>Vista</span>
+          <select [value]="groupScopeFilter" (change)="updateGroupScope($event)">
+            <option value="MIS">Mis grupos</option>
+            <option value="TODOS">Todos los grupos</option>
+          </select>
+        </label>
+      }
+
+      <label class="group-search-filter">
+        <span>Buscar</span>
+        <input
+          type="search"
+          [value]="groupSearchTerm"
+          placeholder="Grupo o programa"
+          (input)="updateGroupSearch($event)"
+        />
+      </label>
+
+      <label class="cycle-filter">
+        <span>Ciclo</span>
+        <select [value]="selectedCycleCode" (change)="selectCycle($event)">
+          <option value="">Todos los ciclos</option>
+          @for (cycle of cycles(); track cycle.id) {
+            <option [value]="cycle.code">{{ cycleLabel(cycle.code) }}</option>
+          }
+        </select>
+      </label>
+
+      @if (canManageGroups()) {
+        <button
+          class="danger-action compact-danger-action"
+          type="button"
+          [disabled]="!selectedCycleCode || selectedCycleGroupsCount === 0"
+          (click)="askDeleteCycleGroups()"
+        >
+          Eliminar grupos de ciclo
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Grupo completo</th>
+          <th>Ciclo</th>
+          <th>Programa</th>
+          <th>Codigo</th>
+          <th>Seccion</th>
+          <th>Modalidad</th>
+          <th>Turno</th>
+          <th>Area academica</th>
+          <th>Estado</th>
+          @if (canManageGroups()) {
+            <th>Acciones</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (group of visibleGroups(); track group.id) {
+          <tr>
+            <td><strong class="group-code">{{ group.fullGroup }}</strong></td>
+            <td>{{ group.cycleCode }}</td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ group.programAbbreviation }}</strong>
+                <small>{{ group.programName }}</small>
+              </div>
+            </td>
+            <td>{{ group.groupCode }}</td>
+            <td>{{ group.section }}</td>
+            <td>{{ group.modality }}</td>
+            <td>{{ group.shift }}</td>
+            <td>{{ group.academicArea }}</td>
+            <td>
+              <span class="status-badge" [class.inactive]="statusClass(group.status) === 'inactive'">
+                {{ group.status }}
+              </span>
+            </td>
+            @if (canManageGroups()) {
+              <td>
+                <button
+                  class="table-danger-action icon-action"
+                  type="button"
+                  aria-label="Eliminar grupo"
+                  title="Eliminar grupo"
+                  (click)="askDeleteGroup(group)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                  </svg>
+                </button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="canManageGroups() ? 10 : 9">
+              <div class="empty-state">
+                <strong>Sin grupos registrados</strong>
+                <span>Sistemas debe cargar los grupos.</span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

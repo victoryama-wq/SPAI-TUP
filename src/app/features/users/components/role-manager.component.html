@@ -1,0 +1,87 @@
+<section class="role-panel" aria-label="Administrador de roles">
+  <div class="panel-title">
+    <div>
+      <span>Configuracion de accesos</span>
+      <h3>Roles personalizados</h3>
+      <p>Preparado para crear roles nuevos y definir si cada modulo es de consulta o edicion.</p>
+    </div>
+    <button class="primary-action" type="button" (click)="openModal()">Agregar rol</button>
+  </div>
+
+  <div class="roles-summary">
+    @if (roleTemplates().length) {
+      <span>{{ roleTemplates().length }} roles personalizados registrados en Firestore.</span>
+    } @else {
+      <span>Los roles existentes permanecen protegidos. Usa esta opcion solo para crear perfiles nuevos.</span>
+    }
+  </div>
+
+  @if (roleTemplates().length) {
+    <div class="roles-list" aria-label="Roles personalizados registrados">
+      @for (role of roleTemplates(); track role.id) {
+        <article class="role-item">
+          <div>
+            <strong>{{ role.name }}</strong>
+            <span>{{ rolePermissionSummary(role) }}</span>
+          </div>
+          <div class="role-actions">
+            <button class="secondary-action compact-action" type="button" (click)="editRole(role)">Editar</button>
+            <button class="danger-action compact-action" type="button" (click)="deleteRole(role)">Eliminar rol</button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (isModalOpen) {
+    <div class="modal-backdrop" role="presentation" (click)="closeModal()">
+      <section
+        class="role-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-role-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-title">
+          <div>
+            <span>{{ modalEyebrow }}</span>
+            <h3 id="new-role-title">{{ modalTitle }}</h3>
+          </div>
+          <button class="icon-action" type="button" aria-label="Cerrar modal" (click)="closeModal()">×</button>
+        </div>
+
+        <form [formGroup]="roleForm" (ngSubmit)="saveRole()" class="role-form">
+          <label class="role-name-field">
+            <span>Nombre del rol</span>
+            <input type="text" formControlName="name" placeholder="Ej. Capturista academico" />
+          </label>
+
+          <div class="permission-list">
+            @for (module of moduleOptions; track module.key) {
+            <label>
+              <span>{{ module.label }}</span>
+              <select
+                [value]="permissionFor(module.key)"
+                (change)="updateDraftPermission(module.key, $any($event.target).value)"
+              >
+                @for (level of permissionLevels; track level) {
+                  <option [value]="level">{{ permissionLabels[level] }}</option>
+                }
+              </select>
+            </label>
+          }
+          </div>
+
+          @if (saveError) {
+            <div class="form-error" role="alert">{{ saveError }}</div>
+          }
+
+          <div class="form-actions">
+            <button class="secondary-action" type="button" (click)="closeModal()">Cancelar</button>
+            <button class="primary-action" type="submit">{{ submitLabel }}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</section>

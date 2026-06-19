@@ -1,0 +1,470 @@
+<section class="subjects-overview">
+  <section class="subjects-header">
+    <div class="header-copy">
+      <span>Catalogo global</span>
+      <h2>Asignaturas</h2>
+      <p>Administra IDs unicos de asignatura y conserva nombres repetibles para distintas reticulas o contenidos.</p>
+    </div>
+
+    <div class="header-bottom">
+      @if (canManageSubjects()) {
+        <div class="header-actions">
+          <button class="primary-action" type="button" (click)="openManualModal()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            <span>Agregar asignatura</span>
+          </button>
+          <label class="secondary-action import-action">
+            <span>Importar CSV</span>
+            <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
+          </label>
+          <button
+            class="icon-template-action"
+            type="button"
+            aria-label="Descargar plantilla CSV"
+            title="Descargar plantilla CSV"
+            (click)="downloadCsvTemplate()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+            </svg>
+            <span>Plantilla</span>
+          </button>
+          <button
+            class="secondary-action cleanup-action"
+            type="button"
+            [disabled]="duplicateSubjectGroups().length === 0"
+            (click)="openDuplicateCleaner()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+            </svg>
+            <span>{{ duplicateSubjectGroups().length ? 'Depurar duplicados' : 'Sin duplicados' }}</span>
+            @if (duplicateSubjectGroups().length) {
+              <strong>{{ duplicateSubjectsToReviewCount() }}</strong>
+            }
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ subjects().length }}</strong>
+      <span>Registradas</span>
+    </article>
+    <article>
+      <strong>{{ activeSubjectsCount() }}</strong>
+      <span>Activas</span>
+    </article>
+    <article>
+      <strong>{{ inactiveSubjectsCount() }}</strong>
+      <span>Inactivas</span>
+    </article>
+    <article>
+      <strong>{{ visibleSubjects().length }}</strong>
+      <span>En vista actual</span>
+    </article>
+  </div>
+</section>
+
+@if (formMessage && !isManualModalOpen) {
+  <div class="feedback standalone-feedback dismissible-feedback">
+    <div>
+      <strong>{{ formMessage }}</strong>
+    </div>
+    <button type="button" aria-label="Cerrar mensaje" (click)="dismissFormMessage()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+}
+
+@if (formErrors.length && !isManualModalOpen) {
+  <div class="feedback standalone-feedback has-errors dismissible-feedback">
+    <div>
+      @for (error of formErrors; track error) {
+        <span>{{ error }}</span>
+      }
+    </div>
+    <button type="button" aria-label="Cerrar mensaje" (click)="dismissFormMessage()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+}
+
+@if (csvImportMessage || csvImportErrors.length) {
+  <div class="feedback standalone-feedback dismissible-feedback" [class.has-errors]="csvImportErrors.length">
+    <div>
+      @if (csvImportMessage) {
+        <strong>{{ csvImportMessage }}</strong>
+      }
+      @for (error of csvImportErrors; track error) {
+        <span>{{ error }}</span>
+      }
+    </div>
+    <button type="button" aria-label="Cerrar mensaje de importacion" (click)="dismissCsvFeedback()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+}
+
+@if (previewRows.length) {
+  <section class="preview-panel" aria-label="Vista previa de asignaturas">
+    <div class="panel-title">
+      <div>
+        <span>Resumen antes de importar</span>
+        <h3>Vista previa CSV</h3>
+      </div>
+      <div class="preview-actions">
+        <strong>{{ validPreviewCount }} validos</strong>
+        <strong class="duplicate-count">{{ duplicatePreviewCount }} nombres repetidos</strong>
+        <strong class="error-count">{{ errorPreviewCount }} con error</strong>
+        <button class="secondary-action" type="button" (click)="cancelPreview()">Cancelar</button>
+        <button class="primary-action" type="button" [disabled]="validPreviewCount === 0" (click)="savePreview()">
+          Importar validos
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fila</th>
+            <th>ID de asignatura</th>
+            <th>Nombre de asignatura</th>
+            <th>Estatus</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of previewRows; track row.rowNumber) {
+            <tr [class.observed-row]="row.observations.length || row.warnings.length">
+              <td>{{ row.rowNumber }}</td>
+              <td><strong class="subject-id">{{ row.subjectId || 'Sin ID' }}</strong></td>
+              <td>{{ row.name || '-' }}</td>
+              <td>{{ row.payload?.status || row.activeText || 'Activo' }}</td>
+              <td>
+                @if (row.observations.length) {
+                  <div class="observations">
+                    @for (observation of row.observations; track observation) {
+                      <span>{{ observation }}</span>
+                    }
+                  </div>
+                } @else if (row.warnings.length) {
+                  <div class="observations warning-observations">
+                    @for (warning of row.warnings; track warning) {
+                      <span>{{ warning }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="valid-label">Lista para guardar</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+<section class="table-panel" aria-label="Tabla de asignaturas">
+  <div class="panel-title">
+    <div>
+      <span>Control operativo</span>
+      <h3>{{ canManageSubjects() ? 'Catalogo de asignaturas' : 'Asignaturas activas' }}</h3>
+    </div>
+
+    <div class="table-tools">
+      <div class="search-field table-search">
+        <input
+          type="search"
+          [value]="searchInput()"
+          (input)="updateSearch($event)"
+          (keyup.enter)="searchSubjects()"
+          placeholder="ID o nombre"
+        />
+        <button class="search-action" type="button" (click)="searchSubjects()">Buscar</button>
+        @if (appliedSearchTerm()) {
+          <button class="clear-action" type="button" (click)="clearSearch()">Limpiar</button>
+        }
+      </div>
+    </div>
+
+    @if (canManageSubjects()) {
+      <div class="filters">
+        <label>
+          <span>Estatus</span>
+          <select [value]="statusFilter()" (change)="selectStatus($event)">
+            <option value="TODOS">Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </label>
+      </div>
+    }
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID de asignatura</th>
+          <th>Nombre de asignatura</th>
+          <th>Estatus</th>
+          <th>Creado por</th>
+          <th>Fecha de creacion</th>
+          @if (canManageSubjects()) {
+            <th>Acciones</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (subject of paginatedSubjects(); track subject.id) {
+          <tr>
+            <td><strong class="subject-id">{{ subject.subjectId }}</strong></td>
+            <td>
+              <div class="subject-name-cell">
+                <span>{{ subject.name }}</span>
+                @if (hasDuplicateSubjectName(subject)) {
+                  <small
+                    class="duplicate-name-badge"
+                    [title]="'Tambien aparece con ID: ' + duplicateSubjectIds(subject).join(', ')"
+                  >
+                    Nombre repetido
+                    <span>{{ duplicateSubjectIds(subject).join(', ') }}</span>
+                  </small>
+                }
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="statusClass(subject.status)">
+                {{ subject.status }}
+              </span>
+            </td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ subject.createdByName }}</strong>
+                <small>{{ subject.createdByRole }}</small>
+              </div>
+            </td>
+            <td>{{ subject.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            @if (canManageSubjects()) {
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="icon-row-action" aria-label="Editar asignatura" title="Editar" (click)="editSubject(subject)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                    </svg>
+                  </button>
+                  @if (subject.status === 'Activo') {
+                    <button type="button" class="icon-row-action warning-action" aria-label="Inactivar asignatura" title="Inactivar" (click)="updateSubjectStatus(subject, 'Inactivo')">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18.4 5.6 5.6 18.4M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path>
+                      </svg>
+                    </button>
+                  } @else {
+                    <button type="button" class="icon-row-action success-action" aria-label="Activar asignatura" title="Activar" (click)="updateSubjectStatus(subject, 'Activo')">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    </button>
+                  }
+                  <button type="button" class="icon-row-action danger-action" aria-label="Eliminar asignatura" title="Eliminar" (click)="deleteSubject(subject)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="canManageSubjects() ? 6 : 5">
+              <div class="empty-state">
+                <strong>Sin asignaturas registradas</strong>
+                <span>Agrega una asignatura manualmente o importa un CSV desde Sistemas.</span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (visibleSubjects().length) {
+    <div class="pagination-bar" aria-label="Paginacion de asignaturas">
+      <span>
+        Mostrando {{ paginationStart() }}-{{ paginationEnd() }} de {{ visibleSubjects().length }} asignaturas
+      </span>
+
+      <div class="pagination-controls">
+        <label>
+          <span>Por pagina</span>
+          <select [value]="pageSize" (change)="selectPageSize($event)">
+            @for (option of pageSizeOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        </label>
+
+        <button type="button" [disabled]="currentSafePage() === 1" (click)="goToPreviousPage()">
+          Anterior
+        </button>
+        <strong>{{ currentSafePage() }} / {{ totalSubjectPages() }}</strong>
+        <button type="button" [disabled]="currentSafePage() === totalSubjectPages()" (click)="goToNextPage()">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (isDuplicateCleanerOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeDuplicateCleaner()">
+    <section
+      class="modal-panel duplicate-cleaner-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="duplicate-cleaner-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Depuracion de catalogo</span>
+          <h3 id="duplicate-cleaner-title">Asignaturas con nombre repetido</h3>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeDuplicateCleaner()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="duplicate-cleaner-summary">
+        <strong>{{ duplicateSubjectGroups().length }} nombres repetidos</strong>
+        <span>{{ duplicateSubjectsToReviewCount() }} registros candidatos para depurar.</span>
+      </div>
+
+      <div class="duplicate-group-list">
+        @for (group of duplicateSubjectGroups(); track group.normalizedName) {
+          <article class="duplicate-group">
+            <div class="duplicate-group-header">
+              <div>
+                <strong>{{ group.name }}</strong>
+                <span>{{ group.subjects.length }} registros con el mismo nombre</span>
+              </div>
+              <div class="duplicate-group-actions">
+                <button type="button" (click)="selectDuplicateGroupForCleanup(group)">Marcar sugeridos</button>
+                <button type="button" (click)="clearDuplicateGroupSelection(group)">Limpiar</button>
+              </div>
+            </div>
+
+            <div class="duplicate-subject-list">
+              @for (subject of group.subjects; track subject.id; let first = $first) {
+                <label class="duplicate-subject-row" [class.keep-suggested]="first">
+                  <input
+                    type="checkbox"
+                    [checked]="isDuplicateSubjectSelected(subject)"
+                    [disabled]="first"
+                    (change)="toggleDuplicateSubject(subject, $event)"
+                  />
+                  <span class="duplicate-subject-id">{{ subject.subjectId }}</span>
+                  <span>{{ subject.status }}</span>
+                  <small>{{ first ? 'Conservar sugerido' : 'Marcar para eliminar' }}</small>
+                </label>
+              }
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeDuplicateCleaner()">Cancelar</button>
+        <button
+          class="primary-action danger-primary-action"
+          type="button"
+          [disabled]="selectedDuplicateCount() === 0"
+          (click)="deleteSelectedDuplicateSubjects()"
+        >
+          Eliminar {{ selectedDuplicateCount() }} seleccionadas
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isManualModalOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeManualModal()">
+    <section
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manual-subject-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>{{ modalEyebrow }}</span>
+          <h3 id="manual-subject-title">{{ modalTitle }}</h3>
+        </div>
+        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeManualModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="subject-form">
+        <label>
+          <span>ID de asignatura *</span>
+          <input
+            type="text"
+            [ngModel]="manualForm.subjectId || suggestedSubjectId()"
+            (ngModelChange)="manualForm.subjectId = $event"
+            [placeholder]="suggestedSubjectId() || 'ID interno SPAI'"
+          />
+          @if (!editingSubjectId && suggestedSubjectId()) {
+            <small>ID sugerido por SPAI: {{ suggestedSubjectId() }}</small>
+          } @else if (editingSubjectId) {
+            <small>Si corriges el ID, SPAI reemplazara el registro anterior por el nuevo.</small>
+          }
+        </label>
+        <label>
+          <span>Nombre de asignatura *</span>
+          <input type="text" [(ngModel)]="manualForm.name" placeholder="DERECHO TRIBUTARIO SUSTANTIVO" />
+        </label>
+        <label>
+          <span>Estatus</span>
+          <select [(ngModel)]="manualForm.status">
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </label>
+      </div>
+
+      @if (formErrors.length) {
+        <div class="feedback has-errors">
+          @for (error of formErrors; track error) {
+            <span>{{ error }}</span>
+          }
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="secondary-action" type="button" (click)="closeManualModal()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveManualSubject()">{{ submitLabel }}</button>
+      </div>
+    </section>
+  </div>
+}

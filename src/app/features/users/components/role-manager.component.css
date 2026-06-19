@@ -1,0 +1,277 @@
+.role-panel {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #cfe0f6;
+  border-radius: 8px;
+  box-shadow: none;
+  display: grid;
+  gap: 14px;
+  height: 100%;
+  margin-bottom: 0;
+  max-width: none;
+  overflow: hidden;
+  padding: 20px 22px;
+  position: relative;
+}
+
+.role-panel::before {
+  background: linear-gradient(180deg, #1d4ed8, #0ea5e9);
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 4px;
+}
+
+.panel-title {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.panel-title span {
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-title h3 {
+  color: #06174a;
+  font-size: 22px;
+  margin: 4px 0 4px;
+}
+
+.panel-title p {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.roles-summary {
+  background: #f9fbff;
+  border: 1px dashed #adc4e6;
+  border-radius: 8px;
+  color: #40577a;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.roles-list {
+  display: grid;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.role-item {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cfe0f6;
+  border-radius: 8px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.role-item div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.role-item strong {
+  color: #07163c;
+  font-size: 15px;
+}
+
+.role-item span {
+  color: #40577a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.role-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgb(7 22 60 / 0.54);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 28px;
+  position: fixed;
+  z-index: 120;
+}
+
+.role-modal {
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgb(7 22 60 / 0.3);
+  max-height: calc(100vh - 56px);
+  max-width: 980px;
+  overflow: auto;
+  padding: 26px 30px 30px;
+  width: min(980px, 100%);
+}
+
+.modal-title {
+  align-items: start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.modal-title span {
+  color: #1457d6;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.modal-title h3 {
+  color: #07163c;
+  font-size: clamp(22px, 2.4vw, 30px);
+  margin: 6px 0 0;
+}
+
+.icon-action {
+  background: #edf4ff;
+  border: 0;
+  border-radius: 999px;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 900;
+  height: 42px;
+  line-height: 1;
+  width: 42px;
+}
+
+.role-form {
+  display: grid;
+  gap: 18px;
+}
+
+.role-form label,
+.role-name-field {
+  display: grid;
+  gap: 8px;
+}
+
+.role-form label span,
+.permission-list label span {
+  color: #07163c;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.role-form input,
+.permission-list select {
+  background: #f9fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #07163c;
+  min-height: 44px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.primary-action {
+  align-items: center;
+  background: linear-gradient(180deg, #2d72e8, #1d4ed8);
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.danger-action {
+  align-items: center;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  color: #be123c;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.compact-action {
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.permission-list {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.permission-list label {
+  display: grid;
+  gap: 6px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.form-error {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  color: #9f1239;
+  font-size: 14px;
+  font-weight: 900;
+  padding: 14px 16px;
+}
+
+.secondary-action {
+  align-items: center;
+  background: #edf4ff;
+  border: 0;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+@media (max-width: 1200px) {
+  .permission-list {
+    grid-template-columns: 1fr;
+  }
+}
