@@ -647,7 +647,7 @@ export class AssignmentsPageComponent {
   }
 
   searchSuggestions(): string[] {
-    const query = this.normalizeSearch(this.searchQuery());
+    const query = this.searchQuery();
     const options = new Set<string>();
     const scopedAssignments = this.assignments().filter((assignment) => {
       const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
@@ -677,7 +677,7 @@ export class AssignmentsPageComponent {
     }
 
     return Array.from(options)
-      .filter((option) => !query || this.normalizeSearch(option).includes(query))
+      .filter((option) => this.matchesSearchText(option, query))
       .sort((a, b) => a.localeCompare(b, 'es'))
       .slice(0, 30);
   }
@@ -842,25 +842,37 @@ export class AssignmentsPageComponent {
   }
 
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
-    const query = this.normalizeSearch(this.searchQuery());
+    const query = this.searchQuery();
 
-    if (!query) {
+    if (!this.normalizeSearch(query)) {
       return true;
     }
 
     if (this.searchField() === 'program') {
-      return this.normalizeSearch(assignment.program).includes(query);
+      return this.matchesSearchText(assignment.program, query);
     }
 
     if (this.searchField() === 'group') {
-      return this.normalizeSearch(assignment.group).includes(query);
+      return this.matchesSearchText(assignment.group, query);
     }
 
     if (this.searchField() === 'teacher') {
-      return this.normalizeSearch(`${assignment.teacherName} ${assignment.teacherMoodleUser}`).includes(query);
+      return this.matchesSearchText(`${assignment.teacherName} ${assignment.teacherMoodleUser}`, query);
     }
 
-    return this.normalizeSearch(`${assignment.subjectId} ${assignment.subjectName}`).includes(query);
+    return this.matchesSearchText(`${assignment.subjectId} ${assignment.subjectName}`, query);
+  }
+
+  private matchesSearchText(text: string, query: string): boolean {
+    const normalizedText = this.normalizeSearch(text);
+    const normalizedQuery = this.normalizeSearch(query);
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return normalizedText.includes(normalizedQuery)
+      || normalizedQuery.split(' ').every((token) => normalizedText.includes(token));
   }
 
   private normalizeSearch(value: string): string {
@@ -868,7 +880,10 @@ export class AssignmentsPageComponent {
       .trim()
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab | null {
