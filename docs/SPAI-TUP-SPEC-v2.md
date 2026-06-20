@@ -197,16 +197,22 @@ Lineamientos:
 - Los titulos de paneles deben mantener tamaño consistente con el encabezado institucional.
 - El dashboard debe incluir un panel de bienvenida personalizado debajo del nombre del panel operativo.
 - El panel de bienvenida debe tomar el nombre y rol desde el documento activo del usuario en Firestore.
-- El saludo institucional implementado es `Bienvenid@` para no inferir genero desde el nombre ni usar formato `a/o`.
+- El saludo institucional del dashboard debe usar `Bienvenida` o `Bienvenido` segun el campo `greetingGender` del usuario.
+- El modulo Usuarios debe permitir definir el saludo del usuario con selector simple:
+  - `Femenino` -> `Bienvenida`.
+  - `Masculino` -> `Bienvenido`.
+- Si el usuario no tiene `greetingGender`, el dashboard puede inferir temporalmente el saludo desde el primer nombre; al editar el usuario, Sistemas debe poder corregirlo.
+- No se usa `Bienvenid@` ni formato `a/o` en el dashboard.
 - Ejemplos de bienvenida:
 
 ```text
-Bienvenid@ Auxiliar de Sistemas
-Bienvenid@ Coordinacion de Sistemas
-Bienvenid@ Coordinacion Academica
+Bienvenido Auxiliar de Sistemas Juan Perez
+Bienvenida Coordinacion de Sistemas Maria Torres
+Bienvenida Coordinacion Academica Ana Lopez
 ```
 
 - El panel de bienvenida debe conectarse a Firebase Authentication y al documento del usuario en Firestore cuando exista persistencia.
+- El panel muestra como metadatos de sesion el rol operativo y el ultimo acceso.
 - Si no existe usuario activo en Firestore, el dashboard no debe mostrar nombres demo ni `displayName` de Google; debe mostrar un estado institucional neutro.
 - El dashboard contempla metricas conectadas a Firestore: **Usuarios activos**, **Ciclos registrados**, **Ciclo activo** y **Roles personalizados**.
 - El dashboard ya no debe mostrar tarjetas demo de avance de modulos ni tarjetas tecnicas como estado Firebase.
@@ -296,6 +302,8 @@ Reglas de correo institucional:
 - Solo se permiten letras, numeros, punto, guion y guion bajo en el usuario del correo.
 - Estado implementado: usuarios y accesos se guardan en la coleccion `usuarios`; no existe aun una coleccion separada `usuarios_permisos`.
 - Los permisos por modulo se guardan embebidos en el documento del usuario como `access`.
+- El formulario de usuario incluye el campo **Saludo** para guardar `greetingGender` con valores `Femenino` o `Masculino`.
+- Este campo controla el texto del panel de bienvenida del dashboard: `Bienvenida` o `Bienvenido`.
 
 Estados de usuario:
 
@@ -1382,7 +1390,7 @@ bitacora
 Notas de implementacion actual:
 
 - `usuarios_permisos` queda pendiente; los permisos por modulo viven embebidos en `usuarios.access`.
-- `usuarios` usa actualmente campos frontend en ingles: `authUid`, `name`, `email`, `role`, `assignedPrograms`, `access`, `status`, `createdAt`, `updatedAt`.
+- `usuarios` usa actualmente campos frontend en ingles: `authUid`, `name`, `email`, `role`, `greetingGender`, `assignedPrograms`, `access`, `status`, `createdAt`, `updatedAt`.
 - `roles_personalizados` usa `name`, `description`, `permissions`, `createdAt` y `updatedAt`.
 - `ciclos` usa `code`, `label`, `status`, `notes`, `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`.
 - `programas` y `nomenclaturas_programas` ya estan implementadas para el modulo Nomenclaturas.
@@ -1415,6 +1423,7 @@ export type RolUsuario =
   | 'Auxiliar de Sistemas'
 
 export type EstadoUsuario = 'Activo' | 'Inactivo'
+export type GeneroSaludoUsuario = 'Femenino' | 'Masculino'
 
 export type NivelPermiso = 'sin_acceso' | 'consulta' | 'edicion'
 
@@ -1439,6 +1448,7 @@ export interface Usuario {
   nombre: string
   correo: string
   rol: RolUsuario
+  genero_saludo?: GeneroSaludoUsuario
   programas_asignados: string[]
   accesos: AccesosModulo
   estado: EstadoUsuario
@@ -1892,7 +1902,8 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 - Roles base implementados: Coordinacion de Sistemas, Auxiliar de Sistemas y Coordinacion Academica.
 - Roles personalizados implementados con alta, edicion y eliminacion.
 - Los roles personalizados aparecen como opciones al crear o editar usuarios.
-- El saludo del dashboard se controla por usuario: `Bienvenida` o `Bienvenido`.
+- El saludo del dashboard se controla por usuario mediante `greetingGender`: `Bienvenida` o `Bienvenido`.
+- El formulario de Usuarios ya incluye selector **Saludo** para definir el texto del panel de bienvenida.
 - En alta de usuario, el dominio `@tecplayacar.edu.mx` se muestra integrado para evitar capturas inconsistentes.
 - Para Coordinacion Academica, los modulos Usuarios y Ciclos no se muestran.
 - Coordinacion Academica consulta Nomenclaturas y Grupos, pero no administra esos catalogos.
