@@ -1,7 +1,7 @@
 # SPAI TUP - Especificacion del Proyecto v2
 
 Fecha: 2026-05-27  
-Ultima actualizacion: 2026-06-18  
+Ultima actualizacion: 2026-06-20
 Proyecto: **Sistema de Planeación Académica Institucional TUP**  
 Nombre corto: **SPAI TUP**
 
@@ -11,7 +11,7 @@ SPAI TUP sera una plataforma web institucional para administrar la planeación a
 
 La primera version se enfocara en planeacion academica base y procesos operativos de Sistemas. El modulo de horarios queda suspendido para el MVP y se considera fase futura.
 
-### Estado funcional actual al 18 de junio de 2026
+### Estado funcional actual al 20 de junio de 2026
 
 SPAI TUP ya cuenta con una base Angular/Firebase funcional para pruebas operativas reales en entorno local y preparacion de despliegue en Firebase Hosting.
 
@@ -21,11 +21,11 @@ Modulos implementados o en integracion funcional:
 - Dashboard por rol con ciclo activo, tarjetas reales de Firestore, bienvenida institucional y accesos por modulo.
 - Usuarios y roles con alta, edicion, activacion/inactivacion, permisos por modulo y roles personalizados.
 - Ciclos con creacion, activacion de captura, cierre, reapertura, eliminacion de ciclos de preparacion y ciclo activo global.
-- Nomenclaturas con alta manual, carga CSV, edicion, inhabilitacion, eliminacion permitida, asignacion de coordinador responsable y sincronizacion con programas asignados.
-- Grupos con carga CSV, alta individual por Sistemas, actualizacion masiva por CSV, busqueda, filtro por ciclo, eliminacion individual y eliminacion de grupos por ciclo.
-- Docentes con catalogo global, alta manual, carga CSV, asignacion a una o varias coordinaciones, validacion por Sistemas, inactivacion y eliminacion de docentes inactivos.
+- Nomenclaturas con alta manual, carga CSV, edicion, inhabilitacion, eliminacion permitida, asignacion de coordinador responsable, sincronizacion con programas asignados y paginacion.
+- Grupos con carga CSV, alta individual por Sistemas, ciclo activo integrado en alta individual, actualizacion masiva por CSV, busqueda, filtro por ciclo, paginacion, eliminacion individual y eliminacion de grupos por ciclo seleccionado.
+- Docentes con catalogo global, alta manual, correo derivado del usuario Moodle, carga CSV, asignacion a una o varias coordinaciones, validacion por Sistemas, inactivacion y eliminacion de docentes inactivos.
 - Asignaturas con catalogo global, carga CSV y consulta operativa.
-- Asignaciones academicas con captura por ciclo activo, filtros, separacion por modalidad/area, docente temporal y soporte visual de clase compartida.
+- Asignaciones academicas con captura por ciclo activo, busqueda predictiva por programa/grupo/docente/asignatura, separacion por modalidad/area, docente temporal y soporte visual de clase compartida.
 - Solicitudes a Sistemas desde dashboard para Coordinacion Academica y bandeja de seguimiento para Sistemas.
 - Notificaciones por campana para Sistemas y Coordinacion Academica segun flujo operativo.
 - Bitacora base para registrar acciones relevantes.
@@ -558,6 +558,10 @@ Reglas:
 - Para asignar varias coordinaciones en un mismo docente desde CSV, se pueden separar valores por `;`, `|` o coma dentro de una celda entre comillas.
 - Coordinacion Academica puede alternar entre catalogo global y subpanel **Mis docentes**.
 - El subpanel **Mis docentes** muestra docentes asignados explicitamente a esa coordinacion o relacionados por programas asignados.
+- En alta manual, el correo institucional se deriva del `usuario_moodle`; el usuario Moodle equivale a la parte local del correo sin dominio.
+- El campo de correo en el modal de nuevo docente debe mostrarse como dato derivado de solo lectura con el dominio fijo `@tecplayacar.edu.mx`.
+- Ejemplo: si se captura `jperez` como usuario Moodle, el sistema guarda `jperez@tecplayacar.edu.mx`.
+- Si se pega un correo completo en el campo de usuario Moodle, el sistema conserva solo la parte local antes de `@`.
 - La carga CSV de docentes se inicia desde el boton principal **Cargar CSV**; al presionarlo debe abrir directamente el explorador de archivos.
 - No debe mostrarse un panel redundante de `Importar docentes` antes de seleccionar archivo.
 - La vista de importacion CSV solo aparece cuando existe previsualizacion, mensaje o error de importacion.
@@ -665,6 +669,7 @@ Estado implementado:
 - En importacion CSV de nomenclaturas, la columna `observaciones` tambien alimenta `notes`.
 - La deteccion de area de grupos usa primero `notes` de la nomenclatura; si contiene Facultad, Salud o Facultad de Ciencias de la Salud, el grupo se clasifica como `Facultad de Ciencias de la Salud`.
 - Si `notes` contiene Campus o Campus TUP, el grupo se clasifica como `Campus TUP`.
+- La tabla de Nomenclaturas debe usar paginacion y selector de registros por pagina para evitar scroll excesivo.
 
 ## 10. Ciclos academicos
 
@@ -787,6 +792,7 @@ Reglas:
 - Si `id_docente` viene vacio, el sistema lo genera.
 - Si `estatus` viene vacio, se guarda como `VALIDADO`.
 - `correo` es opcional.
+- En alta manual, `correo` ya no se captura como dato independiente; se construye desde `usuario_moodle` y el dominio institucional.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
 - El enlace puede hacerse por nombre, correo institucional, `authUid` o ID interno.
@@ -845,8 +851,11 @@ Reglas:
 - La importacion CSV funciona como upsert para actualizar registros existentes.
 - Sistemas puede eliminar un grupo individual.
 - Sistemas puede eliminar todos los grupos de un ciclo seleccionado desde el modulo Grupos.
-- El boton de eliminar grupos de ciclo permanece inhabilitado hasta seleccionar un ciclo.
+- El boton de eliminar grupos de ciclo permanece inhabilitado hasta seleccionar un ciclo; al entrar con `Todos los ciclos` no debe aparecer habilitado.
 - La vista cuenta con barra de busqueda para localizar grupos cargados.
+- La tabla de Grupos debe usar paginacion y selector de registros por pagina para evitar scroll excesivo.
+- En alta individual de grupo, el ciclo activo operativo se antepone automaticamente al grupo; el usuario captura solo abreviatura, codigo y seccion.
+- En el modal de nuevo grupo, el campo visible debe seguir llamandose **Grupo**; el ciclo operativo fijo se muestra integrado junto al campo, no como captura repetida.
 - Coordinacion Academica ve por defecto sus grupos asignados; puede consultar todos los grupos cuando se habilite la vista correspondiente.
 
 Flujo de importacion:
@@ -888,7 +897,8 @@ Reglas:
 - El docente puede quedar temporalmente como `TEMPORALMENTE SIN DOCENTE` cuando aun no este definido.
 - El grupo se selecciona de Grupos del ciclo activo.
 - La asignacion pertenece a un ciclo.
-- El coordinador debe capturar el ID asignatura que se usara para buscar la asignacion.
+- El coordinador debe capturar el ID Moodle de la asignacion, separado del ID interno SPAI de la asignatura.
+- En la interfaz de Asignaciones, el ID capturado se trata como ID Moodle operativo para busqueda, seguimiento y futura exportacion.
 - El ID asignatura de captura no debe duplicarse dentro del mismo ciclo, salvo clases compartidas aprobadas.
 - Si una clase se comparte, la clase origen y destino deben compartir el mismo ID asignatura de captura.
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
@@ -900,13 +910,24 @@ Reglas:
 - Si el ciclo activo esta en `Preparacion`, `Captura cerrada` o `Cerrado`, el modulo muestra mensaje claro y bloquea alta/edicion.
 - Las acciones importantes se registran en Bitacora.
 - Horarios y exportacion Moodle final quedan fuera de este modulo por ahora.
+- No debe existir campo ni columna **Distribucion** dentro de Asignaciones.
 
 Vista implementada:
 
 - El ciclo no se selecciona manualmente; se toma del ciclo activo operativo.
 - El ciclo activo operativo se obtiene desde `CyclesRepository.activeCycle`.
-- El ciclo activo se muestra en un recuadro azul claro dentro del panel de filtros.
+- El ciclo activo no debe repetirse dentro de la barra de busqueda/filtros porque ya aparece en el encabezado global del sistema.
 - El panel principal se llama `Asignaciones academicas`.
+- La busqueda principal debe ser una barra predictiva, no una lista desplegable larga.
+- La barra permite elegir el criterio **Buscar por**:
+  - Programa.
+  - Grupo.
+  - Docente.
+  - Asignatura.
+- Mientras el usuario escribe, el sistema muestra sugerencias predictivas compactas dentro o junto a la misma barra de busqueda.
+- Las sugerencias deben calcularse segun ciclo activo, permisos del usuario y pestaña activa.
+- En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud.
+- En la pestaña Escolarizado, las sugerencias de grupo deben limitarse a grupos escolarizados que no pertenezcan a Facultad de Ciencias de la Salud.
 - Las asignaciones se separan por pestañas estilo navegador en la parte superior derecha del panel:
   - Escolarizado.
   - Ejecutivo.
@@ -914,11 +935,18 @@ Vista implementada:
   - Salud.
   - Posgrados.
   - Especiales.
+- Regla vigente por pestana:
+  - Escolarizado: solo grupos con modalidad Escolarizado y area academica distinta de Facultad de Ciencias de la Salud.
+  - Ejecutivo: solo grupos con modalidad Ejecutivo y area academica distinta de Facultad de Ciencias de la Salud.
+  - Virtual: grupos virtuales del area Campus TUP.
+  - Salud: exclusivamente grupos y programas cuyo `academicArea` o area academica derivada sea `Facultad de Ciencias de la Salud`.
+  - Posgrados: maestrias de Campus TUP.
+  - Especiales: grupos con terminacion `C.A`, materias autogestivas y casos con matriculas adicionales.
 - Salud no es modalidad; se muestra como pestaña separada porque sus asignaciones pertenecen a Facultad de Ciencias de la Salud.
-- La pestaña Salud incluye grupos cuyo `area_academica` contiene Salud, aunque su modalidad tecnica sea Escolarizado, Ejecutivo o Virtual.
-- Posgrados se muestra como pestaña separada para maestrias, especialidades, doctorados o programas marcados como posgrado.
+- La pestaña Salud se basa en el area academica derivada de nomenclatura o programa; no se decide por modalidad.
+- Posgrados se muestra como pestaña separada para maestrias de Campus TUP.
 - La pestaña Posgrados se ubica entre Salud y Especiales.
-- Especiales no es modalidad; se usa para casos especiales y materias autogestivas.
+- Especiales no es modalidad; se usa para casos especiales, grupos con terminacion `C.A`, materias autogestivas y casos con matriculas adicionales.
 - No existe pestaña Todas; las asignaciones se revisan por separacion operativa.
 - La tabla muestra las columnas en este orden:
   1. Ciclo.
@@ -931,6 +959,7 @@ Vista implementada:
   8. Observaciones.
   9. Compartida.
   10. Acciones.
+- La vista compacta operativa debe conservar el flujo: ID Moodle, Materia, Docente, Carrera/Programa, Grupo, Compartida y Estado.
 - La columna Matriculas adicionales queda en `Pendiente` mientras no se implemente el modulo correspondiente.
 - La columna Estado debe mostrarse centrada.
 - La columna Acciones muestra Editar y Solicitar para iniciar el flujo de clase compartida.
@@ -942,7 +971,7 @@ Alta y edicion:
 
 - El boton `Nueva asignacion` abre un modal o panel de captura.
 - En la captura, el ciclo activo se muestra como solo lectura.
-- El grupo se selecciona de los grupos activos del ciclo activo.
+- El grupo se selecciona de los grupos activos del ciclo activo y se filtra segun la pestaña operativa seleccionada.
 - Coordinacion Academica ve en la tabla principal solo asignaciones de sus programas asignados.
 - Coordinacion Academica solo ve grupos de sus programas asignados al elegir el grupo destino de una captura.
 - Sistemas ve todos los grupos del ciclo activo.
@@ -952,6 +981,7 @@ Alta y edicion:
 - Coordinacion Academica solo puede guardar el estado `EN_CAPTURA`.
 - Coordinacion de Sistemas y Auxiliar de Sistemas autorizado pueden colocar asignaciones en `EN_REVISION`, `VALIDADO` o `CON_OBSERVACION`.
 - En el modal de captura, el campo Matriculas adicionales se muestra junto al campo Estado para facilitar captura operativa.
+- Debe agregarse el boton **Guardar y continuar agregando** para capturas repetitivas del mismo flujo operativo.
 - Si se elige `Temporalmente sin Docente`, la asignacion se guarda con:
   - `usuario_moodle_docente`: `temporalmente_sin_docente`.
   - `docente`: `TEMPORALMENTE SIN DOCENTE`.
@@ -1888,6 +1918,7 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 - Sistemas puede inhabilitar nomenclaturas cuando ya no se usen.
 - La asignacion de coordinador responsable debe considerar solo usuarios de Coordinacion Academica.
 - La busqueda permite filtrar por abreviatura, programa, estado, plan o coordinador.
+- Se agrego paginacion con selector de registros por pagina para evitar scroll excesivo.
 
 ### 23.5 Grupos
 
@@ -1900,14 +1931,16 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
   - Terminacion `C.A`: caso especial.
 - El area academica del grupo se deriva de la nomenclatura asociada: Campus TUP o Facultad de Ciencias de la Salud.
 - Se agrego eliminacion individual y eliminacion por ciclo.
-- Se agrego busqueda y filtros por ciclo.
+- Se agrego busqueda, filtros por ciclo y paginacion.
+- El boton para eliminar grupos de ciclo solo se habilita cuando hay un ciclo especifico seleccionado.
+- En alta individual, el ciclo activo se agrega automaticamente al inicio del grupo; el usuario captura solo el resto del identificador operativo.
 - En vista de Coordinacion Academica, debe mostrarse primero lo asignado a su coordinacion, con opcion de consultar mas si se autoriza.
 
 ### 23.6 Docentes
 
 - Modulo de docentes implementado con alta manual, carga CSV, busqueda, filtros y paginacion.
-- Se evita duplicidad por usuario Moodle/correo.
-- El correo del docente integra el dominio institucional en el modal.
+- Se evita duplicidad por usuario Moodle.
+- En alta manual, el correo del docente se autorrellena desde el usuario Moodle y queda como dato derivado con dominio institucional fijo.
 - Sistemas puede asignar un docente a una o varias coordinaciones academicas.
 - Sistemas puede editar, asignar, inactivar y eliminar docentes inactivos.
 - Coordinacion Academica puede agregar docentes, pero se guardan como pendientes.
@@ -1951,17 +1984,18 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 
 - El modulo de asignaciones existe y permite captura operativa.
 - Coordinacion Academica puede editar asignaciones cuando el ciclo esta en captura.
+- Estado actual:
+  - Las pestanas filtran asignaciones, grupos y sugerencias por ciclo activo, permisos y criterio operativo.
+  - Escolarizado muestra grupos escolarizados que no pertenecen a Facultad de Ciencias de la Salud.
+  - Salud muestra solo grupos y programas de Facultad de Ciencias de la Salud.
+  - Posgrados se limita a maestrias de Campus TUP.
+  - Especiales agrupa terminacion `C.A`, materias autogestivas y casos con matriculas adicionales.
+  - La barra de busqueda usa predicciones por Programa, Grupo, Docente o Asignatura.
+  - El campo/columna Distribucion fue retirado del flujo.
 - Pendientes prioritarios:
-  - Filtrar grupos por modalidad en las pestanas de asignacion:
-    - Escolarizado: solo grupos escolarizados.
-    - Ejecutivo: solo grupos ejecutivos.
-    - Salud: grupos de Facultad de Ciencias de la Salud.
-    - Posgrados: maestrias de Campus TUP.
-    - Especiales: grupos con terminacion `C.A` y casos con matriculas adicionales.
-  - Agregar en el modal de nueva asignacion la opcion de clase compartida.
-  - Si la clase se comparte, pedir con cuantos grupos se compartira y mostrar lista de grupos compatibles.
-  - Agregar boton `Guardar y continuar agregando`.
-  - Notificar a Sistemas cuando una asignacion se marque como compartida.
+  - Terminar el boton `Guardar y continuar agregando`.
+  - Consolidar el flujo final de clase compartida desde captura o solicitud sin duplicar registros.
+  - Notificar a Sistemas cuando una asignacion requiera revision por compartida.
 
 ### 23.10 Ligas Meet
 
@@ -2023,5 +2057,5 @@ El servidor local queda normalmente en `http://localhost:4200/`.
   - Nuevo docente agregado por Coordinacion Academica hacia Sistemas.
   - Docente activado por Sistemas hacia Coordinacion Academica.
   - Solicitud atendida/rechazada hacia Coordinacion Academica.
-- Terminar reglas de asignaciones por modalidad.
+- Validar reglas de asignaciones por modalidad/area con datos reales de ciclo activo.
 - Probar carga real de datos antes de publicar en Firebase Hosting.
