@@ -1095,15 +1095,13 @@ export class AssignmentsPageComponent {
 
   private isHealthGroup(group: AcademicGroup): boolean {
     const program = this.programForGroup(group);
-    const searchText = this.normalizeSearchText([
+    const academicArea = this.normalizeSearchText([
       group.academicArea,
       program?.academicArea,
-      program?.name,
-      group.programName,
-      group.programAbbreviation,
     ].join(' '));
 
-    return searchText.includes('salud');
+    return academicArea.includes('facultad de ciencias de la salud')
+      || academicArea.includes('salud');
   }
 
   private isCampusTupGroup(group: AcademicGroup): boolean {
