@@ -364,7 +364,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (group of visibleGroups(); track group.id) {
+        @for (group of paginatedGroups(); track group.id) {
           <tr>
             <td><strong class="group-code">{{ group.fullGroup }}</strong></td>
             <td>{{ group.cycleCode }}</td>
@@ -413,4 +413,31 @@
       </tbody>
     </table>
   </div>
+
+  @if (visibleGroups().length > 0) {
+    <div class="pagination-bar" aria-label="Paginacion de grupos">
+      <span>
+        Mostrando {{ paginationStart() }}-{{ paginationEnd() }} de {{ visibleGroups().length }} grupos
+      </span>
+
+      <div class="pagination-controls">
+        <label>
+          <span>Por pagina</span>
+          <select [value]="pageSize" (change)="selectPageSize($event)">
+            @for (option of pageSizeOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        </label>
+
+        <button type="button" [disabled]="currentSafePage() === 1" (click)="goToPreviousPage()">
+          Anterior
+        </button>
+        <strong>{{ currentSafePage() }} / {{ totalGroupPages() }}</strong>
+        <button type="button" [disabled]="currentSafePage() === totalGroupPages()" (click)="goToNextPage()">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
 </section>

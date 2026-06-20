@@ -29,6 +29,7 @@ interface CsvNomenclatureRow {
 
 const DEFAULT_PLAN_NAME = 'Plan 2023-2026';
 const DEFAULT_INSTITUTIONAL_AREA = 'Campus TUP';
+const NOMENCLATURES_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
 @Component({
   selector: 'spai-nomenclatures-page',
@@ -158,6 +159,9 @@ export class NomenclaturesPageComponent {
   csvImportErrors: string[] = [];
   readonly searchDraft = signal('');
   readonly searchText = signal('');
+  currentPage = 1;
+  pageSize = 10;
+  readonly pageSizeOptions = NOMENCLATURES_PAGE_SIZE_OPTIONS;
 
   readonly filteredNomenclatures = computed(() => {
     const query = this.normalizeSearchValue(this.searchText());
@@ -181,6 +185,12 @@ export class NomenclaturesPageComponent {
       return searchableText.includes(query);
     });
   });
+
+  paginatedNomenclatures(): ProgramNomenclature[] {
+    const startIndex = (this.currentSafePage() - 1) * this.pageSize;
+
+    return this.filteredNomenclatures().slice(startIndex, startIndex + this.pageSize);
+  }
 
   constructor() {
     this.form.controls.abbreviation.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
@@ -487,11 +497,48 @@ export class NomenclaturesPageComponent {
 
   applySearch(): void {
     this.searchText.set(this.searchDraft());
+    this.resetPagination();
   }
 
   clearSearch(): void {
     this.searchDraft.set('');
     this.searchText.set('');
+    this.resetPagination();
+  }
+
+  selectPageSize(event: Event): void {
+    this.pageSize = Number((event.target as HTMLSelectElement).value) || 10;
+    this.resetPagination();
+  }
+
+  goToPreviousPage(): void {
+    this.currentPage = Math.max(1, this.currentSafePage() - 1);
+  }
+
+  goToNextPage(): void {
+    this.currentPage = Math.min(this.totalNomenclaturePages(), this.currentSafePage() + 1);
+  }
+
+  totalNomenclaturePages(): number {
+    return Math.max(1, Math.ceil(this.filteredNomenclatures().length / this.pageSize));
+  }
+
+  currentSafePage(): number {
+    return Math.min(this.currentPage, this.totalNomenclaturePages());
+  }
+
+  paginationStart(): number {
+    const total = this.filteredNomenclatures().length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return (this.currentSafePage() - 1) * this.pageSize + 1;
+  }
+
+  paginationEnd(): number {
+    return Math.min(this.currentSafePage() * this.pageSize, this.filteredNomenclatures().length);
   }
 
   private isActiveCoordinator(user: AppUser): boolean {
@@ -716,6 +763,10 @@ export class NomenclaturesPageComponent {
       status: 'ACTIVA',
       notes: DEFAULT_INSTITUTIONAL_AREA,
     });
+  }
+
+  private resetPagination(): void {
+    this.currentPage = 1;
   }
 
   private resolveInstitutionalArea(value: string): string {

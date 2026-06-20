@@ -29,6 +29,7 @@ interface GroupPreviewRow {
 }
 
 type GroupScopeFilter = 'MIS' | 'TODOS';
+const GROUPS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
 @Component({
   selector: 'spai-groups-page',
@@ -80,6 +81,9 @@ export class GroupsPageComponent {
   deleteGroupError = '';
   manualGroupForm = this.emptyManualGroupForm();
   manualGroupErrors: string[] = [];
+  currentPage = 1;
+  pageSize = 10;
+  readonly pageSizeOptions = GROUPS_PAGE_SIZE_OPTIONS;
   private cycleFilterInitialized = false;
   private readonly tableFiltersVersion = signal(0);
 
@@ -181,6 +185,34 @@ export class GroupsPageComponent {
 
   get selectedCycleGroupsCount(): number {
     return this.selectedCycleCode ? this.cycleGroups().length : 0;
+  }
+
+  paginatedGroups(): AcademicGroup[] {
+    const startIndex = (this.currentSafePage() - 1) * this.pageSize;
+
+    return this.visibleGroups().slice(startIndex, startIndex + this.pageSize);
+  }
+
+  totalGroupPages(): number {
+    return Math.max(1, Math.ceil(this.visibleGroups().length / this.pageSize));
+  }
+
+  currentSafePage(): number {
+    return Math.min(this.currentPage, this.totalGroupPages());
+  }
+
+  paginationStart(): number {
+    const total = this.visibleGroups().length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return (this.currentSafePage() - 1) * this.pageSize + 1;
+  }
+
+  paginationEnd(): number {
+    return Math.min(this.currentSafePage() * this.pageSize, this.visibleGroups().length);
   }
 
   importCsv(event: Event): void {
@@ -380,17 +412,33 @@ export class GroupsPageComponent {
 
   selectCycle(event: Event): void {
     this.selectedCycleCode = (event.target as HTMLSelectElement).value;
+    this.resetPagination();
     this.tableFiltersVersion.update((version) => version + 1);
   }
 
   updateGroupSearch(event: Event): void {
     this.groupSearchTerm = (event.target as HTMLInputElement).value;
+    this.resetPagination();
     this.tableFiltersVersion.update((version) => version + 1);
   }
 
   updateGroupScope(event: Event): void {
     this.groupScopeFilter = (event.target as HTMLSelectElement).value as GroupScopeFilter;
+    this.resetPagination();
     this.tableFiltersVersion.update((version) => version + 1);
+  }
+
+  selectPageSize(event: Event): void {
+    this.pageSize = Number((event.target as HTMLSelectElement).value) || 10;
+    this.resetPagination();
+  }
+
+  goToPreviousPage(): void {
+    this.currentPage = Math.max(1, this.currentSafePage() - 1);
+  }
+
+  goToNextPage(): void {
+    this.currentPage = Math.min(this.totalGroupPages(), this.currentSafePage() + 1);
   }
 
   downloadCsvTemplate(): void {
@@ -749,5 +797,9 @@ export class GroupsPageComponent {
       fullGroup: '',
       status: 'Activo',
     };
+  }
+
+  private resetPagination(): void {
+    this.currentPage = 1;
   }
 }

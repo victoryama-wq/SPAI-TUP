@@ -596,6 +596,78 @@ th {
   overflow-x: auto;
 }
 
+.pagination-bar {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  color: #334155;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 12px 14px;
+}
+
+.pagination-bar > span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pagination-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pagination-controls label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-controls label span {
+  color: #40577a;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.pagination-controls select {
+  background: #ffffff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #07163c;
+  font-weight: 800;
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.pagination-controls button {
+  background: #edf4ff;
+  border: 1px solid #bfd2f0;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.pagination-controls button:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.pagination-controls strong {
+  color: #07163c;
+  font-size: 14px;
+  min-width: 54px;
+  text-align: center;
+}
+
 table {
   border-collapse: collapse;
   min-width: 1260px;
@@ -723,6 +795,15 @@ th {
   .cycle-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .pagination-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination-controls {
+    justify-content: flex-start;
   }
 
   .cycle-filter,
