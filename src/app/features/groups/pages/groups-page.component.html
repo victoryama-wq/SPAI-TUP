@@ -99,19 +99,18 @@
       </div>
 
       <div class="manual-group-form">
-        <label class="cycle-field">
-          <span>Ciclo activo</span>
-          <input type="text" [value]="manualGroupCycleLabel()" readonly />
-        </label>
-
-        <label>
+        <label class="manual-group-entry">
           <span>Grupo *</span>
-          <input
-            type="text"
-            [value]="manualGroupForm.fullGroup"
-            placeholder="Ej. ENF 11 01A"
-            (input)="updateManualGroupField('fullGroup', $event)"
-          />
+          <div class="group-input-combo">
+            <strong>{{ manualGroupCycleLabel() }}</strong>
+            <input
+              type="text"
+              [value]="manualGroupForm.fullGroup"
+              aria-label="Datos del grupo"
+              placeholder="Ej. ENF 11 01A"
+              (input)="updateManualGroupField('fullGroup', $event)"
+            />
+          </div>
         </label>
 
         <label>

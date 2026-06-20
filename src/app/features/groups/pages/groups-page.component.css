@@ -430,7 +430,7 @@ th {
 .manual-group-form {
   display: grid;
   gap: 16px;
-  grid-template-columns: minmax(150px, 0.6fr) minmax(0, 2fr) minmax(180px, 0.7fr);
+  grid-template-columns: minmax(0, 2fr) minmax(180px, 0.7fr);
 }
 
 .manual-group-form label {
@@ -466,6 +466,38 @@ th {
   background: #edf4ff;
   color: #1d4ed8;
   font-weight: 900;
+}
+
+.manual-group-entry {
+  min-width: 0;
+}
+
+.group-input-combo {
+  display: grid;
+  grid-template-columns: minmax(108px, 0.32fr) minmax(0, 1fr);
+}
+
+.group-input-combo strong {
+  align-items: center;
+  background: #edf4ff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px 0 0 8px;
+  color: #1d4ed8;
+  display: flex;
+  font-size: 18px;
+  font-weight: 900;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.group-input-combo input {
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.group-input-combo:focus-within strong {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
 }
 
 .manual-help {
