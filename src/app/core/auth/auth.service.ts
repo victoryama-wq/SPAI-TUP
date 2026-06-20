@@ -1,10 +1,12 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import {
   browserLocalPersistence,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   User,
 } from 'firebase/auth';
@@ -17,13 +19,15 @@ export class AuthService {
   private readonly auth = inject(FIREBASE_AUTH);
   private readonly userSignal = signal<User | null>(null);
   private readonly loadingSignal = signal(true);
+  private readonly redirectErrorSignal = signal('');
 
   readonly user = this.userSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
+  readonly redirectError = this.redirectErrorSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
 
   constructor() {
-    void setPersistence(this.auth, browserLocalPersistence);
+    void this.completeRedirectSignIn();
 
     onAuthStateChanged(this.auth, (user) => {
       this.userSignal.set(user);
@@ -32,14 +36,51 @@ export class AuthService {
   }
 
   async signInWithGoogle(): Promise<void> {
+    this.redirectErrorSignal.set('');
+    const provider = this.createGoogleProvider();
+
+    try {
+      const credential = await signInWithPopup(this.auth, provider);
+      await this.validateInstitutionalUser(credential.user);
+    } catch (error) {
+      if (!this.shouldUseRedirectFallback(error)) {
+        throw error;
+      }
+
+      await signInWithRedirect(this.auth, provider);
+    }
+  }
+
+  async signOut(): Promise<void> {
+    await signOut(this.auth);
+  }
+
+  private async completeRedirectSignIn(): Promise<void> {
+    try {
+      await setPersistence(this.auth, browserLocalPersistence);
+      const credential = await getRedirectResult(this.auth);
+
+      if (credential?.user) {
+        await this.validateInstitutionalUser(credential.user);
+      }
+    } catch (error) {
+      console.error('No se pudo completar el inicio de sesion con Google', error);
+      this.redirectErrorSignal.set(this.resolveAuthErrorMessage(error));
+    }
+  }
+
+  private createGoogleProvider(): GoogleAuthProvider {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
       hd: 'tecplayacar.edu.mx',
       prompt: 'select_account',
     });
 
-    const credential = await signInWithPopup(this.auth, provider);
-    const email = credential.user.email?.toLowerCase() ?? '';
+    return provider;
+  }
+
+  private async validateInstitutionalUser(user: User): Promise<void> {
+    const email = user.email?.toLowerCase() ?? '';
 
     if (!email.endsWith(INSTITUTIONAL_DOMAIN)) {
       await signOut(this.auth);
@@ -47,7 +88,27 @@ export class AuthService {
     }
   }
 
-  async signOut(): Promise<void> {
-    await signOut(this.auth);
+  private shouldUseRedirectFallback(error: unknown): boolean {
+    const code = this.authErrorCode(error);
+
+    return code === 'auth/popup-blocked'
+      || code === 'auth/cancelled-popup-request'
+      || code === 'auth/operation-not-supported-in-this-environment';
+  }
+
+  private resolveAuthErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message.includes(INSTITUTIONAL_DOMAIN)) {
+      return error.message;
+    }
+
+    return 'No se pudo completar el acceso con Google. Intenta nuevamente con tu correo institucional.';
+  }
+
+  private authErrorCode(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      return String((error as { code?: unknown }).code ?? '');
+    }
+
+    return '';
   }
 }

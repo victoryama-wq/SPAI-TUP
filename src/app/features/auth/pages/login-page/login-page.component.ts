@@ -20,7 +20,7 @@ export class LoginPageComponent implements OnDestroy {
   private poseResetTimeoutId: number | null = null;
 
   readonly busy = this.busySignal.asReadonly();
-  readonly error = this.errorSignal.asReadonly();
+  readonly error = computed(() => this.errorSignal() || this.authService.redirectError());
   readonly mascotPose = this.mascotPoseSignal.asReadonly();
   readonly mascotPoses: ReadonlyArray<{ key: MascotPose; src: string }> = [
     { key: 'base', src: 'brand/tup-mascot-pose-base.png' },
@@ -75,7 +75,7 @@ export class LoginPageComponent implements OnDestroy {
       this.errorSignal.set(
         message.includes('@tecplayacar.edu.mx')
           ? message
-          : 'No se pudo abrir Google. Permite ventanas emergentes para localhost y vuelve a intentarlo.',
+          : 'No se pudo iniciar sesion con Google. Intenta nuevamente con tu correo institucional.',
       );
     } finally {
       this.busySignal.set(false);
