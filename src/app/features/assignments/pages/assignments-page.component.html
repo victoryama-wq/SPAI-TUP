@@ -94,69 +94,47 @@
     </div>
 
     <div class="filters">
-      <div class="readonly-filter">
-        <span>Ciclo activo</span>
-        <strong>{{ activeCycleCode() }}</strong>
-      </div>
-      <label>
-        <span>Programa</span>
-        <select [value]="programFilter" (change)="selectProgramFilter($event)">
-          <option value="TODOS">Todos</option>
-          @for (program of visibleProgramCodes(); track program) {
-            <option [value]="program">{{ program }}</option>
-          }
-        </select>
-      </label>
-      @if (modeTab() === 'Especiales') {
+      <div class="assignment-search" role="search">
         <label>
-          <span>Matricula</span>
-          <input
-            type="search"
-            [value]="enrollmentFilter"
-            (input)="updateEnrollmentFilter($event)"
-            placeholder="Buscar matricula"
-          />
-        </label>
-      } @else {
-        <label>
-          <span>Grupo</span>
-          <select [value]="groupFilter" (change)="selectGroupFilter($event)">
-            <option value="TODOS">Todos</option>
-            @for (group of tableGroupOptions(); track group.id) {
-              @if (programFilter === 'TODOS' || group.programAbbreviation === programFilter) {
-                <option [value]="group.fullGroup">{{ group.fullGroup }}</option>
-              }
-            }
+          <span>Buscar por</span>
+          <select [value]="searchField()" (change)="selectSearchField($event)">
+            <option value="program">Programa</option>
+            <option value="group">Grupo</option>
+            <option value="teacher">Docente</option>
+            <option value="subject">Materia</option>
           </select>
         </label>
-      }
-      <label>
+        <label class="search-input-field">
+          <span>{{ searchFieldLabel() }}</span>
+          <input
+            type="search"
+            [value]="searchQuery()"
+            (input)="updateSearchQuery($event)"
+            list="assignment-search-options"
+            [placeholder]="searchPlaceholder()"
+          />
+        </label>
+        <datalist id="assignment-search-options">
+          @for (option of searchSuggestions(); track option) {
+            <option [value]="option"></option>
+          }
+        </datalist>
+        @if (searchQuery()) {
+          <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+        }
+      </div>
+      <label class="status-filter">
         <span>Estado</span>
-        <select [value]="statusFilter" (change)="selectStatusFilter($event)">
+        <select [value]="statusFilter()" (change)="selectStatusFilter($event)">
           <option value="TODOS">Todos</option>
           <option value="EN_CAPTURA">En captura</option>
           <option value="EN_REVISION">En revision</option>
           <option value="VALIDADO">Validado</option>
           <option value="CON_OBSERVACION">Con observacion</option>
-        </select>
-      </label>
-      <label>
-        <span>Docente</span>
-        <select [value]="teacherFilter" (change)="selectTeacherFilter($event)">
-          <option value="TODOS">Todos</option>
-          <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
-          @for (teacher of validatedTeachers(); track teacher.id) {
-            <option [value]="teacher.moodleUser">{{ teacher.fullName }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        <span>Asignatura</span>
-        <select [value]="subjectFilter" (change)="selectSubjectFilter($event)">
-          <option value="TODOS">Todas</option>
-          @for (subject of activeSubjects(); track subject.id) {
-            <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
-          }
         </select>
       </label>
     </div>
@@ -166,22 +144,19 @@
     <table>
       <thead>
         <tr>
-          <th>Ciclo</th>
-          <th>ID asignatura</th>
-          <th>Asignatura</th>
-          <th>Programa</th>
+          <th>ID Moodle</th>
+          <th>Materia</th>
+          <th>Docente</th>
+          <th>Carrera</th>
           <th>Grupo</th>
-          <th>Matriculas adicionales</th>
+          <th class="center-column">Compartida</th>
           <th class="center-column">Estado</th>
-          <th>Observaciones</th>
-          <th>Compartida</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
-            <td><strong>{{ assignment.cycle }}</strong></td>
             <td><strong class="moodle-id">{{ assignment.moodleId }}</strong></td>
             <td>
               <div class="stacked-cell">
@@ -189,28 +164,27 @@
                 <small>{{ assignment.subjectName }}</small>
               </div>
             </td>
-            <td><strong>{{ assignment.program }}</strong></td>
-            <td>{{ assignment.special ? 'Sin grupo' : assignment.group }}</td>
             <td>
-              @if (assignment.special) {
-                <span class="enrollment-list">{{ assignment.studentEnrollments || 'Sin matricula' }}</span>
-              } @else if (assignment.studentEnrollments) {
-                <span class="enrollment-list">{{ assignment.studentEnrollments }}</span>
-              } @else {
-                <span class="pending-label">Sin matriculas adicionales</span>
-              }
-            </td>
-            <td class="center-column">
-              <span class="status-badge" [ngClass]="statusClass(assignment.status)">
-                {{ statusLabel(assignment.status) }}
-              </span>
-            </td>
-            <td>
-              <div class="observation-cell">
-                {{ assignment.observations || 'Sin observaciones' }}
+              <div class="stacked-cell">
+                <strong>{{ assignment.teacherName }}</strong>
+                <small>{{ assignment.teacherMoodleUser }}</small>
               </div>
             </td>
+            <td><strong>{{ assignment.program }}</strong></td>
             <td>
+              <div class="stacked-cell">
+                <strong>{{ assignment.special ? 'Caso especial' : assignment.group }}</strong>
+                @if (assignment.special) {
+                  <small>Sin grupo base</small>
+                } @else if (assignment.studentEnrollments) {
+                  <small class="detail-note">Matriculas: {{ assignment.studentEnrollments }}</small>
+                }
+                @if (assignment.observations) {
+                  <small class="detail-note">Obs: {{ assignment.observations }}</small>
+                }
+              </div>
+            </td>
+            <td class="center-column">
               @if (assignment.shared) {
                 <div class="shared-indicator">
                   <span class="shared-check" aria-label="Clase compartida">
@@ -230,7 +204,14 @@
                     </svg>
                   </button>
                 </div>
+              } @else {
+                <span class="pending-label">No</span>
               }
+            </td>
+            <td class="center-column">
+              <span class="status-badge" [ngClass]="statusClass(assignment.status)">
+                {{ statusLabel(assignment.status) }}
+              </span>
             </td>
             <td>
               <div class="row-actions">
@@ -263,7 +244,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="10">
+            <td colspan="8">
               <div class="empty-state">
                 <strong>Sin asignaciones registradas</strong>
                 <span>Crea una asignacion del ciclo activo con grupo, asignatura, docente e ID asignatura.</span>
@@ -299,8 +280,27 @@
 
       <div class="assignment-form">
         <label>
-          <span>Ciclo activo</span>
-          <input type="text" [(ngModel)]="assignmentForm.cycle" readonly />
+          <span>ID Moodle *</span>
+          <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
+        </label>
+        <label>
+          <span>Materia *</span>
+          <select [(ngModel)]="assignmentForm.subjectId">
+            <option value="">Seleccionar materia</option>
+            @for (subject of activeSubjects(); track subject.id) {
+              <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Docente *</span>
+          <select [(ngModel)]="assignmentForm.teacherMoodleUser">
+            <option value="">Seleccionar docente</option>
+            <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
+            @for (teacher of validatedTeachers(); track teacher.id) {
+              <option [value]="teacher.moodleUser">{{ teacher.fullName }} - {{ teacher.moodleUser }}</option>
+            }
+          </select>
         </label>
         @if (modeTab() === 'Especiales') {
           <label class="toggle-row special-toggle">
@@ -310,15 +310,19 @@
         }
         @if (assignmentForm.special) {
           <label>
-            <span>Programa *</span>
+            <span>Carrera *</span>
             <select [(ngModel)]="assignmentForm.program">
-              <option value="">Seleccionar programa</option>
+              <option value="">Seleccionar carrera</option>
               @for (program of destinationProgramOptions(); track program) {
                 <option [value]="program">{{ program }}</option>
               }
             </select>
           </label>
         } @else {
+          <label>
+            <span>Carrera</span>
+            <input type="text" [value]="selectedFormProgramLabel()" readonly />
+          </label>
           <label>
             <span>{{ assignmentForm.shared ? 'Grupo base *' : 'Grupo *' }}</span>
             <select [(ngModel)]="assignmentForm.group" (change)="onGroupChange()">
@@ -328,9 +332,9 @@
               }
             </select>
           </label>
-          <label class="toggle-row">
+          <label class="toggle-row shared-toggle">
             <input type="checkbox" [(ngModel)]="assignmentForm.shared" (change)="onSharedChange()" />
-            <span>Es clase compartida</span>
+            <span>Clase compartida</span>
           </label>
           @if (assignmentForm.shared) {
             <label>
@@ -370,29 +374,6 @@
           }
         }
         <label>
-          <span>Asignatura *</span>
-          <select [(ngModel)]="assignmentForm.subjectId">
-            <option value="">Seleccionar asignatura</option>
-            @for (subject of activeSubjects(); track subject.id) {
-              <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          <span>ID asignatura *</span>
-          <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
-        </label>
-        <label>
-          <span>Docente *</span>
-          <select [(ngModel)]="assignmentForm.teacherMoodleUser">
-            <option value="">Seleccionar docente</option>
-            <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
-            @for (teacher of validatedTeachers(); track teacher.id) {
-              <option [value]="teacher.moodleUser">{{ teacher.fullName }} - {{ teacher.moodleUser }}</option>
-            }
-          </select>
-        </label>
-        <label>
           <span>Estado</span>
           @if (canReviewAssignments()) {
             <select [(ngModel)]="assignmentForm.status">
@@ -405,30 +386,35 @@
             <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
           }
         </label>
-        @if (!assignmentForm.special) {
-          <label class="compact-textarea-field">
-            <span>Matriculas adicionales</span>
-            <textarea
-              [(ngModel)]="assignmentForm.studentEnrollments"
-              rows="2"
-              placeholder="Una por linea o separadas por coma"
-            ></textarea>
-          </label>
-        }
-        @if (assignmentForm.special) {
-          <label class="wide-field">
-            <span>Matricula(s) *</span>
-            <textarea
-              [(ngModel)]="assignmentForm.studentEnrollments"
-              rows="4"
-              placeholder="Una matricula por linea, o separadas por coma"
-            ></textarea>
-          </label>
-        }
-        <label class="wide-field">
-          <span>Observaciones</span>
-          <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
-        </label>
+        <details class="assignment-details wide-field">
+          <summary>Detalles operativos</summary>
+          <div class="details-grid">
+            @if (!assignmentForm.special) {
+              <label class="compact-textarea-field">
+                <span>Matriculas adicionales</span>
+                <textarea
+                  [(ngModel)]="assignmentForm.studentEnrollments"
+                  rows="2"
+                  placeholder="Una por linea o separadas por coma"
+                ></textarea>
+              </label>
+            }
+            @if (assignmentForm.special) {
+              <label>
+                <span>Matricula(s) *</span>
+                <textarea
+                  [(ngModel)]="assignmentForm.studentEnrollments"
+                  rows="4"
+                  placeholder="Una matricula por linea, o separadas por coma"
+                ></textarea>
+              </label>
+            }
+            <label>
+              <span>Observaciones</span>
+              <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
+            </label>
+          </div>
+        </details>
       </div>
 
       @if (formErrors.length) {

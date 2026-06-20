@@ -20,6 +20,7 @@ import {
 
 type AssignmentStatusFilter = AssignmentStatus | 'TODOS';
 type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales';
+type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
@@ -68,13 +69,10 @@ export class AssignmentsPageComponent {
   readonly teachers = this.teachersRepository.teachers;
   readonly session = this.userSessionService.session;
 
-  programFilter = 'TODOS';
-  groupFilter = 'TODOS';
-  enrollmentFilter = '';
-  statusFilter: AssignmentStatusFilter = 'TODOS';
+  statusFilter = signal<AssignmentStatusFilter>('TODOS');
+  searchField = signal<AssignmentSearchField>('program');
+  searchQuery = signal('');
   modeTab = signal<AssignmentModeTab>('Escolarizado');
-  teacherFilter = 'TODOS';
-  subjectFilter = 'TODOS';
   formMessage = '';
   formErrors: string[] = [];
   isAssignmentModalOpen = false;
@@ -283,30 +281,11 @@ export class AssignmentsPageComponent {
 
   readonly visibleAssignments = computed(() => {
     return this.assignments().filter((assignment) => {
-      const appUser = this.session()?.appUser;
-      const activeCycle = this.activeCycle();
-      const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
-      const allowedProgram = this.canSeeAllAssignments()
-        || appUser?.assignedPrograms.includes(assignment.program) === true;
-      const matchesProgram = this.programFilter === 'TODOS' || assignment.program === this.programFilter;
-      const matchesGroup = this.groupFilter === 'TODOS' || assignment.group === this.groupFilter;
-      const matchesEnrollment = !this.enrollmentFilter.trim()
-        || (assignment.studentEnrollments ?? '').toLowerCase().includes(this.enrollmentFilter.trim().toLowerCase());
-      const matchesStatus = this.statusFilter === 'TODOS' || assignment.status === this.statusFilter;
-      const matchesMode = this.assignmentMode(assignment) === this.modeTab();
-      const matchesTeacher = this.teacherFilter === 'TODOS' || assignment.teacherMoodleUser === this.teacherFilter;
-      const matchesSubject = this.subjectFilter === 'TODOS' || assignment.subjectId === this.subjectFilter;
+      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
 
-      return this.canViewAssignments()
-        && matchesCycle
-        && allowedProgram
-        && matchesProgram
-        && matchesGroup
-        && matchesEnrollment
+      return this.assignmentInCurrentScope(assignment)
         && matchesStatus
-        && matchesMode
-        && matchesTeacher
-        && matchesSubject;
+        && this.assignmentMatchesSearch(assignment);
     });
   });
 
@@ -353,6 +332,20 @@ export class AssignmentsPageComponent {
 
   get submitLabel(): string {
     return this.editingAssignmentId ? 'Guardar cambios' : 'Guardar asignacion';
+  }
+
+  selectedFormProgramLabel(): string {
+    if (this.assignmentForm.special) {
+      return this.assignmentForm.program || 'Seleccionar carrera';
+    }
+
+    const group = this.selectedGroup();
+
+    if (!group) {
+      return 'Se autollenara al seleccionar grupo';
+    }
+
+    return `${group.programAbbreviation} - ${group.programName}`;
   }
 
   openAssignmentModal(): void {
@@ -598,40 +591,88 @@ export class AssignmentsPageComponent {
     this.closeAssignmentModal();
   }
 
-  selectProgramFilter(event: Event): void {
-    this.programFilter = (event.target as HTMLSelectElement).value;
-    this.groupFilter = 'TODOS';
-    this.enrollmentFilter = '';
+  selectSearchField(event: Event): void {
+    this.searchField.set((event.target as HTMLSelectElement).value as AssignmentSearchField);
+    this.searchQuery.set('');
   }
 
-  selectGroupFilter(event: Event): void {
-    this.groupFilter = (event.target as HTMLSelectElement).value;
+  updateSearchQuery(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
-  updateEnrollmentFilter(event: Event): void {
-    this.enrollmentFilter = (event.target as HTMLInputElement).value;
+  clearSearch(): void {
+    this.searchQuery.set('');
   }
 
   selectStatusFilter(event: Event): void {
-    this.statusFilter = (event.target as HTMLSelectElement).value as AssignmentStatusFilter;
+    this.statusFilter.set((event.target as HTMLSelectElement).value as AssignmentStatusFilter);
   }
 
   selectModeTab(tab: AssignmentModeTab): void {
     this.modeTab.set(tab);
-    this.groupFilter = 'TODOS';
-    this.enrollmentFilter = '';
+    this.searchQuery.set('');
   }
 
   dismissReadinessAlert(): void {
     this.isReadinessAlertVisible.set(false);
   }
 
-  selectTeacherFilter(event: Event): void {
-    this.teacherFilter = (event.target as HTMLSelectElement).value;
+  searchFieldLabel(): string {
+    const labels: Record<AssignmentSearchField, string> = {
+      program: 'Programa',
+      group: 'Grupo',
+      teacher: 'Docente',
+      subject: 'Materia',
+    };
+
+    return labels[this.searchField()];
   }
 
-  selectSubjectFilter(event: Event): void {
-    this.subjectFilter = (event.target as HTMLSelectElement).value;
+  searchPlaceholder(): string {
+    const placeholders: Record<AssignmentSearchField, string> = {
+      program: 'Escribe la carrera o programa',
+      group: 'Escribe el grupo',
+      teacher: 'Escribe nombre o usuario Moodle',
+      subject: 'Escribe clave o nombre de materia',
+    };
+
+    return placeholders[this.searchField()];
+  }
+
+  searchSuggestions(): string[] {
+    const query = this.normalizeSearch(this.searchQuery());
+    const options = new Set<string>();
+
+    if (this.searchField() === 'program') {
+      this.visibleProgramCodes().forEach((program) => options.add(program));
+    }
+
+    if (this.searchField() === 'group') {
+      this.tableGroupOptions().forEach((group) => options.add(group.fullGroup));
+      this.assignments()
+        .filter((assignment) => this.assignmentInCurrentScope(assignment) && assignment.group)
+        .forEach((assignment) => options.add(assignment.group));
+    }
+
+    if (this.searchField() === 'teacher') {
+      this.assignments()
+        .filter((assignment) => this.assignmentInCurrentScope(assignment))
+        .forEach((assignment) => options.add(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
+      this.validatedTeachers().forEach((teacher) => options.add(`${teacher.fullName} - ${teacher.moodleUser}`));
+      options.add('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
+    }
+
+    if (this.searchField() === 'subject') {
+      this.activeSubjects().forEach((subject) => options.add(`${subject.subjectId} - ${subject.name}`));
+      this.assignments()
+        .filter((assignment) => this.assignmentInCurrentScope(assignment))
+        .forEach((assignment) => options.add(`${assignment.subjectId} - ${assignment.subjectName}`));
+    }
+
+    return Array.from(options)
+      .filter((option) => !query || this.normalizeSearch(option).includes(query))
+      .sort((a, b) => a.localeCompare(b, 'es'))
+      .slice(0, 30);
   }
 
   onGroupChange(): void {
@@ -759,31 +800,56 @@ export class AssignmentsPageComponent {
 
   private countAssignmentsForTab(tab: AssignmentModeTab): number {
     return this.assignments().filter((assignment) => {
-      const appUser = this.session()?.appUser;
-      const activeCycle = this.activeCycle();
-      const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
-      const allowedProgram = this.canSeeAllAssignments()
-        || appUser?.assignedPrograms.includes(assignment.program) === true;
-      const matchesProgram = this.programFilter === 'TODOS' || assignment.program === this.programFilter;
-      const matchesGroup = this.groupFilter === 'TODOS' || assignment.group === this.groupFilter;
-      const matchesEnrollment = !this.enrollmentFilter.trim()
-        || (assignment.studentEnrollments ?? '').toLowerCase().includes(this.enrollmentFilter.trim().toLowerCase());
-      const matchesStatus = this.statusFilter === 'TODOS' || assignment.status === this.statusFilter;
-      const matchesTeacher = this.teacherFilter === 'TODOS' || assignment.teacherMoodleUser === this.teacherFilter;
-      const matchesSubject = this.subjectFilter === 'TODOS' || assignment.subjectId === this.subjectFilter;
-      const matchesTab = this.assignmentMode(assignment) === tab;
+      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
 
-      return this.canViewAssignments()
-        && matchesCycle
-        && allowedProgram
-        && matchesProgram
-        && matchesGroup
-        && matchesEnrollment
+      return this.assignmentInCurrentScope(assignment, tab)
         && matchesStatus
-        && matchesTeacher
-        && matchesSubject
-        && matchesTab;
+        && this.assignmentMatchesSearch(assignment);
     }).length;
+  }
+
+  private assignmentInCurrentScope(assignment: AcademicAssignment, tab = this.modeTab()): boolean {
+    const appUser = this.session()?.appUser;
+    const activeCycle = this.activeCycle();
+    const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
+    const allowedProgram = this.canSeeAllAssignments()
+      || appUser?.assignedPrograms.includes(assignment.program) === true;
+    const matchesTab = this.assignmentMode(assignment) === tab;
+
+    return this.canViewAssignments()
+      && matchesCycle
+      && allowedProgram
+      && matchesTab;
+  }
+
+  private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
+    const query = this.normalizeSearch(this.searchQuery());
+
+    if (!query) {
+      return true;
+    }
+
+    if (this.searchField() === 'program') {
+      return this.normalizeSearch(assignment.program).includes(query);
+    }
+
+    if (this.searchField() === 'group') {
+      return this.normalizeSearch(assignment.group).includes(query);
+    }
+
+    if (this.searchField() === 'teacher') {
+      return this.normalizeSearch(`${assignment.teacherName} ${assignment.teacherMoodleUser}`).includes(query);
+    }
+
+    return this.normalizeSearch(`${assignment.subjectId} ${assignment.subjectName}`).includes(query);
+  }
+
+  private normalizeSearch(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab | null {

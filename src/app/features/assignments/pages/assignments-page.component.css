@@ -276,9 +276,10 @@ th {
 }
 
 .filters {
+  align-items: end;
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(6, minmax(150px, 1fr));
+  grid-template-columns: minmax(320px, 1fr) minmax(150px, 180px);
 }
 
 .filters label,
@@ -286,6 +287,40 @@ th {
 .assignment-form label {
   display: grid;
   gap: 7px;
+}
+
+.assignment-search {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(140px, 180px) minmax(260px, 1fr) auto;
+}
+
+.search-input-field input {
+  width: 100%;
+}
+
+.clear-search-action {
+  align-items: center;
+  background: #edf4ff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.clear-search-action svg {
+  fill: none;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  width: 18px;
 }
 
 .readonly-filter strong {
@@ -507,7 +542,7 @@ th {
 
 table {
   border-collapse: collapse;
-  min-width: 1280px;
+  min-width: 1180px;
   width: 100%;
 }
 
@@ -542,6 +577,18 @@ td.center-column {
 
 .stacked-cell small {
   color: #64748b;
+}
+
+.distribution-cell {
+  max-width: 260px;
+}
+
+.detail-note {
+  display: block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .moodle-id {
@@ -822,6 +869,28 @@ td.center-column {
   color: #07163c;
 }
 
+.assignment-details {
+  background: #f8fbff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.assignment-details summary {
+  color: #1457d6;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.details-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  padding-top: 14px;
+}
+
 .share-group-panel {
   background: #f8fbff;
   border: 1px solid #c9d9ef;
@@ -932,6 +1001,10 @@ td.center-column {
   .assignment-form {
     grid-template-columns: repeat(2, minmax(180px, 1fr));
   }
+
+  .assignment-search {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 760px) {
@@ -942,6 +1015,18 @@ td.center-column {
   }
 
   .share-group-options {
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-search {
+    grid-template-columns: 1fr;
+  }
+
+  .clear-search-action {
+    width: 100%;
+  }
+
+  .details-grid {
     grid-template-columns: 1fr;
   }
 
