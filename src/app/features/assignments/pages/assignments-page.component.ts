@@ -669,11 +669,16 @@ export class AssignmentsPageComponent {
     if (this.searchField() === 'teacher') {
       scopedAssignments
         .forEach((assignment) => options.add(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
+      this.validatedTeachers()
+        .forEach((teacher) => options.add(`${teacher.fullName} - ${teacher.moodleUser}`));
+      options.add('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
     }
 
     if (this.searchField() === 'subject') {
       scopedAssignments
         .forEach((assignment) => options.add(`${assignment.subjectId} - ${assignment.subjectName}`));
+      this.activeSubjects()
+        .forEach((subject) => options.add(`${subject.subjectId} - ${subject.name}`));
     }
 
     return Array.from(options)
