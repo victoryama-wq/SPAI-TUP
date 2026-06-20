@@ -296,8 +296,44 @@ th {
   grid-template-columns: minmax(140px, 180px) minmax(260px, 1fr) auto;
 }
 
+.search-input-field {
+  display: grid;
+  gap: 8px;
+}
+
+.search-input-field label {
+  display: grid;
+  gap: 7px;
+}
+
 .search-input-field input {
   width: 100%;
+}
+
+.prediction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 30px;
+}
+
+.prediction-row button {
+  background: #ffffff;
+  border: 1px solid #c9d9ef;
+  border-radius: 999px;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  max-width: 260px;
+  overflow: hidden;
+  padding: 6px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prediction-row button:hover {
+  background: #edf4ff;
 }
 
 .clear-search-action {

@@ -604,6 +604,10 @@ export class AssignmentsPageComponent {
     this.searchQuery.set('');
   }
 
+  selectPredictedSearch(value: string): void {
+    this.searchQuery.set(value);
+  }
+
   selectStatusFilter(event: Event): void {
     this.statusFilter.set((event.target as HTMLSelectElement).value as AssignmentStatusFilter);
   }
@@ -673,6 +677,18 @@ export class AssignmentsPageComponent {
       .filter((option) => !query || this.normalizeSearch(option).includes(query))
       .sort((a, b) => a.localeCompare(b, 'es'))
       .slice(0, 30);
+  }
+
+  predictedSearchSuggestions(): string[] {
+    const query = this.normalizeSearch(this.searchQuery());
+
+    if (query.length < 2) {
+      return [];
+    }
+
+    return this.searchSuggestions()
+      .filter((option) => this.normalizeSearch(option) !== query)
+      .slice(0, 5);
   }
 
   onGroupChange(): void {

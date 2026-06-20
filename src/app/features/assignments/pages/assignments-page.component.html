@@ -104,21 +104,28 @@
             <option value="subject">Materia</option>
           </select>
         </label>
-        <label class="search-input-field">
-          <span>{{ searchFieldLabel() }}</span>
-          <input
-            type="search"
-            [value]="searchQuery()"
-            (input)="updateSearchQuery($event)"
-            list="assignment-search-options"
-            [placeholder]="searchPlaceholder()"
-          />
-        </label>
-        <datalist id="assignment-search-options">
-          @for (option of searchSuggestions(); track option) {
-            <option [value]="option"></option>
+        <div class="search-input-field">
+          <label>
+            <span>{{ searchFieldLabel() }}</span>
+            <input
+              type="search"
+              [value]="searchQuery()"
+              (input)="updateSearchQuery($event)"
+              [placeholder]="searchPlaceholder()"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </label>
+          @if (predictedSearchSuggestions().length) {
+            <div class="prediction-row" aria-label="Predicciones de busqueda">
+              @for (option of predictedSearchSuggestions(); track option) {
+                <button type="button" (click)="selectPredictedSearch(option)">
+                  {{ option }}
+                </button>
+              }
+            </div>
           }
-        </datalist>
+        </div>
         @if (searchQuery()) {
           <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
             <svg viewBox="0 0 24 24" aria-hidden="true">
