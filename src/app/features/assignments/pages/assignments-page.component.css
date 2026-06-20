@@ -403,6 +403,16 @@ th {
   padding: 0 18px;
 }
 
+.secondary-action:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.continue-action {
+  border: 1px solid #bfdbfe;
+}
+
 .feedback {
   background: #ecfdf5;
   border: 1px solid #bbf7d0;
@@ -774,6 +784,10 @@ td.center-column {
   min-height: 44px;
 }
 
+.assignment-form label.special-toggle {
+  align-self: end;
+}
+
 .toggle-row input {
   accent-color: #1d4ed8;
   height: 24px;
@@ -808,6 +822,100 @@ td.center-column {
   color: #07163c;
 }
 
+.share-group-panel {
+  background: #f8fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.share-group-summary {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.share-group-summary span {
+  color: #1457d6;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.share-group-summary strong {
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  color: #1d4ed8;
+  font-size: 13px;
+  padding: 5px 10px;
+}
+
+.share-group-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.share-group-option {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  column-gap: 10px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto minmax(92px, auto) minmax(0, 1fr);
+  min-height: 46px;
+  padding: 8px 10px;
+}
+
+.share-group-option input {
+  accent-color: #1d4ed8;
+  height: 20px;
+  min-height: auto;
+  width: 20px;
+}
+
+.share-group-option span {
+  color: #07163c;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: none;
+}
+
+.share-group-option small {
+  color: #64748b;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-group-option:has(input:disabled:not(:checked)) {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.share-group-empty {
+  background: #ffffff;
+  border: 1px dashed #c9d9ef;
+  border-radius: 8px;
+  color: #64748b;
+  display: grid;
+  gap: 4px;
+  grid-column: 1 / -1;
+  padding: 14px;
+}
+
+.share-group-empty strong {
+  color: #07163c;
+}
+
 .modal-actions {
   display: flex;
   flex-wrap: wrap;
@@ -830,6 +938,10 @@ td.center-column {
   .summary-grid,
   .filters,
   .assignment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .share-group-options {
     grid-template-columns: 1fr;
   }
 

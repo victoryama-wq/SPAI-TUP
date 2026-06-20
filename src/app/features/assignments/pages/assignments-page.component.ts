@@ -24,6 +24,23 @@ type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'P
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
 
+interface AssignmentFormState {
+  cycle: string;
+  program: string;
+  group: string;
+  subjectId: string;
+  moodleId: string;
+  teacherMoodleUser: string;
+  status: AssignmentStatus;
+  observations: string;
+  shared: boolean;
+  sourceAssignmentId: string;
+  sharedGroupCount: number;
+  shareGroups: string[];
+  special: boolean;
+  studentEnrollments: string;
+}
+
 @Component({
   selector: 'spai-assignments-page',
   imports: [CommonModule, FormsModule],
@@ -213,7 +230,8 @@ export class AssignmentsPageComponent {
       .filter((group) => {
         return group.status === 'Activo'
           && group.cycleCode === activeCycle.code
-          && this.canUseDestinationProgram(group.programAbbreviation);
+          && this.canUseDestinationProgram(group.programAbbreviation)
+          && this.groupMatchesModeTab(group, this.modeTab());
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   });
@@ -233,10 +251,19 @@ export class AssignmentsPageComponent {
 
         return group.status === 'Activo'
           && group.cycleCode === activeCycle.code
-          && allowedProgram;
+          && allowedProgram
+          && this.groupMatchesModeTab(group, this.modeTab());
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   });
+
+  readonly sharedGroupOptions = computed(() =>
+    this.destinationGroupOptions().filter((group) => group.fullGroup !== this.assignmentForm.group),
+  );
+
+  readonly sharedGroupCountOptions = computed(() =>
+    Array.from({ length: this.sharedGroupOptions().length }, (_, index) => index + 1),
+  );
 
   readonly destinationProgramOptions = computed(() => {
     const appUser = this.session()?.appUser;
@@ -367,7 +394,8 @@ export class AssignmentsPageComponent {
       observations: assignment.observations,
       shared: assignment.shared,
       sourceAssignmentId: assignment.sourceAssignmentId,
-      shareGroup: assignment.shared ? assignment.group : '',
+      sharedGroupCount: assignment.shared ? 1 : 0,
+      shareGroups: assignment.shared ? [assignment.group] : [],
       special: assignment.special ?? false,
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
@@ -389,7 +417,7 @@ export class AssignmentsPageComponent {
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
   }
 
-  saveAssignment(): void {
+  saveAssignment(continueAdding = false): void {
     this.formMessage = '';
     this.formErrors = this.validateForm();
 
@@ -400,7 +428,7 @@ export class AssignmentsPageComponent {
     const actor = this.actorData();
     const subject = this.selectedSubject();
     const group = this.assignmentForm.special ? null : this.selectedGroup();
-    const shareGroup = this.assignmentForm.shared ? this.selectedShareGroup() : null;
+    const shareGroups = this.assignmentForm.shared ? this.selectedShareGroups() : [];
     const program = this.assignmentForm.special ? this.assignmentForm.program.trim().toUpperCase() : group?.programAbbreviation ?? '';
 
     if ((!this.assignmentForm.special && !group) || !program || !subject || !this.hasValidTeacherSelection()) {
@@ -413,16 +441,18 @@ export class AssignmentsPageComponent {
       return;
     }
 
-    if (shareGroup && !this.canUseDestinationProgram(shareGroup.programAbbreviation)) {
+    if (shareGroups.some((shareGroup) => !this.canUseDestinationProgram(shareGroup.programAbbreviation))) {
       this.formErrors = ['Solo puedes compartir asignaciones con grupos de tus programas asignados.'];
       return;
     }
 
+    const wasEditing = this.editingAssignmentId !== null;
     const currentAssignment = this.editingAssignmentId
       ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
       : null;
 
-    if (currentAssignment?.shared && this.assignmentForm.shared && shareGroup) {
+    if (currentAssignment?.shared && this.assignmentForm.shared && shareGroups.length === 1) {
+      const shareGroup = shareGroups[0];
       const sharedEditPayload: UpsertAssignmentPayload = {
         id: this.editingAssignmentId,
         cycle: this.assignmentForm.cycle,
@@ -489,48 +519,50 @@ export class AssignmentsPageComponent {
     const assignmentId = this.assignmentsRepository.upsertAssignment(basePayload);
     const createdAssignmentIds = this.editingAssignmentId ? [] : [assignmentId];
 
-    if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroup) {
-      const sharedPayload: UpsertAssignmentPayload = {
-        ...basePayload,
-        id: null,
-        program: shareGroup.programAbbreviation,
-        group: shareGroup.fullGroup,
-        shared: true,
-        sourceAssignmentId: assignmentId,
-        special: false,
-      };
-      const sharedAssignmentId = this.assignmentsRepository.upsertAssignment(sharedPayload);
-      createdAssignmentIds.push(sharedAssignmentId);
-      this.notifySystemsAboutSharedClass(
-        actor,
-        sharedAssignmentId,
-        sharedPayload.cycle,
-        subject.subjectId,
-        subject.name,
-        group?.fullGroup ?? '',
-        shareGroup.fullGroup,
-        this.selectedTeacherName(),
-      );
+    if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
+      for (const shareGroup of shareGroups) {
+        const sharedPayload: UpsertAssignmentPayload = {
+          ...basePayload,
+          id: null,
+          program: shareGroup.programAbbreviation,
+          group: shareGroup.fullGroup,
+          shared: true,
+          sourceAssignmentId: assignmentId,
+          special: false,
+        };
+        const sharedAssignmentId = this.assignmentsRepository.upsertAssignment(sharedPayload);
+        createdAssignmentIds.push(sharedAssignmentId);
+        this.notifySystemsAboutSharedClass(
+          actor,
+          sharedAssignmentId,
+          sharedPayload.cycle,
+          subject.subjectId,
+          subject.name,
+          group?.fullGroup ?? '',
+          shareGroup.fullGroup,
+          this.selectedTeacherName(),
+        );
 
-      this.auditLogRepository.register({
-        module: 'Asignaciones',
-        action: 'ASIGNACION_COMPARTIDA_CREADA',
-        description: `Se compartio la asignacion ${subject.subjectId} de ${group?.fullGroup} con ${shareGroup.fullGroup}.`,
-        user: actor.createdByName,
-        userRole: actor.createdByRole,
-        entity: 'asignaciones',
-        entityId: sharedAssignmentId,
-        metadata: {
-          cycle: sharedPayload.cycle,
-          program: sharedPayload.program,
-          group: sharedPayload.group,
-          subjectId: sharedPayload.subjectId,
-          moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
-          status: sharedPayload.status,
-          shared: sharedPayload.shared,
-          sourceAssignmentId: sharedPayload.sourceAssignmentId ?? '',
-        },
-      });
+        this.auditLogRepository.register({
+          module: 'Asignaciones',
+          action: 'ASIGNACION_COMPARTIDA_CREADA',
+          description: `Se compartio la asignacion ${subject.subjectId} de ${group?.fullGroup} con ${shareGroup.fullGroup}.`,
+          user: actor.createdByName,
+          userRole: actor.createdByRole,
+          entity: 'asignaciones',
+          entityId: sharedAssignmentId,
+          metadata: {
+            cycle: sharedPayload.cycle,
+            program: sharedPayload.program,
+            group: sharedPayload.group,
+            subjectId: sharedPayload.subjectId,
+            moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
+            status: sharedPayload.status,
+            shared: sharedPayload.shared,
+            sourceAssignmentId: sharedPayload.sourceAssignmentId ?? '',
+          },
+        });
+      }
     }
 
     this.auditLogRepository.register({
@@ -557,6 +589,12 @@ export class AssignmentsPageComponent {
       ? 'Asignacion actualizada correctamente.'
       : 'Asignacion guardada correctamente.';
     this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
+
+    if (continueAdding && !wasEditing) {
+      this.prepareNextAssignmentForm();
+      return;
+    }
+
     this.closeAssignmentModal();
   }
 
@@ -600,17 +638,60 @@ export class AssignmentsPageComponent {
     const group = this.selectedGroup();
     this.assignmentForm.cycle = this.activeCycle()?.code ?? group?.cycleCode ?? this.assignmentForm.cycle;
 
-    if (this.assignmentForm.shareGroup === this.assignmentForm.group) {
-      this.assignmentForm.shareGroup = '';
-    }
+    this.syncSharedGroups();
   }
 
   onSharedChange(): void {
     if (!this.assignmentForm.shared) {
       this.assignmentForm.sourceAssignmentId = '';
-      this.assignmentForm.shareGroup = '';
+      this.assignmentForm.sharedGroupCount = 0;
+      this.assignmentForm.shareGroups = [];
       return;
     }
+
+    this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.sharedGroupCount || 1);
+    this.syncSharedGroups();
+  }
+
+  onSpecialChange(): void {
+    if (this.assignmentForm.special) {
+      this.assignmentForm.group = '';
+      this.assignmentForm.shared = false;
+      this.assignmentForm.sourceAssignmentId = '';
+      this.assignmentForm.sharedGroupCount = 0;
+      this.assignmentForm.shareGroups = [];
+      return;
+    }
+
+    this.assignmentForm.program = '';
+  }
+
+  onSharedGroupCountChange(value: number | string): void {
+    this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(value);
+    this.syncSharedGroups();
+  }
+
+  toggleShareGroup(group: string, checked: boolean): void {
+    const normalizedGroup = group.trim().toUpperCase();
+    const selectedGroups = new Set(this.assignmentForm.shareGroups);
+
+    if (checked) {
+      selectedGroups.add(normalizedGroup);
+    } else {
+      selectedGroups.delete(normalizedGroup);
+    }
+
+    this.assignmentForm.shareGroups = Array.from(selectedGroups);
+    this.syncSharedGroups();
+  }
+
+  isShareGroupSelected(group: string): boolean {
+    return this.assignmentForm.shareGroups.includes(group);
+  }
+
+  isShareGroupDisabled(group: string): boolean {
+    return !this.isShareGroupSelected(group)
+      && this.assignmentForm.shareGroups.length >= this.assignmentForm.sharedGroupCount;
   }
 
   applySourceAssignment(): void {
@@ -706,25 +787,13 @@ export class AssignmentsPageComponent {
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab | null {
-    if (assignment.special) {
+    if (assignment.special || this.hasStudentEnrollments(assignment.studentEnrollments)) {
       return 'Especiales';
     }
 
     const group = this.groups().find((item) => item.fullGroup === assignment.group);
 
-    if (group && this.isPostgraduateGroup(group)) {
-      return 'Posgrados';
-    }
-
-    if (group?.academicArea.toLowerCase().includes('salud')) {
-      return 'Salud';
-    }
-
-    if (group?.modality === 'Escolarizado' || group?.modality === 'Ejecutivo' || group?.modality === 'Virtual') {
-      return group.modality;
-    }
-
-    return null;
+    return group ? this.groupMode(group) : null;
   }
 
   private validateForm(): string[] {
@@ -752,15 +821,20 @@ export class AssignmentsPageComponent {
       errors.push(`El ${this.assignmentForm.shared ? 'grupo base' : 'grupo'} es obligatorio.`);
     }
 
-    if (this.assignmentForm.shared && !this.assignmentForm.special && !this.assignmentForm.shareGroup) {
-      errors.push('El grupo a compartir es obligatorio.');
+    if (this.assignmentForm.shared && !this.assignmentForm.special && !this.assignmentForm.shareGroups.length) {
+      errors.push('Selecciona al menos un grupo para compartir.');
+    }
+
+    if (this.assignmentForm.shared
+      && !this.assignmentForm.special
+      && this.assignmentForm.shareGroups.length !== this.assignmentForm.sharedGroupCount) {
+      errors.push('Selecciona la cantidad exacta de grupos compartidos indicada.');
     }
 
     if (this.assignmentForm.shared
       && !this.assignmentForm.special
       && this.assignmentForm.group
-      && this.assignmentForm.shareGroup
-      && this.assignmentForm.group === this.assignmentForm.shareGroup) {
+      && this.assignmentForm.shareGroups.includes(this.assignmentForm.group)) {
       errors.push('El grupo a compartir debe ser diferente al grupo base.');
     }
 
@@ -794,11 +868,22 @@ export class AssignmentsPageComponent {
     }
 
     if (this.assignmentForm.shared && !this.assignmentForm.sourceAssignmentId) {
-      const isCreatingSharedFromBase = !this.editingAssignmentId && !this.assignmentForm.special && this.assignmentForm.group && this.assignmentForm.shareGroup;
+      const isCreatingSharedFromBase = !this.editingAssignmentId
+        && !this.assignmentForm.special
+        && this.assignmentForm.group
+        && this.assignmentForm.shareGroups.length > 0;
 
       if (!isCreatingSharedFromBase) {
         errors.push('Selecciona la asignacion origen de la clase compartida.');
       }
+    }
+
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
+      : null;
+
+    if (currentAssignment?.shared && this.assignmentForm.shared && this.assignmentForm.shareGroups.length !== 1) {
+      errors.push('Al editar una asignacion compartida selecciona solo un grupo destino.');
     }
 
     const shouldValidateBaseMoodleId = !this.assignmentForm.shared || !this.assignmentForm.sourceAssignmentId;
@@ -827,12 +912,10 @@ export class AssignmentsPageComponent {
     return this.groups().find((group) => group.fullGroup === this.assignmentForm.group) ?? null;
   }
 
-  private selectedShareGroup(): AcademicGroup | null {
-    return this.groups().find((group) => group.fullGroup === this.assignmentForm.shareGroup) ?? null;
-  }
-
-  private canUseDestinationGroup(group: AcademicGroup): boolean {
-    return this.canUseDestinationProgram(group.programAbbreviation);
+  private selectedShareGroups(): AcademicGroup[] {
+    return this.assignmentForm.shareGroups
+      .map((fullGroup) => this.groups().find((group) => group.fullGroup === fullGroup) ?? null)
+      .filter((group): group is AcademicGroup => group !== null);
   }
 
   private canUseDestinationProgram(program: string): boolean {
@@ -868,6 +951,51 @@ export class AssignmentsPageComponent {
       || searchText.includes('especialidad')
       || searchText.includes('doctorado')
       || searchText.includes('posgrado');
+  }
+
+  private groupMatchesModeTab(group: AcademicGroup, tab: AssignmentModeTab): boolean {
+    return this.groupMode(group) === tab;
+  }
+
+  private groupMode(group: AcademicGroup): AssignmentModeTab | null {
+    if (this.isSpecialGroup(group)) {
+      return 'Especiales';
+    }
+
+    if (this.isHealthGroup(group)) {
+      return 'Salud';
+    }
+
+    if (this.isCampusTupGroup(group) && this.isPostgraduateGroup(group)) {
+      return 'Posgrados';
+    }
+
+    if (group.modality === 'Escolarizado' || group.modality === 'Ejecutivo' || group.modality === 'Virtual') {
+      return group.modality;
+    }
+
+    return null;
+  }
+
+  private isSpecialGroup(group: AcademicGroup): boolean {
+    const section = this.normalizeSearchText(group.section);
+    const fullGroup = this.normalizeSearchText(group.fullGroup);
+
+    return section.endsWith('c.a') || fullGroup.endsWith('c.a');
+  }
+
+  private isHealthGroup(group: AcademicGroup): boolean {
+    return this.normalizeSearchText(group.academicArea).includes('salud');
+  }
+
+  private isCampusTupGroup(group: AcademicGroup): boolean {
+    const academicArea = this.normalizeSearchText(group.academicArea);
+
+    return academicArea.includes('campus tup') || academicArea === 'campus';
+  }
+
+  private hasStudentEnrollments(studentEnrollments?: string): boolean {
+    return Boolean(studentEnrollments?.trim());
   }
 
   private normalizeSearchText(value: string): string {
@@ -921,6 +1049,38 @@ export class AssignmentsPageComponent {
       .map((enrollment) => enrollment.trim().toUpperCase())
       .filter(Boolean)
       .join(', ');
+  }
+
+  private normalizeSharedGroupCount(value: number | string): number {
+    const availableOptions = this.sharedGroupOptions().length;
+
+    if (!availableOptions) {
+      return 0;
+    }
+
+    const numericValue = Math.trunc(Number(value));
+    const fallbackValue = Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 1;
+
+    return Math.min(Math.max(fallbackValue, 1), availableOptions);
+  }
+
+  private syncSharedGroups(): void {
+    const availableGroups = new Set(this.sharedGroupOptions().map((group) => group.fullGroup));
+
+    this.assignmentForm.shareGroups = this.assignmentForm.shareGroups
+      .filter((group) => group !== this.assignmentForm.group)
+      .filter((group) => availableGroups.has(group))
+      .slice(0, this.assignmentForm.sharedGroupCount);
+
+    if (this.assignmentForm.shared) {
+      this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.sharedGroupCount);
+    }
+  }
+
+  private prepareNextAssignmentForm(): void {
+    this.editingAssignmentId = null;
+    this.formErrors = [];
+    this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
   }
 
   private notifySystemsAboutAssignmentMilestones(
@@ -997,21 +1157,7 @@ export class AssignmentsPageComponent {
     });
   }
 
-  private emptyForm(cycle = '', special = false): {
-    cycle: string;
-    program: string;
-    group: string;
-    subjectId: string;
-    moodleId: string;
-    teacherMoodleUser: string;
-    status: AssignmentStatus;
-    observations: string;
-    shared: boolean;
-    sourceAssignmentId: string;
-    shareGroup: string;
-    special: boolean;
-    studentEnrollments: string;
-  } {
+  private emptyForm(cycle = '', special = false): AssignmentFormState {
     return {
       cycle,
       program: '',
@@ -1023,7 +1169,8 @@ export class AssignmentsPageComponent {
       observations: '',
       shared: false,
       sourceAssignmentId: '',
-      shareGroup: '',
+      sharedGroupCount: 0,
+      shareGroups: [],
       special,
       studentEnrollments: '',
     };

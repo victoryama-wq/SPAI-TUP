@@ -1,0 +1,140 @@
+<section class="meet-overview">
+  <div class="meet-header">
+    <div>
+      <span>Clases virtuales</span>
+      <h2>Ligas Meet</h2>
+      <p>Concentra las asignaciones virtuales del ciclo activo y evita revisar dos veces una clase compartida.</p>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <article>
+      <strong>{{ meetRows().length }}</strong>
+      <span>Clases virtuales</span>
+    </article>
+    <article>
+      <strong>{{ sharedClassCount() }}</strong>
+      <span>Compartidas</span>
+    </article>
+    <article>
+      <strong>{{ virtualGroupCount() }}</strong>
+      <span>Grupos virtuales</span>
+    </article>
+    <article>
+      <strong>{{ activeCycleCode() }}</strong>
+      <span>Ciclo activo</span>
+    </article>
+  </div>
+</section>
+
+@if (!canViewMeetLinks()) {
+  <aside class="permission-alert" role="alert">
+    <strong>Modulo restringido</strong>
+    <span>Las ligas Meet estan preparadas para Sistemas o usuarios con acceso habilitado al modulo.</span>
+  </aside>
+}
+
+<section class="table-panel" aria-label="Tabla de clases virtuales para ligas Meet">
+  <div class="panel-title">
+    <div>
+      <span>Revision operativa</span>
+      <h3>Clases pendientes de liga</h3>
+    </div>
+
+    <div class="filters">
+      <div class="readonly-filter">
+        <span>Ciclo activo</span>
+        <strong>{{ activeCycleCode() }}</strong>
+      </div>
+      <label>
+        <span>Busqueda</span>
+        <input
+          type="search"
+          [value]="searchTerm"
+          (input)="updateSearchTerm($event)"
+          placeholder="ID, grupo, docente o asignatura"
+        />
+      </label>
+      <label>
+        <span>Clase compartida</span>
+        <select [value]="sharedFilter" (change)="updateSharedFilter($event)">
+          <option value="TODAS">Todas</option>
+          <option value="COMPARTIDAS">Compartidas</option>
+          <option value="SIN_COMPARTIR">Sin compartir</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID asignatura</th>
+          <th>Asignatura</th>
+          <th>Grupo origen</th>
+          <th>Grupos virtuales</th>
+          <th>Grupos compartidos</th>
+          <th>Docente</th>
+          <th class="center-column">Estado asignacion</th>
+          <th class="center-column">Liga Meet</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of visibleMeetRows(); track row.id) {
+          <tr>
+            <td><strong class="moodle-id">{{ row.moodleId }}</strong></td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ row.subjectId }}</strong>
+                <small>{{ row.subjectName }}</small>
+              </div>
+            </td>
+            <td><strong>{{ row.originGroup }}</strong></td>
+            <td>
+              <div class="chip-list">
+                @for (group of row.virtualGroups; track group) {
+                  <span class="virtual-chip">{{ group }}</span>
+                }
+              </div>
+            </td>
+            <td>
+              @if (row.sharedGroups.length) {
+                <div class="chip-list">
+                  @for (group of row.sharedGroups; track group) {
+                    <span>{{ group }}</span>
+                  }
+                </div>
+              } @else {
+                <span class="pending-label">Sin compartir</span>
+              }
+            </td>
+            <td>
+              <div class="stacked-cell">
+                <strong>{{ row.teacherName }}</strong>
+                <small>{{ row.teacherMoodleUser }}</small>
+              </div>
+            </td>
+            <td class="center-column">
+              <span class="status-badge" [ngClass]="statusClass(row.assignmentStatus)">
+                {{ statusLabel(row.assignmentStatus) }}
+              </span>
+            </td>
+            <td class="center-column">
+              <span class="meet-status">Pendiente</span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <strong>Sin clases virtuales detectadas</strong>
+                <span>Cuando existan asignaciones de grupos virtuales en el ciclo activo apareceran aqui.</span>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

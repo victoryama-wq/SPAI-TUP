@@ -302,6 +302,12 @@
           <span>Ciclo activo</span>
           <input type="text" [(ngModel)]="assignmentForm.cycle" readonly />
         </label>
+        @if (modeTab() === 'Especiales') {
+          <label class="toggle-row special-toggle">
+            <input type="checkbox" [(ngModel)]="assignmentForm.special" (change)="onSpecialChange()" />
+            <span>Caso sin grupo con matriculas</span>
+          </label>
+        }
         @if (assignmentForm.special) {
           <label>
             <span>Programa *</span>
@@ -328,16 +334,39 @@
           </label>
           @if (assignmentForm.shared) {
             <label>
-              <span>Grupo a compartir *</span>
-              <select [(ngModel)]="assignmentForm.shareGroup">
-                <option value="">Seleccionar grupo</option>
-                @for (group of destinationGroupOptions(); track group.id) {
-                  @if (group.fullGroup !== assignmentForm.group) {
-                    <option [value]="group.fullGroup">{{ group.fullGroup }} - {{ group.programName }}</option>
-                  }
+              <span>Con cuantos grupos *</span>
+              <select [ngModel]="assignmentForm.sharedGroupCount" (ngModelChange)="onSharedGroupCountChange($event)">
+                <option [ngValue]="0" disabled>Seleccionar cantidad</option>
+                @for (count of sharedGroupCountOptions(); track count) {
+                  <option [ngValue]="count">{{ count }}</option>
                 }
               </select>
             </label>
+            <div class="share-group-panel wide-field">
+              <div class="share-group-summary">
+                <span>Grupos compartidos</span>
+                <strong>{{ assignmentForm.shareGroups.length }} / {{ assignmentForm.sharedGroupCount }}</strong>
+              </div>
+              <div class="share-group-options">
+                @for (group of sharedGroupOptions(); track group.id) {
+                  <label class="share-group-option">
+                    <input
+                      type="checkbox"
+                      [checked]="isShareGroupSelected(group.fullGroup)"
+                      [disabled]="isShareGroupDisabled(group.fullGroup)"
+                      (change)="toggleShareGroup(group.fullGroup, $any($event.target).checked)"
+                    />
+                    <span>{{ group.fullGroup }}</span>
+                    <small>{{ group.programName }}</small>
+                  </label>
+                } @empty {
+                  <div class="share-group-empty">
+                    <strong>Sin grupos compatibles</strong>
+                    <span>Revisa el grupo base o la pestana de modalidad.</span>
+                  </div>
+                }
+              </div>
+            </div>
           }
         }
         <label>
@@ -410,8 +439,24 @@
         </div>
       }
 
+      @if (formMessage && !formErrors.length) {
+        <div class="feedback">
+          <strong>{{ formMessage }}</strong>
+        </div>
+      }
+
       <div class="modal-actions">
         <button class="secondary-action" type="button" (click)="closeAssignmentModal()">Cancelar</button>
+        @if (!editingAssignmentId) {
+          <button
+            class="secondary-action continue-action"
+            type="button"
+            [disabled]="!canCaptureAssignments()"
+            (click)="saveAssignment(true)"
+          >
+            Guardar y continuar agregando
+          </button>
+        }
         <button
           class="primary-action"
           type="button"
