@@ -187,6 +187,28 @@ export class GroupsPageComponent {
     return this.selectedCycleCode ? this.cycleGroups().length : 0;
   }
 
+  hasSelectedCycleFilter(): boolean {
+    return Boolean(this.selectedCycleCode) && this.cycleOptions().includes(this.selectedCycleCode);
+  }
+
+  canDeleteSelectedCycleGroups(): boolean {
+    return this.canManageGroups()
+      && this.hasSelectedCycleFilter()
+      && this.selectedCycleGroupsCount > 0;
+  }
+
+  deleteCycleGroupsActionTitle(): string {
+    if (!this.hasSelectedCycleFilter()) {
+      return 'Selecciona un ciclo para habilitar esta accion.';
+    }
+
+    if (this.selectedCycleGroupsCount === 0) {
+      return 'No hay grupos registrados en el ciclo seleccionado.';
+    }
+
+    return `Eliminar grupos del ciclo ${this.selectedCycleCode}`;
+  }
+
   paginatedGroups(): AcademicGroup[] {
     const startIndex = (this.currentSafePage() - 1) * this.pageSize;
 
@@ -318,7 +340,7 @@ export class GroupsPageComponent {
   }
 
   askDeleteCycleGroups(): void {
-    if (!this.canManageGroups() || !this.selectedCycleCode || this.selectedCycleGroupsCount === 0) {
+    if (!this.canDeleteSelectedCycleGroups()) {
       return;
     }
 

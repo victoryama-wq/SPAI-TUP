@@ -606,6 +606,12 @@ th {
   white-space: nowrap;
 }
 
+.compact-danger-action:disabled {
+  background: #f8fafc;
+  border-color: #dbe4f0;
+  color: #94a3b8;
+}
+
 .cycle-filter select,
 .group-scope-filter select,
 .group-search-filter input {

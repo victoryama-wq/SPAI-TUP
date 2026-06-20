@@ -340,7 +340,8 @@
         <button
           class="danger-action compact-danger-action"
           type="button"
-          [disabled]="!selectedCycleCode || selectedCycleGroupsCount === 0"
+          [disabled]="!canDeleteSelectedCycleGroups()"
+          [title]="deleteCycleGroupsActionTitle()"
           (click)="askDeleteCycleGroups()"
         >
           Eliminar grupos de ciclo
