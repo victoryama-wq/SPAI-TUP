@@ -248,9 +248,11 @@
 
     <main class="content-shell" id="main-content" tabindex="-1">
       <div class="content-inner">
-        <div class="context-row">
-          <strong>Ciclo activo: <span [class.pending]="!activeCycle()">{{ activeCycleLabel }}</span></strong>
-        </div>
+        @if (!isAssignmentsRoute()) {
+          <div class="context-row">
+            <strong>Ciclo activo: <span [class.pending]="!activeCycle()">{{ activeCycleLabel }}</span></strong>
+          </div>
+        }
 
         <router-outlet />
       </div>

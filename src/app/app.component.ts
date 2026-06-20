@@ -163,6 +163,10 @@ export class AppComponent {
     return this.activeCycle()?.code ?? 'Pendiente de configurar';
   }
 
+  isAssignmentsRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/asignaciones';
+  }
+
   async toggleSession(): Promise<void> {
     this.isProfileMenuOpenSignal.set(false);
     this.isNotificationsMenuOpenSignal.set(false);

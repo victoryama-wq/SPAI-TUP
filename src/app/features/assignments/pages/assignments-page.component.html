@@ -50,18 +50,24 @@
             <small>{{ canSeeAllAssignments() ? 'Vista Sistemas' : 'Vista Coordinacion' }}</small>
           </div>
 
-          <button
-            class="primary-action"
-            type="button"
-            [disabled]="!canManageAssignments() || !canCaptureAssignments()"
-            [title]="captureBlockedMessage() || 'Nueva asignacion'"
-            (click)="openAssignmentModal()"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 5v14M5 12h14"></path>
-            </svg>
-            <span>Nueva asignacion</span>
-          </button>
+          <div class="panel-heading-actions">
+            <span class="cycle-chip" [class.pending]="!activeCycle()">
+              Ciclo activo
+              <strong>{{ activeCycleCode() }}</strong>
+            </span>
+            <button
+              class="primary-action"
+              type="button"
+              [disabled]="!canManageAssignments() || !canCaptureAssignments()"
+              [title]="captureBlockedMessage() || 'Nueva asignacion'"
+              (click)="openAssignmentModal()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              <span>Nueva asignacion</span>
+            </button>
+          </div>
         </div>
 
         <div class="filters">
