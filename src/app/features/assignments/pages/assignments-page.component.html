@@ -1,51 +1,3 @@
-<section class="assignments-overview">
-  <section class="assignments-header">
-    <div class="header-copy">
-      <span>Planeacion academica</span>
-      <h2>Asignaciones</h2>
-      <p>Relaciona grupos del ciclo activo con asignaturas, docentes e ID asignatura para revision institucional.</p>
-    </div>
-
-    <div class="header-actions">
-      <button
-        class="primary-action"
-        type="button"
-        [disabled]="!canManageAssignments() || !canCaptureAssignments()"
-        [title]="captureBlockedMessage() || 'Nueva asignacion'"
-        (click)="openAssignmentModal()"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5v14M5 12h14"></path>
-        </svg>
-        <span>Nueva asignacion</span>
-      </button>
-    </div>
-  </section>
-
-  <div class="summary-grid">
-    <article>
-      <strong>{{ visibleAssignments().length }}</strong>
-      <span>En vista actual</span>
-    </article>
-    <article>
-      <strong>{{ captureCount() }}</strong>
-      <span>En captura</span>
-    </article>
-    <article>
-      <strong>{{ reviewCount() }}</strong>
-      <span>En revision</span>
-    </article>
-    <article>
-      <strong>{{ validatedCount() }}</strong>
-      <span>Validadas</span>
-    </article>
-    <article>
-      <strong>{{ observedCount() }}</strong>
-      <span>Con observacion</span>
-    </article>
-  </div>
-</section>
-
 @if (formMessage && !isAssignmentModalOpen) {
   <div class="feedback standalone-feedback">
     <strong>{{ formMessage }}</strong>
@@ -87,66 +39,85 @@
     }
   </div>
 
-  <div class="panel-title">
-    <div>
-      <span>{{ canSeeAllAssignments() ? 'Vista Sistemas' : 'Vista Coordinacion' }}</span>
-      <h3>Asignaciones academicas</h3>
-    </div>
+  <div class="assignments-workspace">
+    <div class="assignments-main-column">
+      <div class="panel-title">
+        <div class="panel-heading-row">
+          <div class="panel-heading-copy">
+            <span>Planeacion academica</span>
+            <h3>Asignaciones academicas</h3>
+            <p>Relaciona grupos del ciclo activo con asignaturas, docentes e ID Moodle para revision institucional.</p>
+            <small>{{ canSeeAllAssignments() ? 'Vista Sistemas' : 'Vista Coordinacion' }}</small>
+          </div>
 
-    <div class="filters">
-      <div class="assignment-search" role="search">
-        <label class="search-type-field">
-          <span>Buscar por</span>
-          <select [value]="searchField()" (change)="selectSearchField($event)">
-            <option value="program">Programa</option>
-            <option value="group">Grupo</option>
-            <option value="teacher">Docente</option>
-            <option value="subject">Materia</option>
-          </select>
-        </label>
-        <div class="search-box">
-          <input
-            type="search"
-            [attr.aria-label]="'Buscar por ' + searchFieldLabel()"
-            [value]="searchQuery()"
-            (input)="updateSearchQuery($event)"
-            [placeholder]="searchPlaceholder()"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          @if (predictedSearchSuggestions().length) {
-            <div class="prediction-row" aria-label="Predicciones de busqueda">
-              @for (option of predictedSearchSuggestions(); track option) {
-                <button type="button" (click)="selectPredictedSearch(option)">
-                  {{ option }}
+          <button
+            class="primary-action"
+            type="button"
+            [disabled]="!canManageAssignments() || !canCaptureAssignments()"
+            [title]="captureBlockedMessage() || 'Nueva asignacion'"
+            (click)="openAssignmentModal()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            <span>Nueva asignacion</span>
+          </button>
+        </div>
+
+        <div class="filters">
+          <div class="assignment-search" role="search">
+            <label class="search-type-field">
+              <span>Buscar por</span>
+              <select [value]="searchField()" (change)="selectSearchField($event)">
+                <option value="program">Programa</option>
+                <option value="group">Grupo</option>
+                <option value="teacher">Docente</option>
+                <option value="subject">Materia</option>
+              </select>
+            </label>
+            <div class="search-box">
+              <input
+                type="search"
+                [attr.aria-label]="'Buscar por ' + searchFieldLabel()"
+                [value]="searchQuery()"
+                (input)="updateSearchQuery($event)"
+                [placeholder]="searchPlaceholder()"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              @if (predictedSearchSuggestions().length) {
+                <div class="prediction-row" aria-label="Predicciones de busqueda">
+                  @for (option of predictedSearchSuggestions(); track option) {
+                    <button type="button" (click)="selectPredictedSearch(option)">
+                      {{ option }}
+                    </button>
+                  }
+                </div>
+              }
+              @if (searchQuery()) {
+                <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"></path>
+                  </svg>
                 </button>
               }
             </div>
-          }
-          @if (searchQuery()) {
-            <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 6 6 18M6 6l12 12"></path>
-              </svg>
-            </button>
-          }
+          </div>
+          <label class="status-filter">
+            <span>Estado</span>
+            <select [value]="statusFilter()" (change)="selectStatusFilter($event)">
+              <option value="TODOS">Todos</option>
+              <option value="EN_CAPTURA">En captura</option>
+              <option value="EN_REVISION">En revision</option>
+              <option value="VALIDADO">Validado</option>
+              <option value="CON_OBSERVACION">Con observacion</option>
+            </select>
+          </label>
         </div>
       </div>
-      <label class="status-filter">
-        <span>Estado</span>
-        <select [value]="statusFilter()" (change)="selectStatusFilter($event)">
-          <option value="TODOS">Todos</option>
-          <option value="EN_CAPTURA">En captura</option>
-          <option value="EN_REVISION">En revision</option>
-          <option value="VALIDADO">Validado</option>
-          <option value="CON_OBSERVACION">Con observacion</option>
-        </select>
-      </label>
-    </div>
-  </div>
 
-  <div class="table-wrap">
-    <table>
+      <div class="table-wrap">
+        <table>
       <thead>
         <tr>
           <th>ID Moodle</th>
@@ -258,7 +229,45 @@
           </tr>
         }
       </tbody>
-    </table>
+        </table>
+      </div>
+    </div>
+
+    <aside class="assignments-side-panel" aria-label="Seguimiento de asignaciones">
+      <section class="assignment-side-card tracking-card">
+        <span>Seguimiento</span>
+        <h3>Estado de captura</h3>
+        <p>{{ nextAssignmentAction() }}</p>
+      </section>
+
+      <section class="assignment-side-card">
+        <span>Por estado</span>
+        <div class="status-summary-list">
+          <div>
+            <strong>{{ captureCount() }}</strong>
+            <span>En captura</span>
+          </div>
+          <div>
+            <strong>{{ reviewCount() }}</strong>
+            <span>En revision</span>
+          </div>
+          <div>
+            <strong>{{ validatedCount() }}</strong>
+            <span>Validadas</span>
+          </div>
+          <div>
+            <strong>{{ observedCount() }}</strong>
+            <span>Con observacion</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="assignment-side-card muted-side-card">
+        <span>Vista actual</span>
+        <strong>{{ visibleAssignments().length }}</strong>
+        <p>asignaciones visibles con los filtros aplicados.</p>
+      </section>
+    </aside>
   </div>
 </section>
 

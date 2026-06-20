@@ -329,6 +329,22 @@ export class AssignmentsPageComponent {
     () => this.visibleAssignments().filter((assignment) => assignment.status === 'CON_OBSERVACION').length,
   );
 
+  readonly nextAssignmentAction = computed(() => {
+    if (this.observedCount() > 0) {
+      return 'Revisa las asignaciones con observacion y corrige los datos marcados antes de validarlas.';
+    }
+
+    if (this.reviewCount() > 0) {
+      return 'Hay asignaciones en revision listas para validacion o comentarios de Sistemas.';
+    }
+
+    if (this.captureCount() > 0) {
+      return 'Hay asignaciones en captura; confirma ID Moodle, materia, docente y grupo antes de enviarlas a revision.';
+    }
+
+    return 'No hay asignaciones pendientes en la vista actual.';
+  });
+
   get modalTitle(): string {
     return this.editingAssignmentId ? 'Editar asignacion' : 'Nueva asignacion';
   }
