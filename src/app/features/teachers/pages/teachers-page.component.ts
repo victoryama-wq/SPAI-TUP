@@ -374,6 +374,13 @@ export class TeachersPageComponent {
     this.resetPagination();
   }
 
+  updateManualMoodleUser(value: string): void {
+    const moodleUser = this.normalizeMoodleAccount(value);
+
+    this.manualForm.moodleUser = moodleUser;
+    this.manualForm.email = moodleUser;
+  }
+
   selectPageSize(event: Event): void {
     this.pageSize = Number((event.target as HTMLSelectElement).value) || 10;
     this.resetPagination();
@@ -406,9 +413,9 @@ export class TeachersPageComponent {
     }
 
     const actor = this.actorData();
-    const normalizedMoodleUser = this.teachersRepository.normalizeMoodleUser(this.manualForm.moodleUser);
+    const normalizedMoodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
     const teacherFullName = this.manualForm.fullName.trim().replace(/\s+/g, ' ').toUpperCase();
-    const teacherEmail = this.buildInstitutionalEmail(this.manualForm.email);
+    const teacherEmail = this.buildInstitutionalEmail(normalizedMoodleUser);
     const status: TeacherStatus = this.canManageTeachers() ? 'VALIDADO' : 'PENDIENTE';
     const isAcademicTeacher = this.isAcademicCoordination();
 
@@ -720,7 +727,7 @@ export class TeachersPageComponent {
 
   private validateManualForm(): string[] {
     const errors: string[] = [];
-    const moodleUser = this.teachersRepository.normalizeMoodleUser(this.manualForm.moodleUser);
+    const moodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
 
     if (!this.manualForm.fullName.trim()) {
       errors.push('El nombre completo es obligatorio.');
@@ -1184,18 +1191,20 @@ export class TeachersPageComponent {
   }
 
   private buildInstitutionalEmail(value: string): string {
-    const normalizedValue = value.trim().toLowerCase();
+    const normalizedValue = this.normalizeMoodleAccount(value);
 
     if (!normalizedValue) {
       return '';
     }
 
-    const localPart = normalizedValue
+    return `${normalizedValue}@tecplayacar.edu.mx`;
+  }
+
+  private normalizeMoodleAccount(value: string): string {
+    return this.teachersRepository.normalizeMoodleUser(value)
       .replace(/@tecplayacar[.]edu[.]mx$/i, '')
       .replace(/@.*$/i, '')
       .trim();
-
-    return localPart ? `${localPart}@tecplayacar.edu.mx` : '';
   }
 
   private errorMessage(error: unknown): string {

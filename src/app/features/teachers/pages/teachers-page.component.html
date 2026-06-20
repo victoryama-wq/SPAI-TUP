@@ -401,12 +401,17 @@
         </label>
         <label>
           <span>Usuario Moodle *</span>
-          <input type="text" [(ngModel)]="manualForm.moodleUser" placeholder="jperez" />
+          <input
+            type="text"
+            [ngModel]="manualForm.moodleUser"
+            (ngModelChange)="updateManualMoodleUser($event)"
+            placeholder="jperez"
+          />
         </label>
         <label>
           <span>Correo</span>
-          <div class="domain-field">
-            <input type="text" [(ngModel)]="manualForm.email" placeholder="juan.perez" />
+          <div class="domain-field derived-field">
+            <input type="text" [value]="manualForm.email" placeholder="jperez" readonly aria-readonly="true" />
             <span>@tecplayacar.edu.mx</span>
           </div>
         </label>
