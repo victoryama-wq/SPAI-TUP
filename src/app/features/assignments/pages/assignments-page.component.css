@@ -321,7 +321,7 @@ th {
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
-  color: #29466f;
+  color: #1d4ed8;
   display: inline-flex;
   gap: 8px;
   min-height: 48px;
@@ -332,15 +332,16 @@ th {
 }
 
 .cycle-chip strong {
-  color: #1d4ed8;
-  font-size: 20px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
   line-height: 1;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .cycle-chip.pending strong {
   color: #64748b;
-  font-size: 14px;
+  font-size: inherit;
 }
 
 .panel-title h3 {
