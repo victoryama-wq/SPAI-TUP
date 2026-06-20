@@ -199,10 +199,11 @@ export class AssignmentsPageComponent {
     const programs = new Set(
       this.groups()
         .filter((group) => {
-          return group.cycleCode === activeCycle.code
-            && this.canUseDestinationProgram(group.programAbbreviation);
-        })
-        .map((group) => group.programAbbreviation),
+        return group.cycleCode === activeCycle.code
+            && this.canUseDestinationProgram(group.programAbbreviation)
+            && this.groupMatchesModeTab(group, this.modeTab());
+      })
+      .map((group) => group.programAbbreviation),
     );
 
     this.assignments()
@@ -210,7 +211,9 @@ export class AssignmentsPageComponent {
         const allowedProgram = this.canSeeAllAssignments()
           || appUser?.assignedPrograms.includes(assignment.program) === true;
 
-        return assignment.cycle === activeCycle.code && allowedProgram;
+        return assignment.cycle === activeCycle.code
+          && allowedProgram
+          && this.assignmentMode(assignment) === this.modeTab();
       })
       .forEach((assignment) => programs.add(assignment.program));
 
@@ -646,6 +649,11 @@ export class AssignmentsPageComponent {
   searchSuggestions(): string[] {
     const query = this.normalizeSearch(this.searchQuery());
     const options = new Set<string>();
+    const scopedAssignments = this.assignments().filter((assignment) => {
+      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
+
+      return this.assignmentInCurrentScope(assignment) && matchesStatus;
+    });
 
     if (this.searchField() === 'program') {
       this.visibleProgramCodes().forEach((program) => options.add(program));
@@ -653,23 +661,18 @@ export class AssignmentsPageComponent {
 
     if (this.searchField() === 'group') {
       this.tableGroupOptions().forEach((group) => options.add(group.fullGroup));
-      this.assignments()
-        .filter((assignment) => this.assignmentInCurrentScope(assignment) && assignment.group)
+      scopedAssignments
+        .filter((assignment) => assignment.group)
         .forEach((assignment) => options.add(assignment.group));
     }
 
     if (this.searchField() === 'teacher') {
-      this.assignments()
-        .filter((assignment) => this.assignmentInCurrentScope(assignment))
+      scopedAssignments
         .forEach((assignment) => options.add(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
-      this.validatedTeachers().forEach((teacher) => options.add(`${teacher.fullName} - ${teacher.moodleUser}`));
-      options.add('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
     }
 
     if (this.searchField() === 'subject') {
-      this.activeSubjects().forEach((subject) => options.add(`${subject.subjectId} - ${subject.name}`));
-      this.assignments()
-        .filter((assignment) => this.assignmentInCurrentScope(assignment))
+      scopedAssignments
         .forEach((assignment) => options.add(`${assignment.subjectId} - ${assignment.subjectName}`));
     }
 
@@ -1052,7 +1055,11 @@ export class AssignmentsPageComponent {
       return 'Posgrados';
     }
 
-    if (group.modality === 'Escolarizado' || group.modality === 'Ejecutivo' || group.modality === 'Virtual') {
+    if (group.modality === 'Escolarizado' && !this.isHealthGroup(group)) {
+      return 'Escolarizado';
+    }
+
+    if (group.modality === 'Ejecutivo' || group.modality === 'Virtual') {
       return group.modality;
     }
 
@@ -1067,13 +1074,30 @@ export class AssignmentsPageComponent {
   }
 
   private isHealthGroup(group: AcademicGroup): boolean {
-    return this.normalizeSearchText(group.academicArea).includes('salud');
+    const program = this.programForGroup(group);
+    const searchText = this.normalizeSearchText([
+      group.academicArea,
+      program?.academicArea,
+      program?.name,
+      group.programName,
+      group.programAbbreviation,
+    ].join(' '));
+
+    return searchText.includes('salud');
   }
 
   private isCampusTupGroup(group: AcademicGroup): boolean {
-    const academicArea = this.normalizeSearchText(group.academicArea);
+    const program = this.programForGroup(group);
+    const academicArea = this.normalizeSearchText([
+      group.academicArea,
+      program?.academicArea,
+    ].join(' '));
 
     return academicArea.includes('campus tup') || academicArea === 'campus';
+  }
+
+  private programForGroup(group: AcademicGroup) {
+    return this.programs().find((program) => program.code === group.programAbbreviation) ?? null;
   }
 
   private hasStudentEnrollments(studentEnrollments?: string): boolean {
