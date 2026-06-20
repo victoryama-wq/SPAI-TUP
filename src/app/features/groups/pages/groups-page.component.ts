@@ -473,10 +473,21 @@ export class GroupsPageComponent {
     return cycle ? `${cycle.code} - ${cycle.label}` : cycleCode;
   }
 
+  manualGroupCycleCode(): string {
+    return this.activeCycle()?.code ?? this.selectedCycleCode;
+  }
+
+  manualGroupCycleLabel(): string {
+    return this.manualGroupCycleCode() || 'Pendiente de configurar';
+  }
+
   private buildManualGroupPayload(): { payload: UpsertGroupPayload | null; errors: string[] } {
     const errors: string[] = [];
-    const parsedGroup = parseAcademicGroup(this.manualGroupForm.fullGroup);
-    const normalizedGroup = normalizeFullGroup(this.manualGroupForm.fullGroup);
+    const manualGroupValue = this.manualGroupForm.fullGroup.trim();
+    const manualCycleCode = this.manualGroupCycleCode();
+    const fullGroup = this.buildManualFullGroup(manualGroupValue, manualCycleCode);
+    const parsedGroup = parseAcademicGroup(fullGroup);
+    const normalizedGroup = normalizeFullGroup(fullGroup);
     const status = this.parseStatus(this.manualGroupForm.status);
     const nomenclature = this.nomenclatures().find((item) => {
       return item.abbreviation.toUpperCase() === parsedGroup.programAbbreviation;
@@ -486,8 +497,16 @@ export class GroupsPageComponent {
 
     errors.push(...parsedGroup.observations);
 
-    if (!this.manualGroupForm.fullGroup.trim()) {
-      errors.push('El grupo completo es obligatorio.');
+    if (!manualCycleCode) {
+      errors.push('No hay ciclo activo para asignar el grupo.');
+    }
+
+    if (!manualGroupValue) {
+      errors.push('El grupo es obligatorio.');
+    }
+
+    if (manualGroupValue && this.hasManualCyclePrefix(manualGroupValue) && parsedGroup.cycleCode !== manualCycleCode) {
+      errors.push(`El alta individual solo permite grupos del ciclo activo ${manualCycleCode}.`);
     }
 
     if (parsedGroup.cycleCode && !this.cycles().some((cycle) => cycle.code === parsedGroup.cycleCode)) {
@@ -797,6 +816,18 @@ export class GroupsPageComponent {
       fullGroup: '',
       status: 'Activo',
     };
+  }
+
+  private buildManualFullGroup(groupValue: string, cycleCode: string): string {
+    if (!groupValue || this.hasManualCyclePrefix(groupValue)) {
+      return groupValue;
+    }
+
+    return `${cycleCode} ${groupValue}`.trim();
+  }
+
+  private hasManualCyclePrefix(groupValue: string): boolean {
+    return /^\d{2}-\d\s+/i.test(groupValue.trim());
   }
 
   private resetPagination(): void {

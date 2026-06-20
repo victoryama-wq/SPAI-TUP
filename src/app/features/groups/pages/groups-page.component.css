@@ -430,7 +430,7 @@ th {
 .manual-group-form {
   display: grid;
   gap: 16px;
-  grid-template-columns: minmax(0, 2fr) minmax(180px, 0.7fr);
+  grid-template-columns: minmax(150px, 0.6fr) minmax(0, 2fr) minmax(180px, 0.7fr);
 }
 
 .manual-group-form label {
@@ -460,6 +460,12 @@ th {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
   outline: none;
+}
+
+.manual-group-form input[readonly] {
+  background: #edf4ff;
+  color: #1d4ed8;
+  font-weight: 900;
 }
 
 .manual-help {

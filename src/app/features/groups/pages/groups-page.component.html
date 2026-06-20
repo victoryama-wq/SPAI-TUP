@@ -99,12 +99,17 @@
       </div>
 
       <div class="manual-group-form">
+        <label class="cycle-field">
+          <span>Ciclo activo</span>
+          <input type="text" [value]="manualGroupCycleLabel()" readonly />
+        </label>
+
         <label>
-          <span>Grupo completo *</span>
+          <span>Grupo *</span>
           <input
             type="text"
             [value]="manualGroupForm.fullGroup"
-            placeholder="Ej. 26-3 ENF 11 01A"
+            placeholder="Ej. ENF 11 01A"
             (input)="updateManualGroupField('fullGroup', $event)"
           />
         </label>
@@ -120,7 +125,7 @@
 
       <div class="manual-help">
         <strong>Formato requerido</strong>
-        <span>Usa ciclo, abreviatura, codigo y seccion. Ejemplo: 26-3 ENF 11 01A.</span>
+        <span>El ciclo {{ manualGroupCycleLabel() }} se agrega automaticamente. Captura abreviatura, codigo y seccion. Ejemplo: ENF 11 01A.</span>
       </div>
 
       @if (manualGroupErrors.length) {
