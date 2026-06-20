@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
@@ -84,7 +84,6 @@ export class GroupsPageComponent {
   currentPage = 1;
   pageSize = 10;
   readonly pageSizeOptions = GROUPS_PAGE_SIZE_OPTIONS;
-  private cycleFilterInitialized = false;
   private readonly tableFiltersVersion = signal(0);
 
   readonly isAcademicCoordinator = computed(() => {
@@ -117,18 +116,6 @@ export class GroupsPageComponent {
 
     return Array.from(new Set([...directPrograms, ...coordinatorPrograms])).sort((a, b) => a.localeCompare(b, 'es'));
   });
-
-  constructor() {
-    effect(() => {
-      const activeCycle = this.activeCycle();
-
-      if (!this.cycleFilterInitialized && activeCycle) {
-        this.selectedCycleCode = activeCycle.code;
-        this.tableFiltersVersion.update((version) => version + 1);
-        this.cycleFilterInitialized = true;
-      }
-    });
-  }
 
   readonly cycleGroups = computed(() => {
     this.tableFiltersVersion();
