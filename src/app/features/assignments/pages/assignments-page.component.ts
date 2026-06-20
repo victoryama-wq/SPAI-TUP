@@ -688,7 +688,7 @@ export class AssignmentsPageComponent {
 
     return this.searchSuggestions()
       .filter((option) => this.normalizeSearch(option) !== query)
-      .slice(0, 5);
+      .slice(0, 4);
   }
 
   onGroupChange(): void {

@@ -279,7 +279,7 @@ th {
   align-items: end;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(320px, 1fr) minmax(150px, 180px);
+  grid-template-columns: minmax(720px, 1fr) minmax(150px, 180px);
 }
 
 .filters label,
@@ -293,28 +293,46 @@ th {
   align-items: end;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(140px, 180px) minmax(260px, 1fr) auto;
+  grid-template-columns: 180px minmax(560px, 1fr);
 }
 
-.search-input-field {
-  display: grid;
+.search-box {
+  align-items: center;
+  background: #f9fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  display: flex;
   gap: 8px;
+  min-height: 44px;
+  padding: 4px 44px 4px 12px;
+  position: relative;
 }
 
-.search-input-field label {
-  display: grid;
-  gap: 7px;
+.search-box input {
+  background: transparent;
+  border: 0;
+  flex: 1 1 220px;
+  min-height: 34px;
+  min-width: 180px;
+  outline: 0;
+  padding: 0;
+  width: auto;
 }
 
-.search-input-field input {
-  width: 100%;
+.search-box:focus-within {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgb(147 197 253 / 0.35);
 }
 
 .prediction-row {
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
   gap: 7px;
-  min-height: 30px;
+  max-width: 48%;
+  min-height: auto;
+  overflow: hidden;
 }
 
 .prediction-row button {
@@ -325,7 +343,7 @@ th {
   cursor: pointer;
   font-size: 12px;
   font-weight: 900;
-  max-width: 260px;
+  max-width: 180px;
   overflow: hidden;
   padding: 6px 10px;
   text-overflow: ellipsis;
@@ -344,9 +362,12 @@ th {
   color: #1d4ed8;
   cursor: pointer;
   display: inline-flex;
-  height: 44px;
+  height: 34px;
   justify-content: center;
-  width: 44px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 34px;
 }
 
 .clear-search-action svg {
@@ -1040,6 +1061,11 @@ td.center-column {
 
   .assignment-search {
     grid-column: 1 / -1;
+    grid-template-columns: 180px minmax(440px, 1fr);
+  }
+
+  .prediction-row {
+    max-width: 42%;
   }
 }
 
@@ -1059,7 +1085,12 @@ td.center-column {
   }
 
   .clear-search-action {
-    width: 100%;
+    width: 34px;
+  }
+
+  .prediction-row {
+    flex: 1 1 100%;
+    max-width: none;
   }
 
   .details-grid {

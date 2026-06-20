@@ -95,7 +95,7 @@
 
     <div class="filters">
       <div class="assignment-search" role="search">
-        <label>
+        <label class="search-type-field">
           <span>Buscar por</span>
           <select [value]="searchField()" (change)="selectSearchField($event)">
             <option value="program">Programa</option>
@@ -104,18 +104,16 @@
             <option value="subject">Materia</option>
           </select>
         </label>
-        <div class="search-input-field">
-          <label>
-            <span>{{ searchFieldLabel() }}</span>
-            <input
-              type="search"
-              [value]="searchQuery()"
-              (input)="updateSearchQuery($event)"
-              [placeholder]="searchPlaceholder()"
-              autocomplete="off"
-              spellcheck="false"
-            />
-          </label>
+        <div class="search-box">
+          <input
+            type="search"
+            [attr.aria-label]="'Buscar por ' + searchFieldLabel()"
+            [value]="searchQuery()"
+            (input)="updateSearchQuery($event)"
+            [placeholder]="searchPlaceholder()"
+            autocomplete="off"
+            spellcheck="false"
+          />
           @if (predictedSearchSuggestions().length) {
             <div class="prediction-row" aria-label="Predicciones de busqueda">
               @for (option of predictedSearchSuggestions(); track option) {
@@ -125,14 +123,14 @@
               }
             </div>
           }
+          @if (searchQuery()) {
+            <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          }
         </div>
-        @if (searchQuery()) {
-          <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
-        }
       </div>
       <label class="status-filter">
         <span>Estado</span>
