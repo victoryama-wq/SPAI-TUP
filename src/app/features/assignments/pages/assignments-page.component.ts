@@ -21,10 +21,12 @@ import {
 type AssignmentStatusFilter = AssignmentStatus | 'TODOS';
 type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales';
 type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
+type AssignmentComboField = 'subject' | 'teacher' | 'group';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
 const MAX_SHARED_GROUPS = 8;
+const MAX_COMBO_OPTIONS = 8;
 
 interface AssignmentFormState {
   cycle: string;
@@ -41,6 +43,12 @@ interface AssignmentFormState {
   shareGroups: string[];
   special: boolean;
   studentEnrollments: string;
+}
+
+interface TeacherPickerOption {
+  moodleUser: string;
+  label: string;
+  note: string;
 }
 
 @Component({
@@ -83,6 +91,7 @@ export class AssignmentsPageComponent {
   subjectPickerValue = '';
   teacherPickerValue = '';
   groupPickerValue = '';
+  activeComboField: AssignmentComboField | null = null;
 
   assignmentForm = this.emptyForm();
 
@@ -380,6 +389,7 @@ export class AssignmentsPageComponent {
     this.formErrors = [];
     this.formMessage = '';
     this.shareGroupSearch.set('');
+    this.activeComboField = null;
     this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
@@ -399,6 +409,7 @@ export class AssignmentsPageComponent {
     this.formErrors = [];
     this.formMessage = '';
     this.shareGroupSearch.set('');
+    this.activeComboField = null;
     const sourceAssignment = assignment.shared ? this.assignmentById(assignment.sourceAssignmentId) : null;
     this.assignmentForm = {
       cycle: assignment.cycle,
@@ -433,6 +444,7 @@ export class AssignmentsPageComponent {
     this.editingAssignmentId = null;
     this.formErrors = [];
     this.shareGroupSearch.set('');
+    this.activeComboField = null;
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();
   }
@@ -724,6 +736,24 @@ export class AssignmentsPageComponent {
       .slice(0, 4);
   }
 
+  openCombo(field: AssignmentComboField): void {
+    this.activeComboField = field;
+  }
+
+  toggleCombo(field: AssignmentComboField): void {
+    this.activeComboField = this.activeComboField === field ? null : field;
+  }
+
+  closeCombo(field: AssignmentComboField): void {
+    if (this.activeComboField === field) {
+      this.activeComboField = null;
+    }
+  }
+
+  isComboOpen(field: AssignmentComboField): boolean {
+    return this.activeComboField === field;
+  }
+
   subjectPickerLabel(subject: Subject): string {
     return subject.name;
   }
@@ -740,8 +770,54 @@ export class AssignmentsPageComponent {
     return `${group.fullGroup} - ${group.programName}`;
   }
 
+  visibleSubjectPickerOptions(): Subject[] {
+    const query = this.normalizeSearch(this.subjectPickerValue);
+
+    return this.activeSubjects()
+      .filter((subject) => !query || this.matchesSearchText(
+        `${subject.name} ${subject.subjectId}`,
+        query,
+      ))
+      .slice(0, MAX_COMBO_OPTIONS);
+  }
+
+  visibleTeacherPickerOptions(): TeacherPickerOption[] {
+    const query = this.normalizeSearch(this.teacherPickerValue);
+    const options: TeacherPickerOption[] = [
+      {
+        moodleUser: TEMPORARY_TEACHER_USER,
+        label: TEMPORARY_TEACHER_NAME,
+        note: TEMPORARY_TEACHER_USER,
+      },
+      ...this.validatedTeachers().map((teacher) => ({
+        moodleUser: teacher.moodleUser,
+        label: teacher.fullName,
+        note: teacher.moodleUser,
+      })),
+    ];
+
+    return options
+      .filter((option) => !query || this.matchesSearchText(
+        `${option.label} ${option.note}`,
+        query,
+      ))
+      .slice(0, MAX_COMBO_OPTIONS);
+  }
+
+  visibleGroupPickerOptions(): AcademicGroup[] {
+    const query = this.normalizeSearch(this.groupPickerValue);
+
+    return this.destinationGroupOptions()
+      .filter((group) => !query || this.matchesSearchText(
+        `${group.fullGroup} ${group.programAbbreviation} ${group.programName}`,
+        query,
+      ))
+      .slice(0, MAX_COMBO_OPTIONS);
+  }
+
   updateSubjectPicker(value: string): void {
     this.subjectPickerValue = value;
+    this.openCombo('subject');
     const subject = this.subjectFromPickerValue(value);
     this.assignmentForm.subjectId = subject?.subjectId ?? '';
   }
@@ -750,10 +826,18 @@ export class AssignmentsPageComponent {
     const subject = this.subjectFromPickerValue(this.subjectPickerValue);
     this.assignmentForm.subjectId = subject?.subjectId ?? '';
     this.subjectPickerValue = subject ? this.subjectPickerLabel(subject) : this.subjectPickerValue;
+    this.closeCombo('subject');
+  }
+
+  selectSubjectOption(subject: Subject): void {
+    this.assignmentForm.subjectId = subject.subjectId;
+    this.subjectPickerValue = this.subjectPickerLabel(subject);
+    this.closeCombo('subject');
   }
 
   updateTeacherPicker(value: string): void {
     this.teacherPickerValue = value;
+    this.openCombo('teacher');
     const teacherSelection = this.teacherFromPickerValue(value);
     this.assignmentForm.teacherMoodleUser = teacherSelection;
   }
@@ -762,10 +846,18 @@ export class AssignmentsPageComponent {
     const teacherSelection = this.teacherFromPickerValue(this.teacherPickerValue);
     this.assignmentForm.teacherMoodleUser = teacherSelection;
     this.teacherPickerValue = this.teacherPickerLabelFromUser(teacherSelection) || this.teacherPickerValue;
+    this.closeCombo('teacher');
+  }
+
+  selectTeacherOption(option: TeacherPickerOption): void {
+    this.assignmentForm.teacherMoodleUser = option.moodleUser;
+    this.teacherPickerValue = this.teacherPickerLabelFromUser(option.moodleUser);
+    this.closeCombo('teacher');
   }
 
   updateGroupPicker(value: string): void {
     this.groupPickerValue = value;
+    this.openCombo('group');
     const group = this.groupFromPickerValue(value);
     this.assignmentForm.group = group?.fullGroup ?? '';
     this.onGroupChange();
@@ -776,6 +868,14 @@ export class AssignmentsPageComponent {
     this.assignmentForm.group = group?.fullGroup ?? '';
     this.groupPickerValue = group ? this.groupPickerLabel(group) : this.groupPickerValue;
     this.onGroupChange();
+    this.closeCombo('group');
+  }
+
+  selectGroupOption(group: AcademicGroup): void {
+    this.assignmentForm.group = group.fullGroup;
+    this.groupPickerValue = this.groupPickerLabel(group);
+    this.onGroupChange();
+    this.closeCombo('group');
   }
 
   onGroupChange(): void {
@@ -809,6 +909,7 @@ export class AssignmentsPageComponent {
       this.assignmentForm.shareGroups = [];
       this.shareGroupSearch.set('');
       this.groupPickerValue = '';
+      this.activeComboField = null;
       return;
     }
 
@@ -1423,6 +1524,7 @@ export class AssignmentsPageComponent {
     this.editingAssignmentId = null;
     this.formErrors = [];
     this.shareGroupSearch.set('');
+    this.activeComboField = null;
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();
   }
