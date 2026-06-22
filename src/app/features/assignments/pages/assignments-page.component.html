@@ -142,8 +142,7 @@
             <td><strong class="moodle-id">{{ assignment.moodleId }}</strong></td>
             <td>
               <div class="stacked-cell">
-                <strong>{{ assignment.subjectId }}</strong>
-                <small>{{ assignment.subjectName }}</small>
+                <strong>{{ assignment.subjectName }}</strong>
               </div>
             </td>
             <td>
@@ -299,20 +298,20 @@
       </div>
 
       <div class="assignment-form">
-        <label>
+        <label class="moodle-id-field">
           <span>ID Moodle *</span>
           <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
         </label>
-        <label>
+        <label class="subject-field">
           <span>Materia *</span>
           <select [(ngModel)]="assignmentForm.subjectId">
             <option value="">Seleccionar materia</option>
             @for (subject of activeSubjects(); track subject.id) {
-              <option [value]="subject.subjectId">{{ subject.subjectId }} - {{ subject.name }}</option>
+              <option [value]="subject.subjectId">{{ subject.name }}</option>
             }
           </select>
         </label>
-        <label>
+        <label class="teacher-field">
           <span>Docente *</span>
           <select [(ngModel)]="assignmentForm.teacherMoodleUser">
             <option value="">Seleccionar docente</option>
@@ -329,7 +328,7 @@
           </label>
         }
         @if (assignmentForm.special) {
-          <label>
+          <label class="program-field">
             <span>Carrera *</span>
             <select [(ngModel)]="assignmentForm.program">
               <option value="">Seleccionar carrera</option>
@@ -339,11 +338,11 @@
             </select>
           </label>
         } @else {
-          <label>
+          <label class="program-field">
             <span>Carrera</span>
             <input type="text" [value]="selectedFormProgramLabel()" readonly />
           </label>
-          <label>
+          <label class="group-field">
             <span>{{ assignmentForm.shared ? 'Grupo base *' : 'Grupo *' }}</span>
             <select [(ngModel)]="assignmentForm.group" (change)="onGroupChange()">
               <option value="">Seleccionar grupo</option>
@@ -357,7 +356,7 @@
             <span>Clase compartida</span>
           </label>
           @if (assignmentForm.shared) {
-            <label>
+            <label class="shared-count-field">
               <span>Con cuantos grupos *</span>
               <select [ngModel]="assignmentForm.sharedGroupCount" (ngModelChange)="onSharedGroupCountChange($event)">
                 <option [ngValue]="0" disabled>Seleccionar cantidad</option>
@@ -371,8 +370,26 @@
                 <span>Grupos compartidos</span>
                 <strong>{{ assignmentForm.shareGroups.length }} / {{ assignmentForm.sharedGroupCount }}</strong>
               </div>
+              <label class="share-group-search">
+                <span>Buscar grupo</span>
+                <div class="share-group-search-box">
+                  <input
+                    type="search"
+                    [ngModel]="shareGroupSearch()"
+                    (ngModelChange)="updateShareGroupSearch($event)"
+                    placeholder="Escribe el grupo, abreviatura o carrera"
+                  />
+                  @if (shareGroupSearch()) {
+                    <button type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearShareGroupSearch()">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </label>
               <div class="share-group-options">
-                @for (group of sharedGroupOptions(); track group.id) {
+                @for (group of visibleSharedGroupOptions(); track group.id) {
                   <label class="share-group-option">
                     <input
                       type="checkbox"
@@ -385,8 +402,13 @@
                   </label>
                 } @empty {
                   <div class="share-group-empty">
-                    <strong>Sin grupos compatibles</strong>
-                    <span>Revisa el grupo base o la pestana de modalidad.</span>
+                    @if (shareGroupSearch().trim().length < 2) {
+                      <strong>Busca un grupo compatible</strong>
+                      <span>Escribe al menos 2 caracteres para ver opciones.</span>
+                    } @else {
+                      <strong>Sin coincidencias</strong>
+                      <span>Revisa el grupo base, la pestana de modalidad o el texto de busqueda.</span>
+                    }
                   </div>
                 }
               </div>

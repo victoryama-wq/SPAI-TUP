@@ -24,6 +24,7 @@ type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
+const MAX_SHARED_GROUPS = 8;
 
 interface AssignmentFormState {
   cycle: string;
@@ -72,6 +73,7 @@ export class AssignmentsPageComponent {
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
   searchField = signal<AssignmentSearchField>('program');
   searchQuery = signal('');
+  shareGroupSearch = signal('');
   modeTab = signal<AssignmentModeTab>('Escolarizado');
   formMessage = '';
   formErrors: string[] = [];
@@ -142,7 +144,7 @@ export class AssignmentsPageComponent {
   readonly activeSubjects = computed(() =>
     this.subjects()
       .filter((subject) => subject.status === 'Activo')
-      .sort((a, b) => a.subjectId.localeCompare(b.subjectId, 'es')),
+      .sort((a, b) => a.name.localeCompare(b.name, 'es')),
   );
 
   readonly validatedTeachers = computed(() =>
@@ -258,13 +260,13 @@ export class AssignmentsPageComponent {
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   });
 
-  readonly sharedGroupOptions = computed(() =>
-    this.destinationGroupOptions().filter((group) => group.fullGroup !== this.assignmentForm.group),
-  );
+  sharedGroupOptions(): AcademicGroup[] {
+    return this.destinationGroupOptions().filter((group) => group.fullGroup !== this.assignmentForm.group);
+  }
 
-  readonly sharedGroupCountOptions = computed(() =>
-    Array.from({ length: this.sharedGroupOptions().length }, (_, index) => index + 1),
-  );
+  sharedGroupCountOptions(): number[] {
+    return Array.from({ length: Math.min(this.sharedGroupOptions().length, MAX_SHARED_GROUPS) }, (_, index) => index + 1);
+  }
 
   readonly destinationProgramOptions = computed(() => {
     const appUser = this.session()?.appUser;
@@ -377,6 +379,7 @@ export class AssignmentsPageComponent {
     this.editingAssignmentId = null;
     this.formErrors = [];
     this.formMessage = '';
+    this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.modeTab() === 'Especiales');
     this.isAssignmentModalOpen = true;
   }
@@ -394,6 +397,7 @@ export class AssignmentsPageComponent {
     this.editingAssignmentId = assignment.id;
     this.formErrors = [];
     this.formMessage = '';
+    this.shareGroupSearch.set('');
     const sourceAssignment = assignment.shared ? this.assignmentById(assignment.sourceAssignmentId) : null;
     this.assignmentForm = {
       cycle: assignment.cycle,
@@ -426,6 +430,7 @@ export class AssignmentsPageComponent {
     this.isAssignmentModalOpen = false;
     this.editingAssignmentId = null;
     this.formErrors = [];
+    this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
   }
 
@@ -718,11 +723,14 @@ export class AssignmentsPageComponent {
   onGroupChange(): void {
     const group = this.selectedGroup();
     this.assignmentForm.cycle = this.activeCycle()?.code ?? group?.cycleCode ?? this.assignmentForm.cycle;
+    this.shareGroupSearch.set('');
 
     this.syncSharedGroups();
   }
 
   onSharedChange(): void {
+    this.shareGroupSearch.set('');
+
     if (!this.assignmentForm.shared) {
       this.assignmentForm.sourceAssignmentId = '';
       this.assignmentForm.sharedGroupCount = 0;
@@ -741,6 +749,7 @@ export class AssignmentsPageComponent {
       this.assignmentForm.sourceAssignmentId = '';
       this.assignmentForm.sharedGroupCount = 0;
       this.assignmentForm.shareGroups = [];
+      this.shareGroupSearch.set('');
       return;
     }
 
@@ -750,6 +759,34 @@ export class AssignmentsPageComponent {
   onSharedGroupCountChange(value: number | string): void {
     this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(value);
     this.syncSharedGroups();
+  }
+
+  updateShareGroupSearch(value: string): void {
+    this.shareGroupSearch.set(value);
+  }
+
+  clearShareGroupSearch(): void {
+    this.shareGroupSearch.set('');
+  }
+
+  visibleSharedGroupOptions(): AcademicGroup[] {
+    const query = this.normalizeSearch(this.shareGroupSearch());
+    const selectedGroups = new Set(this.assignmentForm.shareGroups);
+    const selectedOptions = this.sharedGroupOptions()
+      .filter((group) => selectedGroups.has(group.fullGroup));
+
+    if (query.length < 2) {
+      return selectedOptions.slice(0, MAX_SHARED_GROUPS);
+    }
+
+    const matchingOptions = this.sharedGroupOptions()
+      .filter((group) => !selectedGroups.has(group.fullGroup))
+      .filter((group) => this.matchesSearchText(
+        `${group.fullGroup} ${group.programAbbreviation} ${group.programName}`,
+        query,
+      ));
+
+    return [...selectedOptions, ...matchingOptions].slice(0, MAX_SHARED_GROUPS);
   }
 
   toggleShareGroup(group: string, checked: boolean): void {
@@ -1192,7 +1229,7 @@ export class AssignmentsPageComponent {
   }
 
   private normalizeSharedGroupCount(value: number | string): number {
-    const availableOptions = this.sharedGroupOptions().length;
+    const availableOptions = Math.min(this.sharedGroupOptions().length, MAX_SHARED_GROUPS);
 
     if (!availableOptions) {
       return 0;
@@ -1220,6 +1257,7 @@ export class AssignmentsPageComponent {
   private prepareNextAssignmentForm(): void {
     this.editingAssignmentId = null;
     this.formErrors = [];
+    this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
   }
 

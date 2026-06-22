@@ -580,9 +580,12 @@ th {
   background: #f9fbff;
   border: 1px solid #c9d9ef;
   border-radius: 8px;
+  box-sizing: border-box;
   color: #07163c;
   min-height: 44px;
+  min-width: 0;
   padding: 0 12px;
+  width: 100%;
 }
 
 .assignment-form textarea {
@@ -993,10 +996,11 @@ td.center-column {
   display: grid;
   gap: 20px;
   max-height: calc(100vh - 48px);
-  max-width: 920px;
+  max-width: 1080px;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 26px;
-  width: min(920px, 100%);
+  width: min(1080px, 100%);
 }
 
 .modal-header {
@@ -1038,13 +1042,28 @@ td.center-column {
 }
 
 .assignment-form {
+  align-items: end;
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  grid-template-columns: minmax(150px, 210px) minmax(260px, 1fr) minmax(260px, 1fr);
 }
 
 .wide-field {
   grid-column: 1 / -1;
+}
+
+.assignment-form > label,
+.assignment-form > div,
+.details-grid > label {
+  min-width: 0;
+}
+
+.moodle-id-field {
+  max-width: 210px;
+}
+
+.shared-count-field {
+  max-width: 220px;
 }
 
 .assignment-form label.toggle-row {
@@ -1057,6 +1076,19 @@ td.center-column {
 
 .assignment-form label.special-toggle {
   align-self: end;
+}
+
+.assignment-form label.shared-toggle {
+  align-self: end;
+  background: #f8fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.shared-toggle span {
+  white-space: nowrap;
 }
 
 .toggle-row input {
@@ -1145,6 +1177,61 @@ td.center-column {
   color: #1d4ed8;
   font-size: 13px;
   padding: 5px 10px;
+}
+
+.share-group-search {
+  display: grid;
+  gap: 7px;
+}
+
+.share-group-search-box {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 5px 4px 12px;
+}
+
+.share-group-search-box:focus-within {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgb(147 197 253 / 0.35);
+}
+
+.share-group-search-box input {
+  background: transparent;
+  border: 0;
+  flex: 1 1 auto;
+  min-height: 34px;
+  min-width: 0;
+  outline: 0;
+  padding: 0;
+}
+
+.share-group-search-box button {
+  align-items: center;
+  background: #edf4ff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  min-width: 34px;
+  width: 34px;
+}
+
+.share-group-search-box svg {
+  fill: none;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  width: 18px;
 }
 
 .share-group-options {
