@@ -239,7 +239,9 @@ export class DashboardPageComponent {
     const pendingTeachers = teachers.filter((teacher) => teacher.status === 'PENDIENTE').length;
     const activeSubjects = subjects.filter((subject) => subject.status === 'Activo').length;
     const pendingRequests = requests.filter((request) => request.status === 'PENDIENTE').length;
-    const validatedAssignments = cycleAssignments.filter((assignment) => assignment.status === 'VALIDADO').length;
+    const moodleLoadedAssignments = cycleAssignments
+      .filter((assignment) => assignment.status === 'CARGADO_MOODLE' || assignment.status === 'VALIDADO')
+      .length;
     const assignedPrograms = this.academicProgramCodesForCurrentUser();
     const assignedProgramsCount = assignedPrograms.length;
     const coordinatorAssignments = isAcademicCoordinator
@@ -296,7 +298,7 @@ export class DashboardPageComponent {
       {
         label: 'Asignaciones del ciclo',
         value: String(cycleAssignments.length),
-        hint: `${validatedAssignments} validadas`,
+        hint: `${moodleLoadedAssignments} cargadas en Moodle`,
         icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
         tone: cycleAssignments.length > 0 ? 'success' : 'info',
       },

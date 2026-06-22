@@ -986,9 +986,9 @@ Alta y edicion:
 - La asignatura se selecciona del catalogo global activo.
 - El docente se selecciona del catalogo global validado.
 - El selector de docente incluye la opcion `Temporalmente sin Docente`.
-- Coordinacion Academica solo puede guardar el estado `EN_CAPTURA`.
-- Coordinacion de Sistemas y Auxiliar de Sistemas autorizado pueden colocar asignaciones en `EN_REVISION`, `VALIDADO` o `CON_OBSERVACION`.
-- En el modal de captura, el campo Matriculas adicionales se muestra junto al campo Estado para facilitar captura operativa.
+- El modal de captura y edicion de Asignaciones guarda siempre el estado fijo `EN_CAPTURA`.
+- Los cambios a `EN_REVISION` y `CARGADO_MOODLE` se realizan desde el panel operativo de Moodle, no desde el modal de Asignaciones.
+- En el modal de captura, `Clase compartida` se muestra como control compacto junto al estado fijo, y `Detalles operativos` queda como bloque inferior.
 - Debe agregarse el boton **Guardar y continuar agregando** para capturas repetitivas del mismo flujo operativo.
 - Si se elige `Temporalmente sin Docente`, la asignacion se guarda con:
   - `usuario_moodle_docente`: `temporalmente_sin_docente`.
@@ -1031,8 +1031,7 @@ Estados sugeridos:
 ```text
 EN_CAPTURA
 EN_REVISION
-VALIDADO
-CON_OBSERVACION
+CARGADO_MOODLE
 ```
 
 ## 13. Matriculas adicionales
@@ -1617,7 +1616,7 @@ export interface Asignacion {
   id_asignatura_captura: string
   usuario_moodle_docente: string // permite temporalmente_sin_docente
   docente: string
-  estado: 'EN_CAPTURA' | 'EN_REVISION' | 'VALIDADO' | 'CON_OBSERVACION'
+  estado: 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE'
   observaciones?: string
   es_compartida: boolean
   id_asignacion_origen?: string

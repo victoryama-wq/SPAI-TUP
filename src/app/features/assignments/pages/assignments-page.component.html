@@ -115,8 +115,7 @@
               <option value="TODOS">Todos</option>
               <option value="EN_CAPTURA">En captura</option>
               <option value="EN_REVISION">En revision</option>
-              <option value="VALIDADO">Validado</option>
-              <option value="CON_OBSERVACION">Con observacion</option>
+              <option value="CARGADO_MOODLE">Cargado en Moodle</option>
             </select>
           </label>
         </div>
@@ -257,12 +256,8 @@
             <span>En revision</span>
           </div>
           <div>
-            <strong>{{ validatedCount() }}</strong>
-            <span>Validadas</span>
-          </div>
-          <div>
-            <strong>{{ observedCount() }}</strong>
-            <span>Con observacion</span>
+            <strong>{{ moodleLoadedCount() }}</strong>
+            <span>Cargado en Moodle</span>
           </div>
         </div>
       </section>
@@ -337,6 +332,10 @@
               }
             </select>
           </label>
+          <label class="fixed-status-field">
+            <span>Estado</span>
+            <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
+          </label>
         } @else {
           <label class="program-field">
             <span>Carrera</span>
@@ -351,10 +350,16 @@
               }
             </select>
           </label>
-          <label class="toggle-row shared-toggle">
-            <input type="checkbox" [(ngModel)]="assignmentForm.shared" (change)="onSharedChange()" />
-            <span>Clase compartida</span>
-          </label>
+          <div class="assignment-state-row">
+            <label class="toggle-row shared-toggle compact-shared-toggle">
+              <input type="checkbox" [(ngModel)]="assignmentForm.shared" (change)="onSharedChange()" />
+              <span>Clase compartida</span>
+            </label>
+            <label class="fixed-status-field">
+              <span>Estado</span>
+              <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
+            </label>
+          </div>
           @if (assignmentForm.shared) {
             <label class="shared-count-field">
               <span>Con cuantos grupos *</span>
@@ -415,20 +420,7 @@
             </div>
           }
         }
-        <label>
-          <span>Estado</span>
-          @if (canReviewAssignments()) {
-            <select [(ngModel)]="assignmentForm.status">
-              <option value="EN_CAPTURA">En captura</option>
-              <option value="EN_REVISION">En revision</option>
-              <option value="VALIDADO">Validado</option>
-              <option value="CON_OBSERVACION">Con observacion</option>
-            </select>
-          } @else {
-            <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
-          }
-        </label>
-        <details class="assignment-details assignment-details-field">
+        <details class="assignment-details wide-field">
           <summary>Detalles operativos</summary>
           <div class="details-grid">
             @if (!assignmentForm.special) {

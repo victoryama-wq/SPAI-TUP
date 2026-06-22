@@ -286,7 +286,7 @@ export class AssignmentsPageComponent {
 
   readonly visibleAssignments = computed(() => {
     return this.assignments().filter((assignment) => {
-      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
+      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
       return this.assignmentInCurrentScope(assignment)
         && matchesStatus
@@ -322,26 +322,23 @@ export class AssignmentsPageComponent {
     () => this.visibleAssignments().filter((assignment) => assignment.status === 'EN_CAPTURA').length,
   );
   readonly reviewCount = computed(
-    () => this.visibleAssignments().filter((assignment) => assignment.status === 'EN_REVISION').length,
+    () => this.visibleAssignments().filter((assignment) => this.normalizedAssignmentStatus(assignment.status) === 'EN_REVISION').length,
   );
-  readonly validatedCount = computed(
-    () => this.visibleAssignments().filter((assignment) => assignment.status === 'VALIDADO').length,
-  );
-  readonly observedCount = computed(
-    () => this.visibleAssignments().filter((assignment) => assignment.status === 'CON_OBSERVACION').length,
+  readonly moodleLoadedCount = computed(
+    () => this.visibleAssignments().filter((assignment) => this.normalizedAssignmentStatus(assignment.status) === 'CARGADO_MOODLE').length,
   );
 
   readonly nextAssignmentAction = computed(() => {
-    if (this.observedCount() > 0) {
-      return 'Revisa las asignaciones con observacion y corrige los datos marcados antes de validarlas.';
-    }
-
     if (this.reviewCount() > 0) {
-      return 'Hay asignaciones en revision listas para validacion o comentarios de Sistemas.';
+      return 'Hay asignaciones en revision listas para seguimiento desde el panel Moodle.';
     }
 
     if (this.captureCount() > 0) {
       return 'Hay asignaciones en captura; confirma ID Moodle, materia, docente y grupo antes de enviarlas a revision.';
+    }
+
+    if (this.moodleLoadedCount() > 0) {
+      return 'Hay asignaciones cargadas en Moodle; revisa el panel Moodle para dar seguimiento operativo.';
     }
 
     return 'No hay asignaciones pendientes en la vista actual.';
@@ -406,7 +403,7 @@ export class AssignmentsPageComponent {
       subjectId: assignment.subjectId,
       moodleId: assignment.moodleId,
       teacherMoodleUser: assignment.teacherMoodleUser,
-      status: this.canReviewAssignments() ? assignment.status : 'EN_CAPTURA',
+      status: 'EN_CAPTURA',
       observations: assignment.observations,
       shared: assignment.shared,
       sourceAssignmentId: assignment.sourceAssignmentId,
@@ -436,6 +433,7 @@ export class AssignmentsPageComponent {
 
   saveAssignment(continueAdding = false): void {
     this.formMessage = '';
+    this.assignmentForm.status = 'EN_CAPTURA';
     this.formErrors = this.validateForm();
 
     if (this.formErrors.length) {
@@ -480,7 +478,7 @@ export class AssignmentsPageComponent {
         moodleId: this.assignmentForm.moodleId,
         teacherMoodleUser: this.selectedTeacherMoodleUser(),
         teacherName: this.selectedTeacherName(),
-        status: this.assignmentForm.status,
+        status: 'EN_CAPTURA',
         observations: this.assignmentForm.observations,
         shared: true,
         sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
@@ -525,7 +523,7 @@ export class AssignmentsPageComponent {
       moodleId: this.assignmentForm.moodleId,
       teacherMoodleUser: this.selectedTeacherMoodleUser(),
       teacherName: this.selectedTeacherName(),
-      status: this.assignmentForm.status,
+      status: 'EN_CAPTURA',
       observations: this.assignmentForm.observations,
       shared: false,
       sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
@@ -671,7 +669,7 @@ export class AssignmentsPageComponent {
     const query = this.searchQuery();
     const options = new Set<string>();
     const scopedAssignments = this.assignments().filter((assignment) => {
-      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
+      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
       return this.assignmentInCurrentScope(assignment) && matchesStatus;
     });
@@ -825,15 +823,16 @@ export class AssignmentsPageComponent {
   }
 
   statusClass(status: AssignmentStatus): string {
-    return status.toLowerCase();
+    return this.normalizedAssignmentStatus(status).toLowerCase();
   }
 
   statusLabel(status: AssignmentStatus): string {
     const labels: Record<AssignmentStatus, string> = {
       EN_CAPTURA: 'En captura',
       EN_REVISION: 'En revision',
-      VALIDADO: 'Validado',
-      CON_OBSERVACION: 'Con observacion',
+      CARGADO_MOODLE: 'Cargado en Moodle',
+      VALIDADO: 'Cargado en Moodle',
+      CON_OBSERVACION: 'En revision',
     };
 
     return labels[status];
@@ -860,8 +859,10 @@ export class AssignmentsPageComponent {
   canEditAssignment(assignment: AcademicAssignment): boolean {
     const appUser = this.session()?.appUser;
 
-    return this.canSeeAllAssignments()
+    const allowedProgram = this.canSeeAllAssignments()
       || appUser?.assignedPrograms.includes(assignment.program) === true;
+
+    return allowedProgram && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
   }
 
   canShareAssignment(assignment: AcademicAssignment): boolean {
@@ -875,9 +876,28 @@ export class AssignmentsPageComponent {
       && activeCycle.status === 'Captura';
   }
 
+  private assignmentStatusMatchesFilter(assignment: AcademicAssignment): boolean {
+    const statusFilter = this.statusFilter();
+
+    return statusFilter === 'TODOS'
+      || this.normalizedAssignmentStatus(assignment.status) === statusFilter;
+  }
+
+  private normalizedAssignmentStatus(status: AssignmentStatus): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
+    if (status === 'VALIDADO') {
+      return 'CARGADO_MOODLE';
+    }
+
+    if (status === 'CON_OBSERVACION') {
+      return 'EN_REVISION';
+    }
+
+    return status;
+  }
+
   private countAssignmentsForTab(tab: AssignmentModeTab): number {
     return this.assignments().filter((assignment) => {
-      const matchesStatus = this.statusFilter() === 'TODOS' || assignment.status === this.statusFilter();
+      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
       return this.assignmentInCurrentScope(assignment, tab)
         && matchesStatus

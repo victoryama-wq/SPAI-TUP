@@ -3,7 +3,7 @@ import { orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
-export type AssignmentStatus = 'EN_CAPTURA' | 'EN_REVISION' | 'VALIDADO' | 'CON_OBSERVACION';
+export type AssignmentStatus = 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE' | 'VALIDADO' | 'CON_OBSERVACION';
 
 export interface AcademicAssignment {
   id: string;

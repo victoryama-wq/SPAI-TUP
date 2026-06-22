@@ -267,6 +267,7 @@ td.center-column {
   color: #1d4ed8;
 }
 
+.status-badge.cargado_moodle,
 .status-badge.validado {
   background: #dcfce7;
   color: #166534;

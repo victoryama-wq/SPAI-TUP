@@ -123,14 +123,23 @@ export class MeetLinksPageComponent {
     const labels: Record<string, string> = {
       EN_CAPTURA: 'En captura',
       EN_REVISION: 'En revision',
-      VALIDADO: 'Validado',
-      CON_OBSERVACION: 'Con observacion',
+      CARGADO_MOODLE: 'Cargado en Moodle',
+      VALIDADO: 'Cargado en Moodle',
+      CON_OBSERVACION: 'En revision',
     };
 
     return labels[status] ?? status;
   }
 
   statusClass(status: string): string {
+    if (status === 'VALIDADO') {
+      return 'cargado_moodle';
+    }
+
+    if (status === 'CON_OBSERVACION') {
+      return 'en_revision';
+    }
+
     return status.toLowerCase();
   }
 
