@@ -1127,10 +1127,15 @@ td.center-column {
 }
 
 .assignment-details {
+  align-self: start;
   background: #f8fbff;
   border: 1px solid #d7e4f8;
   border-radius: 8px;
   padding: 14px;
+}
+
+.assignment-details-field {
+  grid-column: 2 / -1;
 }
 
 .assignment-details summary {
@@ -1341,6 +1346,14 @@ td.center-column {
   .prediction-row {
     max-width: 42%;
   }
+
+  .assignment-details-field {
+    grid-column: 2 / -1;
+  }
+
+  .assignment-details-field .details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -1396,6 +1409,10 @@ td.center-column {
   }
 
   .share-group-panel.shared-picker-field {
+    grid-column: 1 / -1;
+  }
+
+  .assignment-details-field {
     grid-column: 1 / -1;
   }
 
