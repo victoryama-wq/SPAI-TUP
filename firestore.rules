@@ -160,6 +160,15 @@ service cloud.firestore {
         );
     }
 
+    function changesAssignmentDeletionFields() {
+      return request.resource.data.diff(resource.data).changedKeys().hasAny([
+        'deletedAt',
+        'deletedBy',
+        'deletedByName',
+        'deletedByRole'
+      ]);
+    }
+
     function canReadSharedRequests() {
       return isSystemsMember()
         || isAcademicCoordinator()
@@ -275,7 +284,11 @@ service cloud.firestore {
         && request.resource.data.program == resource.data.program
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
         && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdAt == resource.data.createdAt;
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (
+          !changesAssignmentDeletionFields()
+          || canDeleteAssignment()
+        );
 
       allow delete: if canDeleteAssignment();
     }

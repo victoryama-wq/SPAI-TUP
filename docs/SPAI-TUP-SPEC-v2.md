@@ -975,6 +975,7 @@ Vista implementada:
 - La columna Compartida marca tanto la asignacion base como sus destinos cuando pertenecen a una clase compartida, y el visor muestra el grupo base y los grupos relacionados.
 - La columna Acciones muestra solo Editar y Eliminar.
 - Sistemas puede eliminar cualquier asignacion; Coordinacion Academica solo puede eliminar asignaciones creadas por su propio usuario.
+- Si Firestore no permite el borrado fisico directo, la eliminacion operativa debe archivar el registro con `deletedAt` y excluirlo de las vistas, conteos, busquedas y conflictos de ID Moodle.
 - Si no hay ciclo activo, grupos disponibles, docentes validados o asignaturas activas, el modulo muestra avisos claros para orientar la prueba operativa.
 - La captura normal permite registrar Matriculas adicionales como campo opcional.
 

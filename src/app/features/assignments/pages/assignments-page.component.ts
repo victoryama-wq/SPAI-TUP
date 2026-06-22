@@ -300,7 +300,8 @@ export class AssignmentsPageComponent {
     return this.assignments().filter((assignment) => {
       const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
-      return this.assignmentInCurrentScope(assignment)
+      return !this.isAssignmentDeleted(assignment)
+        && this.assignmentInCurrentScope(assignment)
         && matchesStatus
         && this.assignmentMatchesSearch(assignment);
     });
@@ -322,7 +323,8 @@ export class AssignmentsPageComponent {
       const allowedProgram = this.canSeeAllAssignments()
         || appUser?.assignedPrograms.includes(assignment.program) === true;
 
-      return assignment.id !== this.editingAssignmentId
+      return !this.isAssignmentDeleted(assignment)
+        && assignment.id !== this.editingAssignmentId
         && assignment.cycle === this.assignmentForm.cycle
         && allowedProgram
         && !assignment.shared
@@ -455,7 +457,14 @@ export class AssignmentsPageComponent {
     const actor = this.actorData();
 
     try {
-      await this.assignmentsRepository.deleteAssignments(assignmentsToDelete.map((item) => item.id));
+      await this.assignmentsRepository.deleteAssignments(
+        assignmentsToDelete.map((item) => item.id),
+        {
+          deletedBy: actor.createdBy,
+          deletedByName: actor.createdByName,
+          deletedByRole: actor.createdByRole,
+        },
+      );
       this.formMessage = relatedCount > 1
         ? `${relatedCount} asignaciones relacionadas eliminadas correctamente.`
         : 'Asignacion eliminada correctamente.';
@@ -748,7 +757,9 @@ export class AssignmentsPageComponent {
     const scopedAssignments = this.assignments().filter((assignment) => {
       const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
-      return this.assignmentInCurrentScope(assignment) && matchesStatus;
+      return !this.isAssignmentDeleted(assignment)
+        && this.assignmentInCurrentScope(assignment)
+        && matchesStatus;
     });
 
     if (this.searchField() === 'program') {
@@ -1048,7 +1059,7 @@ export class AssignmentsPageComponent {
   }
 
   applySourceAssignment(): void {
-    const source = this.assignments().find((assignment) => assignment.id === this.assignmentForm.sourceAssignmentId);
+    const source = this.assignmentById(this.assignmentForm.sourceAssignmentId);
 
     if (!source) {
       return;
@@ -1064,6 +1075,10 @@ export class AssignmentsPageComponent {
     return this.normalizedAssignmentStatus(status).toLowerCase();
   }
 
+  isAssignmentDeleted(assignment: AcademicAssignment): boolean {
+    return Boolean(assignment.deletedAt);
+  }
+
   statusLabel(status: AssignmentStatus): string {
     const labels: Record<AssignmentStatus, string> = {
       EN_CAPTURA: 'En captura',
@@ -1077,7 +1092,7 @@ export class AssignmentsPageComponent {
   }
 
   assignmentById(id: string): AcademicAssignment | null {
-    return this.assignments().find((assignment) => assignment.id === id) ?? null;
+    return this.assignments().find((assignment) => assignment.id === id && !this.isAssignmentDeleted(assignment)) ?? null;
   }
 
   isSharedInTable(assignment: AcademicAssignment): boolean {
@@ -1138,7 +1153,7 @@ export class AssignmentsPageComponent {
     const baseId = this.sharedBaseAssignmentId(assignment);
 
     return this.assignments()
-      .filter((item) => item.shared && item.sourceAssignmentId === baseId)
+      .filter((item) => !this.isAssignmentDeleted(item) && item.shared && item.sourceAssignmentId === baseId)
       .sort((a, b) => a.group.localeCompare(b.group, 'es'));
   }
 
@@ -1187,7 +1202,8 @@ export class AssignmentsPageComponent {
     return this.assignments().filter((assignment) => {
       const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
-      return this.assignmentInCurrentScope(assignment, tab)
+      return !this.isAssignmentDeleted(assignment)
+        && this.assignmentInCurrentScope(assignment, tab)
         && matchesStatus
         && this.assignmentMatchesSearch(assignment);
     }).length;
@@ -1365,7 +1381,7 @@ export class AssignmentsPageComponent {
     }
 
     if (this.assignmentForm.shared) {
-      const source = this.assignments().find((assignment) => assignment.id === this.assignmentForm.sourceAssignmentId);
+      const source = this.assignmentById(this.assignmentForm.sourceAssignmentId);
       if (source && source.normalizedMoodleId !== moodleId) {
         errors.push('La asignacion compartida debe conservar el mismo ID asignatura que la asignacion origen.');
       }
@@ -1664,7 +1680,9 @@ export class AssignmentsPageComponent {
     }
 
     const existingAssignmentsCount = this.assignments().filter((assignment) => {
-      return assignment.cycle === cycle && assignment.createdBy === actor.createdBy;
+      return !this.isAssignmentDeleted(assignment)
+        && assignment.cycle === cycle
+        && assignment.createdBy === actor.createdBy;
     }).length;
     const previousCount = existingAssignmentsCount;
     const currentCount = existingAssignmentsCount + createdAssignmentIds.length;

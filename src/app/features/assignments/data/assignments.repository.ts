@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
@@ -31,6 +31,10 @@ export interface AcademicAssignment {
   updatedByName: string;
   updatedByRole: string;
   updatedAt: string;
+  deletedAt?: string | null;
+  deletedBy?: string;
+  deletedByName?: string;
+  deletedByRole?: string;
 }
 
 export interface UpsertAssignmentPayload {
@@ -55,11 +59,17 @@ export interface UpsertAssignmentPayload {
   createdByPrograms: string[];
 }
 
+export interface DeleteAssignmentPayload {
+  deletedBy: string;
+  deletedByName: string;
+  deletedByRole: string;
+}
+
 export const ASSIGNMENTS_COLLECTION = 'asignaciones';
 
 @Injectable({ providedIn: 'root' })
 export class AssignmentsRepository extends FirestoreRepository<AcademicAssignment> {
-  readonly assignments = this.items;
+  readonly assignments = computed(() => this.items().filter((assignment) => !assignment.deletedAt));
 
   constructor() {
     super(inject(FIREBASE_DB), ASSIGNMENTS_COLLECTION, orderBy('updatedAt', 'desc'));
@@ -96,6 +106,10 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       updatedByName: payload.createdByName,
       updatedByRole: payload.createdByRole,
       updatedAt: timestamp,
+      deletedAt: null,
+      deletedBy: '',
+      deletedByName: '',
+      deletedByRole: '',
     });
 
     return documentId;
@@ -107,6 +121,7 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
 
     return this.assignments().some((assignment) => {
       return assignment.id !== excludedId
+        && !assignment.deletedAt
         && assignment.cycle === normalizedCycle
         && assignment.normalizedMoodleId === normalizedMoodleId
         && !assignment.shared;
@@ -117,12 +132,22 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return value.trim().toLowerCase();
   }
 
-  deleteAssignment(id: string): Promise<void> {
-    return this.deleteDocument(id);
+  deleteAssignment(id: string, payload: DeleteAssignmentPayload): Promise<void> {
+    return this.deleteDocument(id).catch(() => this.archiveAssignment(id, payload));
   }
 
-  async deleteAssignments(ids: string[]): Promise<void> {
-    await Promise.all(ids.map((id) => this.deleteAssignment(id)));
+  async deleteAssignments(ids: string[], payload: DeleteAssignmentPayload): Promise<void> {
+    await Promise.all(ids.map((id) => this.deleteAssignment(id, payload)));
+  }
+
+  private archiveAssignment(id: string, payload: DeleteAssignmentPayload): Promise<void> {
+    return this.updateDocument(id, {
+      deletedAt: new Date().toISOString(),
+      deletedBy: payload.deletedBy,
+      deletedByName: payload.deletedByName,
+      deletedByRole: payload.deletedByRole,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   private createAssignmentId(payload: UpsertAssignmentPayload): string {
