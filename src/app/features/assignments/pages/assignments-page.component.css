@@ -205,7 +205,7 @@ th {
   align-items: start;
   display: grid;
   gap: 18px;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 352px);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
 }
 
 .assignments-main-column {
@@ -225,8 +225,8 @@ th {
   border: 1px solid #c9d9ef;
   border-radius: 8px;
   display: grid;
-  gap: 9px;
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 12px 14px;
 }
 
 .assignment-side-card > span {
@@ -239,7 +239,7 @@ th {
 
 .assignment-side-card h3 {
   color: #07163c;
-  font-size: 18px;
+  font-size: 17px;
   margin: 0;
 }
 
@@ -270,7 +270,7 @@ th {
 .status-summary-list strong,
 .muted-side-card > strong {
   color: #061747;
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1;
 }
 
@@ -314,6 +314,41 @@ th {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
+}
+
+.scope-toggle-action {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.scope-toggle-action.active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.scope-toggle-action svg {
+  fill: none;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
+  width: 18px;
+}
+
+.scope-toggle-action span {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .cycle-chip {

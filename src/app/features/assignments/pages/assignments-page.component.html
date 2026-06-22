@@ -47,10 +47,24 @@
             <span>Planeacion academica</span>
             <h3>Asignaciones academicas</h3>
             <p>Relaciona grupos del ciclo activo con asignaturas, docentes e ID Moodle para revision institucional.</p>
-            <small>{{ canSeeAllAssignments() ? 'Vista Sistemas' : 'Vista Coordinacion' }}</small>
+            <small>{{ catalogScopeLabel() }}</small>
           </div>
 
           <div class="panel-heading-actions">
+            @if (canToggleGlobalCatalog()) {
+              <button
+                class="scope-toggle-action"
+                type="button"
+                [class.active]="catalogScope() === 'GLOBAL'"
+                [title]="catalogScope() === 'GLOBAL' ? 'Ver solo mis programas' : 'Ver catalogo global'"
+                (click)="toggleCatalogScope()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                </svg>
+                <span>{{ catalogScope() === 'GLOBAL' ? 'Mis programas' : 'Catalogo global' }}</span>
+              </button>
+            }
             <span class="cycle-chip" [class.pending]="!activeCycle()">
               Ciclo activo
               <strong>{{ activeCycleCode() }}</strong>

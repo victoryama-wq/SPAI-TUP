@@ -149,7 +149,7 @@ Reglas:
 - `grupos` permite lectura a usuarios autenticados y escritura solo a Coordinacion de Sistemas activo.
 - `docentes` permite lectura a usuarios autenticados segun permisos del modulo, docentes validados o Coordinacion Academica; la escritura queda para Sistemas, auxiliares autorizados o altas manuales pendientes de Coordinacion Academica.
 - `asignaturas` permite lectura de asignaturas activas a usuarios autenticados y escritura solo a Sistemas o auxiliares autorizados.
-- `asignaciones` permite lectura a Coordinacion de Sistemas, Auxiliar de Sistemas con `access.asignaciones == true` y Coordinacion Academica; la interfaz limita a Coordinacion Academica a sus programas asignados, la escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
+- `asignaciones` permite lectura a Coordinacion de Sistemas, Auxiliar de Sistemas con `access.asignaciones == true` y Coordinacion Academica; la interfaz muestra a Coordinacion Academica sus programas por defecto y permite alternar a Catalogo global para consultar las demas asignaciones, la escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
 - `solicitudes_compartidas` permite lectura a usuarios con acceso al modulo y controla creacion/respuesta/cancelacion segun programa y rol.
 - `solicitudes_sistemas` permite que usuarios activos creen solicitudes operativas dirigidas a Sistemas para reabrir captura, alta de grupo, cambio de ID de asignatura o validacion de docente nuevo; Sistemas puede leer, actualizar y eliminar solicitudes segun permisos publicados.
 - `notificaciones` permite lectura a miembros activos de Sistemas y a Coordinacion Academica cuando la notificacion esta dirigida a su `authUid`; permite crear avisos hacia Sistemas desde flujos autorizados y avisos hacia Coordinacion Academica cuando Sistemas responde o activa un docente.
@@ -913,7 +913,8 @@ Reglas:
 - El ID Moodle no debe duplicarse para la misma materia dentro del mismo ciclo, salvo cuando sea clase compartida.
 - Si una clase se comparte, la clase origen y destino deben compartir el mismo ID asignatura de captura.
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
-- Coordinacion Academica consulta, crea y edita asignaciones solo de sus programas/grupos asignados.
+- Coordinacion Academica consulta por defecto asignaciones de sus programas/grupos asignados y puede usar el boton **Catalogo global** para ver tambien asignaciones de otras coordinaciones.
+- Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.
 - Auxiliar de Sistemas puede consultar y gestionar Asignaciones cuando Coordinacion de Sistemas le habilita `access.asignaciones == true`.
@@ -985,7 +986,7 @@ Alta y edicion:
 - El boton `Nueva asignacion` abre un modal o panel de captura.
 - En la captura, el ciclo activo se muestra como solo lectura.
 - El grupo se selecciona de los grupos activos del ciclo activo y se filtra segun la pestaña operativa seleccionada.
-- Coordinacion Academica ve en la tabla principal solo asignaciones de sus programas asignados.
+- Coordinacion Academica ve por defecto en la tabla principal solo asignaciones de sus programas asignados, con boton **Catalogo global** para consultar tambien asignaciones de las demas coordinaciones.
 - Coordinacion Academica solo ve grupos de sus programas asignados al elegir el grupo destino de una captura.
 - Sistemas ve todos los grupos del ciclo activo.
 - La asignatura se selecciona del catalogo global activo.
@@ -1804,7 +1805,7 @@ Nota: la carpeta implementada usa nombres en ingles (`users`, `cycles`) dentro d
 - Asignaturas.
 - Estado actual: Asignaturas ya cuenta con catalogo Firestore, alta manual, edicion, activacion/inactivacion, consulta de activas para coordinadores y carga CSV con vista previa de validos, duplicados y errores.
 - Asignaciones.
-- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica limitada a programas asignados, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestañas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/eliminar, relacion visual de clase compartida para base y destinos, permisos de borrado por rol/creador y bitacora.
+- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica con **Mis programas** por defecto y boton **Catalogo global** para consulta general, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestanas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/eliminar, relacion visual de clase compartida para base y destinos, permisos de borrado por rol/creador y bitacora.
 
 - Solicitudes.
 - Estado actual: Solicitudes ya cuenta con repositorio Firestore, ruta funcional, tipos `COMPARTIR_CLASE`, `REABRIR_CAPTURA`, `ALTA_GRUPO` y `ASIGNACION_ESPECIAL`, tabla con columna `Asunto`, filtros en modal por programa/grupo/estado/busqueda libre, chips de filtros activos, tabs Recibidas/Enviadas/Todas para Sistemas, respuesta por modal, acciones automaticas al aceptar y bitacora. El ciclo no aparece como filtro.
@@ -1943,7 +1944,7 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 - Se agrego busqueda, filtros por ciclo y paginacion.
 - El boton para eliminar grupos de ciclo solo se habilita cuando hay un ciclo especifico seleccionado.
 - En alta individual, el ciclo activo se agrega automaticamente al inicio del grupo; el usuario captura solo el resto del identificador operativo.
-- En vista de Coordinacion Academica, debe mostrarse primero lo asignado a su coordinacion, con opcion de consultar mas si se autoriza.
+- En vista de Coordinacion Academica, debe mostrarse primero lo asignado a su coordinacion y ofrecer un boton de **Catalogo global** para consultar asignaciones de otras coordinaciones sin ampliar permisos de captura, edicion o eliminacion.
 
 ### 23.6 Docentes
 
@@ -2060,7 +2061,7 @@ El servidor local queda normalmente en `http://localhost:4200/`.
 
 - Verificar reglas Firestore completas despues de cada cambio de permisos.
 - Validar login de Sistemas y Coordinacion Academica.
-- Validar que Coordinacion Academica vea sus programas, docentes asignados, grupos permitidos y asignaciones.
+- Validar que Coordinacion Academica vea sus programas, docentes asignados, grupos permitidos, sus asignaciones por defecto y el Catalogo global de asignaciones como consulta.
 - Validar carga CSV de docentes, asignaturas y grupos.
 - Validar notificaciones:
   - Nuevo docente agregado por Coordinacion Academica hacia Sistemas.

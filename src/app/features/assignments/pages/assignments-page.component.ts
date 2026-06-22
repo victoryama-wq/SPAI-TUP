@@ -21,6 +21,7 @@ type AssignmentStatusFilter = AssignmentStatus | 'TODOS';
 type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales';
 type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 type AssignmentComboField = 'subject' | 'teacher' | 'group';
+type AssignmentCatalogScope = 'OWN' | 'GLOBAL';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
@@ -80,6 +81,7 @@ export class AssignmentsPageComponent {
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
   searchField = signal<AssignmentSearchField>('program');
   searchQuery = signal('');
+  catalogScope = signal<AssignmentCatalogScope>('OWN');
   shareGroupSearch = signal('');
   modeTab = signal<AssignmentModeTab>('Escolarizado');
   formMessage = '';
@@ -204,7 +206,6 @@ export class AssignmentsPageComponent {
 
   readonly visibleProgramCodes = computed(() => {
     const activeCycle = this.activeCycle();
-    const appUser = this.session()?.appUser;
 
     if (!activeCycle || !this.canViewAssignments()) {
       return [];
@@ -213,20 +214,17 @@ export class AssignmentsPageComponent {
     const programs = new Set(
       this.groups()
         .filter((group) => {
-        return group.cycleCode === activeCycle.code
-            && this.canUseDestinationProgram(group.programAbbreviation)
+          return group.cycleCode === activeCycle.code
+            && this.groupMatchesCatalogScope(group)
             && this.groupMatchesModeTab(group, this.modeTab());
-      })
-      .map((group) => group.programAbbreviation),
+        })
+        .map((group) => group.programAbbreviation),
     );
 
     this.assignments()
       .filter((assignment) => {
-        const allowedProgram = this.canSeeAllAssignments()
-          || appUser?.assignedPrograms.includes(assignment.program) === true;
-
         return assignment.cycle === activeCycle.code
-          && allowedProgram
+          && this.assignmentMatchesCatalogScope(assignment)
           && this.assignmentMode(assignment) === this.modeTab();
       })
       .forEach((assignment) => programs.add(assignment.program));
@@ -245,7 +243,7 @@ export class AssignmentsPageComponent {
       .filter((group) => {
         return group.status === 'Activo'
           && group.cycleCode === activeCycle.code
-          && this.canUseDestinationProgram(group.programAbbreviation)
+          && this.groupMatchesCatalogScope(group)
           && this.groupMatchesModeTab(group, this.modeTab());
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
@@ -715,6 +713,34 @@ export class AssignmentsPageComponent {
     this.modeTab.set(tab);
     this.searchQuery.set('');
     this.isSearchMenuOpen = false;
+  }
+
+  canToggleGlobalCatalog(): boolean {
+    const appUser = this.session()?.appUser;
+
+    return appUser?.status === 'Activo'
+      && this.isAcademicCoordinationRole(appUser.role)
+      && !this.canSeeAllAssignments();
+  }
+
+  isGlobalCatalogVisible(): boolean {
+    return this.canSeeAllAssignments() || this.catalogScope() === 'GLOBAL';
+  }
+
+  toggleCatalogScope(): void {
+    this.catalogScope.update((scope) => scope === 'GLOBAL' ? 'OWN' : 'GLOBAL');
+    this.searchQuery.set('');
+    this.isSearchMenuOpen = false;
+  }
+
+  catalogScopeLabel(): string {
+    if (this.canSeeAllAssignments()) {
+      return 'Vista Sistemas';
+    }
+
+    return this.catalogScope() === 'GLOBAL'
+      ? 'Vista Coordinacion - Catalogo global'
+      : 'Vista Coordinacion - Mis programas';
   }
 
   dismissReadinessAlert(): void {
@@ -1210,17 +1236,28 @@ export class AssignmentsPageComponent {
   }
 
   private assignmentInCurrentScope(assignment: AcademicAssignment, tab = this.modeTab()): boolean {
-    const appUser = this.session()?.appUser;
     const activeCycle = this.activeCycle();
     const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
-    const allowedProgram = this.canSeeAllAssignments()
-      || appUser?.assignedPrograms.includes(assignment.program) === true;
     const matchesTab = this.assignmentMode(assignment) === tab;
 
     return this.canViewAssignments()
       && matchesCycle
-      && allowedProgram
+      && this.assignmentMatchesCatalogScope(assignment)
       && matchesTab;
+  }
+
+  private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
+    const appUser = this.session()?.appUser;
+
+    return this.isGlobalCatalogVisible()
+      || appUser?.assignedPrograms.includes(assignment.program) === true;
+  }
+
+  private groupMatchesCatalogScope(group: AcademicGroup): boolean {
+    const appUser = this.session()?.appUser;
+
+    return this.isGlobalCatalogVisible()
+      || appUser?.assignedPrograms.includes(group.programAbbreviation) === true;
   }
 
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
