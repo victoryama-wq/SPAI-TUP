@@ -553,6 +553,7 @@ Reglas:
 - Coordinadores seleccionan materias desde este catalogo global.
 - Coordinacion Academica debe poder consultar las asignaturas activas del catalogo global y usarlas en Asignaciones inmediatamente despues de que Sistemas las cree o importe.
 - El sistema debe reconocer como activas las variantes equivalentes de estatus (`Activo`, `ACTIVO`, `ACTIVA`, `SI`, `true`, `1`) para no ocultar asignaturas por diferencias de formato heredadas.
+- El catalogo de Asignaturas debe buscar en tiempo real y priorizar registros recien creados o actualizados para evitar que una materia nueva quede escondida por paginacion.
 
 ### Docentes
 
@@ -1966,6 +1967,7 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 
 - Modulo de asignaturas implementado con alta manual, CSV, edicion, inactivacion, eliminacion, busqueda, filtros y paginacion.
 - Coordinacion Academica consulta las asignaturas activas del catalogo global por rol academico, sin depender de banderas de acceso heredadas.
+- La busqueda de Asignaturas es inmediata y la vista prioriza las materias con actualizacion mas reciente.
 - Se separa el ID interno SPAI del ID de captura/Moodle que usara Coordinacion Academica en asignaciones.
 - El ID interno SPAI se genera con nomenclatura incremental `TUP0000`.
 - Al subir CSV sin ID, el sistema asigna el siguiente ID interno disponible.

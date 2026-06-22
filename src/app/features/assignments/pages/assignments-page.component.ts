@@ -886,12 +886,18 @@ export class AssignmentsPageComponent {
   visibleSubjectPickerOptions(): Subject[] {
     const query = this.normalizeSearch(this.subjectPickerValue);
 
-    return this.activeSubjects()
-      .filter((subject) => !query || this.matchesSearchText(
-        `${subject.name} ${subject.subjectId}`,
-        query,
-      ))
-      .slice(0, MAX_COMBO_OPTIONS);
+    const subjects = query
+      ? this.activeSubjects().filter((subject) => this.matchesSearchText(
+          `${subject.name} ${subject.subjectId}`,
+          query,
+        ))
+      : [...this.activeSubjects()].sort((firstSubject, secondSubject) => {
+          const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
+
+          return dateComparison || firstSubject.name.localeCompare(secondSubject.name, 'es');
+        });
+
+    return subjects.slice(0, MAX_COMBO_OPTIONS);
   }
 
   visibleTeacherPickerOptions(): TeacherPickerOption[] {
@@ -1481,6 +1487,10 @@ export class AssignmentsPageComponent {
     const normalizedStatus = this.normalizeSearch(String(subject.status ?? ''));
 
     return ['activo', 'activa', 'active', 'si', 's', 'true', '1'].includes(normalizedStatus);
+  }
+
+  private subjectTimestamp(subject: Subject): string {
+    return subject.updatedAt || subject.createdAt || '';
   }
 
   private teacherFromPickerValue(value: string): string {

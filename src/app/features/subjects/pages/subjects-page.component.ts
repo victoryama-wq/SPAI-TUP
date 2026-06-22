@@ -142,7 +142,7 @@ export class SubjectsPageComponent {
         || subject.subjectId.toLowerCase().includes(query);
 
       return allowedByRole && matchesStatus && matchesSearch;
-    });
+    }).sort((firstSubject, secondSubject) => this.compareSubjectsByRecentUpdate(firstSubject, secondSubject));
   });
 
   get duplicatePreviewCount(): number {
@@ -532,7 +532,11 @@ export class SubjectsPageComponent {
   }
 
   updateSearch(event: Event): void {
-    this.searchInput.set((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
+
+    this.searchInput.set(value);
+    this.appliedSearchTerm.set(value.trim());
+    this.resetPagination();
   }
 
   searchSubjects(): void {
@@ -948,6 +952,16 @@ export class SubjectsPageComponent {
     }
 
     return ['inactivo', 'inactiva', 'inactive', 'no', 'n', 'false', '0'].includes(normalizedStatus);
+  }
+
+  private compareSubjectsByRecentUpdate(firstSubject: Subject, secondSubject: Subject): number {
+    const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
+
+    return dateComparison || firstSubject.subjectId.localeCompare(secondSubject.subjectId, 'es', { numeric: true });
+  }
+
+  private subjectTimestamp(subject: Subject): string {
+    return subject.updatedAt || subject.createdAt || '';
   }
 
   private preferredSubjectName(currentName: string | undefined, incomingName: string): string {
