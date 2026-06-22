@@ -526,6 +526,12 @@ export class UsersPageComponent {
     return this.programOptions().length > 0;
   }
 
+  areAllProgramOptionsAssigned(): boolean {
+    const options = this.programOptions();
+
+    return options.length > 0 && options.every((program) => program.owner.length > 0);
+  }
+
   updateAccessForRole(role: UserRole): void {
     this.form.controls.access.setValue(this.getAccessForRole(role, FULL_MODULE_ACCESS));
   }
