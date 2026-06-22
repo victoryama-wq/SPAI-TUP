@@ -81,31 +81,34 @@
                 <option value="subject">Materia</option>
               </select>
             </label>
-            <div class="search-box">
+            <div class="search-box" [class.open]="shouldShowSearchSuggestions()">
               <input
                 type="search"
                 [attr.aria-label]="'Buscar por ' + searchFieldLabel()"
                 [value]="searchQuery()"
                 (input)="updateSearchQuery($event)"
+                (focus)="openSearchSuggestions()"
+                (blur)="closeSearchSuggestions()"
+                (keydown.escape)="closeSearchSuggestions()"
                 [placeholder]="searchPlaceholder()"
                 autocomplete="off"
                 spellcheck="false"
               />
-              @if (predictedSearchSuggestions().length) {
-                <div class="prediction-row" aria-label="Predicciones de busqueda">
-                  @for (option of predictedSearchSuggestions(); track option) {
-                    <button type="button" (click)="selectPredictedSearch(option)">
-                      {{ option }}
-                    </button>
-                  }
-                </div>
-              }
               @if (searchQuery()) {
                 <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M18 6 6 18M6 6l12 12"></path>
                   </svg>
                 </button>
+              }
+              @if (shouldShowSearchSuggestions()) {
+                <div class="combo-menu search-suggestion-menu" aria-label="Predicciones de busqueda">
+                  @for (option of visibleSearchSuggestions(); track option) {
+                    <button type="button" (mousedown)="$event.preventDefault(); selectPredictedSearch(option)">
+                      <strong>{{ option }}</strong>
+                    </button>
+                  }
+                </div>
               }
             </div>
           </div>

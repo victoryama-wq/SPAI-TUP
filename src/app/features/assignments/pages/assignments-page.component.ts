@@ -27,6 +27,7 @@ const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
 const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
+const MAX_SEARCH_SUGGESTIONS = 8;
 
 interface AssignmentFormState {
   cycle: string;
@@ -92,6 +93,7 @@ export class AssignmentsPageComponent {
   teacherPickerValue = '';
   groupPickerValue = '';
   activeComboField: AssignmentComboField | null = null;
+  isSearchMenuOpen = false;
 
   assignmentForm = this.emptyForm();
 
@@ -634,18 +636,22 @@ export class AssignmentsPageComponent {
   selectSearchField(event: Event): void {
     this.searchField.set((event.target as HTMLSelectElement).value as AssignmentSearchField);
     this.searchQuery.set('');
+    this.isSearchMenuOpen = false;
   }
 
   updateSearchQuery(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value);
+    this.isSearchMenuOpen = true;
   }
 
   clearSearch(): void {
     this.searchQuery.set('');
+    this.isSearchMenuOpen = false;
   }
 
   selectPredictedSearch(value: string): void {
     this.searchQuery.set(value);
+    this.isSearchMenuOpen = false;
   }
 
   selectStatusFilter(event: Event): void {
@@ -655,6 +661,7 @@ export class AssignmentsPageComponent {
   selectModeTab(tab: AssignmentModeTab): void {
     this.modeTab.set(tab);
     this.searchQuery.set('');
+    this.isSearchMenuOpen = false;
   }
 
   dismissReadinessAlert(): void {
@@ -685,7 +692,15 @@ export class AssignmentsPageComponent {
 
   searchSuggestions(): string[] {
     const query = this.searchQuery();
-    const options = new Set<string>();
+    const options = new Map<string, string>();
+    const addOption = (value: string, searchableText = value): void => {
+      if (!value) {
+        return;
+      }
+
+      const currentSearchableText = options.get(value);
+      options.set(value, currentSearchableText ? `${currentSearchableText} ${searchableText}` : searchableText);
+    };
     const scopedAssignments = this.assignments().filter((assignment) => {
       const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
 
@@ -693,38 +708,42 @@ export class AssignmentsPageComponent {
     });
 
     if (this.searchField() === 'program') {
-      this.visibleProgramCodes().forEach((program) => options.add(program));
+      this.visibleProgramCodes().forEach((program) => addOption(program));
     }
 
     if (this.searchField() === 'group') {
-      this.tableGroupOptions().forEach((group) => options.add(group.fullGroup));
+      this.tableGroupOptions().forEach((group) => addOption(group.fullGroup, `${group.fullGroup} ${group.programName}`));
       scopedAssignments
         .filter((assignment) => assignment.group)
-        .forEach((assignment) => options.add(assignment.group));
+        .forEach((assignment) => addOption(assignment.group, `${assignment.group} ${assignment.program}`));
     }
 
     if (this.searchField() === 'teacher') {
       scopedAssignments
-        .forEach((assignment) => options.add(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
+        .forEach((assignment) => addOption(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
       this.validatedTeachers()
-        .forEach((teacher) => options.add(`${teacher.fullName} - ${teacher.moodleUser}`));
-      options.add('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
+        .forEach((teacher) => addOption(`${teacher.fullName} - ${teacher.moodleUser}`));
+      addOption('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
     }
 
     if (this.searchField() === 'subject') {
       scopedAssignments
-        .forEach((assignment) => options.add(`${assignment.subjectId} - ${assignment.subjectName}`));
+        .forEach((assignment) => addOption(
+          assignment.subjectName,
+          `${assignment.subjectId} ${assignment.subjectName}`,
+        ));
       this.activeSubjects()
-        .forEach((subject) => options.add(`${subject.subjectId} - ${subject.name}`));
+        .forEach((subject) => addOption(subject.name, `${subject.subjectId} ${subject.name}`));
     }
 
-    return Array.from(options)
-      .filter((option) => this.matchesSearchText(option, query))
-      .sort((a, b) => a.localeCompare(b, 'es'))
+    return Array.from(options.entries())
+      .filter(([, searchableText]) => this.matchesSearchText(searchableText, query))
+      .sort(([firstOption], [secondOption]) => firstOption.localeCompare(secondOption, 'es'))
+      .map(([option]) => option)
       .slice(0, 30);
   }
 
-  predictedSearchSuggestions(): string[] {
+  visibleSearchSuggestions(): string[] {
     const query = this.normalizeSearch(this.searchQuery());
 
     if (query.length < 2) {
@@ -733,7 +752,19 @@ export class AssignmentsPageComponent {
 
     return this.searchSuggestions()
       .filter((option) => this.normalizeSearch(option) !== query)
-      .slice(0, 4);
+      .slice(0, MAX_SEARCH_SUGGESTIONS);
+  }
+
+  openSearchSuggestions(): void {
+    this.isSearchMenuOpen = true;
+  }
+
+  closeSearchSuggestions(): void {
+    this.isSearchMenuOpen = false;
+  }
+
+  shouldShowSearchSuggestions(): boolean {
+    return this.isSearchMenuOpen && this.visibleSearchSuggestions().length > 0;
   }
 
   openCombo(field: AssignmentComboField): void {
