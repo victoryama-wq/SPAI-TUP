@@ -955,8 +955,8 @@ Vista implementada:
   - Escolarizado: solo grupos con modalidad Escolarizado y area academica distinta de Facultad de Ciencias de la Salud.
   - Ejecutivo: solo grupos con modalidad Ejecutivo y area academica distinta de Facultad de Ciencias de la Salud.
   - Virtual: grupos virtuales del area Campus TUP.
-  - Salud: exclusivamente grupos y programas cuyo `academicArea` o area academica derivada sea `Facultad de Ciencias de la Salud`.
-  - Posgrados: maestrias de Campus TUP.
+  - Salud: exclusivamente grupos y programas cuyo `academicArea`, area academica derivada o sigla de respaldo pertenezca a `Facultad de Ciencias de la Salud`; incluye licenciaturas, maestrias y especialidades de la Facultad.
+  - Posgrados: maestrias de Campus TUP, sin incluir programas de Facultad de Ciencias de la Salud.
   - Especiales: grupos con terminacion `C.A`, materias autogestivas y casos con matriculas adicionales.
 - Salud no es modalidad; se muestra como pestaña separada porque sus asignaciones pertenecen a Facultad de Ciencias de la Salud.
 - La pestaña Salud se basa en el area academica derivada de nomenclatura o programa; no se decide por modalidad.
@@ -2015,8 +2015,8 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 - Estado actual:
   - Las pestanas filtran asignaciones, grupos y sugerencias por ciclo activo, permisos y criterio operativo.
   - Escolarizado muestra grupos escolarizados que no pertenecen a Facultad de Ciencias de la Salud.
-  - Salud muestra solo grupos y programas de Facultad de Ciencias de la Salud.
-  - Posgrados se limita a maestrias de Campus TUP.
+  - Salud muestra solo grupos y programas de Facultad de Ciencias de la Salud, incluyendo licenciaturas, maestrias y especialidades.
+  - Posgrados se limita a maestrias de Campus TUP y excluye programas de Facultad de Ciencias de la Salud.
   - Especiales agrupa terminacion `C.A`, materias autogestivas y casos con matriculas adicionales.
   - La barra de busqueda usa predicciones por Programa, Grupo, Docente o Asignatura.
   - El campo/columna Distribucion fue retirado del flujo.

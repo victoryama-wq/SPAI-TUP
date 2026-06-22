@@ -28,6 +28,7 @@ const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
 const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
 const MAX_SEARCH_SUGGESTIONS = 8;
+const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
 
 interface AssignmentFormState {
   cycle: string;
@@ -1415,7 +1416,9 @@ export class AssignmentsPageComponent {
       return 'Especiales';
     }
 
-    if (normalizedProgram.includes('facultad de ciencias de la salud') || normalizedProgram.includes('salud')) {
+    if (this.isHealthProgramCode(assignment.program)
+      || normalizedProgram.includes('facultad de ciencias de la salud')
+      || normalizedProgram.includes('salud')) {
       return 'Salud';
     }
 
@@ -1741,8 +1744,13 @@ export class AssignmentsPageComponent {
       program?.academicArea,
     ].join(' '));
 
-    return academicArea.includes('facultad de ciencias de la salud')
+    return this.isHealthProgramCode(group.programAbbreviation)
+      || academicArea.includes('facultad de ciencias de la salud')
       || academicArea.includes('salud');
+  }
+
+  private isHealthProgramCode(programCode: string): boolean {
+    return HEALTH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
   }
 
   private isCampusTupGroup(group: AcademicGroup): boolean {
