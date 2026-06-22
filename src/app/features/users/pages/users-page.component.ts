@@ -33,6 +33,7 @@ import { ProgramsRepository } from '../../nomenclatures/data/programs.repository
 interface ProgramOption {
   label: string;
   value: string;
+  owner: string;
 }
 
 interface ModuleAccessOption {
@@ -119,20 +120,32 @@ export class UsersPageComponent {
   readonly programOptions = computed<ProgramOption[]>(() => {
     this.programOptionsRefreshSignal();
     const optionsByValue = new Map<string, ProgramOption>();
+    const setOption = (value: string, label: string): void => {
+      if (!value || optionsByValue.has(value)) {
+        return;
+      }
+
+      optionsByValue.set(value, {
+        value,
+        label,
+        owner: this.programAssignedOwner(value),
+      });
+    };
 
     this.nomenclatures()
       .filter((nomenclature) => nomenclature.status === 'ACTIVA')
       .forEach((nomenclature) => {
         const value = this.normalizeProgramCode(nomenclature.programCode || nomenclature.abbreviation);
 
-        if (!value || optionsByValue.has(value) || this.isProgramUnavailableForForm(value)) {
-          return;
-        }
+        setOption(value, `${value} - ${nomenclature.programName}`);
+      });
 
-        optionsByValue.set(value, {
-          value,
-          label: `${value} - ${nomenclature.programName}`,
-        });
+    this.programs()
+      .filter((program) => program.status === 'Activo')
+      .forEach((program) => {
+        const value = this.normalizeProgramCode(program.code);
+
+        setOption(value, `${value} - ${program.name}`);
       });
 
     this.form.controls.assignedPrograms.value.forEach((assignedProgram) => {
@@ -145,6 +158,7 @@ export class UsersPageComponent {
       optionsByValue.set(value, {
         value,
         label: `${value} - asignado actualmente`,
+        owner: '',
       });
     });
 

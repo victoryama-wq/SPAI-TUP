@@ -110,13 +110,19 @@
           @if (hasProgramOptions()) {
             <div class="program-options">
               @for (program of programOptions(); track program.value) {
-                <label class="check-option">
+                <label class="check-option" [class.option-disabled]="program.owner.length > 0">
                   <input
                     type="checkbox"
                     [checked]="isProgramSelected(program.value)"
+                    [disabled]="program.owner.length > 0"
                     (change)="toggleProgram(program.value, $any($event.target).checked)"
                   />
-                  <span>{{ program.label }}</span>
+                  <span>
+                    {{ program.label }}
+                    @if (program.owner) {
+                      <small>Asignado a {{ program.owner }}</small>
+                    }
+                  </span>
                 </label>
               }
             </div>
