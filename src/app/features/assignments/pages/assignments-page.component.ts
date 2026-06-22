@@ -71,6 +71,7 @@ export class AssignmentsPageComponent {
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
+  readonly assignmentsReadError = this.assignmentsRepository.readError;
   readonly cycles = this.cyclesRepository.cycles;
   readonly groups = this.groupsRepository.groups;
   readonly programs = this.programsRepository.programs;
@@ -135,6 +136,16 @@ export class AssignmentsPageComponent {
   readonly canReviewAssignments = computed(() => this.canSeeAllAssignments());
 
   readonly canCaptureAssignments = computed(() => this.activeCycle()?.status === 'Captura');
+
+  readonly assignedProgramCodes = computed(() => {
+    const appUser = this.session()?.appUser;
+
+    return new Set(
+      (appUser?.assignedPrograms ?? [])
+        .map((program) => program.trim().toUpperCase())
+        .filter(Boolean),
+    );
+  });
 
   readonly captureBlockedMessage = computed(() => {
     const activeCycle = this.activeCycle();
@@ -252,7 +263,6 @@ export class AssignmentsPageComponent {
 
   readonly destinationGroupOptions = computed(() => {
     const activeCycle = this.activeCycle();
-    const appUser = this.session()?.appUser;
 
     if (!activeCycle) {
       return [];
@@ -261,7 +271,7 @@ export class AssignmentsPageComponent {
     return this.groups()
       .filter((group) => {
         const allowedProgram = this.canSeeAllAssignments()
-          || appUser?.assignedPrograms.includes(group.programAbbreviation);
+          || this.isAssignedProgram(group.programAbbreviation);
 
         return group.status === 'Activo'
           && group.cycleCode === activeCycle.code
@@ -295,16 +305,31 @@ export class AssignmentsPageComponent {
       .sort((a, b) => a.localeCompare(b, 'es'));
   });
 
-  readonly visibleAssignments = computed(() => {
-    return this.assignments().filter((assignment) => {
-      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
+  readonly catalogAssignmentsForActiveCycle = computed(() => {
+    const activeCycle = this.activeCycle();
 
+    if (!activeCycle || !this.canViewAssignments()) {
+      return [];
+    }
+
+    return this.assignments().filter((assignment) => {
       return !this.isAssignmentDeleted(assignment)
-        && this.assignmentInCurrentScope(assignment)
-        && matchesStatus
-        && this.assignmentMatchesSearch(assignment);
+        && assignment.cycle === activeCycle.code
+        && this.assignmentMatchesCatalogScope(assignment);
     });
   });
+
+  readonly assignmentsForCurrentTab = computed(() =>
+    this.catalogAssignmentsForActiveCycle()
+      .filter((assignment) => this.assignmentMode(assignment) === this.modeTab()),
+  );
+
+  readonly visibleAssignments = computed(() =>
+    this.assignmentsForCurrentTab().filter((assignment) => {
+      return this.assignmentStatusMatchesFilter(assignment)
+        && this.assignmentMatchesSearch(assignment);
+    }),
+  );
 
   readonly modeTabs = computed(() => {
     const tabs: AssignmentModeTab[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales'];
@@ -318,9 +343,8 @@ export class AssignmentsPageComponent {
 
   readonly sourceAssignmentOptions = computed(() =>
     this.assignments().filter((assignment) => {
-      const appUser = this.session()?.appUser;
       const allowedProgram = this.canSeeAllAssignments()
-        || appUser?.assignedPrograms.includes(assignment.program) === true;
+        || this.isAssignedProgram(assignment.program);
 
       return !this.isAssignmentDeleted(assignment)
         && assignment.id !== this.editingAssignmentId
@@ -355,6 +379,52 @@ export class AssignmentsPageComponent {
     }
 
     return 'No hay asignaciones pendientes en la vista actual.';
+  });
+
+  readonly emptyAssignmentsTitle = computed(() => {
+    if (!this.canViewAssignments()) {
+      return 'Sin permisos para consultar asignaciones';
+    }
+
+    if (!this.activeCycle()) {
+      return 'Sin ciclo activo';
+    }
+
+    if (!this.catalogAssignmentsForActiveCycle().length) {
+      return this.isGlobalCatalogVisible()
+        ? 'Sin asignaciones en el catalogo global'
+        : 'Sin asignaciones en tus programas';
+    }
+
+    if (!this.assignmentsForCurrentTab().length) {
+      return 'Sin asignaciones en esta pestana';
+    }
+
+    return 'Sin coincidencias con los filtros';
+  });
+
+  readonly emptyAssignmentsMessage = computed(() => {
+    const activeCycleCode = this.activeCycleCode();
+
+    if (!this.canViewAssignments()) {
+      return 'Tu usuario no tiene permiso activo para consultar el modulo Asignaciones.';
+    }
+
+    if (!this.activeCycle()) {
+      return 'Configura un ciclo activo para consultar asignaciones operativas.';
+    }
+
+    if (!this.catalogAssignmentsForActiveCycle().length) {
+      return this.isGlobalCatalogVisible()
+        ? `No hay asignaciones registradas en el ciclo ${activeCycleCode}.`
+        : `No hay asignaciones de tus programas en el ciclo ${activeCycleCode}. Activa Catalogo global para consultar las demas coordinaciones.`;
+    }
+
+    if (!this.assignmentsForCurrentTab().length) {
+      return `Hay ${this.catalogAssignmentsForActiveCycle().length} asignacion(es) del ciclo ${activeCycleCode} en ${this.isGlobalCatalogVisible() ? 'Catalogo global' : 'Mis programas'}, pero ninguna corresponde a la pestana ${this.modeTab()}.`;
+    }
+
+    return `Hay ${this.assignmentsForCurrentTab().length} asignacion(es) en ${this.modeTab()}, pero ninguna coincide con el estado o la busqueda actual.`;
   });
 
   get modalTitle(): string {
@@ -725,7 +795,8 @@ export class AssignmentsPageComponent {
   }
 
   isGlobalCatalogVisible(): boolean {
-    return this.canSeeAllAssignments() || this.catalogScope() === 'GLOBAL';
+    return this.canSeeAllAssignments()
+      || (this.canToggleGlobalCatalog() && this.catalogScope() === 'GLOBAL');
   }
 
   toggleCatalogScope(): void {
@@ -1155,10 +1226,8 @@ export class AssignmentsPageComponent {
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
-    const appUser = this.session()?.appUser;
-
     const allowedProgram = this.canSeeAllAssignments()
-      || appUser?.assignedPrograms.includes(assignment.program) === true;
+      || this.isAssignedProgram(assignment.program);
 
     return allowedProgram && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
   }
@@ -1254,17 +1323,17 @@ export class AssignmentsPageComponent {
   }
 
   private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
-    const appUser = this.session()?.appUser;
-
     return this.isGlobalCatalogVisible()
-      || appUser?.assignedPrograms.includes(assignment.program) === true;
+      || this.isAssignedProgram(assignment.program);
   }
 
   private groupMatchesCatalogScope(group: AcademicGroup): boolean {
-    const appUser = this.session()?.appUser;
-
     return this.isGlobalCatalogVisible()
-      || appUser?.assignedPrograms.includes(group.programAbbreviation) === true;
+      || this.isAssignedProgram(group.programAbbreviation);
+  }
+
+  private isAssignedProgram(program: string): boolean {
+    return this.assignedProgramCodes().has(program.trim().toUpperCase());
   }
 
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
@@ -1312,14 +1381,63 @@ export class AssignmentsPageComponent {
       .replace(/\s+/g, ' ');
   }
 
-  private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab | null {
+  private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
     if (assignment.special || this.hasStudentEnrollments(assignment.studentEnrollments)) {
       return 'Especiales';
     }
 
     const group = this.groups().find((item) => item.fullGroup === assignment.group);
 
-    return group ? this.groupMode(group) : null;
+    if (group) {
+      return this.groupMode(group) ?? this.assignmentModeFromStoredData(assignment);
+    }
+
+    return this.assignmentModeFromStoredData(assignment);
+  }
+
+  private assignmentModeFromStoredData(assignment: AcademicAssignment): AssignmentModeTab {
+    const normalizedGroup = this.normalizeSearchText(assignment.group);
+    const program = this.programForAssignment(assignment);
+    const normalizedProgram = this.normalizeSearchText([
+      assignment.program,
+      program?.name,
+      program?.academicArea,
+      program?.programType,
+      program?.modality,
+    ].join(' '));
+
+    if (!normalizedGroup || normalizedGroup.endsWith('c.a') || normalizedGroup.endsWith('c a')) {
+      return 'Especiales';
+    }
+
+    if (normalizedProgram.includes('facultad de ciencias de la salud') || normalizedProgram.includes('salud')) {
+      return 'Salud';
+    }
+
+    if (normalizedProgram.includes('maestria')
+      || normalizedProgram.includes('especialidad')
+      || normalizedProgram.includes('doctorado')
+      || normalizedProgram.includes('posgrado')) {
+      return 'Posgrados';
+    }
+
+    const groupCode = this.assignmentGroupCode(assignment.group);
+
+    if (groupCode === '53') {
+      return 'Virtual';
+    }
+
+    if (groupCode === '23' || groupCode === '24') {
+      return 'Ejecutivo';
+    }
+
+    return 'Escolarizado';
+  }
+
+  private assignmentGroupCode(group: string): string {
+    const match = group.trim().toUpperCase().match(/\s(11|12|23|24|53)\s/);
+
+    return match?.[1] ?? '';
   }
 
   private validateForm(): string[] {
@@ -1539,11 +1657,10 @@ export class AssignmentsPageComponent {
   }
 
   private canUseDestinationProgram(program: string): boolean {
-    const appUser = this.session()?.appUser;
     const normalizedProgram = program.trim().toUpperCase();
 
     return this.canSeeAllAssignments()
-      || appUser?.assignedPrograms.includes(normalizedProgram) === true;
+      || this.isAssignedProgram(normalizedProgram);
   }
 
   private isSystemsCoordinationRole(role: string): boolean {
@@ -1631,6 +1748,10 @@ export class AssignmentsPageComponent {
 
   private programForGroup(group: AcademicGroup) {
     return this.programs().find((program) => program.code === group.programAbbreviation) ?? null;
+  }
+
+  private programForAssignment(assignment: AcademicAssignment) {
+    return this.programs().find((program) => program.code === assignment.program) ?? null;
   }
 
   private hasStudentEnrollments(studentEnrollments?: string): boolean {

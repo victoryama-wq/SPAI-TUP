@@ -917,7 +917,7 @@ Reglas:
 - El ID Moodle no debe duplicarse para la misma materia dentro del mismo ciclo, salvo cuando sea clase compartida.
 - Si una clase se comparte, la clase origen y destino deben compartir el mismo ID asignatura de captura.
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
-- Coordinacion Academica consulta por defecto asignaciones de sus programas/grupos asignados y puede usar el boton **Catalogo global** para ver tambien asignaciones de otras coordinaciones.
+- Coordinacion Academica consulta por defecto asignaciones de sus programas/grupos asignados y puede usar el boton **Catalogo global** para ver todas las asignaciones del ciclo activo: propias, de otras coordinaciones y registros creados por Sistemas, manteniendo solo permisos de consulta sobre lo ajeno.
 - Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.
@@ -990,7 +990,7 @@ Alta y edicion:
 - El boton `Nueva asignacion` abre un modal o panel de captura.
 - En la captura, el ciclo activo se muestra como solo lectura.
 - El grupo se selecciona de los grupos activos del ciclo activo y se filtra segun la pestaña operativa seleccionada.
-- Coordinacion Academica ve por defecto en la tabla principal solo asignaciones de sus programas asignados, con boton **Catalogo global** para consultar tambien asignaciones de las demas coordinaciones.
+- Coordinacion Academica ve por defecto en la tabla principal solo asignaciones de sus programas asignados, con boton **Catalogo global** para consultar tambien asignaciones de las demas coordinaciones y las creadas por Sistemas en el ciclo activo.
 - Coordinacion Academica solo ve grupos de sus programas asignados al elegir el grupo destino de una captura.
 - Sistemas ve todos los grupos del ciclo activo.
 - La asignatura se selecciona del catalogo global activo.
@@ -1021,6 +1021,15 @@ Casos especiales y autogestivos:
 - En tabla, la columna Matriculas adicionales muestra las matriculas capturadas para casos especiales.
 - Las asignaciones especiales no pueden usarse como origen de clase compartida.
 - En el modal responsive de Especiales, los controles compactos de caso especial, clase compartida y estado deben acomodarse sin superposicion ni recorte de texto.
+
+Catalogo global en Asignaciones:
+
+- En modo **Mis programas**, Coordinacion Academica ve las asignaciones del ciclo activo que pertenecen a sus programas asignados.
+- En modo **Catalogo global**, Coordinacion Academica ve tambien asignaciones del ciclo activo creadas por otras coordinaciones o por Sistemas, aunque el programa no este en `usuarios.assignedPrograms`.
+- La tabla, conteos, sugerencias y opciones de consulta de Coordinacion Academica deben respetar **Mis programas** por defecto; las asignaciones ajenas solo se muestran cuando el usuario activa el boton **Catalogo global**.
+- El alcance global no concede permisos de captura, edicion o eliminacion sobre programas ajenos; esas acciones siguen sujetas al programa asignado, creador del registro y rol operativo.
+- Si una asignacion del ciclo activo no puede resolver su grupo contra el catalogo de Grupos, la interfaz debe clasificarla por los datos guardados de la asignacion para evitar que quede invisible en la vista global.
+- Si existen asignaciones del ciclo activo pero no aparecen por pestana, estado o busqueda, la tabla debe mostrar un mensaje de vacio explicando que la vista actual las esta filtrando.
 
 Clases compartidas en tabla:
 

@@ -11,6 +11,13 @@
   </div>
 }
 
+@if (assignmentsReadError()) {
+  <div class="feedback standalone-feedback has-errors">
+    <strong>No se pudo leer el catalogo de asignaciones.</strong>
+    <span>Firestore rechazo la consulta o las reglas publicadas no permiten consultar asignaciones globales para este usuario.</span>
+  </div>
+}
+
 @if (isReadinessAlertVisible() && assignmentReadinessMessages().length) {
   <aside class="readiness-alert" role="alert" aria-live="polite">
     <div>
@@ -250,8 +257,8 @@
           <tr>
             <td colspan="8">
               <div class="empty-state">
-                <strong>Sin asignaciones registradas</strong>
-                <span>Crea una asignacion del ciclo activo con grupo, asignatura, docente e ID asignatura.</span>
+                <strong>{{ emptyAssignmentsTitle() }}</strong>
+                <span>{{ emptyAssignmentsMessage() }}</span>
               </div>
             </td>
           </tr>
