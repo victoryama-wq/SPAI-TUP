@@ -330,7 +330,11 @@
         </button>
       </div>
 
-      <div class="assignment-form" [class.special-mode-form]="modeTab() === 'Especiales'">
+      <div
+        class="assignment-form"
+        [class.special-mode-form]="modeTab() === 'Especiales'"
+        [class.special-case-active]="assignmentForm.special"
+      >
         <label class="moodle-id-field">
           <span>ID Moodle *</span>
           <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
