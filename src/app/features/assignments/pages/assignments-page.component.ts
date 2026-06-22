@@ -29,6 +29,20 @@ const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
 const MAX_SEARCH_SUGGESTIONS = 8;
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
+const HEALTH_TEXT_MARKERS = [
+  'facultad de ciencias de la salud',
+  'ciencias de la salud',
+  'salud',
+  'enfermer',
+  'nutric',
+  'psicolog',
+  'hospital',
+  'quirurg',
+  'odontolog',
+  'medic',
+  'clinica',
+  'cuidados intensivos',
+];
 
 interface AssignmentFormState {
   cycle: string;
@@ -140,12 +154,20 @@ export class AssignmentsPageComponent {
 
   readonly assignedProgramCodes = computed(() => {
     const appUser = this.session()?.appUser;
+    const programCodes = new Set<string>();
 
-    return new Set(
-      (appUser?.assignedPrograms ?? [])
-        .map((program) => program.trim().toUpperCase())
-        .filter(Boolean),
-    );
+    (appUser?.assignedPrograms ?? [])
+      .map((program) => program.trim().toUpperCase())
+      .filter(Boolean)
+      .forEach((program) => programCodes.add(program));
+
+    this.programs()
+      .filter((program) => this.coordinatorMatchesCurrentUser(program.coordinator))
+      .map((program) => program.code.trim().toUpperCase())
+      .filter(Boolean)
+      .forEach((program) => programCodes.add(program));
+
+    return programCodes;
   });
 
   readonly captureBlockedMessage = computed(() => {
@@ -291,8 +313,6 @@ export class AssignmentsPageComponent {
   }
 
   readonly destinationProgramOptions = computed(() => {
-    const appUser = this.session()?.appUser;
-
     if (this.canSeeAllAssignments()) {
       return this.programs()
         .filter((program) => program.status === 'Activo')
@@ -300,9 +320,7 @@ export class AssignmentsPageComponent {
         .sort((a, b) => a.localeCompare(b, 'es'));
     }
 
-    return (appUser?.assignedPrograms ?? [])
-      .map((program) => program.trim().toUpperCase())
-      .filter(Boolean)
+    return Array.from(this.assignedProgramCodes())
       .sort((a, b) => a.localeCompare(b, 'es'));
   });
 
@@ -1417,8 +1435,7 @@ export class AssignmentsPageComponent {
     }
 
     if (this.isHealthProgramCode(assignment.program)
-      || normalizedProgram.includes('facultad de ciencias de la salud')
-      || normalizedProgram.includes('salud')) {
+      || this.referencesHealthFaculty(normalizedProgram)) {
       return 'Salud';
     }
 
@@ -1739,18 +1756,25 @@ export class AssignmentsPageComponent {
 
   private isHealthGroup(group: AcademicGroup): boolean {
     const program = this.programForGroup(group);
-    const academicArea = this.normalizeSearchText([
+    const healthReference = this.normalizeSearchText([
       group.academicArea,
       program?.academicArea,
+      group.programName,
+      program?.name,
     ].join(' '));
 
     return this.isHealthProgramCode(group.programAbbreviation)
-      || academicArea.includes('facultad de ciencias de la salud')
-      || academicArea.includes('salud');
+      || this.referencesHealthFaculty(healthReference);
   }
 
   private isHealthProgramCode(programCode: string): boolean {
     return HEALTH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
+  }
+
+  private referencesHealthFaculty(value: string): boolean {
+    const normalizedValue = this.normalizeSearchText(value);
+
+    return HEALTH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
   }
 
   private isCampusTupGroup(group: AcademicGroup): boolean {
@@ -1816,8 +1840,28 @@ export class AssignmentsPageComponent {
       createdBy: appUser?.id ?? this.session()?.authUid ?? 'sin-usuario',
       createdByName: appUser?.name ?? this.session()?.displayName ?? 'Usuario SPAI',
       createdByRole: appUser?.role ?? 'Sin rol',
-      createdByPrograms: appUser?.assignedPrograms ?? [],
+      createdByPrograms: Array.from(this.assignedProgramCodes()),
     };
+  }
+
+  private coordinatorMatchesCurrentUser(coordinator: string): boolean {
+    const session = this.session();
+    const appUser = session?.appUser;
+    const normalizedCoordinator = this.normalizeSearchText(coordinator);
+
+    if (!normalizedCoordinator) {
+      return false;
+    }
+
+    return [
+      appUser?.name,
+      appUser?.email,
+      appUser?.id,
+      appUser?.authUid,
+      session?.email,
+      session?.displayName,
+      session?.authUid,
+    ].some((value) => this.normalizeSearchText(value ?? '') === normalizedCoordinator);
   }
 
   private normalizedStudentEnrollments(): string {

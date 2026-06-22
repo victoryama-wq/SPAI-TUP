@@ -919,6 +919,7 @@ Reglas:
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
 - Coordinacion Academica consulta por defecto asignaciones de sus programas/grupos asignados y puede usar el boton **Catalogo global** para ver todas las asignaciones del ciclo activo: propias, de otras coordinaciones y registros creados por Sistemas, manteniendo solo permisos de consulta sobre lo ajeno.
 - Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
+- Para captura en Asignaciones, los programas permitidos de Coordinacion Academica se calculan con `usuarios.assignedPrograms` y tambien con los programas donde `programas.coordinator` coincida con el nombre o correo del usuario activo.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.
 - Auxiliar de Sistemas puede consultar y gestionar Asignaciones cuando Coordinacion de Sistemas le habilita `access.asignaciones == true`.
@@ -942,7 +943,7 @@ Vista implementada:
   - Asignatura.
 - Mientras el usuario escribe, el sistema muestra sugerencias predictivas compactas dentro o junto a la misma barra de busqueda.
 - Las sugerencias deben calcularse segun ciclo activo, permisos del usuario y pestaña activa.
-- En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud.
+- En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud, incluyendo programas detectados por area academica, siglas de respaldo o nombre del programa.
 - En la pestaña Escolarizado, las sugerencias de grupo deben limitarse a grupos escolarizados que no pertenezcan a Facultad de Ciencias de la Salud.
 - Las asignaciones se separan por pestañas estilo navegador en la parte superior derecha del panel:
   - Escolarizado.
