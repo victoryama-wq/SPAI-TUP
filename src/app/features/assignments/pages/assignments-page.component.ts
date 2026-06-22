@@ -80,6 +80,9 @@ export class AssignmentsPageComponent {
   isAssignmentModalOpen = false;
   editingAssignmentId: string | null = null;
   isReadinessAlertVisible = signal(true);
+  subjectPickerValue = '';
+  teacherPickerValue = '';
+  groupPickerValue = '';
 
   assignmentForm = this.emptyForm();
 
@@ -378,6 +381,7 @@ export class AssignmentsPageComponent {
     this.formMessage = '';
     this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.modeTab() === 'Especiales');
+    this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
 
@@ -412,6 +416,7 @@ export class AssignmentsPageComponent {
       special: assignment.special ?? false,
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
+    this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
 
@@ -429,6 +434,7 @@ export class AssignmentsPageComponent {
     this.formErrors = [];
     this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
+    this.syncPickerInputsFromForm();
   }
 
   saveAssignment(continueAdding = false): void {
@@ -718,6 +724,60 @@ export class AssignmentsPageComponent {
       .slice(0, 4);
   }
 
+  subjectPickerLabel(subject: Subject): string {
+    return subject.name;
+  }
+
+  teacherPickerLabel(teacher: Teacher): string {
+    return `${teacher.fullName} - ${teacher.moodleUser}`;
+  }
+
+  temporaryTeacherPickerLabel(): string {
+    return `${TEMPORARY_TEACHER_NAME} - ${TEMPORARY_TEACHER_USER}`;
+  }
+
+  groupPickerLabel(group: AcademicGroup): string {
+    return `${group.fullGroup} - ${group.programName}`;
+  }
+
+  updateSubjectPicker(value: string): void {
+    this.subjectPickerValue = value;
+    const subject = this.subjectFromPickerValue(value);
+    this.assignmentForm.subjectId = subject?.subjectId ?? '';
+  }
+
+  commitSubjectPicker(): void {
+    const subject = this.subjectFromPickerValue(this.subjectPickerValue);
+    this.assignmentForm.subjectId = subject?.subjectId ?? '';
+    this.subjectPickerValue = subject ? this.subjectPickerLabel(subject) : this.subjectPickerValue;
+  }
+
+  updateTeacherPicker(value: string): void {
+    this.teacherPickerValue = value;
+    const teacherSelection = this.teacherFromPickerValue(value);
+    this.assignmentForm.teacherMoodleUser = teacherSelection;
+  }
+
+  commitTeacherPicker(): void {
+    const teacherSelection = this.teacherFromPickerValue(this.teacherPickerValue);
+    this.assignmentForm.teacherMoodleUser = teacherSelection;
+    this.teacherPickerValue = this.teacherPickerLabelFromUser(teacherSelection) || this.teacherPickerValue;
+  }
+
+  updateGroupPicker(value: string): void {
+    this.groupPickerValue = value;
+    const group = this.groupFromPickerValue(value);
+    this.assignmentForm.group = group?.fullGroup ?? '';
+    this.onGroupChange();
+  }
+
+  commitGroupPicker(): void {
+    const group = this.groupFromPickerValue(this.groupPickerValue);
+    this.assignmentForm.group = group?.fullGroup ?? '';
+    this.groupPickerValue = group ? this.groupPickerLabel(group) : this.groupPickerValue;
+    this.onGroupChange();
+  }
+
   onGroupChange(): void {
     const group = this.selectedGroup();
     this.assignmentForm.cycle = this.activeCycle()?.code ?? group?.cycleCode ?? this.assignmentForm.cycle;
@@ -748,6 +808,7 @@ export class AssignmentsPageComponent {
       this.assignmentForm.sharedGroupCount = 0;
       this.assignmentForm.shareGroups = [];
       this.shareGroupSearch.set('');
+      this.groupPickerValue = '';
       return;
     }
 
@@ -820,6 +881,7 @@ export class AssignmentsPageComponent {
     this.assignmentForm.moodleId = source.moodleId;
     this.assignmentForm.teacherMoodleUser = source.teacherMoodleUser;
     this.assignmentForm.subjectId = source.subjectId;
+    this.syncPickerInputsFromForm();
   }
 
   statusClass(status: AssignmentStatus): string {
@@ -1090,6 +1152,89 @@ export class AssignmentsPageComponent {
     return this.groups().find((group) => group.fullGroup === this.assignmentForm.group) ?? null;
   }
 
+  private syncPickerInputsFromForm(): void {
+    this.subjectPickerValue = this.subjectPickerLabelFromId(this.assignmentForm.subjectId);
+    this.teacherPickerValue = this.teacherPickerLabelFromUser(this.assignmentForm.teacherMoodleUser);
+    this.groupPickerValue = this.groupPickerLabelFromFullGroup(this.assignmentForm.group);
+  }
+
+  private subjectPickerLabelFromId(subjectId: string): string {
+    const subject = this.subjects().find((item) => item.subjectId === subjectId);
+
+    return subject ? this.subjectPickerLabel(subject) : '';
+  }
+
+  private teacherPickerLabelFromUser(moodleUser: string): string {
+    if (moodleUser === TEMPORARY_TEACHER_USER) {
+      return this.temporaryTeacherPickerLabel();
+    }
+
+    const teacher = this.teachers().find((item) => item.moodleUser === moodleUser);
+
+    return teacher ? this.teacherPickerLabel(teacher) : '';
+  }
+
+  private groupPickerLabelFromFullGroup(fullGroup: string): string {
+    const group = this.groups().find((item) => item.fullGroup === fullGroup);
+
+    return group ? this.groupPickerLabel(group) : '';
+  }
+
+  private subjectFromPickerValue(value: string): Subject | null {
+    const normalizedValue = this.normalizeSearch(value);
+
+    if (!normalizedValue) {
+      return null;
+    }
+
+    return this.activeSubjects().find((subject) => {
+      return [
+        this.subjectPickerLabel(subject),
+        subject.name,
+        subject.subjectId,
+      ].some((option) => this.normalizeSearch(option) === normalizedValue);
+    }) ?? null;
+  }
+
+  private teacherFromPickerValue(value: string): string {
+    const normalizedValue = this.normalizeSearch(value);
+
+    if (!normalizedValue) {
+      return '';
+    }
+
+    if ([this.temporaryTeacherPickerLabel(), TEMPORARY_TEACHER_NAME, TEMPORARY_TEACHER_USER]
+      .some((option) => this.normalizeSearch(option) === normalizedValue)) {
+      return TEMPORARY_TEACHER_USER;
+    }
+
+    const teacher = this.validatedTeachers().find((item) => {
+      return [
+        this.teacherPickerLabel(item),
+        item.fullName,
+        item.moodleUser,
+      ].some((option) => this.normalizeSearch(option) === normalizedValue);
+    });
+
+    return teacher?.moodleUser ?? '';
+  }
+
+  private groupFromPickerValue(value: string): AcademicGroup | null {
+    const normalizedValue = this.normalizeSearch(value);
+
+    if (!normalizedValue) {
+      return null;
+    }
+
+    return this.destinationGroupOptions().find((group) => {
+      return [
+        this.groupPickerLabel(group),
+        group.fullGroup,
+        group.programName,
+      ].some((option) => this.normalizeSearch(option) === normalizedValue);
+    }) ?? null;
+  }
+
   private selectedShareGroups(): AcademicGroup[] {
     return this.assignmentForm.shareGroups
       .map((fullGroup) => this.groups().find((group) => group.fullGroup === fullGroup) ?? null)
@@ -1279,6 +1424,7 @@ export class AssignmentsPageComponent {
     this.formErrors = [];
     this.shareGroupSearch.set('');
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
+    this.syncPickerInputsFromForm();
   }
 
   private notifySystemsAboutAssignmentMilestones(

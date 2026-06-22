@@ -299,22 +299,42 @@
         </label>
         <label class="subject-field">
           <span>Materia *</span>
-          <select [(ngModel)]="assignmentForm.subjectId">
-            <option value="">Seleccionar materia</option>
+          <input
+            class="combo-input"
+            type="text"
+            list="assignment-subject-options"
+            [ngModel]="subjectPickerValue"
+            (ngModelChange)="updateSubjectPicker($event)"
+            (blur)="commitSubjectPicker()"
+            placeholder="Escribe o selecciona materia"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <datalist id="assignment-subject-options">
             @for (subject of activeSubjects(); track subject.id) {
-              <option [value]="subject.subjectId">{{ subject.name }}</option>
+              <option [value]="subjectPickerLabel(subject)"></option>
             }
-          </select>
+          </datalist>
         </label>
         <label class="teacher-field">
           <span>Docente *</span>
-          <select [(ngModel)]="assignmentForm.teacherMoodleUser">
-            <option value="">Seleccionar docente</option>
-            <option value="temporalmente_sin_docente">Temporalmente sin Docente</option>
+          <input
+            class="combo-input"
+            type="text"
+            list="assignment-teacher-options"
+            [ngModel]="teacherPickerValue"
+            (ngModelChange)="updateTeacherPicker($event)"
+            (blur)="commitTeacherPicker()"
+            placeholder="Escribe o selecciona docente"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <datalist id="assignment-teacher-options">
+            <option [value]="temporaryTeacherPickerLabel()">Temporalmente sin docente</option>
             @for (teacher of validatedTeachers(); track teacher.id) {
-              <option [value]="teacher.moodleUser">{{ teacher.fullName }} - {{ teacher.moodleUser }}</option>
+              <option [value]="teacherPickerLabel(teacher)">{{ teacher.moodleUser }}</option>
             }
-          </select>
+          </datalist>
         </label>
         @if (modeTab() === 'Especiales') {
           <label class="toggle-row special-toggle">
@@ -343,12 +363,22 @@
           </label>
           <label class="group-field">
             <span>{{ assignmentForm.shared ? 'Grupo base *' : 'Grupo *' }}</span>
-            <select [(ngModel)]="assignmentForm.group" (change)="onGroupChange()">
-              <option value="">Seleccionar grupo</option>
+            <input
+              class="combo-input"
+              type="text"
+              list="assignment-group-options"
+              [ngModel]="groupPickerValue"
+              (ngModelChange)="updateGroupPicker($event)"
+              (blur)="commitGroupPicker()"
+              placeholder="Escribe o selecciona grupo"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <datalist id="assignment-group-options">
               @for (group of destinationGroupOptions(); track group.id) {
-                <option [value]="group.fullGroup">{{ group.fullGroup }} - {{ group.programName }}</option>
+                <option [value]="groupPickerLabel(group)">{{ group.programAbbreviation }}</option>
               }
-            </select>
+            </datalist>
           </label>
           <div class="assignment-state-row">
             <label class="toggle-row shared-toggle compact-shared-toggle">

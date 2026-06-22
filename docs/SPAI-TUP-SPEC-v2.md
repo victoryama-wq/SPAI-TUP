@@ -986,6 +986,7 @@ Alta y edicion:
 - La asignatura se selecciona del catalogo global activo.
 - El docente se selecciona del catalogo global validado.
 - El selector de docente incluye la opcion `Temporalmente sin Docente`.
+- Los campos Materia, Docente y Grupo en el modal funcionan como campos escribibles con lista desplegable de opciones validas del catalogo.
 - El modal de captura y edicion de Asignaciones guarda siempre el estado fijo `EN_CAPTURA`.
 - Los cambios a `EN_REVISION` y `CARGADO_MOODLE` se realizan desde el panel operativo de Moodle, no desde el modal de Asignaciones.
 - En el modal de captura, `Clase compartida` se muestra como control compacto junto al estado fijo, y `Detalles operativos` queda como bloque inferior.
