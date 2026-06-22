@@ -138,7 +138,8 @@ service cloud.firestore {
     }
 
     function canReadAssignments() {
-      return isSystemsMember()
+      return hasInstitutionalEmail()
+        || isSystemsMember()
         || isAcademicCoordinator()
         || hasModuleAccess('asignaciones');
     }

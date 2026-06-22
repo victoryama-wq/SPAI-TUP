@@ -343,13 +343,13 @@ export class AssignmentsPageComponent {
 
   readonly sourceAssignmentOptions = computed(() =>
     this.assignments().filter((assignment) => {
-      const allowedProgram = this.canSeeAllAssignments()
-        || this.isAssignedProgram(assignment.program);
+      const allowedOrigin = this.canSeeAllAssignments()
+        || this.wasAssignmentCreatedByCurrentUser(assignment);
 
       return !this.isAssignmentDeleted(assignment)
         && assignment.id !== this.editingAssignmentId
         && assignment.cycle === this.assignmentForm.cycle
-        && allowedProgram
+        && allowedOrigin
         && !assignment.shared
         && !assignment.special;
     }).sort((a, b) => a.group.localeCompare(b.group, 'es')),
@@ -393,7 +393,7 @@ export class AssignmentsPageComponent {
     if (!this.catalogAssignmentsForActiveCycle().length) {
       return this.isGlobalCatalogVisible()
         ? 'Sin asignaciones en el catalogo global'
-        : 'Sin asignaciones en tus programas';
+        : 'Sin asignaciones propias';
     }
 
     if (!this.assignmentsForCurrentTab().length) {
@@ -417,7 +417,7 @@ export class AssignmentsPageComponent {
     if (!this.catalogAssignmentsForActiveCycle().length) {
       return this.isGlobalCatalogVisible()
         ? `No hay asignaciones registradas en el ciclo ${activeCycleCode}.`
-        : `No hay asignaciones de tus programas en el ciclo ${activeCycleCode}. Activa Catalogo global para consultar las demas coordinaciones.`;
+        : `No hay asignaciones propias en el ciclo ${activeCycleCode}. Activa Catalogo global para consultar las demas coordinaciones.`;
     }
 
     if (!this.assignmentsForCurrentTab().length) {
@@ -812,7 +812,7 @@ export class AssignmentsPageComponent {
 
     return this.catalogScope() === 'GLOBAL'
       ? 'Vista Coordinacion - Catalogo global'
-      : 'Vista Coordinacion - Mis programas';
+      : 'Vista Coordinacion - Mis asignaciones';
   }
 
   dismissReadinessAlert(): void {
@@ -1226,10 +1226,10 @@ export class AssignmentsPageComponent {
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
-    const allowedProgram = this.canSeeAllAssignments()
-      || this.isAssignedProgram(assignment.program);
+    const allowedAssignment = this.canSeeAllAssignments()
+      || this.wasAssignmentCreatedByCurrentUser(assignment);
 
-    return allowedProgram && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
+    return allowedAssignment && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
   }
 
   canDeleteAssignment(assignment: AcademicAssignment): boolean {
@@ -1324,12 +1324,11 @@ export class AssignmentsPageComponent {
 
   private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
     return this.isGlobalCatalogVisible()
-      || this.isAssignedProgram(assignment.program);
+      || this.wasAssignmentCreatedByCurrentUser(assignment);
   }
 
-  private groupMatchesCatalogScope(group: AcademicGroup): boolean {
-    return this.isGlobalCatalogVisible()
-      || this.isAssignedProgram(group.programAbbreviation);
+  private groupMatchesCatalogScope(_group: AcademicGroup): boolean {
+    return this.isGlobalCatalogVisible();
   }
 
   private isAssignedProgram(program: string): boolean {

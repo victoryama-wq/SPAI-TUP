@@ -149,7 +149,7 @@ Reglas:
 - `grupos` permite lectura a usuarios autenticados y escritura solo a Coordinacion de Sistemas activo.
 - `docentes` permite lectura a usuarios autenticados segun permisos del modulo, docentes validados o Coordinacion Academica; la escritura queda para Sistemas, auxiliares autorizados o altas manuales pendientes de Coordinacion Academica.
 - `asignaturas` permite lectura de asignaturas activas a usuarios autenticados y escritura solo a Sistemas o auxiliares autorizados.
-- `asignaciones` permite lectura a Coordinacion de Sistemas, Auxiliar de Sistemas con `access.asignaciones == true` y Coordinacion Academica; la interfaz muestra a Coordinacion Academica sus programas por defecto y permite alternar a Catalogo global para consultar las demas asignaciones, la escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
+- `asignaciones` permite lectura a usuarios con correo institucional para que Firestore entregue el catalogo requerido por la vista; la interfaz limita a Coordinacion Academica a **Mis asignaciones** por defecto y permite alternar a **Catalogo global** para consultar las demas asignaciones. La escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
 - `solicitudes_compartidas` permite lectura a usuarios con acceso al modulo y controla creacion/respuesta/cancelacion segun programa y rol.
 - `solicitudes_sistemas` permite que usuarios activos creen solicitudes operativas dirigidas a Sistemas para reabrir captura, alta de grupo, cambio de ID de asignatura o validacion de docente nuevo; Sistemas puede leer, actualizar y eliminar solicitudes segun permisos publicados.
 - `notificaciones` permite lectura a miembros activos de Sistemas y a Coordinacion Academica cuando la notificacion esta dirigida a su `authUid`; permite crear avisos hacia Sistemas desde flujos autorizados y avisos hacia Coordinacion Academica cuando Sistemas responde o activa un docente.
@@ -1024,9 +1024,9 @@ Casos especiales y autogestivos:
 
 Catalogo global en Asignaciones:
 
-- En modo **Mis programas**, Coordinacion Academica ve las asignaciones del ciclo activo que pertenecen a sus programas asignados.
+- En modo **Mis asignaciones**, Coordinacion Academica ve las asignaciones propias del ciclo activo, identificadas por el usuario que las capturo; los grupos/programas asignados siguen aplicando para captura.
 - En modo **Catalogo global**, Coordinacion Academica ve tambien asignaciones del ciclo activo creadas por otras coordinaciones o por Sistemas, aunque el programa no este en `usuarios.assignedPrograms`.
-- La tabla, conteos, sugerencias y opciones de consulta de Coordinacion Academica deben respetar **Mis programas** por defecto; las asignaciones ajenas solo se muestran cuando el usuario activa el boton **Catalogo global**.
+- La tabla, conteos, sugerencias y opciones de consulta de Coordinacion Academica deben respetar **Mis asignaciones** por defecto; las asignaciones ajenas solo se muestran cuando el usuario activa el boton **Catalogo global**.
 - El alcance global no concede permisos de captura, edicion o eliminacion sobre programas ajenos; esas acciones siguen sujetas al programa asignado, creador del registro y rol operativo.
 - Si una asignacion del ciclo activo no puede resolver su grupo contra el catalogo de Grupos, la interfaz debe clasificarla por los datos guardados de la asignacion para evitar que quede invisible en la vista global.
 - Si existen asignaciones del ciclo activo pero no aparecen por pestana, estado o busqueda, la tabla debe mostrar un mensaje de vacio explicando que la vista actual las esta filtrando.
