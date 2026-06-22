@@ -68,10 +68,10 @@ export class SubjectsPageComponent {
   };
 
   readonly activeSubjectsCount = computed(
-    () => this.subjects().filter((subject) => subject.status === 'Activo').length,
+    () => this.subjects().filter((subject) => this.isActiveSubject(subject)).length,
   );
   readonly inactiveSubjectsCount = computed(
-    () => this.subjects().filter((subject) => subject.status === 'Inactivo').length,
+    () => this.subjects().filter((subject) => this.subjectStatusMatches(subject, 'Inactivo')).length,
   );
   readonly suggestedSubjectId = computed(() => this.nextSuggestedSubjectId());
   readonly duplicateSubjectNameMap = computed(() => {
@@ -134,8 +134,8 @@ export class SubjectsPageComponent {
     const statusFilter = this.statusFilter();
 
     return this.subjects().filter((subject) => {
-      const allowedByRole = this.canManageSubjects() || subject.status === 'Activo';
-      const matchesStatus = statusFilter === 'TODOS' || subject.status === statusFilter;
+      const allowedByRole = this.canManageSubjects() || this.isActiveSubject(subject);
+      const matchesStatus = statusFilter === 'TODOS' || this.subjectStatusMatches(subject, statusFilter);
       const matchesSearch = !query
         || subject.normalizedName.includes(query)
         || subject.subjectId.toLowerCase().includes(query);
@@ -933,6 +933,14 @@ export class SubjectsPageComponent {
     }
 
     return null;
+  }
+
+  private isActiveSubject(subject: Subject): boolean {
+    return this.subjectStatusMatches(subject, 'Activo');
+  }
+
+  private subjectStatusMatches(subject: Subject, status: SubjectStatus): boolean {
+    return this.normalizeSearchText(String(subject.status)) === this.normalizeSearchText(status);
   }
 
   private preferredSubjectName(currentName: string | undefined, incomingName: string): string {

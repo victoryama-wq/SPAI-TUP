@@ -19,6 +19,15 @@ interface NavItem {
   moduleKey: keyof ModuleAccess;
 }
 
+const ACADEMIC_COORDINATION_NAV_MODULES: ReadonlyArray<keyof ModuleAccess> = [
+  'dashboard',
+  'nomenclaturas',
+  'grupos',
+  'docentes',
+  'asignaturas',
+  'asignaciones',
+];
+
 @Component({
   selector: 'spai-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, LoginPageComponent, ConfirmationDialogComponent],
@@ -106,15 +115,7 @@ export class AppComponent {
       }
 
       if (isAcademicCoordinator) {
-        if (['usuarios', 'ciclos', 'solicitudes', 'moodle', 'bitacora'].includes(item.moduleKey)) {
-          return false;
-        }
-
-        if (item.moduleKey === 'nomenclaturas') {
-          return true;
-        }
-
-        return appUser.access?.[item.moduleKey] === true;
+        return this.canAcademicCoordinatorAccessModule(item.moduleKey);
       }
 
       return appUser.access?.[item.moduleKey] === true;
@@ -264,18 +265,14 @@ export class AppComponent {
     }
 
     if (isAcademicCoordinator) {
-      if (['usuarios', 'ciclos', 'solicitudes', 'moodle', 'bitacora'].includes(navItem.moduleKey)) {
-        return false;
-      }
-
-      if (navItem.moduleKey === 'nomenclaturas') {
-        return true;
-      }
-
-      return appUser.access?.[navItem.moduleKey] === true;
+      return this.canAcademicCoordinatorAccessModule(navItem.moduleKey);
     }
 
     return appUser.access?.[navItem.moduleKey] === true;
+  }
+
+  private canAcademicCoordinatorAccessModule(moduleKey: keyof ModuleAccess): boolean {
+    return ACADEMIC_COORDINATION_NAV_MODULES.includes(moduleKey);
   }
 
   readonly navItems: NavItem[] = [

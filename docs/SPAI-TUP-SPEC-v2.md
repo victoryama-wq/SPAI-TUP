@@ -392,6 +392,7 @@ Puede:
 - Ver sus programas asignados.
 - Ver grupos del ciclo activo.
 - Seleccionar materias del catalogo global.
+- Consultar Nomenclaturas, Grupos, Docentes, Asignaturas y Asignaciones como modulos academicos base por rol, aunque existan usuarios creados con banderas de acceso heredadas incompletas.
 - Asignar materias a grupos.
 - Capturar ID asignatura por asignacion.
 - Asignar docentes.
@@ -550,6 +551,7 @@ Reglas:
 - Las asignaturas no se cargan de nuevo en cada ciclo.
 - Sistemas puede importar asignaturas nuevas por CSV solo cuando cambien reticulas o se agreguen materias.
 - Coordinadores seleccionan materias desde este catalogo global.
+- Coordinacion Academica debe poder consultar las asignaturas activas del catalogo global y usarlas en Asignaciones inmediatamente despues de que Sistemas las cree o importe.
 
 ### Docentes
 
@@ -1016,6 +1018,7 @@ Casos especiales y autogestivos:
 - En tabla, la columna Grupo muestra `Sin grupo` para casos especiales.
 - En tabla, la columna Matriculas adicionales muestra las matriculas capturadas para casos especiales.
 - Las asignaciones especiales no pueden usarse como origen de clase compartida.
+- En el modal responsive de Especiales, los controles compactos de caso especial, clase compartida y estado deben acomodarse sin superposicion ni recorte de texto.
 
 Clases compartidas en tabla:
 
@@ -1961,6 +1964,7 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 ### 23.7 Asignaturas
 
 - Modulo de asignaturas implementado con alta manual, CSV, edicion, inactivacion, eliminacion, busqueda, filtros y paginacion.
+- Coordinacion Academica consulta las asignaturas activas del catalogo global por rol academico, sin depender de banderas de acceso heredadas.
 - Se separa el ID interno SPAI del ID de captura/Moodle que usara Coordinacion Academica en asignaciones.
 - El ID interno SPAI se genera con nomenclatura incremental `TUP0000`.
 - Al subir CSV sin ID, el sistema asigna el siguiente ID interno disponible.

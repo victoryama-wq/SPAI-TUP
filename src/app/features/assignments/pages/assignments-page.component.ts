@@ -157,7 +157,7 @@ export class AssignmentsPageComponent {
 
   readonly activeSubjects = computed(() =>
     this.subjects()
-      .filter((subject) => subject.status === 'Activo')
+      .filter((subject) => this.isActiveSubject(subject))
       .sort((a, b) => a.name.localeCompare(b.name, 'es')),
   );
 
@@ -1474,6 +1474,10 @@ export class AssignmentsPageComponent {
         subject.subjectId,
       ].some((option) => this.normalizeSearch(option) === normalizedValue);
     }) ?? null;
+  }
+
+  private isActiveSubject(subject: Subject): boolean {
+    return this.normalizeSearch(subject.status) === 'activo';
   }
 
   private teacherFromPickerValue(value: string): string {

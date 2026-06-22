@@ -1198,8 +1198,14 @@ td.center-column {
   align-self: start;
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(150px, 1fr) minmax(120px, 145px);
+  grid-template-columns: minmax(170px, 1fr) minmax(120px, 145px);
   min-width: 0;
+}
+
+.special-mode-form .assignment-state-row {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(190px, 260px) minmax(128px, 150px);
+  justify-content: start;
 }
 
 .fixed-status-field {
@@ -1230,7 +1236,7 @@ td.center-column {
 }
 
 .shared-toggle span {
-  white-space: nowrap;
+  line-height: 1.15;
 }
 
 .compact-shared-toggle {
@@ -1553,6 +1559,10 @@ td.center-column {
   }
 
   .assignment-state-row {
+    grid-template-columns: 1fr;
+  }
+
+  .special-mode-form .assignment-state-row {
     grid-template-columns: 1fr;
   }
 
