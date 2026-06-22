@@ -299,8 +299,19 @@
           <tr>
             <td [attr.colspan]="canManageSubjects() ? 6 : 5">
               <div class="empty-state">
-                <strong>Sin asignaturas registradas</strong>
-                <span>Agrega una asignatura manualmente o importa un CSV desde Sistemas.</span>
+                @if (subjectsReadError()) {
+                  <strong>Catalogo no disponible</strong>
+                  <span>Firestore rechazo la lectura para este usuario. Revisa reglas publicadas.</span>
+                } @else if (subjects().length) {
+                  <strong>Sin asignaturas visibles</strong>
+                  <span>Se leyeron {{ subjects().length }} asignaturas, pero ninguna coincide con la busqueda o con estado activo.</span>
+                } @else if (canManageSubjects()) {
+                  <strong>Sin asignaturas registradas</strong>
+                  <span>Agrega una asignatura manualmente o importa un CSV desde Sistemas.</span>
+                } @else {
+                  <strong>Sin asignaturas activas</strong>
+                  <span>No se recibieron asignaturas activas del catalogo global.</span>
+                }
               </div>
             </td>
           </tr>
