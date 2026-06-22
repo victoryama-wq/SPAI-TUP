@@ -149,7 +149,7 @@ Reglas:
 - `grupos` permite lectura a usuarios autenticados y escritura solo a Coordinacion de Sistemas activo.
 - `docentes` permite lectura a usuarios autenticados segun permisos del modulo, docentes validados o Coordinacion Academica; la escritura queda para Sistemas, auxiliares autorizados o altas manuales pendientes de Coordinacion Academica.
 - `asignaturas` permite lectura de asignaturas activas a usuarios autenticados y escritura solo a Sistemas o auxiliares autorizados.
-- `asignaciones` permite lectura a Coordinacion de Sistemas, Auxiliar de Sistemas con `access.asignaciones == true` y Coordinacion Academica; la interfaz limita a Coordinacion Academica a sus programas asignados y la escritura respeta programa asignado o clase compartida aprobada.
+- `asignaciones` permite lectura a Coordinacion de Sistemas, Auxiliar de Sistemas con `access.asignaciones == true` y Coordinacion Academica; la interfaz limita a Coordinacion Academica a sus programas asignados, la escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
 - `solicitudes_compartidas` permite lectura a usuarios con acceso al modulo y controla creacion/respuesta/cancelacion segun programa y rol.
 - `solicitudes_sistemas` permite que usuarios activos creen solicitudes operativas dirigidas a Sistemas para reabrir captura, alta de grupo, cambio de ID de asignatura o validacion de docente nuevo; Sistemas puede leer, actualizar y eliminar solicitudes segun permisos publicados.
 - `notificaciones` permite lectura a miembros activos de Sistemas y a Coordinacion Academica cuando la notificacion esta dirigida a su `authUid`; permite crear avisos hacia Sistemas desde flujos autorizados y avisos hacia Coordinacion Academica cuando Sistemas responde o activa un docente.
@@ -304,6 +304,8 @@ Reglas de correo institucional:
 - Los permisos por modulo se guardan embebidos en el documento del usuario como `access`.
 - El formulario de usuario incluye el campo **Saludo** para guardar `greetingGender` con valores `Femenino` o `Masculino`.
 - Este campo controla el texto del panel de bienvenida del dashboard: `Bienvenida` o `Bienvenido`.
+- En Crear usuario, el selector de programas asignados se alimenta de nomenclaturas activas; no debe mostrar programas huerfanos que ya no existan en el panel de Nomenclaturas.
+- Si todas las nomenclaturas activas ya estan asignadas a Coordinacion Academica, debe mostrar el mensaje **Nomenclaturas totales asignadas** en lugar de listar opciones ocupadas.
 
 Estados de usuario:
 
@@ -970,8 +972,9 @@ Vista implementada:
 - La vista compacta operativa debe conservar el flujo: ID Moodle, Materia, Docente, Carrera/Programa, Grupo, Compartida y Estado.
 - La columna Matriculas adicionales queda en `Pendiente` mientras no se implemente el modulo correspondiente.
 - La columna Estado debe mostrarse centrada.
-- La columna Acciones muestra Editar y Solicitar para iniciar el flujo de clase compartida.
-- Si la clase ya es compartida, el boton para solicitar/compartir se muestra inhabilitado.
+- La columna Compartida marca tanto la asignacion base como sus destinos cuando pertenecen a una clase compartida, y el visor muestra el grupo base y los grupos relacionados.
+- La columna Acciones muestra solo Editar y Eliminar.
+- Sistemas puede eliminar cualquier asignacion; Coordinacion Academica solo puede eliminar asignaciones creadas por su propio usuario.
 - Si no hay ciclo activo, grupos disponibles, docentes validados o asignaturas activas, el modulo muestra avisos claros para orientar la prueba operativa.
 - La captura normal permite registrar Matriculas adicionales como campo opcional.
 
@@ -1009,23 +1012,16 @@ Casos especiales y autogestivos:
 - En la pestaña Especiales, el filtro por Grupo se reemplaza por filtro de Matricula.
 - En tabla, la columna Grupo muestra `Sin grupo` para casos especiales.
 - En tabla, la columna Matriculas adicionales muestra las matriculas capturadas para casos especiales.
-- Las asignaciones especiales no pueden usarse como origen de clase compartida desde el boton Compartir.
+- Las asignaciones especiales no pueden usarse como origen de clase compartida.
 
-Clases compartidas desde tabla:
+Clases compartidas en tabla:
 
-- Una asignacion existente puede iniciar el flujo de compartir desde el boton Compartir.
-- Al compartir desde una fila, esa fila se usa como asignacion origen.
-- La asignacion origen debe estar visible para el usuario segun sus permisos operativos.
-- Compartir una clase de otra coordinacion no modifica la asignacion origen.
-- El formulario de nueva asignacion compartida se abre con:
-  - `es_compartida`: `true`.
-  - `id_asignacion_origen`: asignacion origen.
-  - mismo ID asignatura de captura.
-  - misma asignatura.
-  - mismo docente o estado temporal sin docente.
-- El coordinador selecciona el grupo destino cuando el flujo de solicitud lo permita.
-- El grupo destino debe pertenecer a uno de los programas asignados al coordinador que captura.
-- No se permite encadenar una asignacion compartida como origen de otra compartida desde el boton Compartir.
+- La tabla muestra como compartida tanto la asignacion base como sus asignaciones destino.
+- El visor de clase compartida debe indicar grupo base y grupos con los que comparte.
+- La tabla ya no inicia el flujo con boton Compartir o Solicitar.
+- El flujo de clase compartida se captura desde el modal de Asignaciones o se formaliza desde Solicitudes cuando aplique.
+- El grupo destino debe pertenecer a uno de los programas asignados al coordinador que captura, salvo Sistemas.
+- No se permite encadenar una asignacion compartida como origen de otra compartida.
 
 Estados sugeridos:
 
@@ -1174,8 +1170,8 @@ Vista implementada:
 - El icono de Solicitudes en la navegacion muestra un contador seguro de solicitudes `PENDIENTE` accionables para el usuario activo; si no hay sesion activa o Firestore niega la lectura, el contador permanece oculto.
 - Modal para crear solicitud con selector de tipo y campos condicionales.
 - Modal para responder con aceptacion o rechazo.
-- El boton `Solicitar` en Asignaciones abre `/solicitudes` con la asignacion origen precargada.
-- El formulario de Asignaciones ya no permite crear una clase compartida manualmente; una compartida existente se muestra como dato de solo lectura.
+- La tabla de Asignaciones no muestra boton `Solicitar`; las acciones operativas visibles quedan como Editar y Eliminar.
+- El formulario de Asignaciones permite capturar clase compartida con grupo base y grupos destino; la tabla muestra la relacion para la base y los destinos.
 
 ### Solicitudes a Sistemas desde dashboard
 
@@ -1806,7 +1802,7 @@ Nota: la carpeta implementada usa nombres en ingles (`users`, `cycles`) dentro d
 - Asignaturas.
 - Estado actual: Asignaturas ya cuenta con catalogo Firestore, alta manual, edicion, activacion/inactivacion, consulta de activas para coordinadores y carga CSV con vista previa de validos, duplicados y errores.
 - Asignaciones.
-- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica limitada a programas asignados, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestañas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/solicitar clase compartida, relacion de clase compartida y bitacora.
+- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica limitada a programas asignados, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestañas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/eliminar, relacion visual de clase compartida para base y destinos, permisos de borrado por rol/creador y bitacora.
 
 - Solicitudes.
 - Estado actual: Solicitudes ya cuenta con repositorio Firestore, ruta funcional, tipos `COMPARTIR_CLASE`, `REABRIR_CAPTURA`, `ALTA_GRUPO` y `ASIGNACION_ESPECIAL`, tabla con columna `Asunto`, filtros en modal por programa/grupo/estado/busqueda libre, chips de filtros activos, tabs Recibidas/Enviadas/Todas para Sistemas, respuesta por modal, acciones automaticas al aceptar y bitacora. El ciclo no aparece como filtro.

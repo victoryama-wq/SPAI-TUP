@@ -117,6 +117,14 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return value.trim().toLowerCase();
   }
 
+  deleteAssignment(id: string): Promise<void> {
+    return this.deleteDocument(id);
+  }
+
+  async deleteAssignments(ids: string[]): Promise<void> {
+    await Promise.all(ids.map((id) => this.deleteAssignment(id)));
+  }
+
   private createAssignmentId(payload: UpsertAssignmentPayload): string {
     return [
       payload.cycle,

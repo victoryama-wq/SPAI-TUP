@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
@@ -65,7 +64,6 @@ export class AssignmentsPageComponent {
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly groupsRepository = inject(GroupsRepository);
   private readonly programsRepository = inject(ProgramsRepository);
-  private readonly router = inject(Router);
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
@@ -433,12 +431,58 @@ export class AssignmentsPageComponent {
     this.isAssignmentModalOpen = true;
   }
 
-  shareAssignment(assignment: AcademicAssignment): void {
-    if (!this.canShareAssignment(assignment)) {
+  async deleteAssignment(assignment: AcademicAssignment): Promise<void> {
+    if (!this.canDeleteAssignment(assignment)) {
       return;
     }
 
-    void this.router.navigate(['/solicitudes'], { queryParams: { origen: assignment.id } });
+    const assignmentsToDelete = this.assignmentsToDelete(assignment);
+    const relatedCount = assignmentsToDelete.length;
+    const confirmed = await this.confirmationDialogService.confirm({
+      title: relatedCount > 1 ? 'Eliminar clase compartida' : 'Eliminar asignacion',
+      message: relatedCount > 1
+        ? `Esta asignacion tiene ${relatedCount - 1} grupo(s) compartido(s). Se eliminaran ${relatedCount} registros relacionados.`
+        : `Se eliminara la asignacion ${assignment.moodleId} para ${assignment.special ? 'caso especial' : assignment.group}.`,
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const actor = this.actorData();
+
+    try {
+      await this.assignmentsRepository.deleteAssignments(assignmentsToDelete.map((item) => item.id));
+      this.formMessage = relatedCount > 1
+        ? `${relatedCount} asignaciones relacionadas eliminadas correctamente.`
+        : 'Asignacion eliminada correctamente.';
+      this.formErrors = [];
+
+      await this.auditLogRepository.register({
+        module: 'Asignaciones',
+        action: relatedCount > 1 ? 'ASIGNACIONES_COMPARTIDAS_ELIMINADAS' : 'ASIGNACION_ELIMINADA',
+        description: relatedCount > 1
+          ? `Se eliminaron ${relatedCount} asignaciones relacionadas con una clase compartida.`
+          : `Se elimino la asignacion ${assignment.moodleId} para ${assignment.special ? 'caso especial' : assignment.group}.`,
+        user: actor.createdByName,
+        userRole: actor.createdByRole,
+        entity: 'asignaciones',
+        entityId: assignment.id,
+        metadata: {
+          deletedAssignmentIds: assignmentsToDelete.map((item) => item.id),
+          cycle: assignment.cycle,
+          moodleId: assignment.moodleId,
+          shared: this.isSharedInTable(assignment),
+        },
+      });
+    } catch (error) {
+      console.error('No se pudo eliminar la asignacion', error);
+      this.formMessage = '';
+      this.formErrors = ['No se pudo eliminar la asignacion. Revisa permisos e intenta de nuevo.'];
+    }
   }
 
   closeAssignmentModal(): void {
@@ -1036,11 +1080,23 @@ export class AssignmentsPageComponent {
     return this.assignments().find((assignment) => assignment.id === id) ?? null;
   }
 
-  sharedAssignmentDetails(assignment: AcademicAssignment): string {
-    const sourceAssignment = this.assignmentById(assignment.sourceAssignmentId);
-    const sourceGroup = sourceAssignment?.group || assignment.sourceAssignmentId || 'origen no identificado';
+  isSharedInTable(assignment: AcademicAssignment): boolean {
+    return assignment.shared || this.sharedDestinationAssignments(assignment).length > 0;
+  }
 
-    return `Clase compartida con grupo ${assignment.group}. Origen: ${sourceGroup}.`;
+  sharedAssignmentDetails(assignment: AcademicAssignment): string {
+    const baseId = this.sharedBaseAssignmentId(assignment);
+    const baseAssignment = this.assignmentById(baseId);
+    const baseGroup = baseAssignment?.group || (!assignment.shared ? assignment.group : 'origen no identificado');
+    const destinationGroups = this.sharedDestinationAssignments(assignment)
+      .map((item) => item.group)
+      .filter(Boolean);
+
+    if (!destinationGroups.length) {
+      return `Clase compartida. Grupo base: ${baseGroup}.`;
+    }
+
+    return `Grupo base: ${baseGroup}. Comparte con: ${destinationGroups.join(', ')}.`;
   }
 
   async showSharedAssignmentDetails(assignment: AcademicAssignment): Promise<void> {
@@ -1059,15 +1115,53 @@ export class AssignmentsPageComponent {
     return allowedProgram && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
   }
 
-  canShareAssignment(assignment: AcademicAssignment): boolean {
-    const activeCycle = this.activeCycle();
+  canDeleteAssignment(assignment: AcademicAssignment): boolean {
+    if (!this.canManageAssignments()) {
+      return false;
+    }
 
-    return this.canManageAssignments()
-      && this.canEditAssignment(assignment)
-      && !assignment.shared
-      && !(assignment.special ?? false)
-      && activeCycle?.code === assignment.cycle
-      && activeCycle.status === 'Captura';
+    if (this.canSeeAllAssignments()) {
+      return true;
+    }
+
+    return this.assignmentsToDelete(assignment)
+      .every((item) => this.wasAssignmentCreatedByCurrentUser(item));
+  }
+
+  private sharedBaseAssignmentId(assignment: AcademicAssignment): string {
+    return assignment.shared && assignment.sourceAssignmentId
+      ? assignment.sourceAssignmentId
+      : assignment.id;
+  }
+
+  private sharedDestinationAssignments(assignment: AcademicAssignment): AcademicAssignment[] {
+    const baseId = this.sharedBaseAssignmentId(assignment);
+
+    return this.assignments()
+      .filter((item) => item.shared && item.sourceAssignmentId === baseId)
+      .sort((a, b) => a.group.localeCompare(b.group, 'es'));
+  }
+
+  private assignmentsToDelete(assignment: AcademicAssignment): AcademicAssignment[] {
+    if (assignment.shared) {
+      return [assignment];
+    }
+
+    const sharedDestinations = this.sharedDestinationAssignments(assignment);
+
+    return sharedDestinations.length ? [assignment, ...sharedDestinations] : [assignment];
+  }
+
+  private wasAssignmentCreatedByCurrentUser(assignment: AcademicAssignment): boolean {
+    const session = this.session();
+    const appUser = session?.appUser;
+    const currentUserIds = new Set([
+      session?.authUid,
+      appUser?.id,
+      appUser?.authUid,
+    ].filter((value): value is string => Boolean(value)));
+
+    return currentUserIds.has(assignment.createdBy);
   }
 
   private assignmentStatusMatchesFilter(assignment: AcademicAssignment): boolean {

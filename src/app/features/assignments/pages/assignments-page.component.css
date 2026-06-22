@@ -1039,6 +1039,22 @@ td.center-column {
   width: 18px;
 }
 
+.row-actions .danger-row-action {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.row-actions .danger-row-action:hover {
+  background: #ffe4e6;
+}
+
+.row-actions .danger-row-action:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
 .empty-state {
   color: #40577a;
   display: grid;

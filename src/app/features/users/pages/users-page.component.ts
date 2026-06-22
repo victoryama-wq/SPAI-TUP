@@ -121,14 +121,14 @@ export class UsersPageComponent {
     this.programOptionsRefreshSignal();
     const optionsByValue = new Map<string, ProgramOption>();
     const setOption = (value: string, label: string): void => {
-      if (!value || optionsByValue.has(value)) {
+      if (!value || optionsByValue.has(value) || this.isProgramUnavailableForForm(value)) {
         return;
       }
 
       optionsByValue.set(value, {
         value,
         label,
-        owner: this.programAssignedOwner(value),
+        owner: '',
       });
     };
 
@@ -138,14 +138,6 @@ export class UsersPageComponent {
         const value = this.normalizeProgramCode(nomenclature.programCode || nomenclature.abbreviation);
 
         setOption(value, `${value} - ${nomenclature.programName}`);
-      });
-
-    this.programs()
-      .filter((program) => program.status === 'Activo')
-      .forEach((program) => {
-        const value = this.normalizeProgramCode(program.code);
-
-        setOption(value, `${value} - ${program.name}`);
       });
 
     this.form.controls.assignedPrograms.value.forEach((assignedProgram) => {
@@ -522,14 +514,32 @@ export class UsersPageComponent {
     this.programOptionsRefreshSignal.update((value) => value + 1);
   }
 
+  private activeCatalogProgramValues(): string[] {
+    const values = new Set<string>();
+
+    this.nomenclatures()
+      .filter((nomenclature) => nomenclature.status === 'ACTIVA')
+      .forEach((nomenclature) => {
+        const value = this.normalizeProgramCode(nomenclature.programCode || nomenclature.abbreviation);
+
+        if (value) {
+          values.add(value);
+        }
+      });
+
+    return Array.from(values);
+  }
+
   hasProgramOptions(): boolean {
-    return this.programOptions().length > 0;
+    return this.programOptions().length > 0 || this.activeCatalogProgramValues().length > 0;
   }
 
   areAllProgramOptionsAssigned(): boolean {
-    const options = this.programOptions();
+    const catalogPrograms = this.activeCatalogProgramValues();
 
-    return options.length > 0 && options.every((program) => program.owner.length > 0);
+    return this.programOptions().length === 0
+      && catalogPrograms.length > 0
+      && catalogPrograms.every((program) => this.isProgramUnavailableForForm(program));
   }
 
   updateAccessForRole(role: UserRole): void {

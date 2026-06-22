@@ -152,6 +152,14 @@ service cloud.firestore {
         );
     }
 
+    function canDeleteAssignment() {
+      return isSystemsMember()
+        || (
+          isAcademicCoordinator()
+          && resource.data.createdBy == request.auth.uid
+        );
+    }
+
     function canReadSharedRequests() {
       return isSystemsMember()
         || isAcademicCoordinator()
@@ -269,7 +277,7 @@ service cloud.firestore {
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt;
 
-      allow delete: if false;
+      allow delete: if canDeleteAssignment();
     }
 
     match /solicitudes_compartidas/{requestId} {

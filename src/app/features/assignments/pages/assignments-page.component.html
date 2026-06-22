@@ -168,7 +168,7 @@
               </div>
             </td>
             <td class="center-column">
-              @if (assignment.shared) {
+              @if (isSharedInTable(assignment)) {
                 <div class="shared-indicator">
                   <span class="shared-check" aria-label="Clase compartida">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -212,14 +212,14 @@
                 </button>
                 <button
                   type="button"
-                  class="icon-row-action"
-                  [disabled]="!canShareAssignment(assignment)"
-                  aria-label="Solicitar compartir asignacion"
-                  title="Solicitar compartir"
-                  (click)="shareAssignment(assignment)"
+                  class="icon-row-action danger-row-action"
+                  [disabled]="!canDeleteAssignment(assignment)"
+                  aria-label="Eliminar asignacion"
+                  title="Eliminar asignacion"
+                  (click)="deleteAssignment(assignment)"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"></path>
                   </svg>
                 </button>
               </div>
