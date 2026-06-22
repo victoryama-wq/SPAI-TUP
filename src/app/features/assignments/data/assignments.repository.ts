@@ -115,15 +115,17 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return documentId;
   }
 
-  hasMoodleIdConflict(cycle: string, moodleId: string, excludedId?: string | null): boolean {
+  hasMoodleIdConflict(cycle: string, moodleId: string, subjectId: string, excludedId?: string | null): boolean {
     const normalizedMoodleId = this.normalizeMoodleId(moodleId);
     const normalizedCycle = cycle.trim();
+    const normalizedSubjectId = subjectId.trim().toUpperCase();
 
     return this.assignments().some((assignment) => {
       return assignment.id !== excludedId
         && !assignment.deletedAt
         && assignment.cycle === normalizedCycle
         && assignment.normalizedMoodleId === normalizedMoodleId
+        && assignment.subjectId === normalizedSubjectId
         && !assignment.shared;
     });
   }

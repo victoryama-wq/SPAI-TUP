@@ -909,7 +909,8 @@ Reglas:
 - La asignacion pertenece a un ciclo.
 - El coordinador debe capturar el ID Moodle de la asignacion, separado del ID interno SPAI de la asignatura.
 - En la interfaz de Asignaciones, el ID capturado se trata como ID Moodle operativo para busqueda, seguimiento y futura exportacion.
-- El ID asignatura de captura no debe duplicarse dentro del mismo ciclo, salvo clases compartidas aprobadas.
+- El ID Moodle puede repetirse dentro del mismo ciclo si corresponde a materias distintas.
+- El ID Moodle no debe duplicarse para la misma materia dentro del mismo ciclo, salvo cuando sea clase compartida.
 - Si una clase se comparte, la clase origen y destino deben compartir el mismo ID asignatura de captura.
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
 - Coordinacion Academica consulta, crea y edita asignaciones solo de sus programas/grupos asignados.
@@ -1873,7 +1874,7 @@ El proyecto sera exitoso si:
 - Sistemas puede importar asignaturas nuevas de forma incremental.
 - Coordinadores pueden asignar materias desde catalogo global.
 - El sistema evita docentes duplicados por usuario Moodle.
-- El sistema evita duplicar ID asignatura de captura salvo clases compartidas aprobadas.
+- El sistema evita duplicar ID Moodle para la misma materia y ciclo, salvo clases compartidas aprobadas.
 - Coordinadores pueden consultar ciclo anterior en solo lectura.
 - Se pueden gestionar clases compartidas formalmente.
 - Las clases virtuales generan una lista de ligas Meet para Sistemas.

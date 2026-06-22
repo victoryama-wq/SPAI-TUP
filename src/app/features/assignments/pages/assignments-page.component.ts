@@ -1375,9 +1375,10 @@ export class AssignmentsPageComponent {
       && this.assignmentsRepository.hasMoodleIdConflict(
         this.assignmentForm.cycle,
         moodleId,
+        this.assignmentForm.subjectId,
         this.editingAssignmentId,
       )) {
-      errors.push('El ID asignatura ya existe en este ciclo. Marca clase compartida y vincula el origen si corresponde.');
+      errors.push('El ID Moodle ya existe para esta materia en este ciclo. Marca clase compartida si corresponde.');
     }
 
     if (this.assignmentForm.shared) {
