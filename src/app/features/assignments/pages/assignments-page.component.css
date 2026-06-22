@@ -1042,7 +1042,7 @@ td.center-column {
 }
 
 .assignment-form {
-  align-items: end;
+  align-items: start;
   display: grid;
   gap: 14px;
   grid-template-columns: minmax(150px, 210px) minmax(260px, 1fr) minmax(260px, 1fr);
