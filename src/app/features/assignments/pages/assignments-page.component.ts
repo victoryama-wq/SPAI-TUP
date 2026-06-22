@@ -43,6 +43,7 @@ const HEALTH_TEXT_MARKERS = [
   'clinica',
   'cuidados intensivos',
 ];
+const ACTIVE_TEXT_MARKERS = ['activo', 'activa', 'active', 'si', 's', 'true', '1'];
 
 interface AssignmentFormState {
   cycle: string;
@@ -249,7 +250,7 @@ export class AssignmentsPageComponent {
     const programs = new Set(
       this.groups()
         .filter((group) => {
-          return group.cycleCode === activeCycle.code
+          return this.groupBelongsToCycle(group, activeCycle.code)
             && this.groupMatchesCatalogScope(group)
             && this.groupMatchesModeTab(group, this.modeTab());
         })
@@ -276,8 +277,8 @@ export class AssignmentsPageComponent {
 
     return this.groups()
       .filter((group) => {
-        return group.status === 'Activo'
-          && group.cycleCode === activeCycle.code
+        return this.isActiveGroup(group)
+          && this.groupBelongsToCycle(group, activeCycle.code)
           && this.groupMatchesCatalogScope(group)
           && this.groupMatchesModeTab(group, this.modeTab());
       })
@@ -296,8 +297,8 @@ export class AssignmentsPageComponent {
         const allowedProgram = this.canSeeAllAssignments()
           || this.isAssignedProgram(group.programAbbreviation);
 
-        return group.status === 'Activo'
-          && group.cycleCode === activeCycle.code
+        return this.isActiveGroup(group)
+          && this.groupBelongsToCycle(group, activeCycle.code)
           && allowedProgram
           && this.groupMatchesModeTab(group, this.modeTab());
       })
@@ -1439,6 +1440,10 @@ export class AssignmentsPageComponent {
       return 'Salud';
     }
 
+    if (normalizedProgram.includes('especialidad') || normalizedProgram.includes('especializacion')) {
+      return 'Salud';
+    }
+
     if (normalizedProgram.includes('maestria')
       || normalizedProgram.includes('especialidad')
       || normalizedProgram.includes('doctorado')
@@ -1715,6 +1720,7 @@ export class AssignmentsPageComponent {
 
     return searchText.includes('maestria')
       || searchText.includes('especialidad')
+      || searchText.includes('especializacion')
       || searchText.includes('doctorado')
       || searchText.includes('posgrado');
   }
@@ -1734,6 +1740,10 @@ export class AssignmentsPageComponent {
 
     if (this.isCampusTupGroup(group) && this.isPostgraduateGroup(group)) {
       return 'Posgrados';
+    }
+
+    if (this.isHealthPostgraduateFallback(group)) {
+      return 'Salud';
     }
 
     if (group.modality === 'Escolarizado' && !this.isHealthGroup(group)) {
@@ -1775,6 +1785,36 @@ export class AssignmentsPageComponent {
     const normalizedValue = this.normalizeSearchText(value);
 
     return HEALTH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
+  }
+
+  private isHealthPostgraduateFallback(group: AcademicGroup): boolean {
+    if (!this.isPostgraduateGroup(group) || this.isCampusTupGroup(group)) {
+      return false;
+    }
+
+    const program = this.programForGroup(group);
+    const searchText = this.normalizeSearchText([
+      program?.programType,
+      program?.name,
+      group.programName,
+    ].join(' '));
+
+    return searchText.includes('especialidad')
+      || searchText.includes('especializacion')
+      || this.referencesHealthFaculty(searchText);
+  }
+
+  private isActiveGroup(group: AcademicGroup): boolean {
+    return ACTIVE_TEXT_MARKERS.includes(this.normalizeSearch(String(group.status ?? '')));
+  }
+
+  private groupBelongsToCycle(group: AcademicGroup, cycleCode: string): boolean {
+    const normalizedCycle = cycleCode.trim().toUpperCase();
+    const normalizedGroupCycle = group.cycleCode.trim().toUpperCase();
+    const normalizedFullGroup = group.fullGroup.trim().toUpperCase();
+
+    return normalizedGroupCycle === normalizedCycle
+      || normalizedFullGroup.startsWith(`${normalizedCycle} `);
   }
 
   private isCampusTupGroup(group: AcademicGroup): boolean {

@@ -943,7 +943,7 @@ Vista implementada:
   - Asignatura.
 - Mientras el usuario escribe, el sistema muestra sugerencias predictivas compactas dentro o junto a la misma barra de busqueda.
 - Las sugerencias deben calcularse segun ciclo activo, permisos del usuario y pestaña activa.
-- En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud, incluyendo programas detectados por area academica, siglas de respaldo o nombre del programa.
+- En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud, incluyendo programas detectados por area academica, siglas de respaldo, nombre del programa o especialidad sin clasificacion Campus TUP.
 - En la pestaña Escolarizado, las sugerencias de grupo deben limitarse a grupos escolarizados que no pertenezcan a Facultad de Ciencias de la Salud.
 - Las asignaciones se separan por pestañas estilo navegador en la parte superior derecha del panel:
   - Escolarizado.
