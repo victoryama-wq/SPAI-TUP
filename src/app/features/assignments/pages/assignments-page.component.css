@@ -1063,6 +1063,7 @@ td.center-column {
 }
 
 .shared-count-field {
+  align-self: start;
   max-width: 220px;
 }
 
@@ -1148,12 +1149,17 @@ td.center-column {
 }
 
 .share-group-panel {
+  align-self: start;
   background: #f8fbff;
   border: 1px solid #c9d9ef;
   border-radius: 8px;
   display: grid;
   gap: 12px;
   padding: 14px;
+}
+
+.share-group-panel.shared-picker-field {
+  grid-column: 2 / -1;
 }
 
 .share-group-summary {
@@ -1387,6 +1393,10 @@ td.center-column {
 
   .share-group-options {
     grid-template-columns: 1fr;
+  }
+
+  .share-group-panel.shared-picker-field {
+    grid-column: 1 / -1;
   }
 
   .assignment-search {
