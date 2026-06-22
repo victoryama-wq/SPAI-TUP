@@ -75,13 +75,13 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     super(inject(FIREBASE_DB), ASSIGNMENTS_COLLECTION, orderBy('updatedAt', 'desc'));
   }
 
-  upsertAssignment(payload: UpsertAssignmentPayload): string {
+  async upsertAssignment(payload: UpsertAssignmentPayload): Promise<string> {
     const timestamp = new Date().toISOString();
     const documentId = payload.id || this.createAssignmentId(payload);
     const currentAssignment = this.assignments().find((assignment) => assignment.id === documentId);
     const normalizedMoodleId = this.normalizeMoodleId(payload.moodleId);
 
-    void this.setDocument(documentId, {
+    await this.setDocument(documentId, {
       cycle: payload.cycle.trim(),
       program: payload.program.trim().toUpperCase(),
       group: payload.group.trim().toUpperCase(),

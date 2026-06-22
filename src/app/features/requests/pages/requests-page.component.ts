@@ -996,9 +996,9 @@ export class RequestsPageComponent {
     return status.toLowerCase().replace('_', '-');
   }
 
-  private acceptRequest(request: SharedClassRequest): void {
+  private async acceptRequest(request: SharedClassRequest): Promise<void> {
     if (this.requestTypeFor(request) !== 'COMPARTIR_CLASE') {
-      this.acceptOperationalRequest(request);
+      await this.acceptOperationalRequest(request);
       return;
     }
 
@@ -1012,7 +1012,7 @@ export class RequestsPageComponent {
       return;
     }
 
-    const destinationAssignmentId = this.assignmentsRepository.upsertAssignment({
+    const destinationAssignmentId = await this.assignmentsRepository.upsertAssignment({
       id: destinationAssignment?.id ?? (request.destinationAssignmentId || null),
       cycle: request.cycle,
       program: request.destinationProgram,
@@ -1059,7 +1059,7 @@ export class RequestsPageComponent {
     this.closeResponseModal();
   }
 
-  private acceptOperationalRequest(request: SharedClassRequest): void {
+  private async acceptOperationalRequest(request: SharedClassRequest): Promise<void> {
     const actor = this.requestActorData();
     const requestType = this.requestTypeFor(request);
     let createdEntityId = '';
@@ -1108,7 +1108,7 @@ export class RequestsPageComponent {
         return;
       }
 
-      createdEntityId = this.assignmentsRepository.upsertAssignment({
+      createdEntityId = await this.assignmentsRepository.upsertAssignment({
         id: null,
         cycle: request.targetCycle || request.cycle,
         program: request.requestedProgram,

@@ -1030,6 +1030,7 @@ Catalogo global en Asignaciones:
 - El alcance global no concede permisos de captura, edicion o eliminacion sobre programas ajenos; esas acciones siguen sujetas al programa asignado, creador del registro y rol operativo.
 - Si una asignacion del ciclo activo no puede resolver su grupo contra el catalogo de Grupos, la interfaz debe clasificarla por los datos guardados de la asignacion para evitar que quede invisible en la vista global.
 - Si existen asignaciones del ciclo activo pero no aparecen por pestana, estado o busqueda, la tabla debe mostrar un mensaje de vacio explicando que la vista actual las esta filtrando.
+- El guardado de Asignaciones debe esperar confirmacion de Firestore antes de cerrar el modal o mostrar exito; si Firestore rechaza la escritura, el modal permanece abierto y muestra el error.
 
 Clases compartidas en tabla:
 

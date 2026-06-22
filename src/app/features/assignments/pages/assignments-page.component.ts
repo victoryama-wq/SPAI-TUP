@@ -573,7 +573,7 @@ export class AssignmentsPageComponent {
     this.syncPickerInputsFromForm();
   }
 
-  saveAssignment(continueAdding = false): void {
+  async saveAssignment(continueAdding = false): Promise<void> {
     this.formMessage = '';
     this.assignmentForm.status = 'EN_CAPTURA';
     this.formErrors = this.validateForm();
@@ -603,18 +603,64 @@ export class AssignmentsPageComponent {
       return;
     }
 
-    const wasEditing = this.editingAssignmentId !== null;
-    const currentAssignment = this.editingAssignmentId
-      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
-      : null;
+    try {
+      const wasEditing = this.editingAssignmentId !== null;
+      const currentAssignment = this.editingAssignmentId
+        ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
+        : null;
 
-    if (currentAssignment?.shared && this.assignmentForm.shared && shareGroups.length === 1) {
-      const shareGroup = shareGroups[0];
-      const sharedEditPayload: UpsertAssignmentPayload = {
+      if (currentAssignment?.shared && this.assignmentForm.shared && shareGroups.length === 1) {
+        const shareGroup = shareGroups[0];
+        const sharedEditPayload: UpsertAssignmentPayload = {
+          id: this.editingAssignmentId,
+          cycle: this.assignmentForm.cycle,
+          program: shareGroup.programAbbreviation,
+          group: shareGroup.fullGroup,
+          subjectId: subject.subjectId,
+          subjectName: subject.name,
+          moodleId: this.assignmentForm.moodleId,
+          teacherMoodleUser: this.selectedTeacherMoodleUser(),
+          teacherName: this.selectedTeacherName(),
+          status: 'EN_CAPTURA',
+          observations: this.assignmentForm.observations,
+          shared: true,
+          sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
+          special: false,
+          studentEnrollments: this.normalizedStudentEnrollments(),
+          ...actor,
+        };
+        const sharedAssignmentId = await this.assignmentsRepository.upsertAssignment(sharedEditPayload);
+
+        this.auditLogRepository.register({
+          module: 'Asignaciones',
+          action: 'ASIGNACION_EDITADA',
+          description: `Se actualizo la asignacion compartida ${subject.subjectId} para ${shareGroup.fullGroup}.`,
+          user: actor.createdByName,
+          userRole: actor.createdByRole,
+          entity: 'asignaciones',
+          entityId: sharedAssignmentId,
+          metadata: {
+            cycle: sharedEditPayload.cycle,
+            program: sharedEditPayload.program,
+            group: sharedEditPayload.group,
+            subjectId: sharedEditPayload.subjectId,
+            moodleId: this.assignmentsRepository.normalizeMoodleId(sharedEditPayload.moodleId),
+            status: sharedEditPayload.status,
+            shared: sharedEditPayload.shared,
+            sourceAssignmentId: sharedEditPayload.sourceAssignmentId ?? '',
+          },
+        });
+
+        this.formMessage = 'Asignacion actualizada correctamente.';
+        this.closeAssignmentModal();
+        return;
+      }
+
+      const basePayload: UpsertAssignmentPayload = {
         id: this.editingAssignmentId,
         cycle: this.assignmentForm.cycle,
-        program: shareGroup.programAbbreviation,
-        group: shareGroup.fullGroup,
+        program,
+        group: this.assignmentForm.special ? '' : group?.fullGroup ?? '',
         subjectId: subject.subjectId,
         subjectName: subject.name,
         moodleId: this.assignmentForm.moodleId,
@@ -622,137 +668,97 @@ export class AssignmentsPageComponent {
         teacherName: this.selectedTeacherName(),
         status: 'EN_CAPTURA',
         observations: this.assignmentForm.observations,
-        shared: true,
+        shared: false,
         sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
-        special: false,
+        special: this.assignmentForm.special,
         studentEnrollments: this.normalizedStudentEnrollments(),
         ...actor,
       };
-      const sharedAssignmentId = this.assignmentsRepository.upsertAssignment(sharedEditPayload);
+      const assignmentId = await this.assignmentsRepository.upsertAssignment(basePayload);
+      const createdAssignmentIds = this.editingAssignmentId ? [] : [assignmentId];
+
+      if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
+        for (const shareGroup of shareGroups) {
+          const sharedPayload: UpsertAssignmentPayload = {
+            ...basePayload,
+            id: null,
+            program: shareGroup.programAbbreviation,
+            group: shareGroup.fullGroup,
+            shared: true,
+            sourceAssignmentId: assignmentId,
+            special: false,
+          };
+          const sharedAssignmentId = await this.assignmentsRepository.upsertAssignment(sharedPayload);
+          createdAssignmentIds.push(sharedAssignmentId);
+          this.notifySystemsAboutSharedClass(
+            actor,
+            sharedAssignmentId,
+            sharedPayload.cycle,
+            subject.subjectId,
+            subject.name,
+            group?.fullGroup ?? '',
+            shareGroup.fullGroup,
+            this.selectedTeacherName(),
+          );
+
+          this.auditLogRepository.register({
+            module: 'Asignaciones',
+            action: 'ASIGNACION_COMPARTIDA_CREADA',
+            description: `Se compartio la asignacion ${subject.subjectId} de ${group?.fullGroup} con ${shareGroup.fullGroup}.`,
+            user: actor.createdByName,
+            userRole: actor.createdByRole,
+            entity: 'asignaciones',
+            entityId: sharedAssignmentId,
+            metadata: {
+              cycle: sharedPayload.cycle,
+              program: sharedPayload.program,
+              group: sharedPayload.group,
+              subjectId: sharedPayload.subjectId,
+              moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
+              status: sharedPayload.status,
+              shared: sharedPayload.shared,
+              sourceAssignmentId: sharedPayload.sourceAssignmentId ?? '',
+            },
+          });
+        }
+      }
 
       this.auditLogRepository.register({
         module: 'Asignaciones',
-        action: 'ASIGNACION_EDITADA',
-        description: `Se actualizo la asignacion compartida ${subject.subjectId} para ${shareGroup.fullGroup}.`,
+        action: this.editingAssignmentId ? 'ASIGNACION_EDITADA' : 'ASIGNACION_CREADA',
+        description: `Se guardo la asignacion ${subject.subjectId} para ${this.assignmentForm.special ? 'caso especial' : group?.fullGroup}.`,
         user: actor.createdByName,
         userRole: actor.createdByRole,
         entity: 'asignaciones',
-        entityId: sharedAssignmentId,
+        entityId: assignmentId,
         metadata: {
-          cycle: sharedEditPayload.cycle,
-          program: sharedEditPayload.program,
-          group: sharedEditPayload.group,
-          subjectId: sharedEditPayload.subjectId,
-          moodleId: this.assignmentsRepository.normalizeMoodleId(sharedEditPayload.moodleId),
-          status: sharedEditPayload.status,
-          shared: sharedEditPayload.shared,
-          sourceAssignmentId: sharedEditPayload.sourceAssignmentId ?? '',
+          cycle: basePayload.cycle,
+          program: basePayload.program,
+          group: basePayload.group,
+          subjectId: basePayload.subjectId,
+          moodleId: this.assignmentsRepository.normalizeMoodleId(basePayload.moodleId),
+          status: basePayload.status,
+          shared: basePayload.shared,
+          sourceAssignmentId: basePayload.sourceAssignmentId ?? '',
         },
       });
 
-      this.formMessage = 'Asignacion actualizada correctamente.';
-      this.closeAssignmentModal();
-      return;
-    }
+      this.formMessage = this.editingAssignmentId
+        ? 'Asignacion actualizada correctamente.'
+        : 'Asignacion guardada correctamente.';
+      this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
 
-    const basePayload: UpsertAssignmentPayload = {
-      id: this.editingAssignmentId,
-      cycle: this.assignmentForm.cycle,
-      program,
-      group: this.assignmentForm.special ? '' : group?.fullGroup ?? '',
-      subjectId: subject.subjectId,
-      subjectName: subject.name,
-      moodleId: this.assignmentForm.moodleId,
-      teacherMoodleUser: this.selectedTeacherMoodleUser(),
-      teacherName: this.selectedTeacherName(),
-      status: 'EN_CAPTURA',
-      observations: this.assignmentForm.observations,
-      shared: false,
-      sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
-      special: this.assignmentForm.special,
-      studentEnrollments: this.normalizedStudentEnrollments(),
-      ...actor,
-    };
-    const assignmentId = this.assignmentsRepository.upsertAssignment(basePayload);
-    const createdAssignmentIds = this.editingAssignmentId ? [] : [assignmentId];
-
-    if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
-      for (const shareGroup of shareGroups) {
-        const sharedPayload: UpsertAssignmentPayload = {
-          ...basePayload,
-          id: null,
-          program: shareGroup.programAbbreviation,
-          group: shareGroup.fullGroup,
-          shared: true,
-          sourceAssignmentId: assignmentId,
-          special: false,
-        };
-        const sharedAssignmentId = this.assignmentsRepository.upsertAssignment(sharedPayload);
-        createdAssignmentIds.push(sharedAssignmentId);
-        this.notifySystemsAboutSharedClass(
-          actor,
-          sharedAssignmentId,
-          sharedPayload.cycle,
-          subject.subjectId,
-          subject.name,
-          group?.fullGroup ?? '',
-          shareGroup.fullGroup,
-          this.selectedTeacherName(),
-        );
-
-        this.auditLogRepository.register({
-          module: 'Asignaciones',
-          action: 'ASIGNACION_COMPARTIDA_CREADA',
-          description: `Se compartio la asignacion ${subject.subjectId} de ${group?.fullGroup} con ${shareGroup.fullGroup}.`,
-          user: actor.createdByName,
-          userRole: actor.createdByRole,
-          entity: 'asignaciones',
-          entityId: sharedAssignmentId,
-          metadata: {
-            cycle: sharedPayload.cycle,
-            program: sharedPayload.program,
-            group: sharedPayload.group,
-            subjectId: sharedPayload.subjectId,
-            moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
-            status: sharedPayload.status,
-            shared: sharedPayload.shared,
-            sourceAssignmentId: sharedPayload.sourceAssignmentId ?? '',
-          },
-        });
+      if (continueAdding && !wasEditing) {
+        this.prepareNextAssignmentForm();
+        return;
       }
+
+      this.closeAssignmentModal();
+    } catch (error) {
+      console.error('No se pudo guardar la asignacion', error);
+      this.formMessage = '';
+      this.formErrors = [`No se pudo guardar la asignacion. ${this.readFirebaseMessage(error)}`];
     }
-
-    this.auditLogRepository.register({
-      module: 'Asignaciones',
-      action: this.editingAssignmentId ? 'ASIGNACION_EDITADA' : 'ASIGNACION_CREADA',
-      description: `Se guardo la asignacion ${subject.subjectId} para ${this.assignmentForm.special ? 'caso especial' : group?.fullGroup}.`,
-      user: actor.createdByName,
-      userRole: actor.createdByRole,
-      entity: 'asignaciones',
-      entityId: assignmentId,
-      metadata: {
-        cycle: basePayload.cycle,
-        program: basePayload.program,
-        group: basePayload.group,
-        subjectId: basePayload.subjectId,
-        moodleId: this.assignmentsRepository.normalizeMoodleId(basePayload.moodleId),
-        status: basePayload.status,
-        shared: basePayload.shared,
-        sourceAssignmentId: basePayload.sourceAssignmentId ?? '',
-      },
-    });
-
-    this.formMessage = this.editingAssignmentId
-      ? 'Asignacion actualizada correctamente.'
-      : 'Asignacion guardada correctamente.';
-    this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
-
-    if (continueAdding && !wasEditing) {
-      this.prepareNextAssignmentForm();
-      return;
-    }
-
-    this.closeAssignmentModal();
   }
 
   selectSearchField(event: Event): void {
@@ -1437,6 +1443,10 @@ export class AssignmentsPageComponent {
     const match = group.trim().toUpperCase().match(/\s(11|12|23|24|53)\s/);
 
     return match?.[1] ?? '';
+  }
+
+  private readFirebaseMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 
   private validateForm(): string[] {
