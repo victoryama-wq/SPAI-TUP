@@ -334,6 +334,10 @@ th {
   border-color: #93c5fd;
 }
 
+.scope-status-action {
+  cursor: default;
+}
+
 .scope-toggle-action svg {
   fill: none;
   height: 18px;

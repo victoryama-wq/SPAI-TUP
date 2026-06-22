@@ -813,7 +813,7 @@ export class AssignmentsPageComponent {
 
   catalogScopeLabel(): string {
     if (this.canSeeAllAssignments()) {
-      return 'Vista Sistemas';
+      return 'Vista Sistemas - Catalogo global';
     }
 
     return this.catalogScope() === 'GLOBAL'

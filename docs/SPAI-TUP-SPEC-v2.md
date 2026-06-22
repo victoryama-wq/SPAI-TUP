@@ -1026,6 +1026,7 @@ Catalogo global en Asignaciones:
 
 - En modo **Mis asignaciones**, Coordinacion Academica ve las asignaciones propias del ciclo activo, identificadas por el usuario que las capturo; los grupos/programas asignados siguen aplicando para captura.
 - En modo **Catalogo global**, Coordinacion Academica ve tambien asignaciones del ciclo activo creadas por otras coordinaciones o por Sistemas, aunque el programa no este en `usuarios.assignedPrograms`.
+- Sistemas y Auxiliar de Sistemas con permiso de Asignaciones ven siempre **Catalogo global** en el modulo Asignaciones; no requieren alternar alcance.
 - La tabla, conteos, sugerencias y opciones de consulta de Coordinacion Academica deben respetar **Mis asignaciones** por defecto; las asignaciones ajenas solo se muestran cuando el usuario activa el boton **Catalogo global**.
 - El alcance global no concede permisos de captura, edicion o eliminacion sobre programas ajenos; esas acciones siguen sujetas al programa asignado, creador del registro y rol operativo.
 - Si una asignacion del ciclo activo no puede resolver su grupo contra el catalogo de Grupos, la interfaz debe clasificarla por los datos guardados de la asignacion para evitar que quede invisible en la vista global.

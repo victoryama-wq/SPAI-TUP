@@ -78,6 +78,13 @@
                 </svg>
                 <span>{{ catalogScope() === 'GLOBAL' ? 'Mis asignaciones' : 'Catalogo global' }}</span>
               </button>
+            } @else if (canSeeAllAssignments()) {
+              <span class="scope-toggle-action scope-status-action active" title="Catalogo global de asignaciones">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                </svg>
+                <span>Catalogo global</span>
+              </span>
             }
             <span class="cycle-chip" [class.pending]="!activeCycle()">
               Ciclo activo
