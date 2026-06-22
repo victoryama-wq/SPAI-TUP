@@ -4,6 +4,13 @@
   </div>
 }
 
+@if (subjectsReadError()) {
+  <div class="feedback standalone-feedback has-errors">
+    <strong>No se pudo leer el catalogo de asignaturas.</strong>
+    <span>Firestore rechazo la consulta o las reglas publicadas no permiten la lectura para este usuario.</span>
+  </div>
+}
+
 @if (isReadinessAlertVisible() && assignmentReadinessMessages().length) {
   <aside class="readiness-alert" role="alert" aria-live="polite">
     <div>

@@ -43,6 +43,7 @@ export class SubjectsPageComponent {
   private readonly userSessionService = inject(UserSessionService);
 
   readonly subjects = this.subjectsRepository.subjects;
+  readonly subjectsReadError = this.subjectsRepository.readError;
   readonly session = this.userSessionService.session;
 
   searchInput = signal('');
@@ -935,12 +936,18 @@ export class SubjectsPageComponent {
     return null;
   }
 
-  private isActiveSubject(subject: Subject): boolean {
+  isActiveSubject(subject: Subject): boolean {
     return this.subjectStatusMatches(subject, 'Activo');
   }
 
   private subjectStatusMatches(subject: Subject, status: SubjectStatus): boolean {
-    return this.normalizeSearchText(String(subject.status)) === this.normalizeSearchText(status);
+    const normalizedStatus = this.normalizeSearchText(String(subject.status ?? ''));
+
+    if (status === 'Activo') {
+      return ['activo', 'activa', 'active', 'si', 's', 'true', '1'].includes(normalizedStatus);
+    }
+
+    return ['inactivo', 'inactiva', 'inactive', 'no', 'n', 'false', '0'].includes(normalizedStatus);
   }
 
   private preferredSubjectName(currentName: string | undefined, incomingName: string): string {

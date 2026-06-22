@@ -552,6 +552,7 @@ Reglas:
 - Sistemas puede importar asignaturas nuevas por CSV solo cuando cambien reticulas o se agreguen materias.
 - Coordinadores seleccionan materias desde este catalogo global.
 - Coordinacion Academica debe poder consultar las asignaturas activas del catalogo global y usarlas en Asignaciones inmediatamente despues de que Sistemas las cree o importe.
+- El sistema debe reconocer como activas las variantes equivalentes de estatus (`Activo`, `ACTIVO`, `ACTIVA`, `SI`, `true`, `1`) para no ocultar asignaturas por diferencias de formato heredadas.
 
 ### Docentes
 

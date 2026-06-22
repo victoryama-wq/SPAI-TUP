@@ -75,6 +75,7 @@ export class AssignmentsPageComponent {
   readonly groups = this.groupsRepository.groups;
   readonly programs = this.programsRepository.programs;
   readonly subjects = this.subjectsRepository.subjects;
+  readonly subjectsReadError = this.subjectsRepository.readError;
   readonly teachers = this.teachersRepository.teachers;
   readonly session = this.userSessionService.session;
 
@@ -1477,7 +1478,9 @@ export class AssignmentsPageComponent {
   }
 
   private isActiveSubject(subject: Subject): boolean {
-    return this.normalizeSearch(subject.status) === 'activo';
+    const normalizedStatus = this.normalizeSearch(String(subject.status ?? ''));
+
+    return ['activo', 'activa', 'active', 'si', 's', 'true', '1'].includes(normalizedStatus);
   }
 
   private teacherFromPickerValue(value: string): string {
