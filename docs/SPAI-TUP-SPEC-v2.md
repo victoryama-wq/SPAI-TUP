@@ -921,6 +921,9 @@ Reglas:
 - Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
 - Para captura en Asignaciones, los programas permitidos de Coordinacion Academica se calculan con `usuarios.assignedPrograms` y tambien con los programas donde `programas.coordinator` coincida con el nombre o correo del usuario activo.
 - La validacion de programa permitido en Asignaciones debe usar equivalencias de Nomenclaturas entre `abbreviation` y `programCode`, para que un grupo no quede oculto cuando el usuario tenga asignado el codigo relacionado y no la abreviatura exacta del grupo.
+- Al guardar Asignaciones, `createdBy` debe guardar el UID real de Firebase Auth y el codigo de programa enviado a Firestore debe ser compatible con `usuarios.assignedPrograms` o con las equivalencias calculadas en `createdByPrograms`.
+- Las asignaciones nuevas usan ID automatico de Firestore; la prevencion de duplicados se hace por ciclo, ID Moodle y asignatura para evitar que documentos historicos o archivados bloqueen nuevas capturas.
+- Las reglas de Firestore para Asignaciones deben permitir equivalencias de programa ya validadas por la interfaz y bloquear edicion de Coordinacion Academica sobre asignaciones creadas por otros usuarios.
 - La deteccion de Posgrados en Asignaciones debe usar programas, nomenclaturas, `programType`, nombre de programa, plan y notas para identificar maestrias, doctorados, posgrados o especializaciones de Campus TUP.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.

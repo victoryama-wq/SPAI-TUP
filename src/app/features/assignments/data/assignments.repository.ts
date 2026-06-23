@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { orderBy } from 'firebase/firestore';
+import { addDoc, collection, orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
@@ -77,11 +77,10 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
 
   async upsertAssignment(payload: UpsertAssignmentPayload): Promise<string> {
     const timestamp = new Date().toISOString();
-    const documentId = payload.id || this.createAssignmentId(payload);
+    const documentId = payload.id ?? null;
     const currentAssignment = this.assignments().find((assignment) => assignment.id === documentId);
     const normalizedMoodleId = this.normalizeMoodleId(payload.moodleId);
-
-    await this.setDocument(documentId, {
+    const assignmentDocument = {
       cycle: payload.cycle.trim(),
       program: payload.program.trim().toUpperCase(),
       group: payload.group.trim().toUpperCase(),
@@ -110,7 +109,18 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       deletedBy: '',
       deletedByName: '',
       deletedByRole: '',
-    });
+    };
+
+    if (!documentId) {
+      const createdDocument = await addDoc(
+        collection(this.firestore, this.collectionPath),
+        assignmentDocument,
+      );
+
+      return createdDocument.id;
+    }
+
+    await this.setDocument(documentId, assignmentDocument);
 
     return documentId;
   }
@@ -150,19 +160,6 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       deletedByRole: payload.deletedByRole,
       updatedAt: new Date().toISOString(),
     });
-  }
-
-  private createAssignmentId(payload: UpsertAssignmentPayload): string {
-    return [
-      payload.cycle,
-      payload.special ? 'ESPECIAL' : payload.group,
-      payload.subjectId,
-      this.normalizeMoodleId(payload.moodleId),
-    ]
-      .join('_')
-      .trim()
-      .toUpperCase()
-      .replace(/[^A-Z0-9._-]+/g, '_');
   }
 
   private normalizeName(value: string): string {

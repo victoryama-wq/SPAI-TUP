@@ -614,14 +614,17 @@ export class AssignmentsPageComponent {
     const subject = this.selectedSubject();
     const group = this.assignmentForm.special ? null : this.selectedGroup();
     const shareGroups = this.assignmentForm.shared ? this.selectedShareGroups() : [];
-    const program = this.assignmentForm.special ? this.assignmentForm.program.trim().toUpperCase() : group?.programAbbreviation ?? '';
+    const selectedProgram = this.assignmentForm.special
+      ? this.assignmentForm.program.trim().toUpperCase()
+      : group?.programAbbreviation ?? '';
+    const program = this.programCodeForWrite(selectedProgram);
 
-    if ((!this.assignmentForm.special && !group) || !program || !subject || !this.hasValidTeacherSelection()) {
+    if ((!this.assignmentForm.special && !group) || !selectedProgram || !program || !subject || !this.hasValidTeacherSelection()) {
       this.formErrors = ['Selecciona programa/grupo, asignatura y docente validos.'];
       return;
     }
 
-    if (!this.canUseDestinationProgram(program)) {
+    if (!this.canUseDestinationProgram(selectedProgram)) {
       this.formErrors = ['Solo puedes guardar asignaciones en tus programas asignados.'];
       return;
     }
@@ -642,7 +645,7 @@ export class AssignmentsPageComponent {
         const sharedEditPayload: UpsertAssignmentPayload = {
           id: this.editingAssignmentId,
           cycle: this.assignmentForm.cycle,
-          program: shareGroup.programAbbreviation,
+          program: this.programCodeForWrite(shareGroup.programAbbreviation),
           group: shareGroup.fullGroup,
           subjectId: subject.subjectId,
           subjectName: subject.name,
@@ -670,6 +673,7 @@ export class AssignmentsPageComponent {
           metadata: {
             cycle: sharedEditPayload.cycle,
             program: sharedEditPayload.program,
+            originalProgram: shareGroup.programAbbreviation,
             group: sharedEditPayload.group,
             subjectId: sharedEditPayload.subjectId,
             moodleId: this.assignmentsRepository.normalizeMoodleId(sharedEditPayload.moodleId),
@@ -710,7 +714,7 @@ export class AssignmentsPageComponent {
           const sharedPayload: UpsertAssignmentPayload = {
             ...basePayload,
             id: null,
-            program: shareGroup.programAbbreviation,
+            program: this.programCodeForWrite(shareGroup.programAbbreviation),
             group: shareGroup.fullGroup,
             shared: true,
             sourceAssignmentId: assignmentId,
@@ -740,6 +744,7 @@ export class AssignmentsPageComponent {
             metadata: {
               cycle: sharedPayload.cycle,
               program: sharedPayload.program,
+              originalProgram: shareGroup.programAbbreviation,
               group: sharedPayload.group,
               subjectId: sharedPayload.subjectId,
               moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
@@ -762,6 +767,7 @@ export class AssignmentsPageComponent {
         metadata: {
           cycle: basePayload.cycle,
           program: basePayload.program,
+          originalProgram: selectedProgram,
           group: basePayload.group,
           subjectId: basePayload.subjectId,
           moodleId: this.assignmentsRepository.normalizeMoodleId(basePayload.moodleId),
@@ -1448,7 +1454,7 @@ export class AssignmentsPageComponent {
     }
 
     if (this.searchField() === 'program') {
-      return this.matchesSearchText(assignment.program, query);
+      return this.matchesSearchText(this.assignmentProgramSearchText(assignment), query);
     }
 
     if (this.searchField() === 'group') {
@@ -1483,6 +1489,29 @@ export class AssignmentsPageComponent {
       .replace(/[^a-z0-9]+/g, ' ')
       .trim()
       .replace(/\s+/g, ' ');
+  }
+
+  assignmentProgramLabel(assignment: AcademicAssignment): string {
+    if (assignment.special) {
+      return assignment.program;
+    }
+
+    const group = this.groups().find((item) => item.fullGroup === assignment.group);
+
+    return group?.programAbbreviation || this.programForAssignment(assignment)?.code || assignment.program;
+  }
+
+  private assignmentProgramSearchText(assignment: AcademicAssignment): string {
+    const group = this.groups().find((item) => item.fullGroup === assignment.group);
+    const program = this.programForAssignment(assignment);
+
+    return [
+      assignment.program,
+      group?.programAbbreviation,
+      group?.programName,
+      program?.code,
+      program?.name,
+    ].join(' ');
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
@@ -1776,6 +1805,21 @@ export class AssignmentsPageComponent {
       || this.isAssignedProgram(normalizedProgram);
   }
 
+  private programCodeForWrite(program: string): string {
+    const normalizedProgram = program.trim().toUpperCase();
+
+    if (!normalizedProgram || this.canSeeAllAssignments()) {
+      return normalizedProgram;
+    }
+
+    const aliases = this.programAliases(normalizedProgram);
+    const assignedProgram = (this.session()?.appUser?.assignedPrograms ?? [])
+      .map((item) => item.trim().toUpperCase())
+      .find((item) => aliases.has(item));
+
+    return assignedProgram ?? normalizedProgram;
+  }
+
   private isSystemsCoordinationRole(role: string): boolean {
     return role.includes('Sistemas') && !role.includes('Auxiliar');
   }
@@ -2013,11 +2057,12 @@ export class AssignmentsPageComponent {
     UpsertAssignmentPayload,
     'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'
   > {
-    const appUser = this.session()?.appUser;
+    const session = this.session();
+    const appUser = session?.appUser;
 
     return {
-      createdBy: appUser?.id ?? this.session()?.authUid ?? 'sin-usuario',
-      createdByName: appUser?.name ?? this.session()?.displayName ?? 'Usuario SPAI',
+      createdBy: session?.authUid ?? appUser?.id ?? 'sin-usuario',
+      createdByName: appUser?.name ?? session?.displayName ?? 'Usuario SPAI',
       createdByRole: appUser?.role ?? 'Sin rol',
       createdByPrograms: Array.from(this.assignedProgramCodes()),
     };

@@ -148,8 +148,16 @@ service cloud.firestore {
       return isSystemsMember()
         || (
           isAcademicCoordinator()
+          && hasModuleAccess('asignaciones')
           && currentUser().data.assignedPrograms is list
-          && program in currentUser().data.assignedPrograms
+          && (
+            program in currentUser().data.assignedPrograms
+            || (
+              request.resource.data.createdBy == request.auth.uid
+              && request.resource.data.createdByPrograms is list
+              && program in request.resource.data.createdByPrograms
+            )
+          )
         );
     }
 
@@ -275,6 +283,10 @@ service cloud.firestore {
       allow read: if canReadAssignments();
 
       allow create: if canWriteAssignment(request.resource.data.program)
+        && (
+          isSystemsMember()
+          || request.resource.data.createdBy == request.auth.uid
+        )
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
         && request.resource.data.cycle is string
         && request.resource.data.group is string
@@ -282,6 +294,10 @@ service cloud.firestore {
         && request.resource.data.teacherMoodleUser is string;
 
       allow update: if canWriteAssignment(request.resource.data.program)
+        && (
+          isSystemsMember()
+          || resource.data.createdBy == request.auth.uid
+        )
         && request.resource.data.program == resource.data.program
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
         && request.resource.data.createdBy == resource.data.createdBy
