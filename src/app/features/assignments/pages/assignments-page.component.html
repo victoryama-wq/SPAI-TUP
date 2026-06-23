@@ -486,7 +486,7 @@
                       <small>{{ group.programName }}</small>
                     </button>
                   } @empty {
-                    <div class="combo-empty">Sin coincidencias</div>
+                    <div class="combo-empty">{{ groupPickerEmptyMessage() }}</div>
                   }
                 </div>
               }

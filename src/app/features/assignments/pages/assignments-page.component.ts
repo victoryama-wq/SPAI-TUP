@@ -6,6 +6,7 @@ import { AuditLogRepository } from '../../../core/data/audit-log.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
 import { AcademicGroup, GroupsRepository } from '../../groups/data/groups.repository';
+import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.repository';
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
@@ -80,6 +81,7 @@ export class AssignmentsPageComponent {
   private readonly cyclesRepository = inject(CyclesRepository);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly groupsRepository = inject(GroupsRepository);
+  private readonly nomenclaturesRepository = inject(NomenclaturesRepository);
   private readonly programsRepository = inject(ProgramsRepository);
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
@@ -90,6 +92,7 @@ export class AssignmentsPageComponent {
   readonly assignmentsReadError = this.assignmentsRepository.readError;
   readonly cycles = this.cyclesRepository.cycles;
   readonly groups = this.groupsRepository.groups;
+  readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly programs = this.programsRepository.programs;
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
@@ -158,15 +161,11 @@ export class AssignmentsPageComponent {
     const programCodes = new Set<string>();
 
     (appUser?.assignedPrograms ?? [])
-      .map((program) => program.trim().toUpperCase())
-      .filter(Boolean)
-      .forEach((program) => programCodes.add(program));
+      .forEach((program) => this.programAliases(program).forEach((alias) => programCodes.add(alias)));
 
     this.programs()
       .filter((program) => this.coordinatorMatchesCurrentUser(program.coordinator))
-      .map((program) => program.code.trim().toUpperCase())
-      .filter(Boolean)
-      .forEach((program) => programCodes.add(program));
+      .forEach((program) => this.programAliases(program.code).forEach((alias) => programCodes.add(alias)));
 
     return programCodes;
   });
@@ -1031,6 +1030,42 @@ export class AssignmentsPageComponent {
       .slice(0, MAX_COMBO_OPTIONS);
   }
 
+  groupPickerEmptyMessage(): string {
+    const activeCycle = this.activeCycle();
+
+    if (!activeCycle) {
+      return 'No hay ciclo activo para filtrar grupos.';
+    }
+
+    const activeGroupsInCycle = this.groups()
+      .filter((group) => this.isActiveGroup(group))
+      .filter((group) => this.groupBelongsToCycle(group, activeCycle.code));
+
+    if (!activeGroupsInCycle.length) {
+      return `No hay grupos activos registrados para el ciclo ${activeCycle.code}.`;
+    }
+
+    if (this.modeTab() !== 'Salud') {
+      return 'Sin coincidencias para la busqueda actual.';
+    }
+
+    const healthGroups = activeGroupsInCycle.filter((group) => this.isHealthGroup(group));
+
+    if (!healthGroups.length) {
+      return 'Hay grupos del ciclo, pero ninguno esta clasificado como Facultad de Ciencias de la Salud.';
+    }
+
+    const allowedHealthGroups = healthGroups.filter((group) => {
+      return this.canSeeAllAssignments() || this.isAssignedProgram(group.programAbbreviation);
+    });
+
+    if (!allowedHealthGroups.length) {
+      return `Hay ${healthGroups.length} grupo(s) de Salud, pero no estan asignados a tu coordinacion. Revisa Usuarios o Nomenclaturas.`;
+    }
+
+    return 'Sin coincidencias para la busqueda actual.';
+  }
+
   updateSubjectPicker(value: string): void {
     this.subjectPickerValue = value;
     this.openCombo('subject');
@@ -1358,7 +1393,8 @@ export class AssignmentsPageComponent {
   }
 
   private isAssignedProgram(program: string): boolean {
-    return this.assignedProgramCodes().has(program.trim().toUpperCase());
+    return Array.from(this.programAliases(program))
+      .some((alias) => this.assignedProgramCodes().has(alias));
   }
 
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
@@ -1766,14 +1802,18 @@ export class AssignmentsPageComponent {
 
   private isHealthGroup(group: AcademicGroup): boolean {
     const program = this.programForGroup(group);
+    const nomenclature = this.nomenclatureForGroup(group);
     const healthReference = this.normalizeSearchText([
       group.academicArea,
       program?.academicArea,
       group.programName,
       program?.name,
+      nomenclature?.notes,
+      nomenclature?.programName,
     ].join(' '));
 
     return this.isHealthProgramCode(group.programAbbreviation)
+      || (nomenclature ? this.isHealthProgramCode(nomenclature.programCode) : false)
       || this.referencesHealthFaculty(healthReference);
   }
 
@@ -1819,20 +1859,76 @@ export class AssignmentsPageComponent {
 
   private isCampusTupGroup(group: AcademicGroup): boolean {
     const program = this.programForGroup(group);
+    const nomenclature = this.nomenclatureForGroup(group);
     const academicArea = this.normalizeSearchText([
       group.academicArea,
       program?.academicArea,
+      nomenclature?.notes,
     ].join(' '));
 
     return academicArea.includes('campus tup') || academicArea === 'campus';
   }
 
+  private programAliases(program: string): Set<string> {
+    const normalizedProgram = program.trim().toUpperCase();
+    const normalizedProgramName = this.normalizeSearchText(program);
+    const aliases = new Set<string>();
+
+    if (normalizedProgram) {
+      aliases.add(normalizedProgram);
+    }
+
+    this.nomenclatures().forEach((nomenclature) => {
+      const abbreviation = nomenclature.abbreviation.trim().toUpperCase();
+      const programCode = nomenclature.programCode.trim().toUpperCase();
+      const nomenclatureName = this.normalizeSearchText(nomenclature.programName);
+      const knownAliases = [abbreviation, programCode].filter(Boolean);
+      const matchesCode = knownAliases.includes(normalizedProgram);
+      const matchesName = Boolean(normalizedProgramName) && nomenclatureName === normalizedProgramName;
+
+      if (matchesCode || matchesName) {
+        knownAliases.forEach((alias) => aliases.add(alias));
+      }
+    });
+
+    this.programs().forEach((catalogProgram) => {
+      const programCode = catalogProgram.code.trim().toUpperCase();
+      const programName = this.normalizeSearchText(catalogProgram.name);
+      const matchesCode = programCode === normalizedProgram;
+      const matchesName = Boolean(normalizedProgramName) && programName === normalizedProgramName;
+
+      if (!matchesCode && !matchesName) {
+        return;
+      }
+
+      aliases.add(programCode);
+      this.nomenclatures()
+        .filter((nomenclature) => nomenclature.programCode.trim().toUpperCase() === programCode)
+        .forEach((nomenclature) => aliases.add(nomenclature.abbreviation.trim().toUpperCase()));
+    });
+
+    return aliases;
+  }
+
+  private nomenclatureForGroup(group: AcademicGroup) {
+    const aliases = this.programAliases(group.programAbbreviation);
+
+    return this.nomenclatures().find((nomenclature) => {
+      return aliases.has(nomenclature.abbreviation.trim().toUpperCase())
+        || aliases.has(nomenclature.programCode.trim().toUpperCase());
+    }) ?? null;
+  }
+
   private programForGroup(group: AcademicGroup) {
-    return this.programs().find((program) => program.code === group.programAbbreviation) ?? null;
+    const aliases = this.programAliases(group.programAbbreviation);
+
+    return this.programs().find((program) => aliases.has(program.code.trim().toUpperCase())) ?? null;
   }
 
   private programForAssignment(assignment: AcademicAssignment) {
-    return this.programs().find((program) => program.code === assignment.program) ?? null;
+    const aliases = this.programAliases(assignment.program);
+
+    return this.programs().find((program) => aliases.has(program.code.trim().toUpperCase())) ?? null;
   }
 
   private hasStudentEnrollments(studentEnrollments?: string): boolean {
