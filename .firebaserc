@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "spai-6ef68"
-  }
+  },
+  "targets": {
+    "spai-6ef68": {
+      "hosting": {
+        "presentacion": [
+          "spai-tup-presentacion"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
