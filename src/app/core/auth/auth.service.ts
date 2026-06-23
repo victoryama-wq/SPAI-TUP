@@ -38,22 +38,26 @@ export class AuthService {
   async signInWithGoogle(): Promise<void> {
     this.redirectErrorSignal.set('');
     const provider = this.createGoogleProvider();
-    await setPersistence(this.auth, browserLocalPersistence);
-
-    if (!this.shouldUsePopupFlow()) {
-      await signInWithRedirect(this.auth, provider);
-      return;
-    }
 
     try {
+      await setPersistence(this.auth, browserLocalPersistence);
+
+      if (!this.shouldUsePopupFlow()) {
+        await signInWithRedirect(this.auth, provider);
+        return;
+      }
+
       const credential = await signInWithPopup(this.auth, provider);
       await this.validateInstitutionalUser(credential.user);
     } catch (error) {
-      if (!this.shouldUseRedirectFallback(error)) {
-        throw error;
+      if (this.shouldUsePopupFlow() && this.shouldUseRedirectFallback(error)) {
+        await signInWithRedirect(this.auth, provider);
+        return;
       }
 
-      await signInWithRedirect(this.auth, provider);
+      const message = this.resolveAuthErrorMessage(error);
+      this.redirectErrorSignal.set(message);
+      throw new Error(message);
     }
   }
 
