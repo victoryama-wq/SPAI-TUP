@@ -1,12 +1,11 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyANh3LQKBRujH5q0SwIbwc1Ehygj5djgNE',
-    authDomain: 'spai-tup-2f261.firebaseapp.com',
-    projectId: 'spai-tup-2f261',
-    storageBucket: 'spai-tup-2f261.firebasestorage.app',
-    messagingSenderId: '498150243496',
-    appId: '1:498150243496:web:ae5e8dd439ecb26d2d169d',
-    measurementId: 'G-L1F8HMFWYR',
+    apiKey: 'AIzaSyDFWZ9yKMu4G5EimzZunaFq-NDp-TSBUno',
+    authDomain: 'spai-6ef68.firebaseapp.com',
+    projectId: 'spai-6ef68',
+    storageBucket: 'spai-6ef68.firebasestorage.app',
+    messagingSenderId: '498841496215',
+    appId: '1:498841496215:web:967538b2fb4db115fb57d2',
   },
 };
