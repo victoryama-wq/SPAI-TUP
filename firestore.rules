@@ -144,32 +144,9 @@ service cloud.firestore {
         || hasModuleAccess('asignaciones');
     }
 
-    function coordinatesProgram(program) {
-      return exists(/databases/$(database)/documents/programas/$(program))
-        && (
-          get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.name
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.email
-        );
-    }
-
     function canWriteAssignment(program) {
       return isSystemsMember()
-        || (
-          isAcademicCoordinator()
-          && hasModuleAccess('asignaciones')
-          && (
-            (
-              currentUser().data.assignedPrograms is list
-              && program in currentUser().data.assignedPrograms
-            )
-            || coordinatesProgram(program)
-            || (
-              request.resource.data.createdBy == request.auth.uid
-              && request.resource.data.createdByPrograms is list
-              && program in request.resource.data.createdByPrograms
-            )
-          )
-        );
+        || isAcademicCoordinator();
     }
 
     function canDeleteAssignment() {
