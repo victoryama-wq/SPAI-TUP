@@ -338,11 +338,11 @@ export class UsersPageComponent {
       return this.moduleAccessFromCustomRole(customRole);
     }
 
-    if (role === 'Coordinación de Sistemas') {
+    if (this.isSystemsRole(role)) {
       return FULL_MODULE_ACCESS;
     }
 
-    if (role === 'Coordinación Académica') {
+    if (this.isAcademicRole(role)) {
       return {
         ...ACADEMIC_COORDINATION_ACCESS,
         ligasMeet: access.ligasMeet,
@@ -506,6 +506,30 @@ export class UsersPageComponent {
       .replace(/\s+/g, ' ');
   }
 
+  private normalizeRole(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private isSystemsRole(role: string): boolean {
+    return this.normalizeRole(role).includes('sistemas');
+  }
+
+  private isSystemsAssistantRole(role: string): boolean {
+    const normalizedRole = this.normalizeRole(role);
+
+    return normalizedRole.includes('sistemas') && normalizedRole.includes('auxiliar');
+  }
+
+  private isAcademicRole(role: string): boolean {
+    const normalizedRole = this.normalizeRole(role);
+
+    return normalizedRole.includes('acad') && !normalizedRole.includes('sistemas');
+  }
+
   private normalizeProgramCode(program: string): string {
     return program.trim().toUpperCase();
   }
@@ -559,20 +583,25 @@ export class UsersPageComponent {
   }
 
   canEditModuleAccess(): boolean {
-    return ['Auxiliar de Sistemas', 'Coordinación Académica'].includes(this.form.controls.role.value)
+    const role = this.form.controls.role.value;
+
+    return this.isSystemsAssistantRole(role)
+      || this.isAcademicRole(role)
       || this.isCustomRole(this.form.controls.role.value);
   }
 
   canToggleModuleAccess(moduleKey: keyof ModuleAccess): boolean {
+    const role = this.form.controls.role.value;
+
     if (this.isCustomRole(this.form.controls.role.value)) {
       return true;
     }
 
-    if (this.form.controls.role.value === 'Auxiliar de Sistemas') {
+    if (this.isSystemsAssistantRole(role)) {
       return true;
     }
 
-    if (this.form.controls.role.value === 'Coordinación Académica') {
+    if (this.isAcademicRole(role)) {
       return moduleKey === 'ligasMeet';
     }
 
@@ -606,7 +635,8 @@ export class UsersPageComponent {
   canManageAccess(): boolean {
     const appUser = this.userSessionService.session()?.appUser;
 
-    return appUser?.role === 'Coordinación de Sistemas' || appUser?.access?.usuarios === true;
+    return appUser?.status === 'Activo'
+      && (this.isSystemsRole(appUser.role) || appUser.access?.usuarios === true);
   }
 
   accessSummary(user: AppUser): string {

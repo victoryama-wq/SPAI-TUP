@@ -75,8 +75,7 @@ export class NomenclaturesPageComponent {
 
     return (
       appUser?.status === 'Activo' &&
-      appUser.role.toLowerCase().includes('sistemas') &&
-      appUser.access?.nomenclaturas === true
+      this.isSystemsRole(appUser.role)
     );
   });
   readonly isConsultationMode = computed(() => !this.canManageNomenclatures());
@@ -542,11 +541,23 @@ export class NomenclaturesPageComponent {
   }
 
   private isActiveCoordinator(user: AppUser): boolean {
-    const role = user.role.toLowerCase();
+    const role = this.normalizeRole(user.role);
 
     return user.status === 'Activo'
       && role.includes('acad')
       && !role.includes('sistemas');
+  }
+
+  private normalizeRole(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private isSystemsRole(role: string): boolean {
+    return this.normalizeRole(role).includes('sistemas');
   }
 
   private parseCsvNomenclatures(rows: string[][]): CsvNomenclatureRow[] {

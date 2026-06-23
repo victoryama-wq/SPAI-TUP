@@ -54,8 +54,7 @@ export class GroupsPageComponent {
 
     return (
       appUser?.status === 'Activo' &&
-      appUser.role.toLowerCase().includes('sistemas') &&
-      appUser.access?.grupos === true
+      this.isSystemsRole(appUser.role)
     );
   });
   readonly isConsultationMode = computed(() => !this.canManageGroups());
@@ -88,7 +87,7 @@ export class GroupsPageComponent {
 
   readonly isAcademicCoordinator = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
-    const role = appUser?.role.toLowerCase() ?? '';
+    const role = this.normalizeRole(appUser?.role ?? '');
 
     return appUser?.status === 'Activo' && role.includes('acad') && !role.includes('sistemas');
   });
@@ -794,6 +793,18 @@ export class GroupsPageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
+  }
+
+  private normalizeRole(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private isSystemsRole(role: string): boolean {
+    return this.normalizeRole(role).includes('sistemas');
   }
 
   private readFirebaseMessage(error: unknown): string {
