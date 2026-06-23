@@ -111,7 +111,7 @@ export class AppComponent {
       }
 
       if (isSystemsUser) {
-        return appUser.access?.[item.moduleKey] === true;
+        return true;
       }
 
       if (isAcademicCoordinator) {
@@ -261,7 +261,7 @@ export class AppComponent {
     const isAcademicCoordinator = role.includes('acad');
 
     if (isSystemsUser) {
-      return appUser.access?.[navItem.moduleKey] === true;
+      return true;
     }
 
     if (isAcademicCoordinator) {
