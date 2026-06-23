@@ -45,6 +45,15 @@ const HEALTH_TEXT_MARKERS = [
   'cuidados intensivos',
 ];
 const ACTIVE_TEXT_MARKERS = ['activo', 'activa', 'active', 'si', 's', 'true', '1'];
+const POSTGRADUATE_TEXT_MARKERS = [
+  'maestria',
+  'especialidad',
+  'especializacion',
+  'doctorado',
+  'posgrado',
+  'postgrado',
+  'master',
+];
 
 interface AssignmentFormState {
   cycle: string;
@@ -1045,6 +1054,10 @@ export class AssignmentsPageComponent {
       return `No hay grupos activos registrados para el ciclo ${activeCycle.code}.`;
     }
 
+    if (this.modeTab() === 'Posgrados') {
+      return this.postgraduateGroupPickerEmptyMessage(activeGroupsInCycle);
+    }
+
     if (this.modeTab() !== 'Salud') {
       return 'Sin coincidencias para la busqueda actual.';
     }
@@ -1061,6 +1074,36 @@ export class AssignmentsPageComponent {
 
     if (!allowedHealthGroups.length) {
       return `Hay ${healthGroups.length} grupo(s) de Salud, pero no estan asignados a tu coordinacion. Revisa Usuarios o Nomenclaturas.`;
+    }
+
+    return 'Sin coincidencias para la busqueda actual.';
+  }
+
+  private postgraduateGroupPickerEmptyMessage(activeGroupsInCycle: AcademicGroup[]): string {
+    const postgraduateGroups = activeGroupsInCycle.filter((group) => this.isPostgraduateGroup(group));
+
+    if (!postgraduateGroups.length) {
+      return 'Hay grupos del ciclo, pero ninguno esta identificado como maestria o posgrado.';
+    }
+
+    const campusPostgraduateGroups = postgraduateGroups.filter((group) => this.groupMode(group) === 'Posgrados');
+
+    if (!campusPostgraduateGroups.length) {
+      const healthPostgraduateGroups = postgraduateGroups.filter((group) => this.isHealthGroup(group));
+
+      if (healthPostgraduateGroups.length) {
+        return `Hay ${healthPostgraduateGroups.length} posgrado(s), pero pertenecen a Salud. Revisa la pestana Salud.`;
+      }
+
+      return `Hay ${postgraduateGroups.length} posgrado(s), pero no estan clasificados como Campus TUP. Revisa Nomenclaturas.`;
+    }
+
+    const allowedPostgraduateGroups = campusPostgraduateGroups.filter((group) => {
+      return this.canSeeAllAssignments() || this.isAssignedProgram(group.programAbbreviation);
+    });
+
+    if (!allowedPostgraduateGroups.length) {
+      return `Hay ${campusPostgraduateGroups.length} posgrado(s) de Campus TUP, pero no estan asignados a tu coordinacion.`;
     }
 
     return 'Sin coincidencias para la busqueda actual.';
@@ -1746,19 +1789,19 @@ export class AssignmentsPageComponent {
   }
 
   private isPostgraduateGroup(group: AcademicGroup): boolean {
-    const program = this.programs().find((item) => item.code === group.programAbbreviation);
+    const program = this.programForGroup(group);
+    const nomenclature = this.nomenclatureForGroup(group);
     const searchText = this.normalizeSearchText([
       program?.programType,
       program?.name,
       group.programName,
       group.programAbbreviation,
+      nomenclature?.programName,
+      nomenclature?.planName,
+      nomenclature?.notes,
     ].join(' '));
 
-    return searchText.includes('maestria')
-      || searchText.includes('especialidad')
-      || searchText.includes('especializacion')
-      || searchText.includes('doctorado')
-      || searchText.includes('posgrado');
+    return POSTGRADUATE_TEXT_MARKERS.some((marker) => searchText.includes(marker));
   }
 
   private groupMatchesModeTab(group: AcademicGroup, tab: AssignmentModeTab): boolean {

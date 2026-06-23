@@ -921,6 +921,7 @@ Reglas:
 - Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
 - Para captura en Asignaciones, los programas permitidos de Coordinacion Academica se calculan con `usuarios.assignedPrograms` y tambien con los programas donde `programas.coordinator` coincida con el nombre o correo del usuario activo.
 - La validacion de programa permitido en Asignaciones debe usar equivalencias de Nomenclaturas entre `abbreviation` y `programCode`, para que un grupo no quede oculto cuando el usuario tenga asignado el codigo relacionado y no la abreviatura exacta del grupo.
+- La deteccion de Posgrados en Asignaciones debe usar programas, nomenclaturas, `programType`, nombre de programa, plan y notas para identificar maestrias, doctorados, posgrados o especializaciones de Campus TUP.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.
 - Auxiliar de Sistemas puede consultar y gestionar Asignaciones cuando Coordinacion de Sistemas le habilita `access.asignaciones == true`.
@@ -945,6 +946,7 @@ Vista implementada:
 - Mientras el usuario escribe, el sistema muestra sugerencias predictivas compactas dentro o junto a la misma barra de busqueda.
 - Las sugerencias deben calcularse segun ciclo activo, permisos del usuario y pestaña activa.
 - En la pestaña Salud, las sugerencias de programa y grupo deben limitarse a Facultad de Ciencias de la Salud, incluyendo programas detectados por area academica, siglas de respaldo, nombre del programa o especialidad sin clasificacion Campus TUP.
+- En la pestaña Posgrados, cuando el selector de grupo no tenga opciones, debe indicar si no hay posgrados del ciclo, si los posgrados detectados pertenecen a Salud, si no estan clasificados como Campus TUP o si no estan asignados a la coordinacion activa.
 - En la pestaña Escolarizado, las sugerencias de grupo deben limitarse a grupos escolarizados que no pertenezcan a Facultad de Ciencias de la Salud.
 - Las asignaciones se separan por pestañas estilo navegador en la parte superior derecha del panel:
   - Escolarizado.
