@@ -1817,7 +1817,24 @@ export class AssignmentsPageComponent {
       .map((item) => item.trim().toUpperCase())
       .find((item) => aliases.has(item));
 
-    return assignedProgram ?? normalizedProgram;
+    if (assignedProgram) {
+      return assignedProgram;
+    }
+
+    const coordinatedProgram = this.programs()
+      .find((item) => aliases.has(item.code.trim().toUpperCase()) && this.coordinatorMatchesCurrentUser(item.coordinator));
+
+    if (coordinatedProgram) {
+      return coordinatedProgram.code.trim().toUpperCase();
+    }
+
+    const nomenclature = this.nomenclatures()
+      .find((item) => {
+        return aliases.has(item.abbreviation.trim().toUpperCase())
+          || aliases.has(item.programCode.trim().toUpperCase());
+      });
+
+    return nomenclature?.programCode.trim().toUpperCase() || normalizedProgram;
   }
 
   private isSystemsCoordinationRole(role: string): boolean {

@@ -144,22 +144,12 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return value.trim().toLowerCase();
   }
 
-  deleteAssignment(id: string, payload: DeleteAssignmentPayload): Promise<void> {
-    return this.deleteDocument(id).catch(() => this.archiveAssignment(id, payload));
+  deleteAssignment(id: string, _payload: DeleteAssignmentPayload): Promise<void> {
+    return this.deleteDocument(id);
   }
 
   async deleteAssignments(ids: string[], payload: DeleteAssignmentPayload): Promise<void> {
     await Promise.all(ids.map((id) => this.deleteAssignment(id, payload)));
-  }
-
-  private archiveAssignment(id: string, payload: DeleteAssignmentPayload): Promise<void> {
-    return this.updateDocument(id, {
-      deletedAt: new Date().toISOString(),
-      deletedBy: payload.deletedBy,
-      deletedByName: payload.deletedByName,
-      deletedByRole: payload.deletedByRole,
-      updatedAt: new Date().toISOString(),
-    });
   }
 
   private normalizeName(value: string): string {
