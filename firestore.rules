@@ -146,13 +146,16 @@ service cloud.firestore {
 
     function canWriteAssignment() {
       return isSystemsMember()
-        || isAcademicCoordinator();
+        || (
+          hasInstitutionalEmail()
+          && request.resource.data.createdBy == request.auth.uid
+        );
     }
 
     function canDeleteAssignment() {
       return isSystemsMember()
         || (
-          isAcademicCoordinator()
+          hasInstitutionalEmail()
           && resource.data.createdBy == request.auth.uid
         );
     }
