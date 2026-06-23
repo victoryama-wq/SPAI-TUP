@@ -144,7 +144,7 @@ service cloud.firestore {
         || hasModuleAccess('asignaciones');
     }
 
-    function canWriteAssignment(program) {
+    function canWriteAssignment() {
       return isSystemsMember()
         || isAcademicCoordinator();
     }
@@ -270,7 +270,7 @@ service cloud.firestore {
     match /asignaciones/{assignmentId} {
       allow read: if canReadAssignments();
 
-      allow create: if canWriteAssignment(request.resource.data.program)
+      allow create: if canWriteAssignment()
         && (
           isSystemsMember()
           || request.resource.data.createdBy == request.auth.uid
@@ -281,7 +281,7 @@ service cloud.firestore {
         && request.resource.data.subjectId is string
         && request.resource.data.teacherMoodleUser is string;
 
-      allow update: if canWriteAssignment(request.resource.data.program)
+      allow update: if canWriteAssignment()
         && (
           isSystemsMember()
           || resource.data.createdBy == request.auth.uid
