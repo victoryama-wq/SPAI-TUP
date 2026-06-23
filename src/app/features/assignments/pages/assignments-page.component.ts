@@ -390,7 +390,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly sourceAssignmentOptions = computed(() =>
     this.assignments().filter((assignment) => {
       const allowedOrigin = this.canSeeAllAssignments()
-        || this.wasAssignmentCreatedByCurrentUser(assignment);
+        || this.canModifyAssignment(assignment);
 
       return !this.isAssignmentDeleted(assignment)
         && assignment.id !== this.editingAssignmentId
@@ -642,16 +642,20 @@ export class AssignmentsPageComponent implements OnDestroy {
       return;
     }
 
-    if (!this.canUseDestinationProgram(selectedProgram)) {
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
+      : null;
+    const canWriteCurrentAssignment = currentAssignment
+      ? this.canModifyAssignment(currentAssignment)
+      : this.canUseDestinationProgram(selectedProgram);
+
+    if (!canWriteCurrentAssignment) {
       this.formErrors = ['Solo puedes guardar asignaciones en tus programas asignados.'];
       return;
     }
 
     try {
       const wasEditing = this.editingAssignmentId !== null;
-      const currentAssignment = this.editingAssignmentId
-        ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
-        : null;
 
       if (currentAssignment?.shared && this.assignmentForm.shared && shareGroups.length === 1) {
         const shareGroup = shareGroups[0];
@@ -1349,10 +1353,8 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
-    const allowedAssignment = this.canSeeAllAssignments()
-      || this.wasAssignmentCreatedByCurrentUser(assignment);
-
-    return allowedAssignment && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
+    return this.canModifyAssignment(assignment)
+      && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
   }
 
   canDeleteAssignment(assignment: AcademicAssignment): boolean {
@@ -1365,7 +1367,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     return this.assignmentsToDelete(assignment)
-      .every((item) => this.wasAssignmentCreatedByCurrentUser(item));
+      .some((item) => this.canModifyAssignment(item));
   }
 
   private sharedBaseAssignmentId(assignment: AcademicAssignment): string {
@@ -1402,6 +1404,11 @@ export class AssignmentsPageComponent implements OnDestroy {
     ].filter((value): value is string => Boolean(value)));
 
     return currentUserIds.has(assignment.createdBy);
+  }
+
+  private canModifyAssignment(assignment: AcademicAssignment): boolean {
+    return this.canSeeAllAssignments()
+      || this.isAssignedProgram(assignment.program);
   }
 
   private assignmentStatusMatchesFilter(assignment: AcademicAssignment): boolean {
@@ -1447,7 +1454,8 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
     return this.isGlobalCatalogVisible()
-      || this.wasAssignmentCreatedByCurrentUser(assignment);
+      || this.wasAssignmentCreatedByCurrentUser(assignment)
+      || this.isAssignedProgram(assignment.program);
   }
 
   private groupMatchesCatalogScope(_group: AcademicGroup): boolean {

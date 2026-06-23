@@ -144,19 +144,41 @@ service cloud.firestore {
         || hasModuleAccess('asignaciones');
     }
 
-    function canWriteAssignment() {
+    function canWriteAssignmentProgram(program) {
       return isSystemsMember()
         || (
-          hasInstitutionalEmail()
-          && request.resource.data.createdBy == request.auth.uid
+          isAcademicCoordinator()
+          && currentUser().data.assignedPrograms is list
+          && program is string
+          && program in currentUser().data.assignedPrograms
+        );
+    }
+
+    function canWriteAssignment() {
+      return canWriteAssignmentProgram(request.resource.data.program)
+        || canWriteSharedAssignmentFromSource();
+    }
+
+    function canWriteSharedAssignmentFromSource() {
+      return request.resource.data.shared == true
+        && request.resource.data.sourceAssignmentId is string
+        && exists(/databases/$(database)/documents/asignaciones/$(request.resource.data.sourceAssignmentId))
+        && canWriteAssignmentProgram(
+          get(/databases/$(database)/documents/asignaciones/$(request.resource.data.sourceAssignmentId)).data.program
         );
     }
 
     function canDeleteAssignment() {
-      return isSystemsMember()
-        || (
-          hasInstitutionalEmail()
-          && resource.data.createdBy == request.auth.uid
+      return canWriteAssignmentProgram(resource.data.program)
+        || canWriteExistingSharedAssignmentFromSource();
+    }
+
+    function canWriteExistingSharedAssignmentFromSource() {
+      return resource.data.shared == true
+        && resource.data.sourceAssignmentId is string
+        && exists(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId))
+        && canWriteAssignmentProgram(
+          get(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId)).data.program
         );
     }
 
@@ -284,10 +306,9 @@ service cloud.firestore {
         && request.resource.data.subjectId is string
         && request.resource.data.teacherMoodleUser is string;
 
-      allow update: if canWriteAssignment()
-        && (
-          isSystemsMember()
-          || resource.data.createdBy == request.auth.uid
+      allow update: if (
+          canWriteAssignmentProgram(resource.data.program)
+          || canWriteExistingSharedAssignmentFromSource()
         )
         && request.resource.data.program == resource.data.program
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
