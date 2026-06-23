@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
@@ -84,7 +84,7 @@ interface TeacherPickerOption {
   templateUrl: './assignments-page.component.html',
   styleUrl: './assignments-page.component.css',
 })
-export class AssignmentsPageComponent {
+export class AssignmentsPageComponent implements OnDestroy {
   private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
@@ -124,12 +124,17 @@ export class AssignmentsPageComponent {
   groupPickerValue = '';
   activeComboField: AssignmentComboField | null = null;
   isSearchMenuOpen = false;
+  private formMessageTimeout: ReturnType<typeof setTimeout> | null = null;
 
   assignmentForm = this.emptyForm();
 
   readonly activeCycle = this.cyclesRepository.activeCycle;
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
+
+  ngOnDestroy(): void {
+    this.clearFormMessageTimeout();
+  }
 
   readonly canSeeAllAssignments = computed(() => {
     const appUser = this.session()?.appUser;
@@ -575,9 +580,9 @@ export class AssignmentsPageComponent {
           deletedByRole: actor.createdByRole,
         },
       );
-      this.formMessage = relatedCount > 1
+      this.showTemporaryFormMessage(relatedCount > 1
         ? `${relatedCount} asignaciones relacionadas eliminadas correctamente.`
-        : 'Asignacion eliminada correctamente.';
+        : 'Asignacion eliminada correctamente.');
       this.formErrors = [];
 
       await this.auditLogRepository.register({
@@ -691,7 +696,7 @@ export class AssignmentsPageComponent {
           },
         });
 
-        this.formMessage = 'Asignacion actualizada correctamente.';
+        this.showTemporaryFormMessage('Asignacion actualizada correctamente.');
         this.closeAssignmentModal();
         return;
       }
@@ -785,9 +790,9 @@ export class AssignmentsPageComponent {
         },
       });
 
-      this.formMessage = this.editingAssignmentId
+      this.showTemporaryFormMessage(this.editingAssignmentId
         ? 'Asignacion actualizada correctamente.'
-        : 'Asignacion guardada correctamente.';
+        : 'Asignacion guardada correctamente.');
       this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
 
       if (continueAdding && !wasEditing) {
@@ -1584,6 +1589,27 @@ export class AssignmentsPageComponent {
     const match = group.trim().toUpperCase().match(/\s(11|12|23|24|53)\s/);
 
     return match?.[1] ?? '';
+  }
+
+  private showTemporaryFormMessage(message: string): void {
+    this.clearFormMessageTimeout();
+    this.formMessage = message;
+    this.formMessageTimeout = setTimeout(() => {
+      if (this.formMessage === message) {
+        this.formMessage = '';
+      }
+
+      this.formMessageTimeout = null;
+    }, 3500);
+  }
+
+  private clearFormMessageTimeout(): void {
+    if (!this.formMessageTimeout) {
+      return;
+    }
+
+    clearTimeout(this.formMessageTimeout);
+    this.formMessageTimeout = null;
   }
 
   private readFirebaseMessage(error: unknown): string {
