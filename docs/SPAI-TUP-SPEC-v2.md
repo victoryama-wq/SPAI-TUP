@@ -149,7 +149,7 @@ Reglas:
 - `grupos` permite lectura a usuarios autenticados y escritura solo a Coordinacion de Sistemas activo.
 - `docentes` permite lectura a usuarios autenticados segun permisos del modulo, docentes validados o Coordinacion Academica; la escritura queda para Sistemas, auxiliares autorizados o altas manuales pendientes de Coordinacion Academica.
 - `asignaturas` permite lectura de asignaturas activas a usuarios autenticados y escritura solo a Sistemas o auxiliares autorizados.
-- `asignaciones` permite lectura a usuarios con correo institucional para que Firestore entregue el catalogo requerido por la vista; la interfaz limita a Coordinacion Academica a **Mis asignaciones** por defecto y permite alternar a **Catalogo global** para consultar las demas asignaciones. La escritura respeta programa asignado o clase compartida aprobada, y el borrado queda permitido para Sistemas o para Coordinacion Academica solo cuando el registro fue creado por su propio usuario.
+- `asignaciones` permite lectura a usuarios con correo institucional para que Firestore entregue el catalogo requerido por la vista; la interfaz limita a Coordinacion Academica a **Mis asignaciones** por defecto y permite alternar a **Catalogo global** para consultar las demas asignaciones. La escritura, edicion y borrado respetan programas asignados, incluyendo clases compartidas donde el programa participa como grupo base o grupo compartido.
 - `solicitudes_compartidas` permite lectura a usuarios con acceso al modulo y controla creacion/respuesta/cancelacion segun programa y rol.
 - `solicitudes_sistemas` permite que usuarios activos creen solicitudes operativas dirigidas a Sistemas para reabrir captura, alta de grupo, cambio de ID de asignatura o validacion de docente nuevo; Sistemas puede leer, actualizar y eliminar solicitudes segun permisos publicados.
 - `notificaciones` permite lectura a miembros activos de Sistemas y a Coordinacion Academica cuando la notificacion esta dirigida a su `authUid`; permite crear avisos hacia Sistemas desde flujos autorizados y avisos hacia Coordinacion Academica cuando Sistemas responde o activa un docente.
@@ -918,12 +918,12 @@ Reglas:
 - Si una clase se comparte, la clase origen y destino deben compartir el mismo ID asignatura de captura.
 - Si la asignacion es compartida, debe conservar `id_asignacion_origen`.
 - Coordinacion Academica consulta por defecto asignaciones de sus programas/grupos asignados y puede usar el boton **Catalogo global** para ver todas las asignaciones del ciclo activo: propias, de otras coordinaciones y registros creados por Sistemas, manteniendo solo permisos de consulta sobre lo ajeno.
-- Coordinacion Academica crea y edita asignaciones solo de sus programas/grupos asignados.
+- Coordinacion Academica crea, edita y elimina asignaciones de sus programas/grupos asignados. Si una asignacion creada por Sistemas pertenece a uno de sus programas, tambien puede gestionarla.
 - Para captura en Asignaciones, los programas permitidos de Coordinacion Academica se calculan con `usuarios.assignedPrograms` y tambien con los programas donde `programas.coordinator` coincida con el nombre o correo del usuario activo.
 - La validacion de programa permitido en Asignaciones debe usar equivalencias de Nomenclaturas entre `abbreviation` y `programCode`, para que un grupo no quede oculto cuando el usuario tenga asignado el codigo relacionado y no la abreviatura exacta del grupo.
 - Al guardar Asignaciones, `createdBy` debe guardar el UID real de Firebase Auth y el codigo de programa enviado a Firestore debe ser compatible con `usuarios.assignedPrograms` o con las equivalencias calculadas en `createdByPrograms`.
 - Las asignaciones nuevas usan ID automatico de Firestore; la prevencion de duplicados se hace por ciclo, ID Moodle y asignatura para evitar que documentos historicos o archivados bloqueen nuevas capturas.
-- Las reglas de Firestore para Asignaciones deben permitir que usuarios institucionales creen asignaciones propias (`createdBy == auth.uid`) sin depender de diferencias entre `assignedPrograms`, abreviaturas, nomenclaturas, codigos de programa o texto exacto del rol; la validacion fina de programa y modulo se ejecuta en la interfaz antes del guardado.
+- Las reglas de Firestore para Asignaciones deben permitir que Sistemas gestione todo y que Coordinacion Academica gestione registros cuyo `program` o `sharedPrograms` coincidan con sus `assignedPrograms`.
 - La accion eliminar en Asignaciones debe borrar fisicamente el documento de Firestore cuando las reglas lo permitan; no debe ocultarlo con `deletedAt` como respaldo silencioso.
 - La deteccion de Posgrados en Asignaciones debe usar programas, nomenclaturas, `programType`, nombre de programa, plan y notas para identificar maestrias, doctorados, posgrados o especializaciones de Campus TUP.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
@@ -988,7 +988,7 @@ Vista implementada:
 - La columna Estado debe mostrarse centrada.
 - La columna Compartida marca tanto la asignacion base como sus destinos cuando pertenecen a una clase compartida, y el visor muestra el grupo base y los grupos relacionados.
 - La columna Acciones muestra solo Editar y Eliminar.
-- Sistemas puede eliminar cualquier asignacion; Coordinacion Academica solo puede eliminar asignaciones creadas por su propio usuario.
+- Sistemas puede eliminar cualquier asignacion; Coordinacion Academica puede eliminar asignaciones de sus programas asignados, incluyendo registros creados por Sistemas y clases compartidas donde su programa participa.
 - Si Firestore no permite el borrado fisico directo, la eliminacion operativa debe archivar el registro con `deletedAt` y excluirlo de las vistas, conteos, busquedas y conflictos de ID Moodle.
 - Si no hay ciclo activo, grupos disponibles, docentes validados o asignaturas activas, el modulo muestra avisos claros para orientar la prueba operativa.
 - La captura normal permite registrar Matriculas adicionales como campo opcional.
@@ -1033,7 +1033,7 @@ Casos especiales y autogestivos:
 
 Catalogo global en Asignaciones:
 
-- En modo **Mis asignaciones**, Coordinacion Academica ve las asignaciones propias del ciclo activo, identificadas por el usuario que las capturo; los grupos/programas asignados siguen aplicando para captura.
+- En modo **Mis asignaciones**, Coordinacion Academica ve las asignaciones del ciclo activo que correspondan a sus programas asignados, aunque las haya capturado Sistemas u otra coordinacion como clase compartida.
 - En modo **Catalogo global**, Coordinacion Academica ve tambien asignaciones del ciclo activo creadas por otras coordinaciones o por Sistemas, aunque el programa no este en `usuarios.assignedPrograms`.
 - Sistemas y Auxiliar de Sistemas con permiso de Asignaciones ven siempre **Catalogo global** en el modulo Asignaciones; no requieren alternar alcance.
 - La tabla, conteos, sugerencias y opciones de consulta de Coordinacion Academica deben respetar **Mis asignaciones** por defecto; las asignaciones ajenas solo se muestran cuando el usuario activa el boton **Catalogo global**.
@@ -1044,7 +1044,7 @@ Catalogo global en Asignaciones:
 
 Clases compartidas en tabla:
 
-- La tabla muestra como compartida tanto la asignacion base como sus asignaciones destino.
+- La tabla muestra una sola fila por clase Moodle. Si hay grupos compartidos, la asignacion base se marca como compartida y lista los grupos vinculados. No se deben crear filas duplicadas por cada grupo unido.
 - El visor de clase compartida debe indicar grupo base y grupos con los que comparte.
 - La tabla ya no inicia el flujo con boton Compartir o Solicitar.
 - El flujo de clase compartida se captura desde el modal de Asignaciones o se formaliza desde Solicitudes cuando aplique.
@@ -1110,10 +1110,11 @@ Proceso:
 
 Objetivo operativo:
 
-- Formalizar las clases compartidas mediante una solicitud antes de crear o vincular la asignacion destino.
+- Formalizar las clases compartidas mediante una solicitud antes de vincular un grupo destino.
 - Evitar que una coordinacion cree directamente una clase compartida sin respuesta de la coordinacion responsable.
-- Al aceptar, crear o actualizar la asignacion destino como `shared: true`, conservar `sourceAssignmentId` y heredar el `moodleId` de la asignacion origen.
-- La asignacion destino aceptada debe quedar visible en Asignaciones como clase compartida.
+- Al aceptar, actualizar la asignacion origen agregando el grupo destino en `sharedGroups` y su programa en `sharedPrograms`; se conserva un solo `moodleId`, docente y asignatura.
+- La clase aceptada debe quedar visible en Asignaciones como una sola fila compartida. La coordinacion destino debe verla en **Mis asignaciones** con aviso de que el grupo base pertenece a la coordinacion origen.
+- Si una coordinacion destino elimina una clase compartida cuyo grupo base pertenece a otra coordinacion, el sistema solo retira sus grupos de `sharedGroups`; no elimina la asignacion base ajena.
 
 Datos minimos de `solicitudes_compartidas` en la implementacion Angular/Firebase:
 
@@ -1175,11 +1176,11 @@ Reglas implementadas:
 - El solicitante debe elegir un grupo destino activo del ciclo activo.
 - El grupo destino debe pertenecer a un programa asignado al solicitante, salvo Coordinacion de Sistemas.
 - No se permite duplicar una solicitud `PENDIENTE` para la misma asignacion origen y grupo destino.
-- No se permite solicitar como origen una asignacion compartida o especial.
+- No se permite solicitar como origen una asignacion destino heredada ni una asignacion especial. Una asignacion base ya compartida puede volver a compartirse con mas grupos.
 - El grupo destino no puede ser el mismo grupo de la asignacion origen.
 - La coordinacion responsable puede aceptar o rechazar solicitudes donde el programa origen pertenece a sus programas asignados.
 - Sistemas puede consultar todas las solicitudes.
-- Si se acepta, la asignacion destino se crea o actualiza con el mismo `moodleId`, mismo docente, misma asignatura, `shared: true` y `sourceAssignmentId` de la asignacion origen.
+- Si se acepta, no se crea una asignacion destino duplicada. Se actualiza la asignacion origen con `shared: true`, `sharedGroups` y `sharedPrograms`.
 - Si se acepta `REABRIR_CAPTURA`, Sistemas reabre el ciclo solicitado.
 - Si se acepta `ALTA_GRUPO`, Sistemas crea el grupo en `grupos` con estatus `Activo`.
 - Si se acepta `ASIGNACION_ESPECIAL`, Sistemas crea una asignacion especial `special: true` aun cuando el ciclo ya este cerrado o en captura cerrada.

@@ -154,22 +154,23 @@ service cloud.firestore {
         );
     }
 
-    function canWriteAssignment() {
-      return canWriteAssignmentProgram(request.resource.data.program)
-        || canWriteSharedAssignmentFromSource();
+    function canWriteAssignmentPrograms(programs) {
+      return isSystemsMember()
+        || (
+          isAcademicCoordinator()
+          && currentUser().data.assignedPrograms is list
+          && programs is list
+          && currentUser().data.assignedPrograms.hasAny(programs)
+        );
     }
 
-    function canWriteSharedAssignmentFromSource() {
-      return request.resource.data.shared == true
-        && request.resource.data.sourceAssignmentId is string
-        && exists(/databases/$(database)/documents/asignaciones/$(request.resource.data.sourceAssignmentId))
-        && canWriteAssignmentProgram(
-          get(/databases/$(database)/documents/asignaciones/$(request.resource.data.sourceAssignmentId)).data.program
-        );
+    function canWriteAssignment() {
+      return canWriteAssignmentProgram(request.resource.data.program);
     }
 
     function canDeleteAssignment() {
       return canWriteAssignmentProgram(resource.data.program)
+        || canWriteAssignmentPrograms(resource.data.sharedPrograms)
         || canWriteExistingSharedAssignmentFromSource();
     }
 
@@ -308,6 +309,7 @@ service cloud.firestore {
 
       allow update: if (
           canWriteAssignmentProgram(resource.data.program)
+          || canWriteAssignmentPrograms(resource.data.sharedPrograms)
           || canWriteExistingSharedAssignmentFromSource()
         )
         && request.resource.data.program == resource.data.program

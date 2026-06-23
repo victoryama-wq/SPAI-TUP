@@ -74,7 +74,7 @@ export class MeetLinksPageComponent {
       });
 
     return assignments
-      .filter((assignment) => !assignment.shared)
+      .filter((assignment) => !assignment.sourceAssignmentId)
       .map((assignment) => this.createMeetRow(assignment, sharedBySource.get(assignment.id) ?? []))
       .filter((row): row is MeetClassRow => row !== null)
       .sort((a, b) => a.originGroup.localeCompare(b.originGroup, 'es'));
@@ -144,9 +144,10 @@ export class MeetLinksPageComponent {
   }
 
   private createMeetRow(baseAssignment: AcademicAssignment, sharedAssignments: AcademicAssignment[]): MeetClassRow | null {
-    const involvedAssignments = [baseAssignment, ...sharedAssignments];
-    const virtualGroups = involvedAssignments
-      .map((assignment) => this.groupByFullName(assignment.group))
+    const sharedGroups = this.assignmentSharedGroups(baseAssignment, sharedAssignments);
+    const involvedGroups = [baseAssignment.group, ...sharedGroups];
+    const virtualGroups = involvedGroups
+      .map((fullGroup) => this.groupByFullName(fullGroup))
       .filter((group): group is AcademicGroup => group !== null && group.modality === 'Virtual')
       .map((group) => group.fullGroup);
 
@@ -164,10 +165,20 @@ export class MeetLinksPageComponent {
       teacherMoodleUser: baseAssignment.teacherMoodleUser,
       originGroup: baseAssignment.group,
       virtualGroups,
-      sharedGroups: sharedAssignments.map((assignment) => assignment.group).sort((a, b) => a.localeCompare(b, 'es')),
+      sharedGroups,
       assignmentStatus: baseAssignment.status,
       observations: baseAssignment.observations,
     };
+  }
+
+  private assignmentSharedGroups(baseAssignment: AcademicAssignment, legacySharedAssignments: AcademicAssignment[]): string[] {
+    const groups = [
+      ...(baseAssignment.sharedGroups ?? []),
+      ...legacySharedAssignments.map((assignment) => assignment.group),
+    ];
+
+    return Array.from(new Set(groups.map((group) => group.trim().toUpperCase()).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, 'es'));
   }
 
   private groupByFullName(fullGroup: string): AcademicGroup | null {

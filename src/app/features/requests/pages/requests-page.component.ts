@@ -218,7 +218,7 @@ export class RequestsPageComponent {
         ].join(' '));
 
         return assignment.cycle === activeCycle.code
-          && !assignment.shared
+          && !assignment.sourceAssignmentId
           && !(assignment.special ?? false)
           && (!search || searchable.includes(search));
       })
@@ -1005,29 +1005,38 @@ export class RequestsPageComponent {
     const actor = this.requestActorData();
     const source = this.sourceAssignmentFor(request);
     const destinationGroup = this.groups().find((group) => group.fullGroup === request.destinationGroup);
-    const destinationAssignment = this.findDestinationAssignment(request);
 
     if (!source || !destinationGroup) {
       this.responseErrors = ['No se encontro la asignacion origen o el grupo destino.'];
       return;
     }
 
+    const sharedGroups = Array.from(new Set([
+      ...(source.sharedGroups ?? []),
+      request.destinationGroup,
+    ].map((group) => group.trim().toUpperCase()).filter(Boolean)));
+    const sharedPrograms = Array.from(new Set([
+      ...(source.sharedPrograms ?? []),
+      request.destinationProgram,
+    ].map((program) => program.trim().toUpperCase()).filter(Boolean)));
     const destinationAssignmentId = await this.assignmentsRepository.upsertAssignment({
-      id: destinationAssignment?.id ?? (request.destinationAssignmentId || null),
-      cycle: request.cycle,
-      program: request.destinationProgram,
-      group: request.destinationGroup,
-      subjectId: request.subjectId,
-      subjectName: request.subjectName,
+      id: source.id,
+      cycle: source.cycle,
+      program: source.program,
+      group: source.group,
+      subjectId: source.subjectId,
+      subjectName: source.subjectName,
       moodleId: source.moodleId,
       teacherMoodleUser: source.teacherMoodleUser,
       teacherName: source.teacherName,
       status: 'EN_CAPTURA',
-      observations: `Clase compartida desde ${request.sourceGroup}.`,
-      shared: true,
-      sourceAssignmentId: request.sourceAssignmentId,
-      special: false,
-      studentEnrollments: '',
+      observations: source.observations,
+      shared: sharedGroups.length > 0,
+      sourceAssignmentId: '',
+      sharedGroups,
+      sharedPrograms,
+      special: source.special,
+      studentEnrollments: source.studentEnrollments,
       ...this.assignmentActorData(),
     });
 
@@ -1211,8 +1220,8 @@ export class RequestsPageComponent {
       errors.push('Solo se pueden solicitar asignaciones del ciclo activo.');
     }
 
-    if (source?.shared || source?.special) {
-      errors.push('La asignacion origen no puede ser compartida ni especial.');
+    if (source?.sourceAssignmentId || source?.special) {
+      errors.push('La asignacion origen no puede ser una asignacion destino ni especial.');
     }
 
     if (!destinationGroup) {
@@ -1343,19 +1352,11 @@ export class RequestsPageComponent {
     return errors;
   }
 
-  private findDestinationAssignment(request: SharedClassRequest): AcademicAssignment | null {
-    if (request.destinationAssignmentId) {
-      return this.assignments().find((assignment) => assignment.id === request.destinationAssignmentId) ?? null;
+  private hasExistingSharedDestination(source: AcademicAssignment, destinationGroup: AcademicGroup): boolean {
+    if ((source.sharedGroups ?? []).includes(destinationGroup.fullGroup)) {
+      return true;
     }
 
-    return this.assignments().find((assignment) => {
-      return assignment.cycle === request.cycle
-        && assignment.group === request.destinationGroup
-        && assignment.subjectId === request.subjectId;
-    }) ?? null;
-  }
-
-  private hasExistingSharedDestination(source: AcademicAssignment, destinationGroup: AcademicGroup): boolean {
     return this.assignments().some((assignment) => {
       return assignment.cycle === source.cycle
         && assignment.group === destinationGroup.fullGroup

@@ -194,6 +194,8 @@
                 <strong>{{ assignment.special ? 'Caso especial' : assignment.group }}</strong>
                 @if (assignment.special) {
                   <small>Sin grupo base</small>
+                } @else if (isSharedFromAnotherCoordination(assignment)) {
+                  <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
                 } @else if (assignment.studentEnrollments) {
                   <small class="detail-note">Matriculas: {{ assignment.studentEnrollments }}</small>
                 }

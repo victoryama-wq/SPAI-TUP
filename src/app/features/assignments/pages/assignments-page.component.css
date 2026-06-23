@@ -931,6 +931,19 @@ td.center-column {
   white-space: nowrap;
 }
 
+.shared-base-alert {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 280px;
+  padding: 5px 8px;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
 .moodle-id {
   white-space: nowrap;
 }

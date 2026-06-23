@@ -20,6 +20,8 @@ export interface AcademicAssignment {
   observations: string;
   shared: boolean;
   sourceAssignmentId: string;
+  sharedGroups?: string[];
+  sharedPrograms?: string[];
   special: boolean;
   studentEnrollments: string;
   createdBy: string;
@@ -51,6 +53,8 @@ export interface UpsertAssignmentPayload {
   observations: string;
   shared: boolean;
   sourceAssignmentId?: string;
+  sharedGroups?: string[];
+  sharedPrograms?: string[];
   special?: boolean;
   studentEnrollments?: string;
   createdBy: string;
@@ -93,7 +97,9 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       status: payload.status,
       observations: payload.observations.trim(),
       shared: payload.shared,
-      sourceAssignmentId: payload.shared ? payload.sourceAssignmentId?.trim() ?? '' : '',
+      sourceAssignmentId: payload.sourceAssignmentId?.trim() ?? '',
+      sharedGroups: this.normalizeList(payload.sharedGroups ?? []),
+      sharedPrograms: this.normalizeList(payload.sharedPrograms ?? []),
       special: payload.special ?? false,
       studentEnrollments: payload.studentEnrollments?.trim() ?? '',
       createdBy: currentAssignment?.createdBy ?? payload.createdBy,
@@ -136,7 +142,7 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
         && assignment.cycle === normalizedCycle
         && assignment.normalizedMoodleId === normalizedMoodleId
         && assignment.subjectId === normalizedSubjectId
-        && !assignment.shared;
+        && !assignment.sourceAssignmentId;
     });
   }
 
@@ -154,5 +160,11 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
 
   private normalizeName(value: string): string {
     return value.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
+  private normalizeList(values: string[]): string[] {
+    return Array.from(new Set(
+      values.map((value) => value.trim().toUpperCase()).filter(Boolean),
+    ));
   }
 }

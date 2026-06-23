@@ -361,6 +361,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     return this.assignments().filter((assignment) => {
       return !this.isAssignmentDeleted(assignment)
         && assignment.cycle === activeCycle.code
+        && !this.shouldHideLegacySharedDestination(assignment)
         && this.assignmentMatchesCatalogScope(assignment);
     });
   });
@@ -396,7 +397,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         && assignment.id !== this.editingAssignmentId
         && assignment.cycle === this.assignmentForm.cycle
         && allowedOrigin
-        && !assignment.shared
+        && !assignment.sourceAssignmentId
         && !assignment.special;
     }).sort((a, b) => a.group.localeCompare(b.group, 'es')),
   );
@@ -527,20 +528,20 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.formMessage = '';
     this.shareGroupSearch.set('');
     this.activeComboField = null;
-    const sourceAssignment = assignment.shared ? this.assignmentById(assignment.sourceAssignmentId) : null;
+    const sharedGroups = this.assignmentSharedGroups(assignment);
     this.assignmentForm = {
       cycle: assignment.cycle,
       program: assignment.program,
-      group: sourceAssignment?.group ?? assignment.group,
+      group: assignment.group,
       subjectId: assignment.subjectId,
       moodleId: assignment.moodleId,
       teacherMoodleUser: assignment.teacherMoodleUser,
       status: 'EN_CAPTURA',
       observations: assignment.observations,
-      shared: assignment.shared,
-      sourceAssignmentId: assignment.sourceAssignmentId,
-      sharedGroupCount: assignment.shared ? 1 : 0,
-      shareGroups: assignment.shared ? [assignment.group] : [],
+      shared: sharedGroups.length > 0,
+      sourceAssignmentId: '',
+      sharedGroupCount: sharedGroups.length,
+      shareGroups: sharedGroups,
       special: assignment.special ?? false,
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
@@ -550,6 +551,11 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   async deleteAssignment(assignment: AcademicAssignment): Promise<void> {
     if (!this.canDeleteAssignment(assignment)) {
+      return;
+    }
+
+    if (this.isSharedFromAnotherCoordination(assignment)) {
+      await this.removeSharedParticipation(assignment);
       return;
     }
 
@@ -656,54 +662,12 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     try {
       const wasEditing = this.editingAssignmentId !== null;
-
-      if (currentAssignment?.shared && this.assignmentForm.shared && shareGroups.length === 1) {
-        const shareGroup = shareGroups[0];
-        const sharedEditPayload: UpsertAssignmentPayload = {
-          id: this.editingAssignmentId,
-          cycle: this.assignmentForm.cycle,
-          program: this.programCodeForWrite(shareGroup.programAbbreviation),
-          group: shareGroup.fullGroup,
-          subjectId: subject.subjectId,
-          subjectName: subject.name,
-          moodleId: this.assignmentForm.moodleId,
-          teacherMoodleUser: this.selectedTeacherMoodleUser(),
-          teacherName: this.selectedTeacherName(),
-          status: 'EN_CAPTURA',
-          observations: this.assignmentForm.observations,
-          shared: true,
-          sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
-          special: false,
-          studentEnrollments: this.normalizedStudentEnrollments(),
-          ...actor,
-        };
-        const sharedAssignmentId = await this.assignmentsRepository.upsertAssignment(sharedEditPayload);
-
-        this.auditLogRepository.register({
-          module: 'Asignaciones',
-          action: 'ASIGNACION_EDITADA',
-          description: `Se actualizo la asignacion compartida ${subject.subjectId} para ${shareGroup.fullGroup}.`,
-          user: actor.createdByName,
-          userRole: actor.createdByRole,
-          entity: 'asignaciones',
-          entityId: sharedAssignmentId,
-          metadata: {
-            cycle: sharedEditPayload.cycle,
-            program: sharedEditPayload.program,
-            originalProgram: shareGroup.programAbbreviation,
-            group: sharedEditPayload.group,
-            subjectId: sharedEditPayload.subjectId,
-            moodleId: this.assignmentsRepository.normalizeMoodleId(sharedEditPayload.moodleId),
-            status: sharedEditPayload.status,
-            shared: sharedEditPayload.shared,
-            sourceAssignmentId: sharedEditPayload.sourceAssignmentId ?? '',
-          },
-        });
-
-        this.showTemporaryFormMessage('Asignacion actualizada correctamente.');
-        this.closeAssignmentModal();
-        return;
-      }
+      const sharedGroupNames = this.assignmentForm.shared
+        ? shareGroups.map((shareGroup) => shareGroup.fullGroup)
+        : [];
+      const sharedPrograms = this.assignmentForm.shared
+        ? this.sharedProgramsForGroups(sharedGroupNames)
+        : [];
 
       const basePayload: UpsertAssignmentPayload = {
         id: this.editingAssignmentId,
@@ -717,8 +681,10 @@ export class AssignmentsPageComponent implements OnDestroy {
         teacherName: this.selectedTeacherName(),
         status: 'EN_CAPTURA',
         observations: this.assignmentForm.observations,
-        shared: false,
-        sourceAssignmentId: this.assignmentForm.sourceAssignmentId,
+        shared: sharedGroupNames.length > 0,
+        sourceAssignmentId: '',
+        sharedGroups: sharedGroupNames,
+        sharedPrograms,
         special: this.assignmentForm.special,
         studentEnrollments: this.normalizedStudentEnrollments(),
         ...actor,
@@ -728,21 +694,10 @@ export class AssignmentsPageComponent implements OnDestroy {
 
       if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
         for (const shareGroup of shareGroups) {
-          const sharedPayload: UpsertAssignmentPayload = {
-            ...basePayload,
-            id: null,
-            program: this.programCodeForWrite(shareGroup.programAbbreviation),
-            group: shareGroup.fullGroup,
-            shared: true,
-            sourceAssignmentId: assignmentId,
-            special: false,
-          };
-          const sharedAssignmentId = await this.assignmentsRepository.upsertAssignment(sharedPayload);
-          createdAssignmentIds.push(sharedAssignmentId);
           this.notifySystemsAboutSharedClass(
             actor,
-            sharedAssignmentId,
-            sharedPayload.cycle,
+            assignmentId,
+            basePayload.cycle,
             subject.subjectId,
             subject.name,
             group?.fullGroup ?? '',
@@ -752,22 +707,23 @@ export class AssignmentsPageComponent implements OnDestroy {
 
           this.auditLogRepository.register({
             module: 'Asignaciones',
-            action: 'ASIGNACION_COMPARTIDA_CREADA',
+            action: this.editingAssignmentId ? 'ASIGNACION_COMPARTIDA_EDITADA' : 'ASIGNACION_COMPARTIDA_CREADA',
             description: `Se compartio la asignacion ${subject.subjectId} de ${group?.fullGroup} con ${shareGroup.fullGroup}.`,
             user: actor.createdByName,
             userRole: actor.createdByRole,
             entity: 'asignaciones',
-            entityId: sharedAssignmentId,
+            entityId: assignmentId,
             metadata: {
-              cycle: sharedPayload.cycle,
-              program: sharedPayload.program,
+              cycle: basePayload.cycle,
+              program: basePayload.program,
               originalProgram: shareGroup.programAbbreviation,
-              group: sharedPayload.group,
-              subjectId: sharedPayload.subjectId,
-              moodleId: this.assignmentsRepository.normalizeMoodleId(sharedPayload.moodleId),
-              status: sharedPayload.status,
-              shared: sharedPayload.shared,
-              sourceAssignmentId: sharedPayload.sourceAssignmentId ?? '',
+              group: shareGroup.fullGroup,
+              subjectId: basePayload.subjectId,
+              moodleId: this.assignmentsRepository.normalizeMoodleId(basePayload.moodleId),
+              status: basePayload.status,
+              shared: basePayload.shared,
+              sharedGroups: basePayload.sharedGroups ?? [],
+              sharedPrograms: basePayload.sharedPrograms ?? [],
             },
           });
         }
@@ -790,7 +746,8 @@ export class AssignmentsPageComponent implements OnDestroy {
           moodleId: this.assignmentsRepository.normalizeMoodleId(basePayload.moodleId),
           status: basePayload.status,
           shared: basePayload.shared,
-          sourceAssignmentId: basePayload.sourceAssignmentId ?? '',
+          sharedGroups: basePayload.sharedGroups ?? [],
+          sharedPrograms: basePayload.sharedPrograms ?? [],
         },
       });
 
@@ -809,6 +766,75 @@ export class AssignmentsPageComponent implements OnDestroy {
       console.error('No se pudo guardar la asignacion', error);
       this.formMessage = '';
       this.formErrors = [`No se pudo guardar la asignacion. ${this.readFirebaseMessage(error)}`];
+    }
+  }
+
+  private async removeSharedParticipation(assignment: AcademicAssignment): Promise<void> {
+    const userSharedGroups = this.assignmentSharedGroupsForCurrentUser(assignment);
+
+    if (!userSharedGroups.length) {
+      return;
+    }
+
+    const confirmed = await this.confirmationDialogService.confirm({
+      title: 'Retirar clase compartida',
+      message: `Se retirara tu grupo de esta clase compartida.\nGrupo base: ${assignment.group}.\nGrupos a retirar:\n- ${userSharedGroups.join('\n- ')}`,
+      confirmLabel: 'Retirar',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const actor = this.actorData();
+    const remainingSharedGroups = this.assignmentSharedGroups(assignment)
+      .filter((group) => !userSharedGroups.includes(group));
+
+    try {
+      await this.assignmentsRepository.upsertAssignment({
+        id: assignment.id,
+        cycle: assignment.cycle,
+        program: assignment.program,
+        group: assignment.group,
+        subjectId: assignment.subjectId,
+        subjectName: assignment.subjectName,
+        moodleId: assignment.moodleId,
+        teacherMoodleUser: assignment.teacherMoodleUser,
+        teacherName: assignment.teacherName,
+        status: assignment.status,
+        observations: assignment.observations,
+        shared: remainingSharedGroups.length > 0,
+        sourceAssignmentId: '',
+        sharedGroups: remainingSharedGroups,
+        sharedPrograms: this.sharedProgramsForGroups(remainingSharedGroups),
+        special: assignment.special,
+        studentEnrollments: assignment.studentEnrollments,
+        ...actor,
+      });
+      this.showTemporaryFormMessage('Clase compartida retirada correctamente.');
+      this.formErrors = [];
+
+      await this.auditLogRepository.register({
+        module: 'Asignaciones',
+        action: 'ASIGNACION_COMPARTIDA_RETIRADA',
+        description: `Se retiro la participacion compartida de ${userSharedGroups.join(', ')} en la asignacion ${assignment.subjectId}.`,
+        user: actor.createdByName,
+        userRole: actor.createdByRole,
+        entity: 'asignaciones',
+        entityId: assignment.id,
+        metadata: {
+          cycle: assignment.cycle,
+          moodleId: assignment.moodleId,
+          removedGroups: userSharedGroups,
+          remainingSharedGroups,
+        },
+      });
+    } catch (error) {
+      console.error('No se pudo retirar la clase compartida', error);
+      this.formMessage = '';
+      this.formErrors = [`No se pudo retirar la clase compartida. ${this.readFirebaseMessage(error)}`];
     }
   }
 
@@ -1327,22 +1353,18 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   isSharedInTable(assignment: AcademicAssignment): boolean {
-    return assignment.shared || this.sharedDestinationAssignments(assignment).length > 0;
+    return this.assignmentSharedGroups(assignment).length > 0;
   }
 
   sharedAssignmentDetails(assignment: AcademicAssignment): string {
-    const baseId = this.sharedBaseAssignmentId(assignment);
-    const baseAssignment = this.assignmentById(baseId);
-    const baseGroup = baseAssignment?.group || (!assignment.shared ? assignment.group : 'origen no identificado');
-    const destinationGroups = this.sharedDestinationAssignments(assignment)
-      .map((item) => item.group)
-      .filter(Boolean);
+    const baseGroup = assignment.group || 'origen no identificado';
+    const destinationGroups = this.assignmentSharedGroups(assignment);
 
     if (!destinationGroups.length) {
       return `Clase compartida. Grupo base: ${baseGroup}.`;
     }
 
-    return `Grupo base: ${baseGroup}. Comparte con: ${destinationGroups.join(', ')}.`;
+    return `Grupo base: ${baseGroup}.\nComparte con:\n- ${destinationGroups.join('\n- ')}`;
   }
 
   async showSharedAssignmentDetails(assignment: AcademicAssignment): Promise<void> {
@@ -1350,6 +1372,22 @@ export class AssignmentsPageComponent implements OnDestroy {
       title: 'Clase compartida',
       message: this.sharedAssignmentDetails(assignment),
     });
+  }
+
+  isSharedFromAnotherCoordination(assignment: AcademicAssignment): boolean {
+    return !this.canSeeAllAssignments()
+      && !this.isAssignedProgram(assignment.program)
+      && this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
+  }
+
+  sharedBaseWarning(assignment: AcademicAssignment): string {
+    const userGroups = this.assignmentSharedGroupsForCurrentUser(assignment);
+
+    if (!userGroups.length) {
+      return 'Grupo base de otra coordinacion.';
+    }
+
+    return `Grupo base de otra coordinacion. Tu grupo vinculado: ${userGroups.join(', ')}.`;
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
@@ -1384,8 +1422,57 @@ export class AssignmentsPageComponent implements OnDestroy {
       .sort((a, b) => a.group.localeCompare(b.group, 'es'));
   }
 
+  private assignmentSharedGroups(assignment: AcademicAssignment): string[] {
+    const storedGroups = assignment.sharedGroups ?? [];
+
+    if (storedGroups.length) {
+      return Array.from(new Set(storedGroups.map((group) => group.trim().toUpperCase()).filter(Boolean)))
+        .sort((a, b) => a.localeCompare(b, 'es'));
+    }
+
+    if (assignment.sourceAssignmentId) {
+      return [assignment.group].filter(Boolean);
+    }
+
+    return this.sharedDestinationAssignments(assignment)
+      .map((item) => item.group)
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, 'es'));
+  }
+
+  private assignmentSharedGroupsForCurrentUser(assignment: AcademicAssignment): string[] {
+    return this.assignmentSharedGroups(assignment)
+      .filter((fullGroup) => {
+        const group = this.groups().find((item) => item.fullGroup === fullGroup);
+
+        return group ? this.isAssignedProgram(group.programAbbreviation) : false;
+      });
+  }
+
+  private assignmentPrograms(assignment: AcademicAssignment): string[] {
+    const programs = new Set<string>([assignment.program]);
+
+    (assignment.sharedPrograms ?? []).forEach((program) => programs.add(program));
+    this.assignmentSharedGroups(assignment).forEach((fullGroup) => {
+      const group = this.groups().find((item) => item.fullGroup === fullGroup);
+
+      if (group?.programAbbreviation) {
+        programs.add(group.programAbbreviation);
+      }
+    });
+
+    return Array.from(programs).map((program) => program.trim().toUpperCase()).filter(Boolean);
+  }
+
+  private shouldHideLegacySharedDestination(assignment: AcademicAssignment): boolean {
+    return Boolean(
+      assignment.sourceAssignmentId
+      && this.assignmentById(assignment.sourceAssignmentId),
+    );
+  }
+
   private assignmentsToDelete(assignment: AcademicAssignment): AcademicAssignment[] {
-    if (assignment.shared) {
+    if (assignment.sharedGroups?.length || assignment.sourceAssignmentId) {
       return [assignment];
     }
 
@@ -1408,7 +1495,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private canModifyAssignment(assignment: AcademicAssignment): boolean {
     return this.canSeeAllAssignments()
-      || this.isAssignedProgram(assignment.program);
+      || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
   }
 
   private assignmentStatusMatchesFilter(assignment: AcademicAssignment): boolean {
@@ -1444,7 +1531,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private assignmentInCurrentScope(assignment: AcademicAssignment, tab = this.modeTab()): boolean {
     const activeCycle = this.activeCycle();
     const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
-    const matchesTab = this.assignmentMode(assignment) === tab;
+    const matchesTab = this.assignmentMatchesModeTab(assignment, tab);
 
     return this.canViewAssignments()
       && matchesCycle
@@ -1455,7 +1542,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
     return this.isGlobalCatalogVisible()
       || this.wasAssignmentCreatedByCurrentUser(assignment)
-      || this.isAssignedProgram(assignment.program);
+      || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
   }
 
   private groupMatchesCatalogScope(_group: AcademicGroup): boolean {
@@ -1479,7 +1566,10 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (this.searchField() === 'group') {
-      return this.matchesSearchText(assignment.group, query);
+      return this.matchesSearchText([
+        assignment.group,
+        ...this.assignmentSharedGroups(assignment),
+      ].join(' '), query);
     }
 
     if (this.searchField() === 'teacher') {
@@ -1525,6 +1615,9 @@ export class AssignmentsPageComponent implements OnDestroy {
   private assignmentProgramSearchText(assignment: AcademicAssignment): string {
     const group = this.groups().find((item) => item.fullGroup === assignment.group);
     const program = this.programForAssignment(assignment);
+    const sharedGroups = this.assignmentSharedGroups(assignment)
+      .map((fullGroup) => this.groups().find((item) => item.fullGroup === fullGroup))
+      .filter((item): item is AcademicGroup => item !== undefined);
 
     return [
       assignment.program,
@@ -1532,7 +1625,24 @@ export class AssignmentsPageComponent implements OnDestroy {
       group?.programName,
       program?.code,
       program?.name,
+      ...(assignment.sharedPrograms ?? []),
+      ...sharedGroups.flatMap((sharedGroup) => [
+        sharedGroup.programAbbreviation,
+        sharedGroup.programName,
+      ]),
     ].join(' ');
+  }
+
+  private assignmentMatchesModeTab(assignment: AcademicAssignment, tab: AssignmentModeTab): boolean {
+    if (this.assignmentMode(assignment) === tab) {
+      return true;
+    }
+
+    return this.assignmentSharedGroups(assignment).some((fullGroup) => {
+      const group = this.groups().find((item) => item.fullGroup === fullGroup);
+
+      return group ? this.groupMatchesModeTab(group, tab) : false;
+    });
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
@@ -1695,34 +1805,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('El docente es obligatorio.');
     }
 
-    const currentAssignment = this.editingAssignmentId
-      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
-      : null;
-
-    if (this.assignmentForm.shared && !this.assignmentForm.sourceAssignmentId) {
-      const isCreatingSharedFromBase = !this.editingAssignmentId
-        && !this.assignmentForm.special
-        && this.assignmentForm.group
-        && this.assignmentForm.shareGroups.length > 0;
-      const isEditingBaseAsSharedOrigin = Boolean(this.editingAssignmentId)
-        && !currentAssignment?.shared
-        && !this.assignmentForm.special
-        && this.assignmentForm.group
-        && this.assignmentForm.shareGroups.length > 0;
-
-      if (!isCreatingSharedFromBase && !isEditingBaseAsSharedOrigin) {
-        errors.push('Selecciona la asignacion origen de la clase compartida.');
-      }
-    }
-
-    if (currentAssignment?.shared && this.assignmentForm.shared && this.assignmentForm.shareGroups.length !== 1) {
-      errors.push('Al editar una asignacion compartida selecciona solo un grupo destino.');
-    }
-
-    const shouldValidateBaseMoodleId = !this.assignmentForm.shared || !this.assignmentForm.sourceAssignmentId;
-
-    if (shouldValidateBaseMoodleId
-      && moodleId
+    if (moodleId
       && this.assignmentsRepository.hasMoodleIdConflict(
         this.assignmentForm.cycle,
         moodleId,
@@ -1730,13 +1813,6 @@ export class AssignmentsPageComponent implements OnDestroy {
         this.editingAssignmentId,
       )) {
       errors.push('El ID Moodle ya existe para esta materia en este ciclo. Marca clase compartida si corresponde.');
-    }
-
-    if (this.assignmentForm.shared) {
-      const source = this.assignmentById(this.assignmentForm.sourceAssignmentId);
-      if (source && source.normalizedMoodleId !== moodleId) {
-        errors.push('La asignacion compartida debe conservar el mismo ID asignatura que la asignacion origen.');
-      }
     }
 
     return errors;
@@ -1843,6 +1919,15 @@ export class AssignmentsPageComponent implements OnDestroy {
     return this.assignmentForm.shareGroups
       .map((fullGroup) => this.groups().find((group) => group.fullGroup === fullGroup) ?? null)
       .filter((group): group is AcademicGroup => group !== null);
+  }
+
+  private sharedProgramsForGroups(sharedGroups: string[]): string[] {
+    return Array.from(new Set(
+      sharedGroups
+        .map((fullGroup) => this.groups().find((group) => group.fullGroup === fullGroup)?.programAbbreviation ?? '')
+        .map((program) => this.programCodeForWrite(program))
+        .filter(Boolean),
+    ));
   }
 
   private canUseDestinationProgram(program: string): boolean {
