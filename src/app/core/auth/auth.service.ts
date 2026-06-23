@@ -42,15 +42,10 @@ export class AuthService {
     try {
       await setPersistence(this.auth, browserLocalPersistence);
 
-      if (!this.shouldUsePopupFlow()) {
-        await signInWithRedirect(this.auth, provider);
-        return;
-      }
-
       const credential = await signInWithPopup(this.auth, provider);
       await this.validateInstitutionalUser(credential.user);
     } catch (error) {
-      if (this.shouldUsePopupFlow() && this.shouldUseRedirectFallback(error)) {
+      if (this.shouldUseRedirectFallback(error)) {
         await signInWithRedirect(this.auth, provider);
         return;
       }
@@ -125,11 +120,6 @@ export class AuthService {
     return code
       ? `No se pudo completar el acceso con Google. Firebase devolvio ${code}.`
       : 'No se pudo completar el acceso con Google. Intenta nuevamente con tu correo institucional.';
-  }
-
-  private shouldUsePopupFlow(): boolean {
-    return window.location.hostname === 'localhost'
-      || window.location.hostname === '127.0.0.1';
   }
 
   private authErrorCode(error: unknown): string {
