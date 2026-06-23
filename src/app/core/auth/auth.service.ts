@@ -38,6 +38,12 @@ export class AuthService {
   async signInWithGoogle(): Promise<void> {
     this.redirectErrorSignal.set('');
     const provider = this.createGoogleProvider();
+    await setPersistence(this.auth, browserLocalPersistence);
+
+    if (!this.shouldUsePopupFlow()) {
+      await signInWithRedirect(this.auth, provider);
+      return;
+    }
 
     try {
       const credential = await signInWithPopup(this.auth, provider);
@@ -92,6 +98,7 @@ export class AuthService {
     const code = this.authErrorCode(error);
 
     return code === 'auth/popup-blocked'
+      || code === 'auth/popup-closed-by-user'
       || code === 'auth/cancelled-popup-request'
       || code === 'auth/operation-not-supported-in-this-environment';
   }
@@ -101,7 +108,24 @@ export class AuthService {
       return error.message;
     }
 
-    return 'No se pudo completar el acceso con Google. Intenta nuevamente con tu correo institucional.';
+    const code = this.authErrorCode(error);
+
+    if (code === 'auth/operation-not-allowed') {
+      return 'Google OAuth no esta habilitado en Firebase Authentication.';
+    }
+
+    if (code === 'auth/unauthorized-domain') {
+      return 'El dominio de SPAI no esta autorizado en Firebase Authentication.';
+    }
+
+    return code
+      ? `No se pudo completar el acceso con Google. Firebase devolvio ${code}.`
+      : 'No se pudo completar el acceso con Google. Intenta nuevamente con tu correo institucional.';
+  }
+
+  private shouldUsePopupFlow(): boolean {
+    return window.location.hostname === 'localhost'
+      || window.location.hostname === '127.0.0.1';
   }
 
   private authErrorCode(error: unknown): string {
