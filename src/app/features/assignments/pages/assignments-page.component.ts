@@ -314,7 +314,20 @@ export class AssignmentsPageComponent {
   });
 
   sharedGroupOptions(): AcademicGroup[] {
-    return this.destinationGroupOptions().filter((group) => group.fullGroup !== this.assignmentForm.group);
+    const activeCycle = this.activeCycle();
+
+    if (!activeCycle) {
+      return [];
+    }
+
+    return this.groups()
+      .filter((group) => {
+        return this.isActiveGroup(group)
+          && this.groupBelongsToCycle(group, activeCycle.code)
+          && this.groupMatchesModeTab(group, this.modeTab())
+          && group.fullGroup !== this.assignmentForm.group;
+      })
+      .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   }
 
   sharedGroupCountOptions(): number[] {
@@ -626,11 +639,6 @@ export class AssignmentsPageComponent {
 
     if (!this.canUseDestinationProgram(selectedProgram)) {
       this.formErrors = ['Solo puedes guardar asignaciones en tus programas asignados.'];
-      return;
-    }
-
-    if (shareGroups.some((shareGroup) => !this.canUseDestinationProgram(shareGroup.programAbbreviation))) {
-      this.formErrors = ['Solo puedes compartir asignaciones con grupos de tus programas asignados.'];
       return;
     }
 
@@ -1653,20 +1661,25 @@ export class AssignmentsPageComponent {
       errors.push('El docente es obligatorio.');
     }
 
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
+      : null;
+
     if (this.assignmentForm.shared && !this.assignmentForm.sourceAssignmentId) {
       const isCreatingSharedFromBase = !this.editingAssignmentId
         && !this.assignmentForm.special
         && this.assignmentForm.group
         && this.assignmentForm.shareGroups.length > 0;
+      const isEditingBaseAsSharedOrigin = Boolean(this.editingAssignmentId)
+        && !currentAssignment?.shared
+        && !this.assignmentForm.special
+        && this.assignmentForm.group
+        && this.assignmentForm.shareGroups.length > 0;
 
-      if (!isCreatingSharedFromBase) {
+      if (!isCreatingSharedFromBase && !isEditingBaseAsSharedOrigin) {
         errors.push('Selecciona la asignacion origen de la clase compartida.');
       }
     }
-
-    const currentAssignment = this.editingAssignmentId
-      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
-      : null;
 
     if (currentAssignment?.shared && this.assignmentForm.shared && this.assignmentForm.shareGroups.length !== 1) {
       errors.push('Al editar una asignacion compartida selecciona solo un grupo destino.');

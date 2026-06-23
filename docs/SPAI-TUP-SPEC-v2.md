@@ -999,7 +999,8 @@ Alta y edicion:
 - En la captura, el ciclo activo se muestra como solo lectura.
 - El grupo se selecciona de los grupos activos del ciclo activo y se filtra segun la pestaña operativa seleccionada.
 - Coordinacion Academica ve por defecto en la tabla principal solo asignaciones de sus programas asignados, con boton **Catalogo global** para consultar tambien asignaciones de las demas coordinaciones y las creadas por Sistemas en el ciclo activo.
-- Coordinacion Academica solo ve grupos de sus programas asignados al elegir el grupo destino de una captura.
+- Coordinacion Academica solo ve grupos de sus programas asignados al elegir el grupo base de una captura.
+- Para clase compartida, el buscador de grupos compartidos puede incluir grupos activos de otras coordinaciones dentro del ciclo y pestaña operativa seleccionada.
 - Sistemas ve todos los grupos del ciclo activo.
 - La asignatura se selecciona del catalogo global activo.
 - El docente se selecciona del catalogo global validado.
@@ -1047,7 +1048,8 @@ Clases compartidas en tabla:
 - El visor de clase compartida debe indicar grupo base y grupos con los que comparte.
 - La tabla ya no inicia el flujo con boton Compartir o Solicitar.
 - El flujo de clase compartida se captura desde el modal de Asignaciones o se formaliza desde Solicitudes cuando aplique.
-- El grupo destino debe pertenecer a uno de los programas asignados al coordinador que captura, salvo Sistemas.
+- El grupo destino compartido puede pertenecer a otra Coordinacion Academica; la restriccion de programas asignados solo aplica al grupo base que captura la coordinacion.
+- Al editar una asignacion base para convertirla en clase compartida, la asignacion editada funciona como origen y no debe pedir seleccionar una asignacion origen adicional.
 - No se permite encadenar una asignacion compartida como origen de otra compartida.
 
 Estados sugeridos:
