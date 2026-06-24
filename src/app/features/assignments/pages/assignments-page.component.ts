@@ -1730,7 +1730,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
-    if (assignment.special || this.hasStudentEnrollments(assignment.studentEnrollments)) {
+    if (assignment.special) {
       return 'Especiales';
     }
 
