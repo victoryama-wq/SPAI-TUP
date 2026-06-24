@@ -202,12 +202,12 @@ service cloud.firestore {
     }
 
     function canCreateOwnAssignment() {
-      return isAcademicCoordinator()
+      return hasInstitutionalEmail()
         && request.resource.data.createdBy == request.auth.uid;
     }
 
     function canWriteOwnAssignment() {
-      return isAcademicCoordinator()
+      return hasInstitutionalEmail()
         && resource.data.createdBy == request.auth.uid;
     }
 
