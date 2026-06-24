@@ -401,7 +401,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         && assignment.cycle === this.assignmentForm.cycle
         && allowedOrigin
         && !assignment.sourceAssignmentId
-        && !assignment.special;
+        && !this.isSpecialAssignment(assignment);
     }).sort((a, b) => a.group.localeCompare(b.group, 'es')),
   );
 
@@ -547,7 +547,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       sourceAssignmentId: '',
       sharedGroupCount: sharedGroups.length,
       shareGroups: sharedGroups,
-      special: assignment.special ?? false,
+      special: this.isSpecialAssignment(assignment),
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
     this.syncPickerInputsFromForm();
@@ -570,7 +570,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       title: relatedCount > 1 ? 'Eliminar clase compartida' : 'Eliminar asignacion',
       message: relatedCount > 1
         ? `Esta asignacion tiene ${relatedCount - 1} grupo(s) compartido(s). Se eliminaran ${relatedCount} registros relacionados.`
-        : `Se eliminara la asignacion ${assignment.moodleId} para ${assignment.special ? 'caso especial' : assignment.group}.`,
+        : `Se eliminara la asignacion ${assignment.moodleId} para ${this.isSpecialAssignment(assignment) ? 'caso especial' : assignment.group}.`,
       confirmLabel: 'Eliminar',
       cancelLabel: 'Cancelar',
       tone: 'danger',
@@ -601,7 +601,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         action: relatedCount > 1 ? 'ASIGNACIONES_COMPARTIDAS_ELIMINADAS' : 'ASIGNACION_ELIMINADA',
         description: relatedCount > 1
           ? `Se eliminaron ${relatedCount} asignaciones relacionadas con una clase compartida.`
-          : `Se elimino la asignacion ${assignment.moodleId} para ${assignment.special ? 'caso especial' : assignment.group}.`,
+          : `Se elimino la asignacion ${assignment.moodleId} para ${this.isSpecialAssignment(assignment) ? 'caso especial' : assignment.group}.`,
         user: actor.createdByName,
         userRole: actor.createdByRole,
         entity: 'asignaciones',
@@ -834,7 +834,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         sourceAssignmentId: '',
         sharedGroups: remainingSharedGroups,
         sharedPrograms: this.sharedProgramsForGroups(remainingSharedGroups),
-        special: assignment.special,
+        special: this.isSpecialAssignment(assignment),
         studentEnrollments: assignment.studentEnrollments,
         ...actor,
       });
@@ -1687,7 +1687,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   assignmentProgramLabel(assignment: AcademicAssignment): string {
-    if (assignment.special) {
+    if (this.isSpecialAssignment(assignment)) {
       return assignment.program;
     }
 
@@ -1730,7 +1730,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
-    if (assignment.special) {
+    if (this.isSpecialAssignment(assignment)) {
       return 'Especiales';
     }
 
@@ -2305,6 +2305,11 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private hasStudentEnrollments(studentEnrollments?: string): boolean {
     return Boolean(studentEnrollments?.trim());
+  }
+
+  isSpecialAssignment(assignment: AcademicAssignment): boolean {
+    return !assignment.group?.trim()
+      && (Boolean(assignment.special) || this.hasStudentEnrollments(assignment.studentEnrollments));
   }
 
   private normalizeSearchText(value: string): string {

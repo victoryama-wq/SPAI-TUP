@@ -191,8 +191,8 @@
             <td><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
             <td>
               <div class="stacked-cell">
-                <strong>{{ assignment.special ? 'Caso especial' : assignment.group }}</strong>
-                @if (assignment.special) {
+                <strong>{{ isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group }}</strong>
+                @if (isSpecialAssignment(assignment)) {
                   <small>Sin grupo base</small>
                 } @else if (isSharedFromAnotherCoordination(assignment)) {
                   <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
