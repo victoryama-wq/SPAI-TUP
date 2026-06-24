@@ -334,6 +334,17 @@ th {
   border-color: #93c5fd;
 }
 
+.scope-toggle-action:disabled {
+  background: #f1f5f9;
+  border-color: #d7e4f8;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.report-download-action {
+  background: #f8fbff;
+}
+
 .scope-status-action {
   cursor: default;
 }
@@ -1622,6 +1633,8 @@ td.center-column {
   }
 
   .header-actions,
+  .report-download-action,
+  .scope-toggle-action,
   .primary-action {
     width: 100%;
   }

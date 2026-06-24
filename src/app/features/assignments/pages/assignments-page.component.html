@@ -86,6 +86,18 @@
                 <span>Catalogo global</span>
               </span>
             }
+            <button
+              class="scope-toggle-action report-download-action"
+              type="button"
+              [disabled]="!reportAssignments().length"
+              [title]="reportAssignments().length ? 'Descargar reporte de asignaciones en Excel' : 'No hay asignaciones para descargar'"
+              (click)="downloadAssignmentsReport()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"></path>
+              </svg>
+              <span>Reporte Excel</span>
+            </button>
             <span class="cycle-chip" [class.pending]="!activeCycle()">
               Ciclo activo
               <strong>{{ activeCycleCode() }}</strong>

@@ -381,6 +381,38 @@ export class AssignmentsPageComponent implements OnDestroy {
     }),
   );
 
+  readonly reportAssignments = computed(() => {
+    const activeCycle = this.activeCycle();
+
+    if (!activeCycle || !this.canViewAssignments()) {
+      return [];
+    }
+
+    return this.assignments()
+      .filter((assignment) => {
+        if (this.isAssignmentDeleted(assignment)
+          || assignment.cycle !== activeCycle.code
+          || this.shouldHideLegacySharedDestination(assignment)) {
+          return false;
+        }
+
+        if (this.canSeeAllAssignments()) {
+          return true;
+        }
+
+        return this.wasAssignmentLoadedByCurrentUser(assignment);
+      })
+      .sort((a, b) => {
+        const programComparison = a.program.localeCompare(b.program, 'es');
+
+        if (programComparison !== 0) {
+          return programComparison;
+        }
+
+        return (a.group || a.subjectName).localeCompare(b.group || b.subjectName, 'es');
+      });
+  });
+
   readonly modeTabs = computed(() => {
     const tabs: AssignmentModeTab[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales'];
 
@@ -925,6 +957,53 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.catalogScope.update((scope) => scope === 'GLOBAL' ? 'OWN' : 'GLOBAL');
     this.searchQuery.set('');
     this.isSearchMenuOpen = false;
+  }
+
+  downloadAssignmentsReport(): void {
+    const assignments = this.reportAssignments();
+
+    if (!assignments.length) {
+      this.showTemporaryFormMessage('No hay asignaciones disponibles para descargar.');
+      return;
+    }
+
+    const activeCycle = this.activeCycleCode();
+    const rows = [
+      ['SPAI TUP - Reporte de asignaciones'],
+      ['Ciclo', activeCycle],
+      ['Alcance', this.canSeeAllAssignments() ? 'Catalogo global' : 'Capturas propias'],
+      ['Generado', this.formatReportDateTime(new Date())],
+      [],
+      [
+        'ID Moodle',
+        'ID SPAI',
+        'Materia',
+        'Docente',
+        'Usuario Moodle docente',
+        'Carrera',
+        'Grupo base',
+        'Clase compartida',
+        'Comparte con',
+        'Estado',
+        'Modalidad',
+        'Matricula(s)',
+        'Observaciones',
+        'Capturado por',
+        'Fecha de captura',
+        'Ultima actualizacion',
+      ],
+      ...assignments.map((assignment) => this.assignmentReportRow(assignment)),
+    ];
+    const workbook = this.buildExcelWorkbook(rows);
+    const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = this.reportFileName(activeCycle);
+    anchor.click();
+    URL.revokeObjectURL(url);
+    this.showTemporaryFormMessage(`Reporte generado con ${assignments.length} asignacion(es).`);
   }
 
   catalogScopeLabel(): string {
@@ -1546,6 +1625,21 @@ export class AssignmentsPageComponent implements OnDestroy {
     return currentUserIds.has(assignment.createdBy);
   }
 
+  private wasAssignmentLoadedByCurrentUser(assignment: AcademicAssignment): boolean {
+    if (this.wasAssignmentCreatedByCurrentUser(assignment)) {
+      return true;
+    }
+
+    const session = this.session();
+    const appUser = session?.appUser;
+    const currentUserNames = [
+      appUser?.name,
+      session?.displayName,
+    ].map((value) => this.normalizeSearchText(value ?? '')).filter(Boolean);
+
+    return currentUserNames.includes(this.normalizeSearchText(assignment.createdByName));
+  }
+
   private canModifyAssignment(assignment: AcademicAssignment): boolean {
     return this.canSeeAllAssignments()
       || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
@@ -1826,6 +1920,80 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     clearTimeout(this.formMessageTimeout);
     this.formMessageTimeout = null;
+  }
+
+  private assignmentReportRow(assignment: AcademicAssignment): string[] {
+    const sharedGroups = this.assignmentSharedGroups(assignment);
+
+    return [
+      assignment.moodleId,
+      assignment.subjectId,
+      assignment.subjectName,
+      assignment.teacherName,
+      assignment.teacherMoodleUser,
+      this.assignmentProgramLabel(assignment),
+      this.isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group,
+      sharedGroups.length ? 'Si' : 'No',
+      sharedGroups.join(', '),
+      this.statusLabel(assignment.status),
+      this.assignmentMode(assignment),
+      assignment.studentEnrollments,
+      assignment.observations,
+      assignment.createdByName,
+      this.formatReportDateTime(assignment.createdAt),
+      this.formatReportDateTime(assignment.updatedAt),
+    ];
+  }
+
+  private buildExcelWorkbook(rows: string[][]): string {
+    const worksheetRows = rows.map((row) => {
+      const cells = row.map((cell) => {
+        return `<Cell><Data ss:Type="String">${this.escapeXml(cell)}</Data></Cell>`;
+      }).join('');
+
+      return `<Row>${cells}</Row>`;
+    }).join('');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="Asignaciones">
+    <Table>${worksheetRows}</Table>
+  </Worksheet>
+</Workbook>`;
+  }
+
+  private reportFileName(cycle: string): string {
+    const scope = this.canSeeAllAssignments() ? 'catalogo-global' : 'mis-capturas';
+    const normalizedCycle = cycle.toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+    const date = new Date().toISOString().slice(0, 10);
+
+    return `spai-asignaciones-${scope}-${normalizedCycle}-${date}.xls`;
+  }
+
+  private formatReportDateTime(value: string | Date): string {
+    const date = value instanceof Date ? value : new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleString('es-MX', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+  }
+
+  private escapeXml(value: string): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
   private readFirebaseMessage(error: unknown): string {
