@@ -84,7 +84,7 @@ export class SystemNotificationsRepository {
         : query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
             where('target', '==', 'COORDINACION_ACADEMICA'),
-            where('targetUserId', '==', session.authUid),
+            where('targetUserId', 'in', this.notificationTargetIds(session.authUid, session.email, appUser)),
             limit(25),
           );
       const unsubscribe = onSnapshot(
@@ -93,7 +93,7 @@ export class SystemNotificationsRepository {
           this.notificationsSignal.set(
             snapshot.docs
               .map((item) => ({ id: item.id, ...item.data() }) as SystemNotification)
-              .filter((notification) => this.canSeeNotification(notification, session.authUid, appUser.role))
+              .filter((notification) => this.canSeeNotification(notification, session.authUid, session.email, appUser))
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
           );
         },
@@ -239,12 +239,21 @@ export class SystemNotificationsRepository {
     return this.normalizeRole(role).includes('sistemas');
   }
 
-  private canSeeNotification(notification: SystemNotification, authUid: string, role: string): boolean {
+  private canSeeNotification(notification: SystemNotification, authUid: string, email: string, appUser: { id: string; authUid: string | null; email: string; role: string }): boolean {
     if (notification.target === 'SISTEMAS') {
-      return this.isSystemsUser(role);
+      return this.isSystemsUser(appUser.role);
     }
 
-    return notification.target === 'COORDINACION_ACADEMICA' && notification.targetUserId === authUid;
+    return notification.target === 'COORDINACION_ACADEMICA'
+      && this.notificationTargetIds(authUid, email, appUser).includes(notification.targetUserId ?? '');
+  }
+
+  private notificationTargetIds(authUid: string, email: string, appUser: { id: string; authUid: string | null; email: string }): string[] {
+    return Array.from(new Set([
+      authUid,
+      email.trim().toLowerCase(),
+      appUser.email.trim().toLowerCase(),
+    ].map((value) => value.trim()).filter(Boolean))).slice(0, 10);
   }
 
   private wasReadByCurrentUser(notification: SystemNotification, appUserId: string, authUid: string): boolean {

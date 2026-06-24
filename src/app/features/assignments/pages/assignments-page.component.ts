@@ -2562,7 +2562,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         type: 'CLASE_COMPARTIDA',
         entity: 'asignaciones',
         entityId: sharedAssignmentId,
-        targetUserId: target.authUid,
+        targetUserId: target.email.trim().toLowerCase(),
         actorId: actor.createdBy,
         actorName: actor.createdByName,
         actorRole: actor.createdByRole,
@@ -2573,7 +2573,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private academicNotificationTargetsForSharedGroup(
     group: AcademicGroup,
     actor: Pick<UpsertAssignmentPayload, 'createdBy'>,
-  ): Array<AppUser & { authUid: string }> {
+  ): AppUser[] {
     const destinationAliases = this.programAliases(group.programAbbreviation);
     const currentSession = this.session();
     const currentUser = currentSession?.appUser;
@@ -2583,16 +2583,30 @@ export class AssignmentsPageComponent implements OnDestroy {
       currentUser?.id,
       currentUser?.authUid,
     ].filter((value): value is string => Boolean(value)));
-
-    return this.users()
-      .filter((user): user is AppUser & { authUid: string } => Boolean(user.authUid))
+    const actorEmails = new Set([
+      currentSession?.email,
+      currentUser?.email,
+    ].map((value) => this.normalizeSearchText(value ?? '')).filter(Boolean));
+    const matchingUsers = this.users()
       .filter((user) => this.isAcademicNotificationTarget(user))
-      .filter((user) => !actorIds.has(user.id) && !actorIds.has(user.authUid))
+      .filter((user) => !actorIds.has(user.id) && !actorIds.has(user.authUid ?? ''))
+      .filter((user) => !actorEmails.has(this.normalizeSearchText(user.email)))
       .filter((user) =>
         user.assignedPrograms.some((program) =>
           Array.from(this.programAliases(program)).some((alias) => destinationAliases.has(alias)),
         ),
       );
+    const uniqueByEmail = new Map<string, AppUser>();
+
+    matchingUsers.forEach((user) => {
+      const email = user.email.trim().toLowerCase();
+
+      if (email) {
+        uniqueByEmail.set(email, user);
+      }
+    });
+
+    return Array.from(uniqueByEmail.values());
   }
 
   private isAcademicNotificationTarget(user: AppUser): boolean {

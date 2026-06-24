@@ -431,7 +431,10 @@ service cloud.firestore {
         || (
           (isActiveUser() || hasInstitutionalEmail())
           && resource.data.target == 'COORDINACION_ACADEMICA'
-          && resource.data.targetUserId == request.auth.uid
+          && (
+            resource.data.targetUserId == request.auth.uid
+            || resource.data.targetUserId == request.auth.token.email
+          )
         );
 
       allow create: if (isActiveUser() || hasInstitutionalEmail())
@@ -460,7 +463,10 @@ service cloud.firestore {
           || (
             (isActiveUser() || hasInstitutionalEmail())
             && resource.data.target == 'COORDINACION_ACADEMICA'
-            && resource.data.targetUserId == request.auth.uid
+            && (
+              resource.data.targetUserId == request.auth.uid
+              || resource.data.targetUserId == request.auth.token.email
+            )
           )
         )
         && request.resource.data.diff(resource.data).changedKeys().hasOnly(['readBy']);
