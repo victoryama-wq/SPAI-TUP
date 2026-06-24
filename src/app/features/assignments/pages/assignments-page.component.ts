@@ -10,6 +10,7 @@ import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
+import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
   AcademicAssignment,
@@ -95,6 +96,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
+  private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
@@ -106,6 +108,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly teachers = this.teachersRepository.teachers;
+  readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
@@ -702,6 +705,16 @@ export class AssignmentsPageComponent implements OnDestroy {
             subject.name,
             group?.fullGroup ?? '',
             shareGroup.fullGroup,
+            this.selectedTeacherName(),
+          );
+          this.notifyAcademicCoordinationsAboutSharedClass(
+            actor,
+            assignmentId,
+            basePayload.cycle,
+            subject.subjectId,
+            subject.name,
+            group?.fullGroup ?? '',
+            shareGroup,
             this.selectedTeacherName(),
           );
 
@@ -2354,6 +2367,78 @@ export class AssignmentsPageComponent implements OnDestroy {
       actorName: actor.createdByName,
       actorRole: actor.createdByRole,
     });
+  }
+
+  private notifyAcademicCoordinationsAboutSharedClass(
+    actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
+    sharedAssignmentId: string,
+    cycle: string,
+    subjectId: string,
+    subjectName: string,
+    sourceGroup: string,
+    destinationGroup: AcademicGroup,
+    teacherName: string,
+  ): void {
+    const targets = this.academicNotificationTargetsForSharedGroup(destinationGroup)
+      .filter((target) => target.authUid !== actor.createdBy);
+
+    if (!targets.length) {
+      return;
+    }
+
+    void Promise.all(targets.map((target) => {
+      const notificationId = [
+        'clase-compartida-coordinacion',
+        cycle,
+        sharedAssignmentId,
+        destinationGroup.fullGroup,
+        target.authUid,
+      ]
+        .join('-')
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-');
+
+      return this.systemNotificationsRepository.createForAcademicCoordinatorOnce(notificationId, {
+        title: 'Clase compartida asignada',
+        message: `${actor.createdByName} compartio contigo ${subjectId} - ${subjectName}. Grupo base: ${sourceGroup}. Grupo compartido: ${destinationGroup.fullGroup}. Docente: ${teacherName}. Ciclo ${cycle}.`,
+        type: 'CLASE_COMPARTIDA',
+        entity: 'asignaciones',
+        entityId: sharedAssignmentId,
+        targetUserId: target.authUid,
+        actorId: actor.createdBy,
+        actorName: actor.createdByName,
+        actorRole: actor.createdByRole,
+      });
+    })).catch((error) => {
+      console.warn('No se pudo crear la notificacion de clase compartida para coordinacion academica.', error);
+    });
+  }
+
+  private academicNotificationTargetsForSharedGroup(group: AcademicGroup): Array<AppUser & { authUid: string }> {
+    const aliases = this.programAliases(group.programAbbreviation);
+    const program = this.programForGroup(group);
+    const coordinator = this.normalizeSearchText(program?.coordinator ?? '');
+
+    return this.users()
+      .filter((user): user is AppUser & { authUid: string } => {
+        const role = this.normalizeSearchText(user.role);
+        const userPrograms = user.assignedPrograms
+          .map((assignedProgram) => assignedProgram.trim().toUpperCase());
+        const matchesAssignedProgram = userPrograms.some((assignedProgram) => aliases.has(assignedProgram));
+        const matchesCoordinator = Boolean(coordinator)
+          && [
+            user.name,
+            user.email,
+            user.id,
+            user.authUid ?? '',
+          ].some((value) => this.normalizeSearchText(value) === coordinator);
+
+        return user.status === 'Activo'
+          && Boolean(user.authUid)
+          && role.includes('acad')
+          && !role.includes('sistemas')
+          && (matchesAssignedProgram || matchesCoordinator);
+      });
   }
 
   private emptyForm(cycle = '', special = false): AssignmentFormState {

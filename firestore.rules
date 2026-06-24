@@ -429,6 +429,14 @@ service cloud.firestore {
             && request.resource.data.targetUserId is string
             && request.resource.data.targetUserId != ''
           )
+          || (
+            request.resource.data.type == 'CLASE_COMPARTIDA'
+            && hasInstitutionalEmail()
+            && request.resource.data.actorId == request.auth.uid
+            && request.resource.data.target == 'COORDINACION_ACADEMICA'
+            && request.resource.data.targetUserId is string
+            && request.resource.data.targetUserId != ''
+          )
         );
 
       allow update: if (
