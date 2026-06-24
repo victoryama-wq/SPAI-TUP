@@ -79,8 +79,7 @@ export class SystemNotificationsRepository {
       const notificationsQuery = this.isSystemsUser(appUser.role)
         ? query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
-            where('target', '==', 'SISTEMAS'),
-            limit(50),
+            limit(100),
           )
         : query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
@@ -249,9 +248,11 @@ export class SystemNotificationsRepository {
   }
 
   private wasReadByCurrentUser(notification: SystemNotification, appUserId: string, authUid: string): boolean {
+    const readBy = Array.isArray(notification.readBy) ? notification.readBy : [];
+
     return this.locallyReadNotificationIds().has(notification.id)
-      || notification.readBy.includes(appUserId)
-      || notification.readBy.includes(authUid);
+      || readBy.includes(appUserId)
+      || readBy.includes(authUid);
   }
 
   private normalizeRole(role: string): string {
