@@ -372,7 +372,7 @@
         @for (group of paginatedGroups(); track group.id) {
           <tr>
             <td><strong class="group-code">{{ group.fullGroup }}</strong></td>
-            <td>{{ group.cycleCode }}</td>
+            <td>{{ groupCycleCode(group) || '-' }}</td>
             <td>
               <div class="stacked-cell">
                 <strong>{{ group.programAbbreviation }}</strong>

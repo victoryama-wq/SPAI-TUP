@@ -129,7 +129,9 @@ export class GroupsPageComponent {
       return scopedGroups;
     }
 
-    return scopedGroups.filter((group) => group.cycleCode === this.selectedCycleCode);
+    const selectedCycle = this.normalizeCycleCode(this.selectedCycleCode);
+
+    return scopedGroups.filter((group) => this.groupCycleCode(group) === selectedCycle);
   });
 
   readonly visibleGroups = computed(() => {
@@ -145,7 +147,7 @@ export class GroupsPageComponent {
       const searchableText = this.normalizeSearchText(
         [
           group.fullGroup,
-          group.cycleCode,
+          this.groupCycleCode(group),
           group.programAbbreviation,
           group.programName,
           group.groupCode,
@@ -481,6 +483,16 @@ export class GroupsPageComponent {
     return cycle ? `${cycle.code} - ${cycle.label}` : cycleCode;
   }
 
+  groupCycleCode(group: AcademicGroup): string {
+    const storedCycle = this.normalizeCycleCode(group.cycleCode);
+
+    if (storedCycle) {
+      return storedCycle;
+    }
+
+    return this.extractCycleCodeFromGroup(group.fullGroup);
+  }
+
   manualGroupCycleCode(): string {
     return this.activeCycle()?.code ?? this.selectedCycleCode;
   }
@@ -784,6 +796,24 @@ export class GroupsPageComponent {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, ' ')
       .trim();
+  }
+
+  private normalizeCycleCode(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .replace(/[‐‑‒–—]/g, '-')
+      .replace(/\s*-\s*/g, '-')
+      .replace(/\s+/g, '');
+  }
+
+  private extractCycleCodeFromGroup(fullGroup: string): string {
+    const normalizedGroup = normalizeFullGroup(fullGroup)
+      .replace(/[‐‑‒–—]/g, '-')
+      .replace(/\s*-\s*/g, '-');
+    const match = normalizedGroup.match(/^(\d{2}-\d)\b/);
+
+    return match ? match[1] : '';
   }
 
   private normalizeIdentity(value: string): string {
