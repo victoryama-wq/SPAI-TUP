@@ -269,7 +269,7 @@ export class UsersPageComponent {
 
     const payload = this.getPayloadFromForm();
     const duplicateUser = this.users().find(
-      (user) => user.email === payload.email && user.id !== this.editingUserId,
+      (user) => user.email === payload.email && user.id !== this.editingUserId && user.status === 'Activo',
     );
 
     if (duplicateUser) {
@@ -434,6 +434,7 @@ export class UsersPageComponent {
       }
 
       return user.role.toLowerCase().includes('acad')
+        && user.status === 'Activo'
         && user.assignedPrograms
           .map((assignedProgram) => this.normalizeProgramCode(assignedProgram))
           .some((assignedProgram) => aliases.has(assignedProgram));

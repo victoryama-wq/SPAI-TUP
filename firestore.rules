@@ -408,7 +408,7 @@ service cloud.firestore {
     match /notificaciones/{notificationId} {
       allow read: if isSystemsMember()
         || (
-          isActiveUser()
+          (isActiveUser() || hasInstitutionalEmail())
           && resource.data.target == 'COORDINACION_ACADEMICA'
           && resource.data.targetUserId == request.auth.uid
         );
@@ -434,7 +434,7 @@ service cloud.firestore {
       allow update: if (
           isSystemsMember()
           || (
-            isActiveUser()
+            (isActiveUser() || hasInstitutionalEmail())
             && resource.data.target == 'COORDINACION_ACADEMICA'
             && resource.data.targetUserId == request.auth.uid
           )

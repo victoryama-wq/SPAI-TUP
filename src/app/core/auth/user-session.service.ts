@@ -54,6 +54,15 @@ export class UserSessionService {
         });
       };
 
+      const setUnauthenticatedAppSession = () => {
+        this.sessionSignal.set({
+          authUid: authUser.uid,
+          email: normalizedEmail,
+          displayName: authUser.displayName ?? authUser.email ?? 'Usuario SPAI',
+          appUser: null,
+        });
+      };
+
       const bootstrapUser = async () => {
         const timestamp = new Date().toISOString();
 
@@ -76,10 +85,14 @@ export class UserSessionService {
 
       const unsubscribe = onSnapshot(userRef, async (snapshot) => {
         if (snapshot.exists()) {
-          emailUnsubscribe?.();
-          emailUnsubscribe = null;
-          setSession(snapshot);
-          return;
+          const appUser = { id: snapshot.id, ...snapshot.data() } as AppUser;
+
+          if (appUser.status === 'Activo') {
+            emailUnsubscribe?.();
+            emailUnsubscribe = null;
+            setSession(snapshot);
+            return;
+          }
         }
 
         const usersRef = collection(this.firestore, USERS_COLLECTION);
@@ -95,23 +108,55 @@ export class UserSessionService {
             emailSnapshot.docs[0];
 
           if (!emailUserSnapshot) {
-            await bootstrapUser();
+            if (snapshot.exists()) {
+              setSession(snapshot);
+              return;
+            }
+
+            try {
+              await bootstrapUser();
+            } catch (error) {
+              console.error('No se pudo preparar el usuario inicial en Firestore', error);
+              setUnauthenticatedAppSession();
+            }
             return;
           }
 
           const emailUser = { id: emailUserSnapshot.id, ...emailUserSnapshot.data() } as AppUser;
           const { id: _id, ...emailUserData } = emailUser;
 
-          await setDoc(
-            userRef,
-            {
-              ...emailUserData,
-              authUid: authUser.uid,
-              updatedAt: new Date().toISOString(),
-            },
-            { merge: true },
-          );
+          setSession(emailUserSnapshot);
+
+          if (emailUserSnapshot.id === authUser.uid) {
+            return;
+          }
+
+          try {
+            await setDoc(
+              userRef,
+              {
+                ...emailUserData,
+                authUid: authUser.uid,
+                updatedAt: new Date().toISOString(),
+              },
+              { merge: true },
+            );
+          } catch (error) {
+            console.warn('El usuario se reconocio por correo, pero no se pudo enlazar automaticamente por UID.', error);
+          }
+        }, (error) => {
+          console.error('No se pudo buscar el usuario por correo institucional', error);
+
+          if (snapshot.exists()) {
+            setSession(snapshot);
+            return;
+          }
+
+          setUnauthenticatedAppSession();
         });
+      }, (error) => {
+        console.error('No se pudo leer el usuario activo por UID', error);
+        setUnauthenticatedAppSession();
       });
 
       onCleanup(() => {
