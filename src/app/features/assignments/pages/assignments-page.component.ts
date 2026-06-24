@@ -400,7 +400,8 @@ export class AssignmentsPageComponent implements OnDestroy {
           return true;
         }
 
-        return this.wasAssignmentLoadedByCurrentUser(assignment);
+        return this.wasAssignmentLoadedByCurrentUser(assignment)
+          || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
       })
       .sort((a, b) => {
         const programComparison = a.program.localeCompare(b.program, 'es');
@@ -971,7 +972,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const rows = [
       ['SPAI TUP - Reporte de asignaciones'],
       ['Ciclo', activeCycle],
-      ['Alcance', this.canSeeAllAssignments() ? 'Catalogo global' : 'Capturas propias'],
+      ['Alcance', this.canSeeAllAssignments() ? 'Catalogo global' : 'Capturas propias y clases compartidas con tus programas'],
       ['Generado', this.formatReportDateTime(new Date())],
       [],
       [
@@ -984,6 +985,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         'Grupo base',
         'Clase compartida',
         'Comparte con',
+        'Participacion de mi coordinacion',
         'Estado',
         'Modalidad',
         'Matricula(s)',
@@ -1935,6 +1937,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       this.isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group,
       sharedGroups.length ? 'Si' : 'No',
       sharedGroups.join(', '),
+      this.assignmentReportParticipation(assignment),
       this.statusLabel(assignment.status),
       this.assignmentMode(assignment),
       assignment.studentEnrollments,
@@ -1943,6 +1946,30 @@ export class AssignmentsPageComponent implements OnDestroy {
       this.formatReportDateTime(assignment.createdAt),
       this.formatReportDateTime(assignment.updatedAt),
     ];
+  }
+
+  private assignmentReportParticipation(assignment: AcademicAssignment): string {
+    if (this.canSeeAllAssignments()) {
+      return 'Catalogo global';
+    }
+
+    const labels: string[] = [];
+
+    if (this.wasAssignmentLoadedByCurrentUser(assignment)) {
+      labels.push('Captura propia');
+    }
+
+    if (this.isAssignedProgram(assignment.program)) {
+      labels.push('Grupo base de mi coordinacion');
+    }
+
+    const sharedGroups = this.assignmentSharedGroupsForCurrentUser(assignment);
+
+    if (sharedGroups.length) {
+      labels.push(`Grupo compartido de mi coordinacion: ${sharedGroups.join(', ')}`);
+    }
+
+    return labels.length ? labels.join(' / ') : 'Participacion relacionada';
   }
 
   private buildXlsxWorkbook(rows: string[][]): Uint8Array {
