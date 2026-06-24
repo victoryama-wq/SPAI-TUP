@@ -445,10 +445,13 @@ service cloud.firestore {
         && (
           request.resource.data.target == 'SISTEMAS'
           || (
-            isSystemsMember()
-            && request.resource.data.target == 'COORDINACION_ACADEMICA'
+            request.resource.data.target == 'COORDINACION_ACADEMICA'
             && request.resource.data.targetUserId is string
             && request.resource.data.targetUserId != ''
+            && (
+              isSystemsMember()
+              || request.resource.data.type == 'CLASE_COMPARTIDA'
+            )
           )
         );
 

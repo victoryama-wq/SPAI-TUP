@@ -10,6 +10,7 @@ import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
+import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
   AcademicAssignment,
@@ -95,6 +96,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
+  private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
@@ -106,6 +108,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly teachers = this.teachersRepository.teachers;
+  readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
@@ -719,6 +722,17 @@ export class AssignmentsPageComponent implements OnDestroy {
                 this.selectedTeacherName(),
                 wasEditing,
               ),
+              ...this.notifyAcademicCoordinatorsAboutSharedClass(
+                actor,
+                assignmentId,
+                basePayload.cycle,
+                subject.subjectId,
+                subject.name,
+                group?.fullGroup ?? '',
+                shareGroup,
+                this.selectedTeacherName(),
+                wasEditing,
+              ),
             );
           }
 
@@ -777,7 +791,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         : 'Asignacion guardada correctamente.';
 
       this.showTemporaryFormMessage(hasSharedNotificationError
-        ? `${successMessage} No se pudo enviar una notificacion de clase compartida a Sistemas.`
+        ? `${successMessage} No se pudo enviar una o mas notificaciones de clase compartida.`
         : successMessage);
       this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
 
@@ -2524,6 +2538,68 @@ export class AssignmentsPageComponent implements OnDestroy {
       actorName: actor.createdByName,
       actorRole: actor.createdByRole,
     });
+  }
+
+  private notifyAcademicCoordinatorsAboutSharedClass(
+    actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
+    sharedAssignmentId: string,
+    cycle: string,
+    subjectId: string,
+    subjectName: string,
+    sourceGroup: string,
+    destinationGroup: AcademicGroup,
+    teacherName: string,
+    wasEditing: boolean,
+  ): Promise<unknown>[] {
+    const targets = this.academicNotificationTargetsForSharedGroup(destinationGroup, actor);
+
+    return targets.map((target) =>
+      this.systemNotificationsRepository.createForAcademicCoordinator({
+        title: wasEditing ? 'Clase compartida actualizada' : 'Clase compartida con tu grupo',
+        message: wasEditing
+          ? `${actor.createdByName} actualizo la clase compartida ${subjectId} - ${subjectName}. Grupo base: ${sourceGroup}. Grupo de tu coordinacion: ${destinationGroup.fullGroup}. Docente ${teacherName}, ciclo ${cycle}.`
+          : `${actor.createdByName} compartio la clase ${subjectId} - ${subjectName} con el grupo ${destinationGroup.fullGroup} de tu coordinacion. Grupo base: ${sourceGroup}. Docente ${teacherName}, ciclo ${cycle}.`,
+        type: 'CLASE_COMPARTIDA',
+        entity: 'asignaciones',
+        entityId: sharedAssignmentId,
+        targetUserId: target.authUid,
+        actorId: actor.createdBy,
+        actorName: actor.createdByName,
+        actorRole: actor.createdByRole,
+      }),
+    );
+  }
+
+  private academicNotificationTargetsForSharedGroup(
+    group: AcademicGroup,
+    actor: Pick<UpsertAssignmentPayload, 'createdBy'>,
+  ): Array<AppUser & { authUid: string }> {
+    const destinationAliases = this.programAliases(group.programAbbreviation);
+    const currentSession = this.session();
+    const currentUser = currentSession?.appUser;
+    const actorIds = new Set([
+      actor.createdBy,
+      currentSession?.authUid,
+      currentUser?.id,
+      currentUser?.authUid,
+    ].filter((value): value is string => Boolean(value)));
+
+    return this.users()
+      .filter((user): user is AppUser & { authUid: string } => Boolean(user.authUid))
+      .filter((user) => this.isAcademicNotificationTarget(user))
+      .filter((user) => !actorIds.has(user.id) && !actorIds.has(user.authUid))
+      .filter((user) =>
+        user.assignedPrograms.some((program) =>
+          Array.from(this.programAliases(program)).some((alias) => destinationAliases.has(alias)),
+        ),
+      );
+  }
+
+  private isAcademicNotificationTarget(user: AppUser): boolean {
+    return user.status === 'Activo'
+      && this.isAcademicCoordinationRole(user.role)
+      && !this.isSystemsCoordinationRole(user.role)
+      && !this.isSystemsAssistantRole(user.role);
   }
 
   private emptyForm(cycle = '', special = false): AssignmentFormState {
