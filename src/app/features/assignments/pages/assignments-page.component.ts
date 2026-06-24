@@ -651,6 +651,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const currentAssignment = this.editingAssignmentId
       ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId)
       : null;
+    const previousSharedGroups = new Set(currentAssignment ? this.assignmentSharedGroups(currentAssignment) : []);
     const canWriteCurrentAssignment = currentAssignment
       ? this.canModifyAssignment(currentAssignment)
       : this.canUseDestinationProgram(selectedProgram);
@@ -691,19 +692,25 @@ export class AssignmentsPageComponent implements OnDestroy {
       };
       const assignmentId = await this.assignmentsRepository.upsertAssignment(basePayload);
       const createdAssignmentIds = this.editingAssignmentId ? [] : [assignmentId];
+      const sharedNotificationTasks: Promise<unknown>[] = [];
 
       if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
         for (const shareGroup of shareGroups) {
-          this.notifySystemsAboutSharedClass(
-            actor,
-            assignmentId,
-            basePayload.cycle,
-            subject.subjectId,
-            subject.name,
-            group?.fullGroup ?? '',
-            shareGroup.fullGroup,
-            this.selectedTeacherName(),
-          );
+          if (!previousSharedGroups.has(shareGroup.fullGroup.trim().toUpperCase())) {
+            sharedNotificationTasks.push(
+              this.notifySystemsAboutSharedClass(
+                actor,
+                assignmentId,
+                basePayload.cycle,
+                subject.subjectId,
+                subject.name,
+                group?.fullGroup ?? '',
+                shareGroup.fullGroup,
+                this.selectedTeacherName(),
+                wasEditing,
+              ),
+            );
+          }
 
           this.auditLogRepository.register({
             module: 'Asignaciones',
@@ -751,9 +758,17 @@ export class AssignmentsPageComponent implements OnDestroy {
         },
       });
 
-      this.showTemporaryFormMessage(this.editingAssignmentId
+      const sharedNotificationResults = sharedNotificationTasks.length
+        ? await Promise.allSettled(sharedNotificationTasks)
+        : [];
+      const hasSharedNotificationError = sharedNotificationResults.some((result) => result.status === 'rejected');
+      const successMessage = this.editingAssignmentId
         ? 'Asignacion actualizada correctamente.'
-        : 'Asignacion guardada correctamente.');
+        : 'Asignacion guardada correctamente.';
+
+      this.showTemporaryFormMessage(hasSharedNotificationError
+        ? `${successMessage} No se pudo enviar una notificacion de clase compartida a Sistemas.`
+        : successMessage);
       this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
 
       if (continueAdding && !wasEditing) {
@@ -2334,19 +2349,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     sourceGroup: string,
     destinationGroup: string,
     teacherName: string,
-  ): void {
-    const notificationId = [
-      'clase-compartida',
-      cycle,
-      sharedAssignmentId,
-    ]
-      .join('-')
-      .toLowerCase()
-      .replace(/[^a-z0-9-]+/g, '-');
-
-    void this.systemNotificationsRepository.createOnce(notificationId, {
-      title: 'Clase compartida asignada',
-      message: `${actor.createdByName} asigno la clase compartida ${subjectId} - ${subjectName} de ${sourceGroup} con ${destinationGroup}, docente ${teacherName}, ciclo ${cycle}.`,
+    wasEditing: boolean,
+  ): Promise<unknown> {
+    return this.systemNotificationsRepository.create({
+      title: wasEditing ? 'Asignacion editada para compartir' : 'Clase compartida asignada',
+      message: wasEditing
+        ? `${actor.createdByName} edito la asignacion ${subjectId} - ${subjectName} para compartirla de ${sourceGroup} con ${destinationGroup}, docente ${teacherName}, ciclo ${cycle}.`
+        : `${actor.createdByName} asigno la clase compartida ${subjectId} - ${subjectName} de ${sourceGroup} con ${destinationGroup}, docente ${teacherName}, ciclo ${cycle}.`,
       type: 'CLASE_COMPARTIDA',
       entity: 'asignaciones',
       entityId: sharedAssignmentId,
