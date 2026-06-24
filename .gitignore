@@ -22,6 +22,10 @@ Thumbs.db
 # Variables locales
 .env
 .env.*
+firebase-keys/
+*-service-account*.json
+service-account*.json
+*.private-key.json
 
 # Firebase/hosting temporales
 .firebase/
