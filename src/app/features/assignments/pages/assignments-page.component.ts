@@ -320,6 +320,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   sharedGroupOptions(): AcademicGroup[] {
     const activeCycle = this.activeCycle();
+    const baseGroup = this.selectedGroup();
 
     if (!activeCycle) {
       return [];
@@ -330,7 +331,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         return this.isActiveGroup(group)
           && this.groupBelongsToCycle(group, activeCycle.code)
           && this.groupMatchesModeTab(group, this.modeTab())
-          && group.fullGroup !== this.assignmentForm.group;
+          && !this.isSameOperationalGroup(group, baseGroup);
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   }
@@ -1792,6 +1793,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     const selectedGroup = this.selectedGroup();
+    const sharesBaseOperationalGroup = this.selectedShareGroups()
+      .some((shareGroup) => this.isSameOperationalGroup(shareGroup, selectedGroup));
+
+    if (this.assignmentForm.shared && !this.assignmentForm.special && sharesBaseOperationalGroup) {
+      errors.push('Los grupos compartidos no pueden tener el mismo codigo y seccion que el grupo base.');
+    }
+
     const selectedProgram = this.assignmentForm.special
       ? this.assignmentForm.program.trim().toUpperCase()
       : selectedGroup?.programAbbreviation ?? '';
@@ -2284,6 +2292,27 @@ export class AssignmentsPageComponent implements OnDestroy {
     if (this.assignmentForm.shared) {
       this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.sharedGroupCount);
     }
+  }
+
+  private isSameOperationalGroup(candidate: AcademicGroup, baseGroup: AcademicGroup | null): boolean {
+    if (!baseGroup) {
+      return false;
+    }
+
+    const candidateFullGroup = candidate.fullGroup.trim().toUpperCase();
+    const baseFullGroup = baseGroup.fullGroup.trim().toUpperCase();
+    const candidateGroupCode = candidate.groupCode.trim().toUpperCase();
+    const candidateSection = candidate.section.trim().toUpperCase();
+    const baseGroupCode = baseGroup.groupCode.trim().toUpperCase();
+    const baseSection = baseGroup.section.trim().toUpperCase();
+    const hasComparableSignature = !!candidateGroupCode && !!candidateSection && !!baseGroupCode && !!baseSection;
+
+    return candidateFullGroup === baseFullGroup
+      || (
+        hasComparableSignature
+        && candidateGroupCode === baseGroupCode
+        && candidateSection === baseSection
+      );
   }
 
   private prepareNextAssignmentForm(): void {
