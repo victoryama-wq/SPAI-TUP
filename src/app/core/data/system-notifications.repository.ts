@@ -6,7 +6,6 @@ import {
   doc,
   limit,
   onSnapshot,
-  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -81,8 +80,7 @@ export class SystemNotificationsRepository {
         ? query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
             where('target', '==', 'SISTEMAS'),
-            orderBy('createdAt', 'desc'),
-            limit(25),
+            limit(50),
           )
         : query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
@@ -100,7 +98,10 @@ export class SystemNotificationsRepository {
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
           );
         },
-        () => undefined,
+        (error) => {
+          console.error('No se pudieron leer las notificaciones del sistema', error);
+          this.notificationsSignal.set([]);
+        },
       );
 
       onCleanup(unsubscribe);
@@ -236,7 +237,7 @@ export class SystemNotificationsRepository {
   }
 
   private isSystemsUser(role: string): boolean {
-    return role.includes('Sistemas');
+    return this.normalizeRole(role).includes('sistemas');
   }
 
   private canSeeNotification(notification: SystemNotification, authUid: string, role: string): boolean {
@@ -251,5 +252,13 @@ export class SystemNotificationsRepository {
     return this.locallyReadNotificationIds().has(notification.id)
       || notification.readBy.includes(appUserId)
       || notification.readBy.includes(authUid);
+  }
+
+  private normalizeRole(role: string): string {
+    return role
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 }
