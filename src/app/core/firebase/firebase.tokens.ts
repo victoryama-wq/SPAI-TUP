@@ -1,7 +1,7 @@
 import { InjectionToken, Provider } from '@angular/core';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
-import { Firestore, getFirestore } from 'firebase/firestore';
+import { Firestore, getFirestore, initializeFirestore } from 'firebase/firestore';
 import { environment } from '../../../environments/environment';
 
 export const FIREBASE_APP = new InjectionToken<FirebaseApp>('Firebase app');
@@ -22,7 +22,19 @@ export function provideFirebase(): Provider[] {
     },
     {
       provide: FIREBASE_DB,
-      useFactory: (app: FirebaseApp) => getFirestore(app),
+      useFactory: (app: FirebaseApp) => {
+        try {
+          return initializeFirestore(app, {
+            experimentalForceLongPolling: true,
+            experimentalLongPollingOptions: {
+              timeoutSeconds: 25,
+            },
+            ignoreUndefinedProperties: true,
+          });
+        } catch {
+          return getFirestore(app);
+        }
+      },
       deps: [FIREBASE_APP],
     },
   ];
