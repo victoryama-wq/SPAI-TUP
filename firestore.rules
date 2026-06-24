@@ -154,6 +154,11 @@ service cloud.firestore {
               currentUser().data.assignedPrograms is list
               && currentUser().data.assignedPrograms.hasAny([program])
             )
+            || (
+              request.resource.data.createdBy == request.auth.uid
+              && request.resource.data.createdByPrograms is list
+              && request.resource.data.createdByPrograms.hasAny([program])
+            )
             || isCurrentUserCoordinatorOfProgram(program)
           )
         );
@@ -176,9 +181,18 @@ service cloud.firestore {
       return isSystemsMember()
         || (
           isAcademicCoordinator()
-          && currentUser().data.assignedPrograms is list
           && programs is list
-          && currentUser().data.assignedPrograms.hasAny(programs)
+          && (
+            (
+              currentUser().data.assignedPrograms is list
+              && currentUser().data.assignedPrograms.hasAny(programs)
+            )
+            || (
+              request.resource.data.createdBy == request.auth.uid
+              && request.resource.data.createdByPrograms is list
+              && request.resource.data.createdByPrograms.hasAny(programs)
+            )
+          )
         );
     }
 
