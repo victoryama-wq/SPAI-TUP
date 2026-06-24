@@ -706,6 +706,20 @@ export class AssignmentsPageComponent implements OnDestroy {
 
       if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
         for (const shareGroup of shareGroups) {
+          sharedNotificationTasks.push(
+            ...this.notifyAcademicCoordinatorsAboutSharedClass(
+              actor,
+              assignmentId,
+              basePayload.cycle,
+              subject.subjectId,
+              subject.name,
+              group?.fullGroup ?? '',
+              shareGroup,
+              this.selectedTeacherName(),
+              wasEditing,
+            ),
+          );
+
           if (!previousSharedGroups.has(shareGroup.fullGroup.trim().toUpperCase())) {
             sharedNotificationTasks.push(
               this.notifySystemsAboutSharedClass(
@@ -716,17 +730,6 @@ export class AssignmentsPageComponent implements OnDestroy {
                 subject.name,
                 group?.fullGroup ?? '',
                 shareGroup.fullGroup,
-                this.selectedTeacherName(),
-                wasEditing,
-              ),
-              ...this.notifyAcademicCoordinatorsAboutSharedClass(
-                actor,
-                assignmentId,
-                basePayload.cycle,
-                subject.subjectId,
-                subject.name,
-                group?.fullGroup ?? '',
-                shareGroup,
                 this.selectedTeacherName(),
                 wasEditing,
               ),
@@ -2554,8 +2557,10 @@ export class AssignmentsPageComponent implements OnDestroy {
       return [];
     }
 
+    const notificationId = this.sharedAcademicNotificationId(sharedAssignmentId, cycle, targetProgram, destinationGroup.fullGroup);
+
     return [
-      this.systemNotificationsRepository.createForAcademicCoordinator({
+      this.firestoreSafeNotificationTask(this.systemNotificationsRepository.createForAcademicCoordinatorOnce(notificationId, {
         title: wasEditing ? 'Clase compartida actualizada' : 'Clase compartida con tu grupo',
         message: wasEditing
           ? `${actor.createdByName} actualizo la clase compartida ${subjectId} - ${subjectName}. Grupo base: ${sourceGroup}. Grupo de tu coordinacion: ${destinationGroup.fullGroup}. Docente ${teacherName}, ciclo ${cycle}.`
@@ -2567,21 +2572,33 @@ export class AssignmentsPageComponent implements OnDestroy {
         actorId: actor.createdBy,
         actorName: actor.createdByName,
         actorRole: actor.createdByRole,
-      }),
+      })),
     ];
   }
 
   private sharedNotificationProgramTarget(group: AcademicGroup): string {
-    const destinationAliases = this.programAliases(group.programAbbreviation);
-    const program = this.programs()
-      .find((item) => destinationAliases.has(item.code.trim().toUpperCase()));
-    const nomenclature = this.nomenclatures()
-      .find((item) =>
-        destinationAliases.has(item.abbreviation.trim().toUpperCase())
-        || destinationAliases.has(item.programCode.trim().toUpperCase()),
-      );
+    return group.programAbbreviation.trim().toUpperCase();
+  }
 
-    return (program?.code || nomenclature?.programCode || group.programAbbreviation).trim().toUpperCase();
+  private sharedAcademicNotificationId(assignmentId: string, cycle: string, targetProgram: string, group: string): string {
+    return [
+      'clase-compartida-destino',
+      assignmentId,
+      cycle,
+      targetProgram,
+      group,
+    ]
+      .join('-')
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private firestoreSafeNotificationTask(task: Promise<unknown>): Promise<unknown> {
+    return task.catch((error) => {
+      console.warn('No se pudo crear una notificacion academica de clase compartida', error);
+      return undefined;
+    });
   }
 
   private emptyForm(cycle = '', special = false): AssignmentFormState {
