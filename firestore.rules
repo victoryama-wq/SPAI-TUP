@@ -152,7 +152,7 @@ service cloud.firestore {
           && (
             (
               currentUser().data.assignedPrograms is list
-              && program in currentUser().data.assignedPrograms
+              && currentUser().data.assignedPrograms.hasAny([program])
             )
             || isCurrentUserCoordinatorOfProgram(program)
           )
@@ -165,6 +165,10 @@ service cloud.firestore {
         && (
           get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.name
           || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.email
+          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.authUid
+          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.uid
+          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.token.email
+          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.token.name
         );
     }
 
