@@ -197,12 +197,24 @@ service cloud.firestore {
     }
 
     function canWriteAssignment() {
-      return canWriteAssignmentProgram(request.resource.data.program);
+      return canWriteAssignmentProgram(request.resource.data.program)
+        || canCreateOwnAssignment();
+    }
+
+    function canCreateOwnAssignment() {
+      return isAcademicCoordinator()
+        && request.resource.data.createdBy == request.auth.uid;
+    }
+
+    function canWriteOwnAssignment() {
+      return isAcademicCoordinator()
+        && resource.data.createdBy == request.auth.uid;
     }
 
     function canDeleteAssignment() {
       return canWriteAssignmentProgram(resource.data.program)
         || canWriteAssignmentPrograms(resource.data.sharedPrograms)
+        || canWriteOwnAssignment()
         || canWriteExistingSharedAssignmentFromSource();
     }
 
@@ -342,6 +354,7 @@ service cloud.firestore {
       allow update: if (
           canWriteAssignmentProgram(resource.data.program)
           || canWriteAssignmentPrograms(resource.data.sharedPrograms)
+          || canWriteOwnAssignment()
           || canWriteExistingSharedAssignmentFromSource()
         )
         && request.resource.data.program == resource.data.program
