@@ -445,6 +445,14 @@
               }
             </select>
           </label>
+          <label class="special-enrollments-field">
+            <span>Matricula(s) *</span>
+            <textarea
+              [(ngModel)]="assignmentForm.studentEnrollments"
+              rows="2"
+              placeholder="Una matricula por linea, o separadas por coma"
+            ></textarea>
+          </label>
           <label class="fixed-status-field">
             <span>Estado</span>
             <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
@@ -580,16 +588,6 @@
                   [(ngModel)]="assignmentForm.studentEnrollments"
                   rows="2"
                   placeholder="Una por linea o separadas por coma"
-                ></textarea>
-              </label>
-            }
-            @if (assignmentForm.special) {
-              <label>
-                <span>Matricula(s) *</span>
-                <textarea
-                  [(ngModel)]="assignmentForm.studentEnrollments"
-                  rows="4"
-                  placeholder="Una matricula por linea, o separadas por coma"
                 ></textarea>
               </label>
             }
