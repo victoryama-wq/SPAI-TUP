@@ -401,7 +401,7 @@ service cloud.firestore {
       allow read: if isSystemsMember()
         || hasModuleAccess('bitacora');
 
-      allow create: if isActiveUser();
+      allow create: if isActiveUser() || hasInstitutionalEmail();
       allow update, delete: if false;
     }
 
