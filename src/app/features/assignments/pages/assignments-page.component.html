@@ -196,8 +196,9 @@
                   <small>Sin grupo base</small>
                 } @else if (isSharedFromAnotherCoordination(assignment)) {
                   <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
-                } @else if (assignment.studentEnrollments) {
-                  <small class="detail-note">Matriculas: {{ assignment.studentEnrollments }}</small>
+                }
+                @if (assignment.studentEnrollments) {
+                  <small class="detail-note">Matricula(s): {{ assignment.studentEnrollments }}</small>
                 }
                 @if (assignment.observations) {
                   <small class="detail-note">Obs: {{ assignment.observations }}</small>
