@@ -345,6 +345,20 @@ th {
   background: #f8fbff;
 }
 
+.report-side-card {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  justify-items: center;
+  padding: 0;
+}
+
+.report-side-card .report-download-action {
+  justify-content: center;
+  width: min(100%, 190px);
+}
+
 .scope-status-action {
   cursor: default;
 }
