@@ -119,6 +119,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   isAssignmentModalOpen = false;
   editingAssignmentId: string | null = null;
   isReadinessAlertVisible = signal(true);
+  lockedShareGroups = signal<string[]>([]);
   subjectPickerValue = '';
   teacherPickerValue = '';
   groupPickerValue = '';
@@ -331,6 +332,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         return this.isActiveGroup(group)
           && this.groupBelongsToCycle(group, activeCycle.code)
           && this.groupMatchesModeTab(group, this.modeTab())
+          && this.canUseSharedGroupOption(group)
           && !this.isSameOperationalGroup(group, baseGroup);
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
@@ -508,6 +510,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.formErrors = [];
     this.formMessage = '';
     this.shareGroupSearch.set('');
+    this.lockedShareGroups.set([]);
     this.activeComboField = null;
     this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();
@@ -530,6 +533,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.shareGroupSearch.set('');
     this.activeComboField = null;
     const sharedGroups = this.assignmentSharedGroups(assignment);
+    this.lockedShareGroups.set(this.lockedSharedGroupsForAssignment(assignment, sharedGroups));
     this.assignmentForm = {
       cycle: assignment.cycle,
       program: assignment.program,
@@ -621,6 +625,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.editingAssignmentId = null;
     this.formErrors = [];
     this.shareGroupSearch.set('');
+    this.lockedShareGroups.set([]);
     this.activeComboField = null;
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();
@@ -639,6 +644,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const subject = this.selectedSubject();
     const group = this.assignmentForm.special ? null : this.selectedGroup();
     const shareGroups = this.assignmentForm.shared ? this.selectedShareGroups() : [];
+    const lockedShareGroups = this.lockedShareGroups();
     const selectedProgram = this.assignmentForm.special
       ? this.assignmentForm.program.trim().toUpperCase()
       : group?.programAbbreviation ?? '';
@@ -665,7 +671,10 @@ export class AssignmentsPageComponent implements OnDestroy {
     try {
       const wasEditing = this.editingAssignmentId !== null;
       const sharedGroupNames = this.assignmentForm.shared
-        ? shareGroups.map((shareGroup) => shareGroup.fullGroup)
+        ? this.mergeSharedGroupNames([
+            ...lockedShareGroups,
+            ...shareGroups.map((shareGroup) => shareGroup.fullGroup),
+          ])
         : [];
       const sharedPrograms = this.assignmentForm.shared
         ? this.sharedProgramsForGroups(sharedGroupNames)
@@ -1249,6 +1258,16 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.shareGroupSearch.set('');
 
     if (!this.assignmentForm.shared) {
+      if (this.lockedShareGroups().length) {
+        this.assignmentForm.shared = true;
+        this.assignmentForm.shareGroups = this.mergeSharedGroupNames([
+          ...this.lockedShareGroups(),
+          ...this.assignmentForm.shareGroups,
+        ]);
+        this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.shareGroups.length);
+        return;
+      }
+
       this.assignmentForm.sourceAssignmentId = '';
       this.assignmentForm.sharedGroupCount = 0;
       this.assignmentForm.shareGroups = [];
@@ -1314,6 +1333,8 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     if (checked) {
       selectedGroups.add(normalizedGroup);
+    } else if (this.isShareGroupLocked(normalizedGroup)) {
+      selectedGroups.add(normalizedGroup);
     } else {
       selectedGroups.delete(normalizedGroup);
     }
@@ -1327,8 +1348,11 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   isShareGroupDisabled(group: string): boolean {
-    return !this.isShareGroupSelected(group)
-      && this.assignmentForm.shareGroups.length >= this.assignmentForm.sharedGroupCount;
+    return this.isShareGroupLocked(group)
+      || (
+        !this.isShareGroupSelected(group)
+        && this.assignmentForm.shareGroups.length >= this.assignmentForm.sharedGroupCount
+      );
   }
 
   applySourceAssignment(): void {
@@ -1420,8 +1444,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return true;
     }
 
-    return this.assignmentsToDelete(assignment)
-      .some((item) => this.canModifyAssignment(item));
+    return this.canManageBaseAssignment(assignment);
   }
 
   private sharedBaseAssignmentId(assignment: AcademicAssignment): string {
@@ -1512,6 +1535,51 @@ export class AssignmentsPageComponent implements OnDestroy {
   private canModifyAssignment(assignment: AcademicAssignment): boolean {
     return this.canSeeAllAssignments()
       || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
+  }
+
+  private canManageBaseAssignment(assignment: AcademicAssignment): boolean {
+    return this.canSeeAllAssignments()
+      || this.isAssignedProgram(assignment.program)
+      || this.wasAssignmentCreatedByCurrentUser(assignment);
+  }
+
+  private canUseSharedGroupOption(group: AcademicGroup): boolean {
+    if (this.canSeeAllAssignments()) {
+      return true;
+    }
+
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignmentById(this.editingAssignmentId)
+      : null;
+
+    if (!currentAssignment || this.canManageBaseAssignment(currentAssignment)) {
+      return true;
+    }
+
+    return this.isAssignedProgram(group.programAbbreviation)
+      || this.isShareGroupLocked(group.fullGroup);
+  }
+
+  private lockedSharedGroupsForAssignment(assignment: AcademicAssignment, sharedGroups: string[]): string[] {
+    if (this.canManageBaseAssignment(assignment)) {
+      return [];
+    }
+
+    return this.mergeSharedGroupNames(sharedGroups);
+  }
+
+  isShareGroupLocked(group: string): boolean {
+    const normalizedGroup = group.trim().toUpperCase();
+
+    return this.lockedShareGroups().includes(normalizedGroup);
+  }
+
+  private mergeSharedGroupNames(groups: string[]): string[] {
+    return Array.from(new Set(
+      groups
+        .map((group) => group.trim().toUpperCase())
+        .filter(Boolean),
+    )).sort((a, b) => a.localeCompare(b, 'es'));
   }
 
   private assignmentStatusMatchesFilter(assignment: AcademicAssignment): boolean {
@@ -2270,6 +2338,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private normalizeSharedGroupCount(value: number | string): number {
     const availableOptions = Math.min(this.sharedGroupOptions().length, MAX_SHARED_GROUPS);
+    const minimumOptions = Math.min(this.lockedShareGroups().length, availableOptions);
 
     if (!availableOptions) {
       return 0;
@@ -2278,16 +2347,28 @@ export class AssignmentsPageComponent implements OnDestroy {
     const numericValue = Math.trunc(Number(value));
     const fallbackValue = Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 1;
 
-    return Math.min(Math.max(fallbackValue, 1), availableOptions);
+    return Math.min(Math.max(fallbackValue, Math.max(minimumOptions, 1)), availableOptions);
   }
 
   private syncSharedGroups(): void {
     const availableGroups = new Set(this.sharedGroupOptions().map((group) => group.fullGroup));
-
-    this.assignmentForm.shareGroups = this.assignmentForm.shareGroups
+    const lockedGroups = this.lockedShareGroups()
       .filter((group) => group !== this.assignmentForm.group)
-      .filter((group) => availableGroups.has(group))
-      .slice(0, this.assignmentForm.sharedGroupCount);
+      .filter((group) => availableGroups.has(group));
+    const selectedGroups = this.mergeSharedGroupNames([
+      ...lockedGroups,
+      ...this.assignmentForm.shareGroups,
+    ])
+      .filter((group) => group !== this.assignmentForm.group)
+      .filter((group) => availableGroups.has(group));
+
+    const extraGroups = selectedGroups.filter((group) => !lockedGroups.includes(group));
+    const maxGroups = Math.max(this.assignmentForm.sharedGroupCount, lockedGroups.length);
+
+    this.assignmentForm.shareGroups = [
+      ...lockedGroups,
+      ...extraGroups,
+    ].slice(0, maxGroups);
 
     if (this.assignmentForm.shared) {
       this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.sharedGroupCount);
@@ -2319,6 +2400,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.editingAssignmentId = null;
     this.formErrors = [];
     this.shareGroupSearch.set('');
+    this.lockedShareGroups.set([]);
     this.activeComboField = null;
     this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
     this.syncPickerInputsFromForm();

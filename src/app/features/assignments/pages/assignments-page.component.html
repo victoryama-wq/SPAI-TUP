@@ -496,7 +496,12 @@
           </div>
           <div class="assignment-state-row">
             <label class="toggle-row shared-toggle compact-shared-toggle">
-              <input type="checkbox" [(ngModel)]="assignmentForm.shared" (change)="onSharedChange()" />
+              <input
+                type="checkbox"
+                [(ngModel)]="assignmentForm.shared"
+                [disabled]="lockedShareGroups().length > 0"
+                (change)="onSharedChange()"
+              />
               <span>Clase compartida</span>
             </label>
             <label class="fixed-status-field">
@@ -539,7 +544,7 @@
               </label>
               <div class="share-group-options">
                 @for (group of visibleSharedGroupOptions(); track group.id) {
-                  <label class="share-group-option">
+                  <label class="share-group-option" [class.locked-share-group]="isShareGroupLocked(group.fullGroup)">
                     <input
                       type="checkbox"
                       [checked]="isShareGroupSelected(group.fullGroup)"
@@ -547,7 +552,7 @@
                       (change)="toggleShareGroup(group.fullGroup, $any($event.target).checked)"
                     />
                     <span>{{ group.fullGroup }}</span>
-                    <small>{{ group.programName }}</small>
+                    <small>{{ isShareGroupLocked(group.fullGroup) ? 'Ya vinculado' : group.programName }}</small>
                   </label>
                 } @empty {
                   <div class="share-group-empty">

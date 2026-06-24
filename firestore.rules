@@ -213,9 +213,30 @@ service cloud.firestore {
 
     function canDeleteAssignment() {
       return canWriteAssignmentProgram(resource.data.program)
-        || canWriteAssignmentPrograms(resource.data.sharedPrograms)
         || canWriteOwnAssignment()
         || canWriteExistingSharedAssignmentFromSource();
+    }
+
+    function preservesExistingSharedGroups() {
+      return !(resource.data.sharedGroups is list)
+        || (
+          request.resource.data.sharedGroups is list
+          && request.resource.data.sharedGroups.hasAll(resource.data.sharedGroups)
+        );
+    }
+
+    function preservesExistingSharedPrograms() {
+      return !(resource.data.sharedPrograms is list)
+        || (
+          request.resource.data.sharedPrograms is list
+          && request.resource.data.sharedPrograms.hasAll(resource.data.sharedPrograms)
+        );
+    }
+
+    function canUpdateSharedAssignmentParticipation() {
+      return canWriteAssignmentPrograms(resource.data.sharedPrograms)
+        && preservesExistingSharedGroups()
+        && preservesExistingSharedPrograms();
     }
 
     function canWriteExistingSharedAssignmentFromSource() {
@@ -353,7 +374,7 @@ service cloud.firestore {
 
       allow update: if (
           canWriteAssignmentProgram(resource.data.program)
-          || canWriteAssignmentPrograms(resource.data.sharedPrograms)
+          || canUpdateSharedAssignmentParticipation()
           || canWriteOwnAssignment()
           || canWriteExistingSharedAssignmentFromSource()
         )

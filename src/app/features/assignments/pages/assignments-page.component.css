@@ -1494,6 +1494,16 @@ td.center-column {
   cursor: not-allowed;
 }
 
+.share-group-option.locked-share-group {
+  background: #eef6ff;
+  border-color: #9ec5ff;
+  cursor: not-allowed;
+}
+
+.share-group-option.locked-share-group small {
+  color: #1d4ed8;
+}
+
 .share-group-empty {
   background: #ffffff;
   border: 1px dashed #c9d9ef;
