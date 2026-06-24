@@ -994,8 +994,8 @@ export class AssignmentsPageComponent implements OnDestroy {
       ],
       ...assignments.map((assignment) => this.assignmentReportRow(assignment)),
     ];
-    const workbook = this.buildExcelWorkbook(rows);
-    const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const workbook = this.buildXlsxWorkbook(rows);
+    const blob = new Blob([workbook], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
 
@@ -1945,25 +1945,63 @@ export class AssignmentsPageComponent implements OnDestroy {
     ];
   }
 
-  private buildExcelWorkbook(rows: string[][]): string {
-    const worksheetRows = rows.map((row) => {
-      const cells = row.map((cell) => {
-        return `<Cell><Data ss:Type="String">${this.escapeXml(cell)}</Data></Cell>`;
-      }).join('');
+  private buildXlsxWorkbook(rows: string[][]): Uint8Array {
+    const files = [
+      {
+        name: '[Content_Types].xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`,
+      },
+      {
+        name: '_rels/.rels',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`,
+      },
+      {
+        name: 'xl/workbook.xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="Asignaciones" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>`,
+      },
+      {
+        name: 'xl/_rels/workbook.xml.rels',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`,
+      },
+      {
+        name: 'xl/styles.xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>
+  <fills count="1"><fill><patternFill patternType="none"/></fill></fills>
+  <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>
+  <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`,
+      },
+      {
+        name: 'xl/worksheets/sheet1.xml',
+        content: this.buildXlsxWorksheet(rows),
+      },
+    ];
 
-      return `<Row>${cells}</Row>`;
-    }).join('');
-
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
-  xmlns:x="urn:schemas-microsoft-com:office:excel"
-  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Worksheet ss:Name="Asignaciones">
-    <Table>${worksheetRows}</Table>
-  </Worksheet>
-</Workbook>`;
+    return this.createZip(files);
   }
 
   private reportFileName(cycle: string): string {
@@ -1971,7 +2009,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const normalizedCycle = cycle.toLowerCase().replace(/[^a-z0-9-]+/g, '-');
     const date = new Date().toISOString().slice(0, 10);
 
-    return `spai-asignaciones-${scope}-${normalizedCycle}-${date}.xls`;
+    return `spai-asignaciones-${scope}-${normalizedCycle}-${date}.xlsx`;
   }
 
   private formatReportDateTime(value: string | Date): string {
@@ -1994,6 +2032,155 @@ export class AssignmentsPageComponent implements OnDestroy {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&apos;');
+  }
+
+  private buildXlsxWorksheet(rows: string[][]): string {
+    const worksheetRows = rows.map((row, rowIndex) => {
+      const rowNumber = rowIndex + 1;
+      const cells = row.map((cell, columnIndex) => {
+        const cellReference = `${this.xlsxColumnName(columnIndex + 1)}${rowNumber}`;
+
+        return `<c r="${cellReference}" t="inlineStr"><is><t xml:space="preserve">${this.escapeXml(cell)}</t></is></c>`;
+      }).join('');
+
+      return `<row r="${rowNumber}">${cells}</row>`;
+    }).join('');
+
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheetData>${worksheetRows}</sheetData>
+</worksheet>`;
+  }
+
+  private xlsxColumnName(columnNumber: number): string {
+    let currentColumn = columnNumber;
+    let name = '';
+
+    while (currentColumn > 0) {
+      currentColumn -= 1;
+      name = String.fromCharCode(65 + (currentColumn % 26)) + name;
+      currentColumn = Math.floor(currentColumn / 26);
+    }
+
+    return name;
+  }
+
+  private createZip(files: { name: string; content: string }[]): Uint8Array {
+    const encoder = new TextEncoder();
+    const chunks: Uint8Array[] = [];
+    const centralDirectoryChunks: Uint8Array[] = [];
+    let offset = 0;
+
+    files.forEach((file) => {
+      const nameBytes = encoder.encode(file.name);
+      const data = encoder.encode(file.content);
+      const crc = this.crc32(data);
+      const localHeader = new Uint8Array(30 + nameBytes.length);
+      const localView = new DataView(localHeader.buffer);
+
+      this.writeZipLocalHeader(localView, crc, data.length, nameBytes.length);
+      localHeader.set(nameBytes, 30);
+      chunks.push(localHeader, data);
+
+      const centralHeader = new Uint8Array(46 + nameBytes.length);
+      const centralView = new DataView(centralHeader.buffer);
+
+      this.writeZipCentralHeader(centralView, crc, data.length, nameBytes.length, offset);
+      centralHeader.set(nameBytes, 46);
+      centralDirectoryChunks.push(centralHeader);
+      offset += localHeader.length + data.length;
+    });
+
+    const centralDirectory = this.concatUint8Arrays(centralDirectoryChunks);
+    const endOfCentralDirectory = new Uint8Array(22);
+    const endView = new DataView(endOfCentralDirectory.buffer);
+
+    this.writeUint32(endView, 0, 0x06054b50);
+    this.writeUint16(endView, 8, files.length);
+    this.writeUint16(endView, 10, files.length);
+    this.writeUint32(endView, 12, centralDirectory.length);
+    this.writeUint32(endView, 16, offset);
+
+    return this.concatUint8Arrays([...chunks, centralDirectory, endOfCentralDirectory]);
+  }
+
+  private writeZipLocalHeader(view: DataView, crc: number, size: number, fileNameLength: number): void {
+    this.writeUint32(view, 0, 0x04034b50);
+    this.writeUint16(view, 4, 20);
+    this.writeUint16(view, 6, 0);
+    this.writeUint16(view, 8, 0);
+    this.writeUint16(view, 10, 0);
+    this.writeUint16(view, 12, 0);
+    this.writeUint32(view, 14, crc);
+    this.writeUint32(view, 18, size);
+    this.writeUint32(view, 22, size);
+    this.writeUint16(view, 26, fileNameLength);
+    this.writeUint16(view, 28, 0);
+  }
+
+  private writeZipCentralHeader(view: DataView, crc: number, size: number, fileNameLength: number, offset: number): void {
+    this.writeUint32(view, 0, 0x02014b50);
+    this.writeUint16(view, 4, 20);
+    this.writeUint16(view, 6, 20);
+    this.writeUint16(view, 8, 0);
+    this.writeUint16(view, 10, 0);
+    this.writeUint16(view, 12, 0);
+    this.writeUint16(view, 14, 0);
+    this.writeUint32(view, 16, crc);
+    this.writeUint32(view, 20, size);
+    this.writeUint32(view, 24, size);
+    this.writeUint16(view, 28, fileNameLength);
+    this.writeUint16(view, 30, 0);
+    this.writeUint16(view, 32, 0);
+    this.writeUint16(view, 34, 0);
+    this.writeUint16(view, 36, 0);
+    this.writeUint32(view, 38, 0);
+    this.writeUint32(view, 42, offset);
+  }
+
+  private crc32(data: Uint8Array): number {
+    let crc = 0xffffffff;
+    const table = this.crc32Table();
+
+    data.forEach((byte) => {
+      crc = (crc >>> 8) ^ table[(crc ^ byte) & 0xff];
+    });
+
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  private crc32Table(): number[] {
+    return Array.from({ length: 256 }, (_, index) => {
+      let value = index;
+
+      for (let bit = 0; bit < 8; bit += 1) {
+        value = (value & 1) ? (0xedb88320 ^ (value >>> 1)) : (value >>> 1);
+      }
+
+      return value >>> 0;
+    });
+  }
+
+  private concatUint8Arrays(chunks: Uint8Array[]): Uint8Array {
+    const totalLength = chunks.reduce((total, chunk) => total + chunk.length, 0);
+    const output = new Uint8Array(totalLength);
+    let offset = 0;
+
+    chunks.forEach((chunk) => {
+      output.set(chunk, offset);
+      offset += chunk.length;
+    });
+
+    return output;
+  }
+
+  private writeUint16(view: DataView, offset: number, value: number): void {
+    view.setUint16(offset, value, true);
+  }
+
+  private writeUint32(view: DataView, offset: number, value: number): void {
+    view.setUint32(offset, value, true);
   }
 
   private readFirebaseMessage(error: unknown): string {
