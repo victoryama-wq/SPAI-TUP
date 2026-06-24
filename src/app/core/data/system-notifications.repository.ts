@@ -239,7 +239,12 @@ export class SystemNotificationsRepository {
     return this.normalizeRole(role).includes('sistemas');
   }
 
-  private canSeeNotification(notification: SystemNotification, authUid: string, email: string, appUser: { id: string; authUid: string | null; email: string; role: string }): boolean {
+  private canSeeNotification(
+    notification: SystemNotification,
+    authUid: string,
+    email: string,
+    appUser: { id: string; authUid: string | null; email: string; role: string; assignedPrograms: string[] },
+  ): boolean {
     if (notification.target === 'SISTEMAS') {
       return this.isSystemsUser(appUser.role);
     }
@@ -248,11 +253,20 @@ export class SystemNotificationsRepository {
       && this.notificationTargetIds(authUid, email, appUser).includes(notification.targetUserId ?? '');
   }
 
-  private notificationTargetIds(authUid: string, email: string, appUser: { id: string; authUid: string | null; email: string }): string[] {
+  private notificationTargetIds(
+    authUid: string,
+    email: string,
+    appUser: { id: string; authUid: string | null; email: string; assignedPrograms: string[] },
+  ): string[] {
+    const assignedProgramTargets = (Array.isArray(appUser.assignedPrograms) ? appUser.assignedPrograms : [])
+      .map((program) => program.trim().toUpperCase())
+      .filter(Boolean);
+
     return Array.from(new Set([
       authUid,
       email.trim().toLowerCase(),
       appUser.email.trim().toLowerCase(),
+      ...assignedProgramTargets,
     ].map((value) => value.trim()).filter(Boolean))).slice(0, 10);
   }
 

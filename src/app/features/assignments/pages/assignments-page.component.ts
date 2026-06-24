@@ -10,7 +10,6 @@ import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
-import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
   AcademicAssignment,
@@ -96,7 +95,6 @@ export class AssignmentsPageComponent implements OnDestroy {
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
-  private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
@@ -108,7 +106,6 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly teachers = this.teachersRepository.teachers;
-  readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
@@ -2551,9 +2548,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     teacherName: string,
     wasEditing: boolean,
   ): Promise<unknown>[] {
-    const targets = this.academicNotificationTargetsForSharedGroup(destinationGroup, actor);
+    const targetProgram = this.sharedNotificationProgramTarget(destinationGroup);
 
-    return targets.map((target) =>
+    if (!targetProgram) {
+      return [];
+    }
+
+    return [
       this.systemNotificationsRepository.createForAcademicCoordinator({
         title: wasEditing ? 'Clase compartida actualizada' : 'Clase compartida con tu grupo',
         message: wasEditing
@@ -2562,58 +2563,25 @@ export class AssignmentsPageComponent implements OnDestroy {
         type: 'CLASE_COMPARTIDA',
         entity: 'asignaciones',
         entityId: sharedAssignmentId,
-        targetUserId: target.email.trim().toLowerCase(),
+        targetUserId: targetProgram,
         actorId: actor.createdBy,
         actorName: actor.createdByName,
         actorRole: actor.createdByRole,
       }),
-    );
+    ];
   }
 
-  private academicNotificationTargetsForSharedGroup(
-    group: AcademicGroup,
-    actor: Pick<UpsertAssignmentPayload, 'createdBy'>,
-  ): AppUser[] {
+  private sharedNotificationProgramTarget(group: AcademicGroup): string {
     const destinationAliases = this.programAliases(group.programAbbreviation);
-    const currentSession = this.session();
-    const currentUser = currentSession?.appUser;
-    const actorIds = new Set([
-      actor.createdBy,
-      currentSession?.authUid,
-      currentUser?.id,
-      currentUser?.authUid,
-    ].filter((value): value is string => Boolean(value)));
-    const actorEmails = new Set([
-      currentSession?.email,
-      currentUser?.email,
-    ].map((value) => this.normalizeSearchText(value ?? '')).filter(Boolean));
-    const matchingUsers = this.users()
-      .filter((user) => this.isAcademicNotificationTarget(user))
-      .filter((user) => !actorIds.has(user.id) && !actorIds.has(user.authUid ?? ''))
-      .filter((user) => !actorEmails.has(this.normalizeSearchText(user.email)))
-      .filter((user) =>
-        user.assignedPrograms.some((program) =>
-          Array.from(this.programAliases(program)).some((alias) => destinationAliases.has(alias)),
-        ),
+    const program = this.programs()
+      .find((item) => destinationAliases.has(item.code.trim().toUpperCase()));
+    const nomenclature = this.nomenclatures()
+      .find((item) =>
+        destinationAliases.has(item.abbreviation.trim().toUpperCase())
+        || destinationAliases.has(item.programCode.trim().toUpperCase()),
       );
-    const uniqueByEmail = new Map<string, AppUser>();
 
-    matchingUsers.forEach((user) => {
-      const email = user.email.trim().toLowerCase();
-
-      if (email) {
-        uniqueByEmail.set(email, user);
-      }
-    });
-
-    return Array.from(uniqueByEmail.values());
-  }
-
-  private isAcademicNotificationTarget(user: AppUser): boolean {
-    return user.status === 'Activo'
-      && this.isAcademicCoordinationRole(user.role)
-      && !this.isSystemsCoordinationRole(user.role)
-      && !this.isSystemsAssistantRole(user.role);
+    return (program?.code || nomenclature?.programCode || group.programAbbreviation).trim().toUpperCase();
   }
 
   private emptyForm(cycle = '', special = false): AssignmentFormState {

@@ -275,6 +275,23 @@ service cloud.firestore {
         && request.resource.data.updatedAt is string;
     }
 
+    function canReadAcademicNotificationTarget() {
+      return resource.data.target == 'COORDINACION_ACADEMICA'
+        && resource.data.targetUserId is string
+        && (
+          resource.data.targetUserId == request.auth.uid
+          || (
+            request.auth.token.email is string
+            && resource.data.targetUserId == request.auth.token.email
+          )
+          || (
+            isActiveUser()
+            && currentUser().data.assignedPrograms is list
+            && currentUser().data.assignedPrograms.hasAny([resource.data.targetUserId])
+          )
+        );
+    }
+
     function isOwnBootstrapUser(userId) {
       return signedIn()
         && userId == request.auth.uid
@@ -430,11 +447,7 @@ service cloud.firestore {
       allow read: if isSystemsMember()
         || (
           (isActiveUser() || hasInstitutionalEmail())
-          && resource.data.target == 'COORDINACION_ACADEMICA'
-          && (
-            resource.data.targetUserId == request.auth.uid
-            || resource.data.targetUserId == request.auth.token.email
-          )
+          && canReadAcademicNotificationTarget()
         );
 
       allow create: if (isActiveUser() || hasInstitutionalEmail())
@@ -462,11 +475,7 @@ service cloud.firestore {
           isSystemsMember()
           || (
             (isActiveUser() || hasInstitutionalEmail())
-            && resource.data.target == 'COORDINACION_ACADEMICA'
-            && (
-              resource.data.targetUserId == request.auth.uid
-              || resource.data.targetUserId == request.auth.token.email
-            )
+            && canReadAcademicNotificationTarget()
           )
         )
         && request.resource.data.diff(resource.data).changedKeys().hasOnly(['readBy']);
