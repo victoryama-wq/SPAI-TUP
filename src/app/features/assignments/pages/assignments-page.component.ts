@@ -1872,7 +1872,11 @@ export class AssignmentsPageComponent implements OnDestroy {
       ? this.assignmentForm.program.trim().toUpperCase()
       : selectedGroup?.programAbbreviation ?? '';
 
-    if (selectedProgram && !this.canUseDestinationProgram(selectedProgram)) {
+    if (selectedProgram && !this.canUseBaseProgramInForm(selectedProgram)) {
+      errors.push('Solo puedes seleccionar grupos de tus programas asignados como destino.');
+    }
+
+    if (this.unauthorizedSharedDestinationGroups().length) {
       errors.push('Solo puedes seleccionar grupos de tus programas asignados como destino.');
     }
 
@@ -2026,6 +2030,47 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     return this.canSeeAllAssignments()
       || this.isAssignedProgram(normalizedProgram);
+  }
+
+  private canUseBaseProgramInForm(program: string): boolean {
+    if (this.canUseDestinationProgram(program)) {
+      return true;
+    }
+
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignmentById(this.editingAssignmentId)
+      : null;
+
+    return Boolean(
+      currentAssignment
+        && this.assignmentForm.shared
+        && !this.assignmentForm.special
+        && this.canModifyAssignment(currentAssignment),
+    );
+  }
+
+  private unauthorizedSharedDestinationGroups(): AcademicGroup[] {
+    if (this.canSeeAllAssignments() || !this.assignmentForm.shared || this.assignmentForm.special) {
+      return [];
+    }
+
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignmentById(this.editingAssignmentId)
+      : null;
+
+    if (!currentAssignment || this.canManageBaseAssignment(currentAssignment)) {
+      return [];
+    }
+
+    const lockedGroups = new Set(this.lockedShareGroups());
+
+    return this.selectedShareGroups()
+      .filter((group) => {
+        const groupName = group.fullGroup.trim().toUpperCase();
+
+        return !lockedGroups.has(groupName)
+          && !this.isAssignedProgram(group.programAbbreviation);
+      });
   }
 
   private programCodeForWrite(program: string): string {
