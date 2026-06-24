@@ -148,9 +148,23 @@ service cloud.firestore {
       return isSystemsMember()
         || (
           isAcademicCoordinator()
-          && currentUser().data.assignedPrograms is list
           && program is string
-          && program in currentUser().data.assignedPrograms
+          && (
+            (
+              currentUser().data.assignedPrograms is list
+              && program in currentUser().data.assignedPrograms
+            )
+            || isCurrentUserCoordinatorOfProgram(program)
+          )
+        );
+    }
+
+    function isCurrentUserCoordinatorOfProgram(program) {
+      return program is string
+        && exists(/databases/$(database)/documents/programas/$(program))
+        && (
+          get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.name
+          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.email
         );
     }
 
