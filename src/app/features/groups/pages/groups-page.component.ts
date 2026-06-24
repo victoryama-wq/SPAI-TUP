@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
@@ -37,7 +37,7 @@ const GROUPS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
   templateUrl: './groups-page.component.html',
   styleUrl: './groups-page.component.css',
 })
-export class GroupsPageComponent {
+export class GroupsPageComponent implements OnDestroy {
   private readonly groupsRepository = inject(GroupsRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
   private readonly nomenclaturesRepository = inject(NomenclaturesRepository);
@@ -84,6 +84,11 @@ export class GroupsPageComponent {
   pageSize = 10;
   readonly pageSizeOptions = GROUPS_PAGE_SIZE_OPTIONS;
   private readonly tableFiltersVersion = signal(0);
+  private csvImportMessageTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnDestroy(): void {
+    this.clearCsvImportMessageTimeout();
+  }
 
   readonly isAcademicCoordinator = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
@@ -234,6 +239,7 @@ export class GroupsPageComponent {
     const file = input.files?.[0];
 
     this.csvImportMessage = '';
+    this.clearCsvImportMessageTimeout();
     this.csvImportErrors = [];
     this.previewRows = [];
 
@@ -280,11 +286,12 @@ export class GroupsPageComponent {
 
     try {
       await this.groupsRepository.importGroups(validGroups);
-      this.csvImportMessage = `${validGroups.length} grupos guardados o actualizados correctamente.`;
+      this.showTemporaryCsvImportMessage(`${validGroups.length} grupos guardados o actualizados correctamente.`);
       this.csvImportErrors = [];
       this.previewRows = [];
     } catch (error) {
       this.csvImportMessage = '';
+      this.clearCsvImportMessageTimeout();
       this.csvImportErrors = [
         `No se pudieron guardar los grupos. ${this.readFirebaseMessage(error)} ${this.currentAccessDiagnostic()}`,
       ];
@@ -294,6 +301,7 @@ export class GroupsPageComponent {
   cancelPreview(): void {
     this.previewRows = [];
     this.csvImportMessage = '';
+    this.clearCsvImportMessageTimeout();
     this.csvImportErrors = [];
   }
 
@@ -350,7 +358,7 @@ export class GroupsPageComponent {
 
     try {
       await this.groupsRepository.deleteGroup(group.id);
-      this.csvImportMessage = `Grupo ${group.fullGroup} eliminado correctamente.`;
+      this.showTemporaryCsvImportMessage(`Grupo ${group.fullGroup} eliminado correctamente.`);
       this.csvImportErrors = [];
       this.cancelDeleteGroup();
     } catch (error) {
@@ -373,7 +381,7 @@ export class GroupsPageComponent {
 
     try {
       await this.groupsRepository.deleteGroups(groupsToDelete.map((group) => group.id));
-      this.csvImportMessage = `${groupsToDelete.length} grupos del ciclo ${this.selectedCycleCode} eliminados correctamente.`;
+      this.showTemporaryCsvImportMessage(`${groupsToDelete.length} grupos del ciclo ${this.selectedCycleCode} eliminados correctamente.`);
       this.csvImportErrors = [];
       this.cancelDeleteCycleGroups();
     } catch (error) {
@@ -410,7 +418,7 @@ export class GroupsPageComponent {
 
     try {
       await this.groupsRepository.upsertGroup(result.payload);
-      this.csvImportMessage = `Grupo ${result.payload.fullGroup} guardado correctamente.`;
+      this.showTemporaryCsvImportMessage(`Grupo ${result.payload.fullGroup} guardado correctamente.`);
       this.csvImportErrors = [];
       this.closeManualGroupForm();
     } catch (error) {
@@ -839,6 +847,27 @@ export class GroupsPageComponent {
 
   private readFirebaseMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Revisa permisos de Firebase e intentalo de nuevo.';
+  }
+
+  private showTemporaryCsvImportMessage(message: string): void {
+    this.clearCsvImportMessageTimeout();
+    this.csvImportMessage = message;
+    this.csvImportMessageTimeout = setTimeout(() => {
+      if (this.csvImportMessage === message) {
+        this.csvImportMessage = '';
+      }
+
+      this.csvImportMessageTimeout = null;
+    }, 3500);
+  }
+
+  private clearCsvImportMessageTimeout(): void {
+    if (!this.csvImportMessageTimeout) {
+      return;
+    }
+
+    clearTimeout(this.csvImportMessageTimeout);
+    this.csvImportMessageTimeout = null;
   }
 
   private currentAccessDiagnostic(): string {
