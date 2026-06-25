@@ -723,13 +723,13 @@ Acciones del modulo:
 - Eliminar solo ciclos en `Preparacion`, usando una accion visible como **Eliminar** para ciclos de prueba o ciclos creados por error.
 - No permitir eliminar ciclos que ya estuvieron en captura desde el boton normal del modulo.
 - No exigir fechas al crear el ciclo.
-- Permitir que Sistemas capture una fecha tentativa de cierre de captura (`tentativeCaptureCloseAt`) para avisar a las coordinaciones cuando se planea cerrar el ciclo.
+- Permitir que Sistemas capture una fecha de cierre de captura (`tentativeCaptureCloseAt`) para avisar a las coordinaciones cuando se planea cerrar el ciclo.
 - Registrar fechas tecnicas: creacion, inicio de captura, cierre de captura y cierre de ciclo.
 - No mostrar tarjetas con nombres tecnicos de colecciones Firestore, como `academic_cycles`.
 - Estado implementado: el modulo Ciclos ya persiste en la coleccion Firestore `ciclos`.
 - La pantalla ya no usa ciclos demo en memoria; si Firestore no contiene ciclos, muestra estado pendiente.
-- Las acciones implementadas escriben fechas tecnicas como cadenas ISO: `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`; la fecha tentativa puede guardarse como fecha simple `YYYY-MM-DD`.
-- El dashboard y el encabezado operativo muestran el ciclo activo junto con la fecha tentativa de cierre cuando exista.
+- Las acciones implementadas escriben fechas tecnicas como cadenas ISO: `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`; la fecha de cierre de captura puede guardarse como fecha simple `YYYY-MM-DD`.
+- El dashboard y el encabezado operativo muestran el ciclo activo junto con la fecha de cierre de captura cuando exista.
 
 ### Renovacion de ciclo
 

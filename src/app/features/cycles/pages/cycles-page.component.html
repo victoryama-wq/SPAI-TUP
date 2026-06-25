@@ -21,7 +21,7 @@
         <strong>{{ cycle.code }}</strong>
         <p>{{ cycle.label }}</p>
         <small>Captura: {{ formatDate(cycle.captureStartedAt) }}</small>
-        <small>Cierre tentativo: {{ formatDate(cycle.tentativeCaptureCloseAt) }}</small>
+        <small>Cierre de captura: {{ formatDate(cycle.tentativeCaptureCloseAt) }}</small>
       } @else {
         <strong class="empty-active">Sin ciclo</strong>
         <p>Activa un ciclo para iniciar la planeación.</p>
@@ -93,7 +93,7 @@
         </label>
 
         <label>
-          <span>Cierre tentativo de captura</span>
+          <span>Cierre de captura</span>
           <input type="date" formControlName="tentativeCaptureCloseAt" />
         </label>
 
@@ -107,8 +107,8 @@
         </label>
 
         <div class="form-note">
-          <strong>Fecha tentativa opcional</strong>
-          <span>El cierre tentativo orienta a las coordinaciones; el cierre real se aplica desde Acciones de Sistemas.</span>
+          <strong>Fecha opcional</strong>
+          <span>Esta fecha orienta a las coordinaciones; el cierre real se aplica desde Acciones de Sistemas.</span>
         </div>
 
         @if (formError) {
@@ -146,8 +146,8 @@
           <th>Estado</th>
           <th>Creación</th>
           <th>Captura</th>
-          <th>Cierre tentativo</th>
-          <th>Cierre captura</th>
+          <th>Cierre de captura</th>
+          <th>Cierre aplicado</th>
           <th>Cierre</th>
           <th>Observaciones</th>
           <th>Acciones de Sistemas</th>
@@ -176,7 +176,7 @@
                 type="date"
                 [value]="dateInputValue(cycle.tentativeCaptureCloseAt)"
                 [disabled]="cycle.status === 'Cerrado'"
-                aria-label="Cierre tentativo de captura"
+                aria-label="Cierre de captura"
                 (change)="updateTentativeCaptureClose(cycle, $event)"
               />
             </td>

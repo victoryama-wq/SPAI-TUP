@@ -171,7 +171,7 @@ export class AppComponent {
       return cycle.code;
     }
 
-    return `${cycle.code} - cierre tentativo ${this.formatCycleDate(cycle.tentativeCaptureCloseAt)}`;
+    return `${cycle.code} - cierre de captura ${this.formatCycleDate(cycle.tentativeCaptureCloseAt)}`;
   }
 
   private formatCycleDate(value: string): string {
