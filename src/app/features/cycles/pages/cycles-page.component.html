@@ -21,6 +21,7 @@
         <strong>{{ cycle.code }}</strong>
         <p>{{ cycle.label }}</p>
         <small>Captura: {{ formatDate(cycle.captureStartedAt) }}</small>
+        <small>Cierre tentativo: {{ formatDate(cycle.tentativeCaptureCloseAt) }}</small>
       } @else {
         <strong class="empty-active">Sin ciclo</strong>
         <p>Activa un ciclo para iniciar la planeación.</p>
@@ -91,6 +92,11 @@
           }
         </label>
 
+        <label>
+          <span>Cierre tentativo de captura</span>
+          <input type="date" formControlName="tentativeCaptureCloseAt" />
+        </label>
+
         <label class="full-field">
           <span>Observaciones</span>
           <textarea
@@ -101,8 +107,8 @@
         </label>
 
         <div class="form-note">
-          <strong>Sin fechas obligatorias</strong>
-          <span>El ciclo se puede crear primero y activar en captura cuando Sistemas confirme el arranque.</span>
+          <strong>Fecha tentativa opcional</strong>
+          <span>El cierre tentativo orienta a las coordinaciones; el cierre real se aplica desde Acciones de Sistemas.</span>
         </div>
 
         @if (formError) {
@@ -140,6 +146,7 @@
           <th>Estado</th>
           <th>Creación</th>
           <th>Captura</th>
+          <th>Cierre tentativo</th>
           <th>Cierre captura</th>
           <th>Cierre</th>
           <th>Observaciones</th>
@@ -163,6 +170,16 @@
             </td>
             <td>{{ formatDate(cycle.createdAt) }}</td>
             <td>{{ formatDate(cycle.captureStartedAt) }}</td>
+            <td>
+              <input
+                class="table-date-input"
+                type="date"
+                [value]="dateInputValue(cycle.tentativeCaptureCloseAt)"
+                [disabled]="cycle.status === 'Cerrado'"
+                aria-label="Cierre tentativo de captura"
+                (change)="updateTentativeCaptureClose(cycle, $event)"
+              />
+            </td>
             <td>{{ formatDate(cycle.captureClosedAt) }}</td>
             <td>{{ formatDate(cycle.closedAt) }}</td>
             <td>

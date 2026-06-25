@@ -723,11 +723,13 @@ Acciones del modulo:
 - Eliminar solo ciclos en `Preparacion`, usando una accion visible como **Eliminar** para ciclos de prueba o ciclos creados por error.
 - No permitir eliminar ciclos que ya estuvieron en captura desde el boton normal del modulo.
 - No exigir fechas al crear el ciclo.
+- Permitir que Sistemas capture una fecha tentativa de cierre de captura (`tentativeCaptureCloseAt`) para avisar a las coordinaciones cuando se planea cerrar el ciclo.
 - Registrar fechas tecnicas: creacion, inicio de captura, cierre de captura y cierre de ciclo.
 - No mostrar tarjetas con nombres tecnicos de colecciones Firestore, como `academic_cycles`.
 - Estado implementado: el modulo Ciclos ya persiste en la coleccion Firestore `ciclos`.
 - La pantalla ya no usa ciclos demo en memoria; si Firestore no contiene ciclos, muestra estado pendiente.
-- Las acciones implementadas escriben fechas tecnicas como cadenas ISO: `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`.
+- Las acciones implementadas escriben fechas tecnicas como cadenas ISO: `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`; la fecha tentativa puede guardarse como fecha simple `YYYY-MM-DD`.
+- El dashboard y el encabezado operativo muestran el ciclo activo junto con la fecha tentativa de cierre cuando exista.
 
 ### Renovacion de ciclo
 
@@ -1418,7 +1420,7 @@ Notas de implementacion actual:
 - `usuarios_permisos` queda pendiente; los permisos por modulo viven embebidos en `usuarios.access`.
 - `usuarios` usa actualmente campos frontend en ingles: `authUid`, `name`, `email`, `role`, `greetingGender`, `assignedPrograms`, `access`, `status`, `createdAt`, `updatedAt`.
 - `roles_personalizados` usa `name`, `description`, `permissions`, `createdAt` y `updatedAt`.
-- `ciclos` usa `code`, `label`, `status`, `notes`, `createdAt`, `captureStartedAt`, `captureClosedAt` y `closedAt`.
+- `ciclos` usa `code`, `label`, `status`, `notes`, `createdAt`, `captureStartedAt`, `tentativeCaptureCloseAt`, `captureClosedAt` y `closedAt`.
 - `programas` y `nomenclaturas_programas` ya estan implementadas para el modulo Nomenclaturas.
 - `grupos` ya esta implementada para alta/importacion operativa por CSV y deteccion de modalidad/turno desde la nomenclatura del grupo.
 - `docentes` ya esta implementada como catalogo global con alta manual, validacion, inactivacion, carga CSV y control por `usuario_moodle`.

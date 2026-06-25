@@ -60,6 +60,7 @@ export class CyclesPageComponent {
   readonly form = this.formBuilder.nonNullable.group({
     code: ['', [Validators.required, Validators.pattern(/^\d{2}-\d$/)]],
     label: ['', [Validators.required, Validators.minLength(3)]],
+    tentativeCaptureCloseAt: [''],
     notes: [''],
   });
 
@@ -80,6 +81,7 @@ export class CyclesPageComponent {
     this.form.reset({
       code: '',
       label: '',
+      tentativeCaptureCloseAt: '',
       notes: '',
     });
     this.isFormOpen = true;
@@ -93,6 +95,7 @@ export class CyclesPageComponent {
     this.form.reset({
       code: '',
       label: '',
+      tentativeCaptureCloseAt: '',
       notes: '',
     });
   }
@@ -205,6 +208,34 @@ export class CyclesPageComponent {
     return cycle.status === 'Preparacion' || cycle.status === 'Cerrado';
   }
 
+  async updateTentativeCaptureClose(cycle: AcademicCycle, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const tentativeCaptureCloseAt = input.value || null;
+
+    try {
+      await this.cyclesRepository.updateTentativeCaptureClose(cycle.id, tentativeCaptureCloseAt);
+    } catch (error) {
+      console.error('No se pudo actualizar el cierre tentativo de captura', error);
+      input.value = this.dateInputValue(cycle.tentativeCaptureCloseAt);
+      await this.confirmationDialogService.alert({
+        title: 'No se pudo actualizar',
+        message: this.getSaveErrorMessage(error),
+      });
+    }
+  }
+
+  dateInputValue(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    return value.slice(0, 10);
+  }
+
   private getSaveErrorMessage(error: unknown): string {
     const message = error instanceof Error ? error.message : String(error);
 
@@ -215,16 +246,20 @@ export class CyclesPageComponent {
     return 'No se pudo guardar el ciclo. Intenta de nuevo.';
   }
 
-  formatDate(value: string | null): string {
+  formatDate(value: string | null | undefined): string {
     if (!value) {
       return 'Pendiente';
     }
+
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T12:00:00`)
+      : new Date(value);
 
     return new Intl.DateTimeFormat('es-MX', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-    }).format(new Date(value));
+    }).format(date);
   }
 }
 

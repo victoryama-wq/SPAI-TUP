@@ -13,6 +13,7 @@ export interface AcademicCycle {
   notes: string;
   createdAt: string;
   captureStartedAt: string | null;
+  tentativeCaptureCloseAt?: string | null;
   captureClosedAt: string | null;
   closedAt: string | null;
 }
@@ -21,6 +22,7 @@ export interface CreateCyclePayload {
   code: string;
   label: string;
   notes: string;
+  tentativeCaptureCloseAt?: string | null;
 }
 
 export const CYCLES_COLLECTION = 'ciclos';
@@ -48,6 +50,7 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
       status: 'Preparacion',
       createdAt: timestamp,
       captureStartedAt: null,
+      tentativeCaptureCloseAt: payload.tentativeCaptureCloseAt || null,
       captureClosedAt: null,
       closedAt: null,
     };
@@ -111,6 +114,12 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
     return this.updateDocument(cycleId, {
       status: 'Cerrado',
       closedAt: cycle.closedAt ?? timestamp,
+    });
+  }
+
+  updateTentativeCaptureClose(cycleId: string, tentativeCaptureCloseAt: string | null): Promise<void> {
+    return this.updateDocument(cycleId, {
+      tentativeCaptureCloseAt,
     });
   }
 

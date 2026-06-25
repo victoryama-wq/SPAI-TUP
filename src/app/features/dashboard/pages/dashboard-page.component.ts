@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AssignmentsRepository } from '../../assignments/data/assignments.repository';
-import { CyclesRepository } from '../../cycles/data/cycles.repository';
+import { AcademicCycle, CyclesRepository } from '../../cycles/data/cycles.repository';
 import { GroupsRepository } from '../../groups/data/groups.repository';
 import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.repository';
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
@@ -128,7 +128,7 @@ export class DashboardPageComponent {
         {
           label: 'Ciclo activo',
           value: activeCycle?.code ?? '--',
-          hint: activeCycle?.status ?? 'Pendiente de activar',
+          hint: this.activeCycleHint(activeCycle),
           icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
         },
         {
@@ -156,7 +156,7 @@ export class DashboardPageComponent {
       {
         label: 'Ciclo activo',
         value: activeCycle?.code ?? '--',
-        hint: activeCycle?.status ?? 'Pendiente de activar',
+        hint: this.activeCycleHint(activeCycle),
         icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
       },
       {
@@ -424,6 +424,30 @@ export class DashboardPageComponent {
     };
 
     return labels[status];
+  }
+
+  private activeCycleHint(activeCycle: AcademicCycle | null): string {
+    if (!activeCycle) {
+      return 'Pendiente de activar';
+    }
+
+    if (!activeCycle.tentativeCaptureCloseAt) {
+      return `${activeCycle.status} - sin cierre tentativo`;
+    }
+
+    return `${activeCycle.status} - cierre tentativo ${this.formatDisplayDate(activeCycle.tentativeCaptureCloseAt)}`;
+  }
+
+  private formatDisplayDate(value: string): string {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T12:00:00`)
+      : new Date(value);
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
   }
 
   private academicProgramCodesForCurrentUser(): string[] {
