@@ -215,7 +215,7 @@ export class CyclesPageComponent {
     try {
       await this.cyclesRepository.updateTentativeCaptureClose(cycle.id, tentativeCaptureCloseAt);
     } catch (error) {
-      console.error('No se pudo actualizar el cierre de captura', error);
+      console.error('No se pudo actualizar el Cierre de Captura', error);
       input.value = this.dateInputValue(cycle.tentativeCaptureCloseAt);
       await this.confirmationDialogService.alert({
         title: 'No se pudo actualizar',

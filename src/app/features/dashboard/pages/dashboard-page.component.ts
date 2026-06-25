@@ -432,10 +432,10 @@ export class DashboardPageComponent {
     }
 
     if (!activeCycle.tentativeCaptureCloseAt) {
-      return `${activeCycle.status} - sin cierre de captura`;
+      return `${activeCycle.status} - sin Cierre de Captura`;
     }
 
-    return `${activeCycle.status} - cierre de captura ${this.formatDisplayDate(activeCycle.tentativeCaptureCloseAt)}`;
+    return `${activeCycle.status} - Cierre de Captura ${this.formatDisplayDate(activeCycle.tentativeCaptureCloseAt)}`;
   }
 
   private formatDisplayDate(value: string): string {
