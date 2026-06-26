@@ -1284,8 +1284,7 @@ td.center-column {
   align-self: start;
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(150px, 190px));
-  justify-content: center;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
 }
 
@@ -1302,7 +1301,7 @@ td.center-column {
   display: grid;
   gap: 2px;
   min-height: 50px;
-  padding: 8px 10px;
+  padding: 9px 12px;
   text-align: left;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
   width: 100%;
