@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { UserSessionService } from '../auth/user-session.service';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
+import { AppUser, UsersRepository } from '../../features/users/data/users.repository';
 
 export interface SystemNotification {
   id: string;
@@ -46,11 +47,13 @@ export interface CreateAcademicNotificationPayload extends CreateSystemNotificat
 }
 
 export const SYSTEM_NOTIFICATIONS_COLLECTION = 'notificaciones';
+export const MAIL_COLLECTION = 'mail';
 
 @Injectable({ providedIn: 'root' })
 export class SystemNotificationsRepository {
   private readonly firestore = inject(FIREBASE_DB);
   private readonly userSessionService = inject(UserSessionService);
+  private readonly usersRepository = inject(UsersRepository);
   private readonly notificationsSignal = signal<SystemNotification[]>([]);
   private readonly locallyReadNotificationIds = signal<ReadonlySet<string>>(new Set());
 
@@ -107,8 +110,50 @@ export class SystemNotificationsRepository {
     });
   }
 
-  create(payload: CreateSystemNotificationPayload): Promise<unknown> {
-    return addDoc(collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION), {
+  async create(payload: CreateSystemNotificationPayload): Promise<unknown> {
+    const notificationDocument = this.systemNotificationDocument(payload);
+    const notificationRef = await addDoc(collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION), notificationDocument);
+
+    void this.queueEmailForNotification(notificationRef.id, notificationDocument);
+
+    return notificationRef;
+  }
+
+  async createForAcademicCoordinator(payload: CreateAcademicNotificationPayload): Promise<unknown> {
+    const notificationDocument = this.academicNotificationDocument(payload);
+    const notificationRef = await addDoc(collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION), notificationDocument);
+
+    void this.queueEmailForNotification(notificationRef.id, notificationDocument);
+
+    return notificationRef;
+  }
+
+  async createForAcademicCoordinatorOnce(
+    notificationId: string,
+    payload: CreateAcademicNotificationPayload,
+  ): Promise<void> {
+    const notificationDocument = this.academicNotificationDocument(payload);
+
+    await setDoc(doc(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION, notificationId), notificationDocument);
+    void this.queueEmailForNotification(notificationId, notificationDocument);
+  }
+
+  createOnce(notificationId: string, payload: CreateSystemNotificationPayload): Promise<void | undefined> {
+    const notificationRef = doc(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION, notificationId);
+    const notificationDocument = this.systemNotificationDocument(payload);
+
+    return setDoc(
+      notificationRef,
+      notificationDocument,
+    )
+      .then(() => {
+        void this.queueEmailForNotification(notificationId, notificationDocument);
+      })
+      .catch(() => undefined);
+  }
+
+  private systemNotificationDocument(payload: CreateSystemNotificationPayload): Omit<SystemNotification, 'id'> {
+    return {
       title: payload.title,
       message: payload.message,
       target: 'SISTEMAS',
@@ -120,11 +165,11 @@ export class SystemNotificationsRepository {
       actorRole: payload.actorRole,
       readBy: [],
       createdAt: new Date().toISOString(),
-    });
+    };
   }
 
-  createForAcademicCoordinator(payload: CreateAcademicNotificationPayload): Promise<unknown> {
-    return addDoc(collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION), {
+  private academicNotificationDocument(payload: CreateAcademicNotificationPayload): Omit<SystemNotification, 'id'> {
+    return {
       title: payload.title,
       message: payload.message,
       target: 'COORDINACION_ACADEMICA',
@@ -137,48 +182,98 @@ export class SystemNotificationsRepository {
       actorRole: payload.actorRole,
       readBy: [],
       createdAt: new Date().toISOString(),
-    });
+    };
   }
 
-  createForAcademicCoordinatorOnce(
-    notificationId: string,
-    payload: CreateAcademicNotificationPayload,
-  ): Promise<void> {
-    return setDoc(doc(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION, notificationId), {
-      title: payload.title,
-      message: payload.message,
-      target: 'COORDINACION_ACADEMICA',
-      targetUserId: payload.targetUserId,
-      type: payload.type,
-      entity: payload.entity,
-      entityId: payload.entityId,
-      actorId: payload.actorId,
-      actorName: payload.actorName,
-      actorRole: payload.actorRole,
-      readBy: [],
-      createdAt: new Date().toISOString(),
-    });
-  }
+  private queueEmailForNotification(notificationId: string, notification: Omit<SystemNotification, 'id'>): Promise<void> | void {
+    const recipients = this.emailRecipientsForNotification(notification);
 
-  createOnce(notificationId: string, payload: CreateSystemNotificationPayload): Promise<void | undefined> {
-    const notificationRef = doc(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION, notificationId);
+    if (!recipients.length) {
+      return;
+    }
 
-    return setDoc(
-      notificationRef,
-      {
-        title: payload.title,
-        message: payload.message,
-        target: 'SISTEMAS',
-        type: payload.type,
-        entity: payload.entity,
-        entityId: payload.entityId,
-        actorId: payload.actorId,
-        actorName: payload.actorName,
-        actorRole: payload.actorRole,
-        readBy: [],
-        createdAt: new Date().toISOString(),
+    const subject = `SPAI TUP - ${notification.title}`;
+    const text = `${notification.title}\n\n${notification.message}\n\nIngresa a SPAI TUP para revisar el aviso.`;
+    const html = [
+      '<div style="font-family:Arial,sans-serif;color:#07163c;line-height:1.45">',
+      `<h2 style="margin:0 0 12px">${this.escapeHtml(notification.title)}</h2>`,
+      `<p style="margin:0 0 16px">${this.escapeHtml(notification.message)}</p>`,
+      '<p style="margin:0;color:#40577a">Ingresa a SPAI TUP para revisar el aviso.</p>',
+      '</div>',
+    ].join('');
+
+    return setDoc(doc(this.firestore, MAIL_COLLECTION, this.emailQueueId(notificationId)), {
+      to: recipients,
+      message: {
+        subject,
+        text,
+        html,
       },
-    ).catch(() => undefined);
+      notificationId,
+      target: notification.target,
+      type: notification.type,
+      createdAt: new Date().toISOString(),
+    }).catch((error) => {
+      console.warn('No se pudo encolar el correo de notificacion', error);
+    });
+  }
+
+  private emailRecipientsForNotification(notification: Omit<SystemNotification, 'id'>): string[] {
+    const activeUsers = this.usersRepository.users().filter((user) => user.status === 'Activo');
+
+    if (notification.target === 'SISTEMAS') {
+      return this.uniqueInstitutionalEmails(activeUsers
+        .filter((user) => this.isSystemsUser(user.role))
+        .map((user) => user.email));
+    }
+
+    const targetUserId = notification.targetUserId?.trim();
+
+    if (!targetUserId) {
+      return [];
+    }
+
+    const targetVariants = new Set([
+      targetUserId,
+      targetUserId.toLowerCase(),
+      targetUserId.toUpperCase(),
+    ]);
+
+    return this.uniqueInstitutionalEmails(activeUsers
+      .filter((user) => this.notificationTargetIdsForUser(user).some((target) => targetVariants.has(target)))
+      .map((user) => user.email));
+  }
+
+  private notificationTargetIdsForUser(user: AppUser): string[] {
+    return Array.from(new Set([
+      user.id,
+      user.authUid ?? '',
+      user.email.trim().toLowerCase(),
+      ...((Array.isArray(user.assignedPrograms) ? user.assignedPrograms : [])
+        .map((program) => program.trim().toUpperCase())),
+    ].map((value) => value.trim()).filter(Boolean)));
+  }
+
+  private uniqueInstitutionalEmails(emails: string[]): string[] {
+    return Array.from(new Set(emails
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.endsWith('@tecplayacar.edu.mx'))));
+  }
+
+  private emailQueueId(notificationId: string): string {
+    return `notificacion-${notificationId}`
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   markAsRead(notificationId: string): Promise<void> | void {

@@ -153,6 +153,7 @@ Reglas:
 - `solicitudes_compartidas` permite lectura a usuarios con acceso al modulo y controla creacion/respuesta/cancelacion segun programa y rol.
 - `solicitudes_sistemas` permite que usuarios activos creen solicitudes operativas dirigidas a Sistemas para reabrir captura, alta de grupo, cambio de ID de asignatura o validacion de docente nuevo; Sistemas puede leer, actualizar y eliminar solicitudes segun permisos publicados.
 - `notificaciones` permite lectura a miembros activos de Sistemas y a Coordinacion Academica cuando la notificacion esta dirigida a su `authUid`; permite crear avisos hacia Sistemas desde flujos autorizados y avisos hacia Coordinacion Academica cuando Sistemas responde o activa un docente.
+- `mail` permite encolar correos institucionales derivados de notificaciones para envio mediante Firebase Trigger Email.
 - `bitacora` permite lectura a Sistemas o usuarios con acceso a bitacora; la creacion queda abierta a usuarios autenticados para registrar acciones del sistema.
 - Cualquier otra coleccion Firestore queda cerrada por defecto.
 - `storage.rules` mantiene Cloud Storage cerrado por defecto hasta desarrollar importacion/exportacion CSV.
@@ -2028,6 +2029,8 @@ La interfaz principal ya tiene identidad institucional TUP, encabezado premium, 
 - Marcar como leida debe retirar el contador y la notificacion pendiente.
 - Sistemas puede eliminar solicitudes de prueba.
 - Las notificaciones relacionadas con docentes deben dirigir al modulo Docentes.
+- Cada notificacion de campanita debe encolar tambien un correo institucional en `mail` para los mismos destinatarios visibles.
+- El envio real de correo depende de tener configurada la extension Firebase Trigger Email sobre la coleccion `mail`.
 
 ### 23.9 Asignaciones
 
