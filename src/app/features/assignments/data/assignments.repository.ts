@@ -4,7 +4,7 @@ import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
 export type AssignmentStatus = 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE' | 'VALIDADO' | 'CON_OBSERVACION';
-export type AssignmentType = 'REGULAR' | 'ESPECIAL' | 'PROPEDEUTICO';
+export type AssignmentType = 'REGULAR' | 'ESPECIAL' | 'CURSO_ESPECIAL' | 'PROPEDEUTICO';
 
 export interface AcademicAssignment {
   id: string;

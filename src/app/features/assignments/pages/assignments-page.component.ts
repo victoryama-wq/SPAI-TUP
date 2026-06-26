@@ -24,6 +24,7 @@ type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'P
 type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 type AssignmentComboField = 'subject' | 'teacher' | 'group';
 type AssignmentCatalogScope = 'OWN' | 'GLOBAL';
+type SpecialAssignmentOption = 'enrollments' | 'group' | 'propedeutic';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
@@ -72,6 +73,7 @@ interface AssignmentFormState {
   sharedGroupCount: number;
   shareGroups: string[];
   special: boolean;
+  specialType: SpecialAssignmentOption;
   propedeutic: boolean;
   studentEnrollments: string;
 }
@@ -585,6 +587,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroupCount: sharedGroups.length,
       shareGroups: sharedGroups,
       special: this.isSpecialAssignment(assignment),
+      specialType: this.specialTypeForAssignment(assignment),
       propedeutic: this.isPropedeuticAssignment(assignment),
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
@@ -1384,6 +1387,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   onSpecialChange(): void {
     if (this.assignmentForm.special) {
+      this.assignmentForm.specialType = this.assignmentForm.propedeutic ? 'propedeutic' : 'enrollments';
       this.assignmentForm.group = '';
       this.assignmentForm.shared = false;
       this.assignmentForm.sourceAssignmentId = '';
@@ -1397,16 +1401,30 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     this.assignmentForm.propedeutic = false;
+    this.assignmentForm.specialType = 'group';
     this.assignmentForm.program = '';
     this.clearPropedeuticMoodleId();
   }
 
-  selectSpecialType(type: 'special' | 'propedeutic'): void {
-    this.assignmentForm.special = true;
+  selectSpecialType(type: SpecialAssignmentOption): void {
+    this.assignmentForm.specialType = type;
+    this.assignmentForm.special = type !== 'group';
     this.assignmentForm.propedeutic = type === 'propedeutic';
-    this.onSpecialChange();
 
-    if (this.assignmentForm.propedeutic) {
+    if (this.assignmentForm.special) {
+      this.assignmentForm.group = '';
+      this.assignmentForm.shared = false;
+      this.assignmentForm.sourceAssignmentId = '';
+      this.assignmentForm.sharedGroupCount = 0;
+      this.assignmentForm.shareGroups = [];
+      this.shareGroupSearch.set('');
+      this.groupPickerValue = '';
+      this.activeComboField = null;
+    } else {
+      this.assignmentForm.program = '';
+    }
+
+    if (type === 'propedeutic') {
       this.applyPropedeuticMoodleId();
       return;
     }
@@ -1417,10 +1435,12 @@ export class AssignmentsPageComponent implements OnDestroy {
   onPropedeuticChange(): void {
     if (this.assignmentForm.propedeutic) {
       this.assignmentForm.special = true;
+      this.assignmentForm.specialType = 'propedeutic';
       this.applyPropedeuticMoodleId();
       return;
     }
 
+    this.assignmentForm.specialType = this.assignmentForm.special ? 'enrollments' : 'group';
     this.clearPropedeuticMoodleId();
   }
 
@@ -1446,6 +1466,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   private assignmentTypeForForm(): AssignmentType {
     if (this.assignmentForm.propedeutic) {
       return 'PROPEDEUTICO';
+    }
+
+    if (this.modeTab() === 'Especiales' && this.assignmentForm.specialType === 'group') {
+      return 'CURSO_ESPECIAL';
     }
 
     return this.assignmentForm.special ? 'ESPECIAL' : 'REGULAR';
@@ -1902,7 +1926,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
-    if (this.isSpecialAssignment(assignment)) {
+    if (this.isSpecialAssignment(assignment) || this.isSpecialCourseAssignment(assignment)) {
       return 'Especiales';
     }
 
@@ -2011,6 +2035,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentReportMode(assignment: AcademicAssignment): string {
+    if (this.isSpecialCourseAssignment(assignment)) {
+      return 'Curso especial por grupo';
+    }
+
     return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : this.assignmentMode(assignment);
   }
 
@@ -2779,9 +2807,25 @@ export class AssignmentsPageComponent implements OnDestroy {
       );
   }
 
+  isSpecialCourseAssignment(assignment: AcademicAssignment): boolean {
+    return assignment.assignmentType === 'CURSO_ESPECIAL';
+  }
+
   isPropedeuticAssignment(assignment: AcademicAssignment): boolean {
     return assignment.assignmentType === 'PROPEDEUTICO'
       || this.assignmentsRepository.normalizeMoodleId(assignment.moodleId) === PROPEDEUTIC_MOODLE_ID;
+  }
+
+  private specialTypeForAssignment(assignment: AcademicAssignment): SpecialAssignmentOption {
+    if (this.isPropedeuticAssignment(assignment)) {
+      return 'propedeutic';
+    }
+
+    if (this.isSpecialCourseAssignment(assignment)) {
+      return 'group';
+    }
+
+    return this.isSpecialAssignment(assignment) ? 'enrollments' : 'group';
   }
 
   displayMoodleId(assignment: AcademicAssignment): string {
@@ -3078,6 +3122,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroupCount: 0,
       shareGroups: [],
       special,
+      specialType: special ? 'enrollments' : 'group',
       propedeutic: false,
       studentEnrollments: '',
     };

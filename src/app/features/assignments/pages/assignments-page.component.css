@@ -1280,14 +1280,16 @@ td.center-column {
 }
 
 .special-type-controls {
-  align-self: end;
+  align-self: start;
   display: grid;
   gap: 8px;
+  grid-template-columns: repeat(3, minmax(150px, 190px));
+  justify-content: start;
   min-width: 0;
 }
 
 .special-mode-form .special-type-controls {
-  grid-column: 4 / 5;
+  grid-column: 1 / -1;
 }
 
 .special-type-button {
@@ -1298,7 +1300,7 @@ td.center-column {
   cursor: pointer;
   display: grid;
   gap: 2px;
-  min-height: 48px;
+  min-height: 50px;
   padding: 8px 10px;
   text-align: left;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
@@ -1738,6 +1740,10 @@ td.center-column {
   }
 
   .special-mode-form .assignment-state-row {
+    grid-template-columns: 1fr;
+  }
+
+  .special-type-controls {
     grid-template-columns: 1fr;
   }
 

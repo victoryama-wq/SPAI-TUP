@@ -1018,10 +1018,11 @@ Alta y edicion:
 
 Casos especiales y autogestivos:
 
-- La pestaña Especiales permite capturar asignaciones que no pertenecen a un grupo.
-- En Especiales no se solicita grupo.
-- En Especiales se solicita programa y matricula(s).
-- En Especiales se muestra un selector tipo boton para elegir **Especial** o **Propedeutico**; al activar Propedeutico, el campo ID Moodle queda bloqueado y muestra `Propedeutico`.
+- La pestaña Especiales permite capturar asignaciones sin grupo, cursos especiales por grupo y propedeuticos.
+- En Especiales, el selector superior muestra tres botones: **Especial**, **Curso especial** y **Propedeutico**.
+- **Especial** no solicita grupo; solicita programa y matricula(s).
+- **Curso especial** solicita grupo y se guarda en la pestaña Especiales con tipo `CURSO_ESPECIAL`.
+- Al activar **Propedeutico**, el campo ID Moodle queda bloqueado y muestra `Propedeutico`.
 - Las asignaciones propedeuticas se guardan con tipo `PROPEDEUTICO` y valor tecnico de ID Moodle `propedeutico` para evitar capturar IDs Moodle falsos.
 - Las matriculas pueden capturarse en una lista separada por saltos de linea, comas o punto y coma.
 - En Especiales la asignacion conserva ciclo, programa, asignatura, ID asignatura de captura, docente, estado y observaciones.
@@ -1031,6 +1032,7 @@ Casos especiales y autogestivos:
 - Los casos especiales aparecen en tabla dentro de la pestaña Especiales.
 - En la pestaña Especiales, el filtro por Grupo se reemplaza por filtro de Matricula.
 - En tabla, la columna Grupo muestra `Sin grupo` para casos especiales.
+- En tabla, los cursos especiales por grupo muestran el grupo base y la nota `Curso especial por grupo`.
 - En tabla, la columna Matriculas adicionales muestra las matriculas capturadas para casos especiales.
 - En tabla, la columna Observaciones muestra las observaciones capturadas para la asignacion.
 - Las asignaciones especiales no pueden usarse como origen de clase compartida.
@@ -1650,7 +1652,7 @@ export interface Asignacion {
   docente: string
   estado: 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE'
   observaciones?: string
-  tipo_asignacion?: 'REGULAR' | 'ESPECIAL' | 'PROPEDEUTICO'
+  tipo_asignacion?: 'REGULAR' | 'ESPECIAL' | 'CURSO_ESPECIAL' | 'PROPEDEUTICO'
   es_compartida: boolean
   id_asignacion_origen?: string
   es_especial: boolean
