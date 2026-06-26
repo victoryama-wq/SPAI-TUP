@@ -1401,6 +1401,19 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.clearPropedeuticMoodleId();
   }
 
+  selectSpecialType(type: 'special' | 'propedeutic'): void {
+    this.assignmentForm.special = true;
+    this.assignmentForm.propedeutic = type === 'propedeutic';
+    this.onSpecialChange();
+
+    if (this.assignmentForm.propedeutic) {
+      this.applyPropedeuticMoodleId();
+      return;
+    }
+
+    this.clearPropedeuticMoodleId();
+  }
+
   onPropedeuticChange(): void {
     if (this.assignmentForm.propedeutic) {
       this.assignmentForm.special = true;

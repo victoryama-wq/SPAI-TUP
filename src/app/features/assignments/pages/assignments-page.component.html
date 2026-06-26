@@ -456,20 +456,25 @@
           </div>
         </div>
         @if (modeTab() === 'Especiales') {
-          <div class="special-type-controls">
-            <label class="toggle-row special-toggle">
-              <input type="checkbox" [(ngModel)]="assignmentForm.special" (change)="onSpecialChange()" />
-              <span>Caso sin grupo con matriculas</span>
-            </label>
-            <label class="toggle-row propedeutic-toggle">
-              <input
-                type="checkbox"
-                [(ngModel)]="assignmentForm.propedeutic"
-                [disabled]="!assignmentForm.special"
-                (change)="onPropedeuticChange()"
-              />
-              <span>Propedeutico</span>
-            </label>
+          <div class="special-type-controls" role="group" aria-label="Tipo de asignacion especial">
+            <button
+              class="special-type-button"
+              type="button"
+              [class.is-active]="assignmentForm.special && !assignmentForm.propedeutic"
+              (click)="selectSpecialType('special')"
+            >
+              <strong>Especial</strong>
+              <span>Con matriculas</span>
+            </button>
+            <button
+              class="special-type-button"
+              type="button"
+              [class.is-active]="assignmentForm.propedeutic"
+              (click)="selectSpecialType('propedeutic')"
+            >
+              <strong>Propedeutico</strong>
+              <span>Sin ID Moodle</span>
+            </button>
           </div>
         }
         @if (assignmentForm.special) {

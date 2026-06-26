@@ -1290,6 +1290,50 @@ td.center-column {
   grid-column: 4 / 5;
 }
 
+.special-type-button {
+  background: #f8fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #07163c;
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+  min-height: 48px;
+  padding: 8px 10px;
+  text-align: left;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  width: 100%;
+}
+
+.special-type-button strong {
+  color: #1457d6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.special-type-button span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.special-type-button.is-active {
+  background: linear-gradient(180deg, #2d72e8, #1d4ed8);
+  border-color: #1d4ed8;
+  box-shadow: 0 10px 20px rgb(29 78 216 / 0.18);
+}
+
+.special-type-button.is-active strong,
+.special-type-button.is-active span {
+  color: #ffffff;
+}
+
 .special-mode-form:not(.special-case-active) .program-field {
   grid-column: 1 / 2;
 }
