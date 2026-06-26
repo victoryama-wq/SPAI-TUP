@@ -1023,6 +1023,8 @@ Casos especiales y autogestivos:
 - **Especial** no solicita grupo; solicita programa y matricula(s).
 - **Curso especial** solicita grupo y se guarda en la pestaña Especiales con tipo `CURSO_ESPECIAL`.
 - Al activar **Propedeutico**, el campo ID Moodle queda bloqueado y muestra `Propedeutico`.
+- En **Propedeutico**, el selector de materia solo muestra cursos activos cuyo nombre inicia con `TUP --` o `FCS --`.
+- Los cursos con prefijo `TUP --` o `FCS --` no deben aparecer en el selector de materia de las demas capturas de Asignaciones.
 - Las asignaciones propedeuticas se guardan con tipo `PROPEDEUTICO` y valor tecnico de ID Moodle `propedeutico` para evitar capturar IDs Moodle falsos.
 - Las matriculas pueden capturarse en una lista separada por saltos de linea, comas o punto y coma.
 - En Especiales la asignacion conserva ciclo, programa, asignatura, ID asignatura de captura, docente, estado y observaciones.

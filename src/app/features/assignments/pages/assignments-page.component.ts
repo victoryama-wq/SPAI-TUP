@@ -951,6 +951,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.modeTab.set(tab);
     this.searchQuery.set('');
     this.isSearchMenuOpen = false;
+    this.clearSubjectIfNotAllowedForCurrentForm();
   }
 
   canToggleGlobalCatalog(): boolean {
@@ -1171,19 +1172,32 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   visibleSubjectPickerOptions(): Subject[] {
     const query = this.normalizeSearch(this.subjectPickerValue);
+    const selectableSubjects = this.selectableSubjectsForCurrentForm();
 
     const subjects = query
-      ? this.activeSubjects().filter((subject) => this.matchesSearchText(
+      ? selectableSubjects.filter((subject) => this.matchesSearchText(
           `${subject.name} ${subject.subjectId}`,
           query,
         ))
-      : [...this.activeSubjects()].sort((firstSubject, secondSubject) => {
+      : [...selectableSubjects].sort((firstSubject, secondSubject) => {
           const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
 
           return dateComparison || firstSubject.name.localeCompare(secondSubject.name, 'es');
         });
 
     return subjects.slice(0, MAX_COMBO_OPTIONS);
+  }
+
+  subjectPickerEmptyMessage(): string {
+    if (!this.activeSubjects().length) {
+      return 'Sin asignaturas activas';
+    }
+
+    if (this.assignmentForm.propedeutic) {
+      return 'Sin cursos propedeuticos TUP -- o FCS -- activos';
+    }
+
+    return 'Sin coincidencias';
   }
 
   visibleTeacherPickerOptions(): TeacherPickerOption[] {
@@ -1426,10 +1440,12 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     if (type === 'propedeutic') {
       this.applyPropedeuticMoodleId();
+      this.clearSubjectIfNotAllowedForCurrentForm();
       return;
     }
 
     this.clearPropedeuticMoodleId();
+    this.clearSubjectIfNotAllowedForCurrentForm();
   }
 
   onPropedeuticChange(): void {
@@ -1437,11 +1453,13 @@ export class AssignmentsPageComponent implements OnDestroy {
       this.assignmentForm.special = true;
       this.assignmentForm.specialType = 'propedeutic';
       this.applyPropedeuticMoodleId();
+      this.clearSubjectIfNotAllowedForCurrentForm();
       return;
     }
 
     this.assignmentForm.specialType = this.assignmentForm.special ? 'enrollments' : 'group';
     this.clearPropedeuticMoodleId();
+    this.clearSubjectIfNotAllowedForCurrentForm();
   }
 
   private applyPropedeuticMoodleId(): void {
@@ -2382,6 +2400,14 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('La asignatura es obligatoria.');
     }
 
+    const selectedSubject = this.selectedSubject();
+
+    if (selectedSubject && !this.isSubjectAllowedForCurrentForm(selectedSubject)) {
+      errors.push(this.assignmentForm.propedeutic
+        ? 'En propedeuticos solo puedes seleccionar cursos TUP -- o FCS --.'
+        : 'Los cursos TUP -- y FCS -- solo se usan en propedeuticos.');
+    }
+
     if (!moodleId) {
       errors.push('El ID asignatura es obligatorio.');
     }
@@ -2443,13 +2469,39 @@ export class AssignmentsPageComponent implements OnDestroy {
       return null;
     }
 
-    return this.activeSubjects().find((subject) => {
+    return this.selectableSubjectsForCurrentForm().find((subject) => {
       return [
         this.subjectPickerLabel(subject),
         subject.name,
         subject.subjectId,
       ].some((option) => this.normalizeSearch(option) === normalizedValue);
     }) ?? null;
+  }
+
+  private selectableSubjectsForCurrentForm(): Subject[] {
+    return this.activeSubjects()
+      .filter((subject) => this.isSubjectAllowedForCurrentForm(subject));
+  }
+
+  private isSubjectAllowedForCurrentForm(subject: Subject): boolean {
+    const isPropedeuticSubject = this.isPropedeuticSubject(subject);
+
+    return this.assignmentForm.propedeutic ? isPropedeuticSubject : !isPropedeuticSubject;
+  }
+
+  private isPropedeuticSubject(subject: Subject): boolean {
+    return /^(TUP|FCS)\s*--/i.test(subject.name.trim());
+  }
+
+  private clearSubjectIfNotAllowedForCurrentForm(): void {
+    const subject = this.selectedSubject();
+
+    if (!subject || this.isSubjectAllowedForCurrentForm(subject)) {
+      return;
+    }
+
+    this.assignmentForm.subjectId = '';
+    this.subjectPickerValue = '';
   }
 
   private isActiveSubject(subject: Subject): boolean {

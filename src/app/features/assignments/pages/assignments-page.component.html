@@ -437,10 +437,8 @@
                 } @empty {
                   @if (subjectsReadError()) {
                     <div class="combo-empty">Catalogo no disponible</div>
-                  } @else if (!activeSubjects().length) {
-                    <div class="combo-empty">Sin asignaturas activas</div>
                   } @else {
-                    <div class="combo-empty">Sin coincidencias</div>
+                    <div class="combo-empty">{{ subjectPickerEmptyMessage() }}</div>
                   }
                 }
               </div>
