@@ -4,6 +4,7 @@ import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
 export type AssignmentStatus = 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE' | 'VALIDADO' | 'CON_OBSERVACION';
+export type AssignmentType = 'REGULAR' | 'ESPECIAL' | 'PROPEDEUTICO';
 
 export interface AcademicAssignment {
   id: string;
@@ -18,6 +19,7 @@ export interface AcademicAssignment {
   teacherName: string;
   status: AssignmentStatus;
   observations: string;
+  assignmentType?: AssignmentType;
   shared: boolean;
   sourceAssignmentId: string;
   sharedGroups?: string[];
@@ -51,6 +53,7 @@ export interface UpsertAssignmentPayload {
   teacherName: string;
   status: AssignmentStatus;
   observations: string;
+  assignmentType?: AssignmentType;
   shared: boolean;
   sourceAssignmentId?: string;
   sharedGroups?: string[];
@@ -96,6 +99,7 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       teacherName: this.normalizeName(payload.teacherName),
       status: payload.status,
       observations: payload.observations.trim(),
+      assignmentType: payload.assignmentType ?? (payload.special ? 'ESPECIAL' : 'REGULAR'),
       shared: payload.shared,
       sourceAssignmentId: payload.sourceAssignmentId?.trim() ?? '',
       sharedGroups: this.normalizeList(payload.sharedGroups ?? []),

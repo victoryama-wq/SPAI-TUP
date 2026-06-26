@@ -14,6 +14,7 @@ import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
   AcademicAssignment,
   AssignmentStatus,
+  AssignmentType,
   AssignmentsRepository,
   UpsertAssignmentPayload,
 } from '../data/assignments.repository';
@@ -26,6 +27,8 @@ type AssignmentCatalogScope = 'OWN' | 'GLOBAL';
 
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEMPORARY_TEACHER_NAME = 'TEMPORALMENTE SIN DOCENTE';
+const PROPEDEUTIC_MOODLE_ID = 'propedeutico';
+const PROPEDEUTIC_MOODLE_LABEL = 'Propedeutico';
 const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
 const MAX_SEARCH_SUGGESTIONS = 8;
@@ -69,6 +72,7 @@ interface AssignmentFormState {
   sharedGroupCount: number;
   shareGroups: string[];
   special: boolean;
+  propedeutic: boolean;
   studentEnrollments: string;
 }
 
@@ -581,8 +585,10 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroupCount: sharedGroups.length,
       shareGroups: sharedGroups,
       special: this.isSpecialAssignment(assignment),
+      propedeutic: this.isPropedeuticAssignment(assignment),
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
+    this.applyPropedeuticMoodleId();
     this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
@@ -666,6 +672,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   async saveAssignment(continueAdding = false): Promise<void> {
     this.formMessage = '';
+    this.applyPropedeuticMoodleId();
     this.assignmentForm.status = 'EN_CAPTURA';
     this.formErrors = this.validateForm();
 
@@ -720,11 +727,12 @@ export class AssignmentsPageComponent implements OnDestroy {
         group: this.assignmentForm.special ? '' : group?.fullGroup ?? '',
         subjectId: subject.subjectId,
         subjectName: subject.name,
-        moodleId: this.assignmentForm.moodleId,
+        moodleId: this.moodleIdForPayload(),
         teacherMoodleUser: this.selectedTeacherMoodleUser(),
         teacherName: this.selectedTeacherName(),
         status: 'EN_CAPTURA',
         observations: this.assignmentForm.observations,
+        assignmentType: this.assignmentTypeForForm(),
         shared: sharedGroupNames.length > 0,
         sourceAssignmentId: '',
         sharedGroups: sharedGroupNames,
@@ -877,6 +885,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         teacherName: assignment.teacherName,
         status: assignment.status,
         observations: assignment.observations,
+        assignmentType: assignment.assignmentType,
         shared: remainingSharedGroups.length > 0,
         sourceAssignmentId: '',
         sharedGroups: remainingSharedGroups,
@@ -1383,10 +1392,50 @@ export class AssignmentsPageComponent implements OnDestroy {
       this.shareGroupSearch.set('');
       this.groupPickerValue = '';
       this.activeComboField = null;
+      this.applyPropedeuticMoodleId();
       return;
     }
 
+    this.assignmentForm.propedeutic = false;
     this.assignmentForm.program = '';
+    this.clearPropedeuticMoodleId();
+  }
+
+  onPropedeuticChange(): void {
+    if (this.assignmentForm.propedeutic) {
+      this.assignmentForm.special = true;
+      this.applyPropedeuticMoodleId();
+      return;
+    }
+
+    this.clearPropedeuticMoodleId();
+  }
+
+  private applyPropedeuticMoodleId(): void {
+    if (!this.assignmentForm.propedeutic) {
+      return;
+    }
+
+    this.assignmentForm.special = true;
+    this.assignmentForm.moodleId = PROPEDEUTIC_MOODLE_LABEL;
+  }
+
+  private clearPropedeuticMoodleId(): void {
+    if (this.assignmentsRepository.normalizeMoodleId(this.assignmentForm.moodleId) === PROPEDEUTIC_MOODLE_ID) {
+      this.assignmentForm.moodleId = '';
+    }
+  }
+
+  private moodleIdForPayload(): string {
+    return this.assignmentForm.propedeutic ? PROPEDEUTIC_MOODLE_ID : this.assignmentForm.moodleId;
+  }
+
+  private assignmentTypeForForm(): AssignmentType {
+    if (this.assignmentForm.propedeutic) {
+      return 'PROPEDEUTICO';
+    }
+
+    return this.assignmentForm.special ? 'ESPECIAL' : 'REGULAR';
   }
 
   onSharedGroupCountChange(value: number | string): void {
@@ -1928,7 +1977,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const sharedGroups = this.assignmentSharedGroups(assignment);
 
     return [
-      assignment.moodleId,
+      this.displayMoodleId(assignment),
       assignment.subjectId,
       assignment.subjectName,
       assignment.teacherName,
@@ -1939,13 +1988,17 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroups.join(', '),
       this.assignmentReportParticipation(assignment),
       this.statusLabel(assignment.status),
-      this.assignmentMode(assignment),
+      this.assignmentReportMode(assignment),
       assignment.studentEnrollments,
       assignment.observations,
       assignment.createdByName,
       this.formatReportDateTime(assignment.createdAt),
       this.formatReportDateTime(assignment.updatedAt),
     ];
+  }
+
+  private assignmentReportMode(assignment: AcademicAssignment): string {
+    return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : this.assignmentMode(assignment);
   }
 
   private assignmentReportParticipation(assignment: AcademicAssignment): string {
@@ -2217,7 +2270,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private validateForm(): string[] {
     const errors: string[] = [];
     const activeCycle = this.activeCycle();
-    const moodleId = this.assignmentsRepository.normalizeMoodleId(this.assignmentForm.moodleId);
+    const moodleId = this.assignmentsRepository.normalizeMoodleId(this.moodleIdForPayload());
 
     if (!this.canManageAssignments()) {
       errors.push('No tienes permisos para guardar asignaciones.');
@@ -2296,7 +2349,8 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('El docente es obligatorio.');
     }
 
-    if (moodleId
+    if (!this.assignmentForm.propedeutic
+      && moodleId
       && this.assignmentsRepository.hasMoodleIdConflict(
         this.assignmentForm.cycle,
         moodleId,
@@ -2705,7 +2759,20 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   isSpecialAssignment(assignment: AcademicAssignment): boolean {
     return !assignment.group?.trim()
-      && (Boolean(assignment.special) || this.hasStudentEnrollments(assignment.studentEnrollments));
+      && (
+        Boolean(assignment.special)
+        || this.hasStudentEnrollments(assignment.studentEnrollments)
+        || this.isPropedeuticAssignment(assignment)
+      );
+  }
+
+  isPropedeuticAssignment(assignment: AcademicAssignment): boolean {
+    return assignment.assignmentType === 'PROPEDEUTICO'
+      || this.assignmentsRepository.normalizeMoodleId(assignment.moodleId) === PROPEDEUTIC_MOODLE_ID;
+  }
+
+  displayMoodleId(assignment: AcademicAssignment): string {
+    return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : assignment.moodleId;
   }
 
   private normalizeSearchText(value: string): string {
@@ -2998,6 +3065,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroupCount: 0,
       shareGroups: [],
       special,
+      propedeutic: false,
       studentEnrollments: '',
     };
   }

@@ -177,7 +177,7 @@
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
-            <td><strong class="moodle-id">{{ assignment.moodleId }}</strong></td>
+            <td><strong class="moodle-id">{{ displayMoodleId(assignment) }}</strong></td>
             <td>
               <div class="stacked-cell">
                 <strong>{{ assignment.subjectName }}</strong>
@@ -192,7 +192,7 @@
             <td><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
             <td>
               <div class="stacked-cell">
-                <strong>{{ isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group }}</strong>
+                <strong>{{ isPropedeuticAssignment(assignment) ? 'Propedeutico' : isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group }}</strong>
                 @if (isSpecialAssignment(assignment)) {
                   <small>Sin grupo base</small>
                 } @else if (isSharedFromAnotherCoordination(assignment)) {
@@ -359,8 +359,14 @@
         [class.special-case-active]="assignmentForm.special"
       >
         <label class="moodle-id-field">
-          <span>ID Moodle *</span>
-          <input type="text" [(ngModel)]="assignmentForm.moodleId" placeholder="asignatura-123" />
+          <span>{{ assignmentForm.propedeutic ? 'ID Moodle' : 'ID Moodle *' }}</span>
+          <input
+            type="text"
+            [(ngModel)]="assignmentForm.moodleId"
+            [disabled]="assignmentForm.propedeutic"
+            [class.locked-input]="assignmentForm.propedeutic"
+            placeholder="asignatura-123"
+          />
         </label>
         <div class="subject-field combo-label">
           <span>Materia *</span>
@@ -450,10 +456,21 @@
           </div>
         </div>
         @if (modeTab() === 'Especiales') {
-          <label class="toggle-row special-toggle">
-            <input type="checkbox" [(ngModel)]="assignmentForm.special" (change)="onSpecialChange()" />
-            <span>Caso sin grupo con matriculas</span>
-          </label>
+          <div class="special-type-controls">
+            <label class="toggle-row special-toggle">
+              <input type="checkbox" [(ngModel)]="assignmentForm.special" (change)="onSpecialChange()" />
+              <span>Caso sin grupo con matriculas</span>
+            </label>
+            <label class="toggle-row propedeutic-toggle">
+              <input
+                type="checkbox"
+                [(ngModel)]="assignmentForm.propedeutic"
+                [disabled]="!assignmentForm.special"
+                (change)="onPropedeuticChange()"
+              />
+              <span>Propedeutico</span>
+            </label>
+          </div>
         }
         @if (assignmentForm.special) {
           <label class="program-field">

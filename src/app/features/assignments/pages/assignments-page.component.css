@@ -647,6 +647,14 @@ th {
   color: #475569;
 }
 
+.assignment-form input.locked-input:disabled {
+  background: #edf4ff;
+  border-color: #b7d2f7;
+  color: #1d4ed8;
+  font-weight: 900;
+  opacity: 1;
+}
+
 .combo-control {
   position: relative;
 }
@@ -1269,6 +1277,17 @@ td.center-column {
 
 .special-mode-form .special-toggle {
   align-self: end;
+}
+
+.special-type-controls {
+  align-self: end;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.special-mode-form .special-type-controls {
+  grid-column: 4 / 5;
 }
 
 .special-mode-form:not(.special-case-active) .program-field {

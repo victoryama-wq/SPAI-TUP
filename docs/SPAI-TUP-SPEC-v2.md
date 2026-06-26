@@ -1021,6 +1021,8 @@ Casos especiales y autogestivos:
 - La pestaña Especiales permite capturar asignaciones que no pertenecen a un grupo.
 - En Especiales no se solicita grupo.
 - En Especiales se solicita programa y matricula(s).
+- En Especiales puede marcarse el subtipo **Propedeutico**; al activarlo, el campo ID Moodle queda bloqueado y muestra `Propedeutico`.
+- Las asignaciones propedeuticas se guardan con tipo `PROPEDEUTICO` y valor tecnico de ID Moodle `propedeutico` para evitar capturar IDs Moodle falsos.
 - Las matriculas pueden capturarse en una lista separada por saltos de linea, comas o punto y coma.
 - En Especiales la asignacion conserva ciclo, programa, asignatura, ID asignatura de captura, docente, estado y observaciones.
 - El docente puede asignarse desde catalogo o quedar `Temporalmente sin Docente`.
@@ -1648,6 +1650,7 @@ export interface Asignacion {
   docente: string
   estado: 'EN_CAPTURA' | 'EN_REVISION' | 'CARGADO_MOODLE'
   observaciones?: string
+  tipo_asignacion?: 'REGULAR' | 'ESPECIAL' | 'PROPEDEUTICO'
   es_compartida: boolean
   id_asignacion_origen?: string
   es_especial: boolean
