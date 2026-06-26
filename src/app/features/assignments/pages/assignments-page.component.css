@@ -907,7 +907,7 @@ th {
 
 table {
   border-collapse: collapse;
-  min-width: 1180px;
+  min-width: 1360px;
   width: 100%;
 }
 
@@ -1025,8 +1025,17 @@ td.center-column {
 
 .observation-cell {
   color: #40577a;
+  display: block;
+  line-height: 1.35;
   max-width: 280px;
   white-space: normal;
+}
+
+.empty-observation {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .shared-indicator {

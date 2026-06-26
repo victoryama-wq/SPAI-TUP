@@ -1030,6 +1030,7 @@ Casos especiales y autogestivos:
 - En la pestaña Especiales, el filtro por Grupo se reemplaza por filtro de Matricula.
 - En tabla, la columna Grupo muestra `Sin grupo` para casos especiales.
 - En tabla, la columna Matriculas adicionales muestra las matriculas capturadas para casos especiales.
+- En tabla, la columna Observaciones muestra las observaciones capturadas para la asignacion.
 - Las asignaciones especiales no pueden usarse como origen de clase compartida.
 - En el modal responsive de Especiales, los controles compactos de caso especial, clase compartida y estado deben acomodarse sin superposicion ni recorte de texto.
 

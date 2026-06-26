@@ -169,6 +169,7 @@
           <th>Carrera</th>
           <th>Grupo</th>
           <th class="center-column">Compartida</th>
+          <th>Observaciones</th>
           <th class="center-column">Estado</th>
           <th>Acciones</th>
         </tr>
@@ -200,9 +201,6 @@
                 @if (assignment.studentEnrollments) {
                   <small class="detail-note">Matricula(s): {{ assignment.studentEnrollments }}</small>
                 }
-                @if (assignment.observations) {
-                  <small class="detail-note">Obs: {{ assignment.observations }}</small>
-                }
               </div>
             </td>
             <td class="center-column">
@@ -227,6 +225,13 @@
                 </div>
               } @else {
                 <span class="pending-label">No</span>
+              }
+            </td>
+            <td>
+              @if (assignment.observations) {
+                <span class="observation-cell">{{ assignment.observations }}</span>
+              } @else {
+                <span class="empty-observation">Sin observaciones</span>
               }
             </td>
             <td class="center-column">
@@ -265,7 +270,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="8">
+            <td colspan="9">
               <div class="empty-state">
                 <strong>{{ emptyAssignmentsTitle() }}</strong>
                 <span>{{ emptyAssignmentsMessage() }}</span>
