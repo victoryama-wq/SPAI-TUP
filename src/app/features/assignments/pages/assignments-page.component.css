@@ -1349,11 +1349,11 @@ td.center-column {
 }
 
 .special-case-active .special-enrollments-field {
-  grid-column: 2 / 4;
+  grid-column: 2 / 3;
 }
 
 .special-case-active > .fixed-status-field {
-  grid-column: 4 / 5;
+  grid-column: 3 / 4;
 }
 
 .special-enrollments-field textarea {
