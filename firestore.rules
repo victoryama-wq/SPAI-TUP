@@ -483,40 +483,6 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    match /mail/{mailId} {
-      allow read: if false;
-
-      allow create, update: if (isActiveUser() || hasInstitutionalEmail())
-        && request.resource.data.keys().hasOnly([
-          'to',
-          'message',
-          'notificationId',
-          'target',
-          'type',
-          'createdAt'
-        ])
-        && request.resource.data.to is list
-        && request.resource.data.to.size() > 0
-        && request.resource.data.to.size() <= 20
-        && request.resource.data.message is map
-        && request.resource.data.message.keys().hasOnly(['subject', 'text', 'html'])
-        && request.resource.data.message.subject is string
-        && request.resource.data.message.text is string
-        && request.resource.data.message.html is string
-        && request.resource.data.notificationId is string
-        && request.resource.data.target in ['SISTEMAS', 'COORDINACION_ACADEMICA']
-        && request.resource.data.type in [
-          'DOCENTE_NUEVO',
-          'DOCENTE_VALIDADO',
-          'ASIGNACIONES_HITO',
-          'CLASE_COMPARTIDA',
-          'SOLICITUD_SISTEMAS'
-        ]
-        && request.resource.data.createdAt is string;
-
-      allow delete: if false;
-    }
-
     match /{document=**} {
       allow read, write: if false;
     }
