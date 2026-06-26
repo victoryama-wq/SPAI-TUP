@@ -17,8 +17,12 @@
       <span>Compartidas</span>
     </article>
     <article>
-      <strong>{{ virtualGroupCount() }}</strong>
-      <span>Grupos virtuales</span>
+      <strong>{{ capturedMeetCount() }}</strong>
+      <span>Ligas capturadas</span>
+    </article>
+    <article>
+      <strong>{{ pendingMeetCount() }}</strong>
+      <span>Pendientes</span>
     </article>
     <article>
       <strong>{{ activeCycleCode() }}</strong>
@@ -26,6 +30,13 @@
     </article>
   </div>
 </section>
+
+@if (meetLinksReadError()) {
+  <aside class="permission-alert" role="alert">
+    <strong>No se pudo leer el catalogo de ligas Meet.</strong>
+    <span>Firestore rechazo la consulta o las reglas publicadas no permiten consultar ligas Meet para este usuario.</span>
+  </aside>
+}
 
 @if (!canViewMeetLinks()) {
   <aside class="permission-alert" role="alert">
@@ -66,6 +77,12 @@
     </div>
   </div>
 
+  @if (formMessage) {
+    <div class="form-message" [class.form-message-error]="formMessageType === 'error'">
+      {{ formMessage }}
+    </div>
+  }
+
   <div class="table-wrap">
     <table>
       <thead>
@@ -77,7 +94,8 @@
           <th>Grupos compartidos</th>
           <th>Docente</th>
           <th class="center-column">Estado asignacion</th>
-          <th class="center-column">Liga Meet</th>
+          <th>Estado Meet</th>
+          <th>Liga Meet</th>
         </tr>
       </thead>
       <tbody>
@@ -120,13 +138,60 @@
                 {{ statusLabel(row.assignmentStatus) }}
               </span>
             </td>
-            <td class="center-column">
-              <span class="meet-status">Pendiente</span>
+            <td>
+              @if (canEditMeetLinks()) {
+                <select
+                  class="meet-select"
+                  [value]="draftFor(row).status"
+                  (change)="updateMeetStatus(row, $event)"
+                >
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="GENERADA">Generada</option>
+                  <option value="REVISADA">Revisada</option>
+                  <option value="CON_OBSERVACION">Con observacion</option>
+                  <option value="NO_APLICA">No aplica</option>
+                </select>
+              } @else {
+                <span class="meet-status" [ngClass]="meetStatusClass(row.meetLink?.status)">
+                  {{ meetStatusLabel(row.meetLink?.status) }}
+                </span>
+              }
+            </td>
+            <td>
+              @if (canEditMeetLinks()) {
+                <div class="meet-editor">
+                  <input
+                    type="url"
+                    [value]="draftFor(row).meetUrl"
+                    (input)="updateMeetUrl(row, $event)"
+                    placeholder="https://meet.google.com/..."
+                  />
+                  <input
+                    type="text"
+                    [value]="draftFor(row).observations"
+                    (input)="updateMeetObservations(row, $event)"
+                    placeholder="Observaciones Meet"
+                  />
+                  <button
+                    type="button"
+                    (click)="saveMeetLink(row)"
+                    [disabled]="savingMeetLinkId === row.id"
+                  >
+                    {{ savingMeetLinkId === row.id ? 'Guardando' : 'Guardar' }}
+                  </button>
+                </div>
+              } @else if (row.meetLink?.meetUrl) {
+                <a class="meet-link" [href]="row.meetLink?.meetUrl" target="_blank" rel="noreferrer">
+                  Abrir liga
+                </a>
+              } @else {
+                <span class="meet-status pendiente">Pendiente</span>
+              }
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="8">
+            <td colspan="9">
               <div class="empty-state">
                 <strong>Sin clases virtuales detectadas</strong>
                 <span>Cuando existan asignaciones de grupos virtuales en el ciclo activo apareceran aqui.</span>

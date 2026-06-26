@@ -172,7 +172,7 @@
 
 table {
   border-collapse: collapse;
-  min-width: 1180px;
+  min-width: 1380px;
   width: 100%;
 }
 
@@ -246,6 +246,76 @@ td.center-column {
 .meet-status {
   background: #fff7ed;
   color: #9a3412;
+}
+
+.meet-status.generada,
+.meet-status.revisada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.meet-status.con_observacion {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.meet-status.no_aplica {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.form-message {
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #166534;
+  font-weight: 800;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+}
+
+.form-message-error {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.meet-select,
+.meet-editor input {
+  background: #f9fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  color: #07163c;
+  min-height: 40px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.meet-editor {
+  display: grid;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.meet-editor button,
+.meet-link {
+  align-items: center;
+  background: #2563eb;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  text-decoration: none;
+}
+
+.meet-editor button:disabled {
+  background: #93a4c0;
+  cursor: wait;
 }
 
 .status-badge {

@@ -1302,6 +1302,14 @@ Datos visibles para Sistemas:
 - Estado Meet.
 - Liga Meet.
 
+Implementacion actual:
+
+- El modulo Ligas Meet lee las asignaciones del ciclo activo y solo muestra clases que incluyan grupos virtuales.
+- Si una clase virtual esta compartida, se muestra una sola fila asociada a la asignacion origen/anfitriona.
+- La liga se guarda en la coleccion `ligas_meet` usando como documento el ID de la asignacion origen.
+- Coordinacion de Sistemas puede capturar liga, estado Meet y observaciones Meet.
+- Coordinacion Academica solo puede consultar Ligas Meet si Sistemas le habilita el acceso al modulo.
+
 ## 16. Moodle
 
 Modulo para exportacion futura de cursos.

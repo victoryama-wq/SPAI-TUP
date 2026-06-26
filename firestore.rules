@@ -248,6 +248,38 @@ service cloud.firestore {
         );
     }
 
+    function canReadMeetLinks() {
+      return isSystemsMember()
+        || hasModuleAccess('ligasMeet');
+    }
+
+    function canEditMeetLinks() {
+      return isSystemsMember();
+    }
+
+    function isValidMeetLinkDocument(meetLinkId) {
+      return request.resource.data.assignmentId == meetLinkId
+        && request.resource.data.assignmentId is string
+        && request.resource.data.cycle is string
+        && request.resource.data.meetUrl is string
+        && request.resource.data.status in [
+          'PENDIENTE',
+          'GENERADA',
+          'REVISADA',
+          'CON_OBSERVACION',
+          'NO_APLICA'
+        ]
+        && request.resource.data.observations is string
+        && request.resource.data.createdBy is string
+        && request.resource.data.createdByName is string
+        && request.resource.data.createdByRole is string
+        && request.resource.data.createdAt is string
+        && request.resource.data.updatedBy is string
+        && request.resource.data.updatedByName is string
+        && request.resource.data.updatedByRole is string
+        && request.resource.data.updatedAt is string;
+    }
+
     function changesAssignmentDeletionFields() {
       return request.resource.data.diff(resource.data).changedKeys().hasAny([
         'deletedAt',
@@ -441,6 +473,23 @@ service cloud.firestore {
 
       allow create: if isActiveUser() || hasInstitutionalEmail();
       allow update, delete: if false;
+    }
+
+    match /ligas_meet/{meetLinkId} {
+      allow read: if canReadMeetLinks();
+
+      allow create: if canEditMeetLinks()
+        && isValidMeetLinkDocument(meetLinkId)
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+
+      allow update: if canEditMeetLinks()
+        && isValidMeetLinkDocument(meetLinkId)
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid;
+
+      allow delete: if canEditMeetLinks();
     }
 
     match /notificaciones/{notificationId} {
