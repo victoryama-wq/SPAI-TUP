@@ -174,20 +174,18 @@ export class MeetLinksPageComponent {
     return status.toLowerCase();
   }
 
-  meetStatusLabel(status: MeetLinkStatus | null | undefined): string {
+  meetStatusLabel(status: string | null | undefined): string {
     const labels: Record<MeetLinkStatus, string> = {
       PENDIENTE: 'Pendiente',
-      GENERADA: 'Generada',
       REVISADA: 'Revisada',
-      CON_OBSERVACION: 'Con observacion',
-      NO_APLICA: 'No aplica',
+      GENERADA: 'Generada',
     };
 
-    return labels[status ?? 'PENDIENTE'];
+    return labels[this.normalizeMeetStatus(status)];
   }
 
-  meetStatusClass(status: MeetLinkStatus | null | undefined): string {
-    return (status ?? 'PENDIENTE').toLowerCase();
+  meetStatusClass(status: string | null | undefined): string {
+    return this.normalizeMeetStatus(status).toLowerCase();
   }
 
   draftFor(row: MeetClassRow): MeetLinkDraft {
@@ -200,7 +198,7 @@ export class MeetLinksPageComponent {
 
     const draft: MeetLinkDraft = {
       meetUrl: row.meetLink?.meetUrl ?? '',
-      status: row.meetLink?.status ?? 'PENDIENTE',
+      status: this.normalizeMeetStatus(row.meetLink?.status),
       schedule: row.meetLink?.schedule ?? row.meetLink?.observations ?? '',
       sourceUpdatedAt,
     };
@@ -319,6 +317,10 @@ export class MeetLinksPageComponent {
 
   private isValidMeetUrl(value: string): boolean {
     return value.trim().toLowerCase().startsWith('https://meet.google.com/');
+  }
+
+  private normalizeMeetStatus(status: string | null | undefined): MeetLinkStatus {
+    return status === 'REVISADA' || status === 'GENERADA' ? status : 'PENDIENTE';
   }
 
   private showTemporaryMessage(message: string, type: 'success' | 'error'): void {

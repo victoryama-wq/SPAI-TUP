@@ -3,7 +3,7 @@ import { orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
-export type MeetLinkStatus = 'PENDIENTE' | 'GENERADA' | 'REVISADA' | 'CON_OBSERVACION' | 'NO_APLICA';
+export type MeetLinkStatus = 'PENDIENTE' | 'REVISADA' | 'GENERADA';
 
 export interface MeetLink {
   id: string;

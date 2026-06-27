@@ -1283,10 +1283,8 @@ Estados de liga Meet:
 
 ```text
 PENDIENTE
-GENERADA
 REVISADA
-CON_OBSERVACION
-NO_APLICA
+GENERADA
 ```
 
 Datos visibles para Sistemas:
@@ -1695,7 +1693,7 @@ export interface LigaMeet {
   grupo_origen: string
   grupos_compartidos: string[]
   meet_url?: string
-  estado: 'PENDIENTE' | 'GENERADA' | 'REVISADA' | 'CON_OBSERVACION' | 'NO_APLICA'
+  estado: 'PENDIENTE' | 'REVISADA' | 'GENERADA'
   creado_por?: string
   revisado_por?: string
   fecha_creacion?: Date

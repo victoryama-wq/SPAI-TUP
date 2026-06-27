@@ -137,10 +137,8 @@
                   (change)="updateMeetStatus(row, $event)"
                 >
                   <option value="PENDIENTE">Pendiente</option>
-                  <option value="GENERADA">Generada</option>
                   <option value="REVISADA">Revisada</option>
-                  <option value="CON_OBSERVACION">Con observacion</option>
-                  <option value="NO_APLICA">No aplica</option>
+                  <option value="GENERADA">Generada</option>
                 </select>
               } @else {
                 <span class="meet-status" [ngClass]="meetStatusClass(row.meetLink?.status)">

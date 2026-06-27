@@ -264,10 +264,8 @@ service cloud.firestore {
         && request.resource.data.meetUrl is string
         && request.resource.data.status in [
           'PENDIENTE',
-          'GENERADA',
           'REVISADA',
-          'CON_OBSERVACION',
-          'NO_APLICA'
+          'GENERADA'
         ]
         && request.resource.data.observations is string
         && request.resource.data.createdBy is string

@@ -247,16 +247,6 @@ td.meet-state-column {
   color: #166534;
 }
 
-.meet-status.con_observacion {
-  background: #fff7ed;
-  color: #9a3412;
-}
-
-.meet-status.no_aplica {
-  background: #e2e8f0;
-  color: #475569;
-}
-
 .form-message {
   background: #ecfdf3;
   border: 1px solid #bbf7d0;
