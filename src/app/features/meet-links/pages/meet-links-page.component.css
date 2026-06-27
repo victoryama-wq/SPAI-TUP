@@ -169,14 +169,16 @@
 
 table {
   border-collapse: collapse;
-  min-width: 1420px;
+  min-width: 0;
+  table-layout: fixed;
   width: 100%;
 }
 
 th,
 td {
   border-bottom: 1px solid #d7e4f8;
-  padding: 16px 14px;
+  overflow-wrap: anywhere;
+  padding: 16px 10px;
   text-align: left;
   vertical-align: middle;
 }
@@ -196,7 +198,52 @@ td.center-column {
 
 th.meet-state-column,
 td.meet-state-column {
-  min-width: 150px;
+  min-width: 0;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 7%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 10%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 10%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 12%;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 13%;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 10%;
+}
+
+th:nth-child(7),
+td:nth-child(7) {
+  width: 10%;
+}
+
+th:nth-child(8),
+td:nth-child(8) {
+  width: 11%;
+}
+
+th:nth-child(9),
+td:nth-child(9) {
+  width: 17%;
 }
 
 .stacked-cell {
@@ -227,7 +274,7 @@ td.meet-state-column {
   font-weight: 900;
   padding: 6px 10px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .chip-list span {
@@ -278,8 +325,9 @@ td.meet-state-column {
   border: 1px solid #c9d9ef;
   border-radius: 8px;
   color: #07163c;
+  box-sizing: border-box;
   min-height: 40px;
-  min-width: 136px;
+  min-width: 0;
   padding: 0 10px;
   width: 100%;
 }
@@ -287,7 +335,7 @@ td.meet-state-column {
 .meet-editor {
   display: grid;
   gap: 8px;
-  min-width: 280px;
+  min-width: 0;
 }
 
 .meet-editor button,
