@@ -1684,7 +1684,7 @@ td.center-column {
   }
 }
 
-@container (max-width: 1320px) {
+@media (max-width: 1700px) {
   .table-wrap {
     border: 0;
     overflow-x: hidden;
