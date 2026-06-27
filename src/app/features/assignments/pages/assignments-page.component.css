@@ -921,15 +921,16 @@ table {
 th,
 td {
   border-bottom: 1px solid #d7e4f8;
+  font-size: 13px;
   overflow-wrap: anywhere;
-  padding: 16px 10px;
+  padding: 14px 9px;
   text-align: left;
   vertical-align: middle;
 }
 
 th {
   color: #40577a;
-  font-size: 12px;
+  font-size: 11.5px;
   hyphens: none;
   line-height: 1.2;
   overflow-wrap: normal;
@@ -997,16 +998,19 @@ td[colspan] {
 
 .stacked-cell {
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .stacked-cell strong,
 .moodle-id {
   color: #07163c;
+  font-size: 13px;
+  line-height: 1.18;
 }
 
 .stacked-cell small {
   color: #64748b;
+  font-size: 12px;
 }
 
 .distribution-cell {
@@ -1043,9 +1047,9 @@ td[colspan] {
   border-radius: 999px;
   color: #3949ab;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.1;
-  padding: 6px 9px;
+  padding: 5px 8px;
   white-space: normal;
 }
 
@@ -1054,9 +1058,10 @@ td[colspan] {
   border-radius: 999px;
   color: #64748b;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  padding: 6px 10px;
+  line-height: 1.2;
+  padding: 5px 8px;
   text-transform: uppercase;
   white-space: normal;
 }
@@ -1074,7 +1079,8 @@ td[colspan] {
   display: inline-flex;
   font-size: 11px;
   font-weight: 900;
-  padding: 6px 10px;
+  line-height: 1.2;
+  padding: 5px 8px;
   text-transform: uppercase;
   white-space: normal;
 }
@@ -1110,7 +1116,7 @@ td[colspan] {
 
 .empty-observation {
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   white-space: normal;
 }
