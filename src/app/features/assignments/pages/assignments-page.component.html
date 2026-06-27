@@ -198,10 +198,8 @@
             <td data-label="Carrera"><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
             <td data-label="Grupo">
               <div class="stacked-cell">
-                <strong>{{ isPropedeuticAssignment(assignment) ? 'Propedeutico' : isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group }}</strong>
-                @if (isSpecialAssignment(assignment)) {
-                  <small>Sin grupo base</small>
-                } @else if (isSpecialCourseAssignment(assignment)) {
+                <strong>{{ assignmentGroupLabel(assignment) }}</strong>
+                @if (isSpecialCourseAssignment(assignment)) {
                   <small>Curso especial por grupo</small>
                 } @else if (isSharedFromAnotherCoordination(assignment)) {
                   <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>

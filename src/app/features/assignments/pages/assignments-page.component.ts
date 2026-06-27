@@ -2884,6 +2884,10 @@ export class AssignmentsPageComponent implements OnDestroy {
     return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : assignment.moodleId;
   }
 
+  assignmentGroupLabel(assignment: AcademicAssignment): string {
+    return this.isSpecialAssignment(assignment) ? 'Sin grupo base' : assignment.group;
+  }
+
   private normalizeSearchText(value: string): string {
     return value
       .normalize('NFD')
