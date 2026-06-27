@@ -161,19 +161,21 @@
 
       <div class="table-wrap">
         <table>
-      <thead>
-        <tr>
-          <th>ID Moodle</th>
-          <th>Materia</th>
-          <th>Docente</th>
-          <th>Carrera</th>
-          <th>Grupo</th>
-          <th class="center-column">Compartida</th>
-          <th>Observaciones</th>
-          <th class="center-column">Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      @if (visibleAssignments().length) {
+        <thead>
+          <tr>
+            <th>ID Moodle</th>
+            <th>Materia</th>
+            <th>Docente</th>
+            <th>Carrera</th>
+            <th>Grupo</th>
+            <th class="center-column">Compartida</th>
+            <th>Observaciones</th>
+            <th class="center-column">Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+      }
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
