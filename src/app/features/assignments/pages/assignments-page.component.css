@@ -1049,6 +1049,17 @@ td[colspan] {
   white-space: nowrap;
 }
 
+.propedeutic-id {
+  background: #eef0ff;
+  border-radius: 999px;
+  color: #3949ab;
+  display: inline-flex;
+  font-size: 12px;
+  line-height: 1.1;
+  padding: 6px 9px;
+  white-space: normal;
+}
+
 .pending-label {
   background: #f1f5f9;
   border-radius: 999px;
@@ -1217,6 +1228,16 @@ td[colspan] {
   background: #f1f5f9;
   border-color: #e2e8f0;
   color: #94a3b8;
+}
+
+@media (max-width: 1500px) {
+  .assignments-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .assignments-side-panel {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .empty-state {

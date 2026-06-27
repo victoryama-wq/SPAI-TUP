@@ -179,7 +179,11 @@
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
-            <td data-label="ID Moodle"><strong class="moodle-id">{{ displayMoodleId(assignment) }}</strong></td>
+            <td data-label="ID Moodle">
+              <strong class="moodle-id" [class.propedeutic-id]="isPropedeuticAssignment(assignment)">
+                {{ displayMoodleId(assignment) }}
+              </strong>
+            </td>
             <td data-label="Materia">
               <div class="stacked-cell">
                 <strong>{{ assignment.subjectName }}</strong>
