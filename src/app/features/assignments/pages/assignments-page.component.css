@@ -924,14 +924,16 @@ th {
 
 table {
   border-collapse: collapse;
-  min-width: 1360px;
+  min-width: 0;
+  table-layout: fixed;
   width: 100%;
 }
 
 th,
 td {
   border-bottom: 1px solid #d7e4f8;
-  padding: 16px 14px;
+  overflow-wrap: anywhere;
+  padding: 16px 10px;
   text-align: left;
   vertical-align: middle;
 }
@@ -945,6 +947,51 @@ th {
 th.center-column,
 td.center-column {
   text-align: center;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 9%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 16%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 17%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 9%;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 14%;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 10%;
+}
+
+th:nth-child(7),
+td:nth-child(7) {
+  width: 13%;
+}
+
+th:nth-child(8),
+td:nth-child(8) {
+  width: 8%;
+}
+
+th:nth-child(9),
+td:nth-child(9) {
+  width: 4%;
 }
 
 .stacked-cell {
@@ -967,7 +1014,7 @@ td.center-column {
 
 .detail-note {
   display: block;
-  max-width: 240px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -999,7 +1046,7 @@ td.center-column {
   font-weight: 900;
   padding: 6px 10px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .enrollment-list {
@@ -1044,7 +1091,7 @@ td.center-column {
   color: #40577a;
   display: block;
   line-height: 1.35;
-  max-width: 280px;
+  max-width: 100%;
   white-space: normal;
 }
 
@@ -1052,7 +1099,7 @@ td.center-column {
   color: #94a3b8;
   font-size: 12px;
   font-weight: 800;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .shared-indicator {
@@ -1102,7 +1149,8 @@ td.center-column {
 .row-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
+  justify-content: center;
 }
 
 .row-actions button {
@@ -1127,9 +1175,9 @@ td.center-column {
   height: 38px;
   justify-content: center;
   min-height: 38px;
-  min-width: 42px;
+  min-width: 36px;
   padding: 0;
-  width: 42px;
+  width: 36px;
 }
 
 .row-actions .icon-row-action svg {
