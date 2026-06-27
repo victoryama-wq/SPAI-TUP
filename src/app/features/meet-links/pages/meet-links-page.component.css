@@ -177,8 +177,9 @@ table {
 th,
 td {
   border-bottom: 1px solid #d7e4f8;
+  font-size: 13px;
   overflow-wrap: anywhere;
-  padding: 16px 10px;
+  padding: 14px 9px;
   text-align: left;
   vertical-align: middle;
 }
@@ -186,8 +187,9 @@ td {
 th {
   background: #f8fbff;
   color: #40577a;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -203,17 +205,17 @@ td.meet-state-column {
 
 th:nth-child(1),
 td:nth-child(1) {
-  width: 7%;
+  width: 6%;
 }
 
 th:nth-child(2),
 td:nth-child(2) {
-  width: 10%;
+  width: 14%;
 }
 
 th:nth-child(3),
 td:nth-child(3) {
-  width: 10%;
+  width: 9%;
 }
 
 th:nth-child(4),
@@ -223,12 +225,12 @@ td:nth-child(4) {
 
 th:nth-child(5),
 td:nth-child(5) {
-  width: 13%;
+  width: 12%;
 }
 
 th:nth-child(6),
 td:nth-child(6) {
-  width: 10%;
+  width: 9%;
 }
 
 th:nth-child(7),
@@ -238,7 +240,7 @@ td:nth-child(7) {
 
 th:nth-child(8),
 td:nth-child(8) {
-  width: 11%;
+  width: 10%;
 }
 
 th:nth-child(9),
@@ -248,21 +250,28 @@ td:nth-child(9) {
 
 .stacked-cell {
   display: grid;
-  gap: 4px;
+  gap: 3px;
+}
+
+.stacked-cell strong {
+  font-size: 13px;
+  line-height: 1.18;
 }
 
 .stacked-cell small {
   color: #64748b;
+  font-size: 12px;
 }
 
 .moodle-id {
+  font-size: 13px;
   white-space: nowrap;
 }
 
 .chip-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .chip-list span,
@@ -270,9 +279,10 @@ td:nth-child(9) {
 .meet-status {
   border-radius: 999px;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  padding: 6px 10px;
+  line-height: 1.2;
+  padding: 5px 8px;
   text-transform: uppercase;
   white-space: normal;
 }
@@ -326,15 +336,16 @@ td:nth-child(9) {
   border-radius: 8px;
   color: #07163c;
   box-sizing: border-box;
+  font-size: 13px;
   min-height: 40px;
   min-width: 0;
-  padding: 0 10px;
+  padding: 0 9px;
   width: 100%;
 }
 
 .meet-editor {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -347,10 +358,11 @@ td:nth-child(9) {
   color: #ffffff;
   cursor: pointer;
   display: inline-flex;
+  font-size: 13px;
   font-weight: 900;
   justify-content: center;
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 10px;
   text-decoration: none;
 }
 
@@ -362,9 +374,10 @@ td:nth-child(9) {
 .status-badge {
   border-radius: 999px;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  padding: 6px 10px;
+  line-height: 1.2;
+  padding: 5px 8px;
   text-transform: uppercase;
 }
 
