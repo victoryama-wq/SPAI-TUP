@@ -160,7 +160,7 @@
 
 table {
   border-collapse: collapse;
-  min-width: 1380px;
+  min-width: 1420px;
   width: 100%;
 }
 
@@ -183,6 +183,11 @@ th {
 th.center-column,
 td.center-column {
   text-align: center;
+}
+
+th.meet-state-column,
+td.meet-state-column {
+  min-width: 150px;
 }
 
 .stacked-cell {
@@ -275,6 +280,7 @@ td.center-column {
   border-radius: 8px;
   color: #07163c;
   min-height: 40px;
+  min-width: 136px;
   padding: 0 10px;
   width: 100%;
 }

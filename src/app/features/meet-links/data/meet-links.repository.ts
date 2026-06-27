@@ -11,6 +11,7 @@ export interface MeetLink {
   cycle: string;
   meetUrl: string;
   status: MeetLinkStatus;
+  schedule?: string;
   observations: string;
   createdBy: string;
   createdByName: string;
@@ -27,7 +28,7 @@ export interface UpsertMeetLinkPayload {
   cycle: string;
   meetUrl: string;
   status: MeetLinkStatus;
-  observations: string;
+  schedule: string;
   createdBy: string;
   createdByName: string;
   createdByRole: string;
@@ -53,7 +54,8 @@ export class MeetLinksRepository extends FirestoreRepository<MeetLink> {
       cycle: payload.cycle.trim(),
       meetUrl: payload.meetUrl.trim(),
       status: payload.status,
-      observations: payload.observations.trim(),
+      schedule: payload.schedule.trim(),
+      observations: payload.schedule.trim(),
       createdBy: currentLink?.createdBy ?? payload.createdBy,
       createdByName: currentLink?.createdByName ?? payload.createdByName,
       createdByRole: currentLink?.createdByRole ?? payload.createdByRole,

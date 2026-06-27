@@ -12,7 +12,7 @@ type MeetSharedFilter = 'TODAS' | 'COMPARTIDAS' | 'SIN_COMPARTIR';
 interface MeetLinkDraft {
   meetUrl: string;
   status: MeetLinkStatus;
-  observations: string;
+  schedule: string;
   sourceUpdatedAt: string;
 }
 
@@ -201,7 +201,7 @@ export class MeetLinksPageComponent {
     const draft: MeetLinkDraft = {
       meetUrl: row.meetLink?.meetUrl ?? '',
       status: row.meetLink?.status ?? 'PENDIENTE',
-      observations: row.meetLink?.observations ?? '',
+      schedule: row.meetLink?.schedule ?? row.meetLink?.observations ?? '',
       sourceUpdatedAt,
     };
 
@@ -218,8 +218,8 @@ export class MeetLinksPageComponent {
     this.draftFor(row).status = (event.target as HTMLSelectElement).value as MeetLinkStatus;
   }
 
-  updateMeetObservations(row: MeetClassRow, event: Event): void {
-    this.draftFor(row).observations = (event.target as HTMLInputElement).value;
+  updateMeetSchedule(row: MeetClassRow, event: Event): void {
+    this.draftFor(row).schedule = (event.target as HTMLInputElement).value;
   }
 
   async saveMeetLink(row: MeetClassRow): Promise<void> {
@@ -252,7 +252,7 @@ export class MeetLinksPageComponent {
         cycle: row.cycle,
         meetUrl,
         status: draft.status,
-        observations: draft.observations,
+        schedule: draft.schedule,
         createdBy: currentSession.authUid,
         createdByName: appUser.name,
         createdByRole: appUser.role,

@@ -79,14 +79,14 @@
     <table>
       <thead>
         <tr>
-          <th>ID asignatura</th>
+          <th>ID Moodle</th>
           <th>Asignatura</th>
           <th>Grupo origen</th>
           <th>Grupos virtuales</th>
           <th>Grupos compartidos</th>
           <th>Docente</th>
           <th class="center-column">Estado asignacion</th>
-          <th>Estado Meet</th>
+          <th class="meet-state-column">Estado Meet</th>
           <th>Liga Meet</th>
         </tr>
       </thead>
@@ -96,8 +96,7 @@
             <td><strong class="moodle-id">{{ row.moodleId }}</strong></td>
             <td>
               <div class="stacked-cell">
-                <strong>{{ row.subjectId }}</strong>
-                <small>{{ row.subjectName }}</small>
+                <strong>{{ row.subjectName }}</strong>
               </div>
             </td>
             <td><strong>{{ row.originGroup }}</strong></td>
@@ -130,7 +129,7 @@
                 {{ statusLabel(row.assignmentStatus) }}
               </span>
             </td>
-            <td>
+            <td class="meet-state-column">
               @if (canEditMeetLinks()) {
                 <select
                   class="meet-select"
@@ -160,9 +159,9 @@
                   />
                   <input
                     type="text"
-                    [value]="draftFor(row).observations"
-                    (input)="updateMeetObservations(row, $event)"
-                    placeholder="Observaciones Meet"
+                    [value]="draftFor(row).schedule"
+                    (input)="updateMeetSchedule(row, $event)"
+                    placeholder="Horario"
                   />
                   <button
                     type="button"
