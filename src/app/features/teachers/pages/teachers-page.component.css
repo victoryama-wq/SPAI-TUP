@@ -121,17 +121,18 @@ th {
 
 .teachers-overview {
   display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(360px, 0.85fr) minmax(0, 1fr);
-  margin-bottom: 22px;
+  gap: 14px;
+  grid-template-columns: minmax(340px, 0.74fr) minmax(0, 1.12fr);
+  margin-bottom: 18px;
+  padding: 14px;
 }
 
 .teachers-header {
   align-content: space-between;
   display: grid;
-  gap: 24px;
-  min-height: 176px;
-  padding: 28px 32px;
+  gap: 16px;
+  min-height: 126px;
+  padding: 20px 24px;
 }
 
 .teachers-header span,
@@ -146,14 +147,15 @@ th {
 
 .teachers-header h2 {
   color: #07163c;
-  font-size: clamp(22px, 2.4vw, 30px);
+  font-size: clamp(22px, 2.2vw, 28px);
   line-height: 1.08;
-  margin: 10px 0 12px;
+  margin: 8px 0 8px;
 }
 
 .teachers-header p {
   color: #40577a;
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.32;
   margin: 0;
 }
 
@@ -221,11 +223,15 @@ th {
 .summary-grid article {
   align-content: center;
   display: grid;
-  gap: 8px;
+  gap: 7px;
   justify-items: center;
-  min-height: 176px;
-  padding: 18px;
+  min-height: 126px;
+  padding: 14px;
   text-align: center;
+}
+
+.summary-grid strong {
+  font-size: 30px;
 }
 
 @media (max-width: 1500px) {
