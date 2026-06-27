@@ -940,8 +940,16 @@ td {
 
 th {
   color: #40577a;
-  font-size: 13px;
+  font-size: 12px;
+  hyphens: none;
+  line-height: 1.2;
+  overflow-wrap: normal;
   text-transform: uppercase;
+  word-break: normal;
+}
+
+th.center-column {
+  white-space: nowrap;
 }
 
 th.center-column,
@@ -951,17 +959,17 @@ td.center-column {
 
 th:nth-child(1),
 td:nth-child(1) {
-  width: 9%;
+  width: 8%;
 }
 
 th:nth-child(2),
 td:nth-child(2) {
-  width: 16%;
+  width: 17%;
 }
 
 th:nth-child(3),
 td:nth-child(3) {
-  width: 17%;
+  width: 18%;
 }
 
 th:nth-child(4),
@@ -971,27 +979,27 @@ td:nth-child(4) {
 
 th:nth-child(5),
 td:nth-child(5) {
-  width: 14%;
+  width: 13%;
 }
 
 th:nth-child(6),
 td:nth-child(6) {
-  width: 10%;
+  width: 9%;
 }
 
 th:nth-child(7),
 td:nth-child(7) {
-  width: 13%;
+  width: 12%;
 }
 
 th:nth-child(8),
 td:nth-child(8) {
-  width: 8%;
+  width: 9%;
 }
 
 th:nth-child(9),
 td:nth-child(9) {
-  width: 4%;
+  width: 6%;
 }
 
 .stacked-cell {
@@ -1060,10 +1068,11 @@ td:nth-child(9) {
 .status-badge {
   border-radius: 999px;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   padding: 6px 10px;
   text-transform: uppercase;
+  white-space: normal;
 }
 
 .status-badge.en_captura {
