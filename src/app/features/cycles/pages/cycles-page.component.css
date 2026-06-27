@@ -117,19 +117,20 @@ th {
 .cycles-overview {
   align-items: stretch;
   display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(420px, 0.85fr) minmax(0, 1.4fr);
-  margin-bottom: 22px;
+  gap: 14px;
+  grid-template-columns: minmax(360px, 0.72fr) minmax(0, 1.45fr);
+  margin-bottom: 18px;
+  padding: 14px;
 }
 
 .cycles-header {
   align-items: stretch;
   display: grid;
-  gap: 24px;
+  gap: 16px;
   grid-template-rows: 1fr auto;
   margin-bottom: 0;
-  min-height: 176px;
-  padding: 28px 32px;
+  min-height: 126px;
+  padding: 20px 24px;
 }
 
 .cycles-header span,
@@ -143,14 +144,15 @@ th {
 
 .cycles-header h2 {
   color: #07163c;
-  font-size: clamp(22px, 2.4vw, 30px);
+  font-size: clamp(22px, 2.2vw, 28px);
   line-height: 1.08;
-  margin: 10px 0 12px;
+  margin: 8px 0 8px;
 }
 
 .cycles-header p {
   color: #40577a;
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.32;
   margin: 0;
 }
 
@@ -175,8 +177,8 @@ th {
   color: #ffffff;
   justify-self: start;
   gap: 10px;
-  min-height: 48px;
-  padding: 0 20px;
+  min-height: 44px;
+  padding: 0 18px;
   white-space: nowrap;
 }
 
@@ -201,16 +203,16 @@ th {
 .cycle-summary {
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(190px, 1.25fr) repeat(4, minmax(118px, 1fr));
+  grid-template-columns: minmax(170px, 1.1fr) repeat(4, minmax(112px, 1fr));
   margin-bottom: 0;
 }
 
 .cycle-summary article {
   align-content: center;
   display: grid;
-  gap: 8px;
-  min-height: 176px;
-  padding: 18px;
+  gap: 7px;
+  min-height: 126px;
+  padding: 14px;
 }
 
 .cycle-summary article:not(.active-card) {
@@ -220,7 +222,7 @@ th {
 
 .cycle-summary strong {
   color: #061747;
-  font-size: 38px;
+  font-size: 30px;
   line-height: 1;
 }
 
@@ -232,7 +234,7 @@ th {
 }
 
 .active-card strong {
-  font-size: 50px;
+  font-size: 42px;
 }
 
 .active-card {
@@ -245,7 +247,7 @@ th {
 }
 
 .active-card p {
-  font-size: 18px;
+  font-size: 16px;
   margin: 0;
 }
 
