@@ -158,10 +158,10 @@
                     placeholder="https://meet.google.com/..."
                   />
                   <input
-                    type="text"
+                    type="datetime-local"
                     [value]="draftFor(row).schedule"
                     (input)="updateMeetSchedule(row, $event)"
-                    placeholder="Horario"
+                    aria-label="Horario de la clase virtual"
                   />
                   <button
                     type="button"
