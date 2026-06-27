@@ -1219,16 +1219,6 @@ td[colspan] {
   color: #94a3b8;
 }
 
-@media (max-width: 1500px) {
-  .assignments-workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .assignments-side-panel {
-    grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1fr) minmax(220px, 0.8fr);
-  }
-}
-
 .empty-state {
   color: #40577a;
   display: grid;
