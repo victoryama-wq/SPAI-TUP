@@ -103,18 +103,19 @@ th {
 
 .nomenclatures-overview {
   display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(360px, 0.85fr) minmax(0, 1.3fr);
-  margin-bottom: 22px;
+  gap: 14px;
+  grid-template-columns: minmax(340px, 0.74fr) minmax(0, 1.34fr);
+  margin-bottom: 18px;
+  padding: 14px;
 }
 
 .nomenclatures-header {
   align-items: stretch;
   display: grid;
-  gap: 24px;
+  gap: 16px;
   grid-template-rows: 1fr auto;
-  min-height: 176px;
-  padding: 28px 32px;
+  min-height: 126px;
+  padding: 20px 24px;
 }
 
 .nomenclatures-header span,
@@ -127,14 +128,15 @@ th {
 
 .nomenclatures-header h2 {
   color: #07163c;
-  font-size: clamp(22px, 2.4vw, 30px);
+  font-size: clamp(22px, 2.2vw, 28px);
   line-height: 1.08;
-  margin: 10px 0 12px;
+  margin: 8px 0 8px;
 }
 
 .nomenclatures-header p {
   color: #40577a;
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.32;
   margin: 0;
 }
 
@@ -147,16 +149,16 @@ th {
 .summary-grid article {
   align-content: center;
   display: grid;
-  gap: 8px;
+  gap: 7px;
   justify-items: center;
-  min-height: 176px;
-  padding: 18px;
+  min-height: 126px;
+  padding: 14px;
   text-align: center;
 }
 
 .summary-grid strong {
   color: #061747;
-  font-size: 38px;
+  font-size: 30px;
   line-height: 1;
 }
 
@@ -183,7 +185,7 @@ th {
 .header-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .consultation-card {
@@ -215,8 +217,8 @@ th {
   color: #ffffff;
   gap: 10px;
   justify-self: start;
-  min-height: 48px;
-  padding: 0 20px;
+  min-height: 44px;
+  padding: 0 18px;
   white-space: nowrap;
 }
 
