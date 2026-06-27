@@ -112,6 +112,7 @@
 }
 
 .table-panel {
+  container-type: inline-size;
   margin-bottom: 22px;
   overflow: hidden;
   padding: 30px;
@@ -352,8 +353,104 @@ td.meet-state-column {
   }
 }
 
+@container (max-width: 1320px) {
+  .table-wrap {
+    border: 0;
+    overflow-x: hidden;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  td {
+    display: block;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  tr {
+    background: #ffffff;
+    border: 1px solid #d7e4f8;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  td {
+    align-items: start;
+    border-bottom: 1px solid #edf4ff;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(112px, 0.42fr) minmax(0, 1fr);
+    min-height: 46px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  td:last-child {
+    border-bottom: 0;
+  }
+
+  td::before {
+    color: #1457d6;
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  td.center-column {
+    text-align: left;
+  }
+
+  td.center-column .status-badge,
+  td.center-column .meet-status {
+    justify-self: start;
+  }
+
+  td.meet-state-column {
+    min-width: 0;
+  }
+
+  .meet-editor {
+    min-width: 0;
+  }
+
+  .meet-editor input,
+  .meet-editor button,
+  .meet-select {
+    width: 100%;
+  }
+
+  td[colspan] {
+    display: block;
+  }
+
+  td[colspan]::before {
+    display: none;
+  }
+}
+
 @media (max-width: 760px) {
-  .summary-grid {
+  .summary-grid,
+  .filters {
     grid-template-columns: 1fr;
+  }
+
+  .table-panel {
+    padding-inline: 14px;
   }
 }

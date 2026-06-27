@@ -93,21 +93,21 @@
       <tbody>
         @for (row of visibleMeetRows(); track row.id) {
           <tr>
-            <td><strong class="moodle-id">{{ row.moodleId }}</strong></td>
-            <td>
+            <td data-label="ID Moodle"><strong class="moodle-id">{{ row.moodleId }}</strong></td>
+            <td data-label="Asignatura">
               <div class="stacked-cell">
                 <strong>{{ row.subjectName }}</strong>
               </div>
             </td>
-            <td><strong>{{ row.originGroup }}</strong></td>
-            <td>
+            <td data-label="Grupo origen"><strong>{{ row.originGroup }}</strong></td>
+            <td data-label="Grupos virtuales">
               <div class="chip-list">
                 @for (group of row.virtualGroups; track group) {
                   <span class="virtual-chip">{{ group }}</span>
                 }
               </div>
             </td>
-            <td>
+            <td data-label="Grupos compartidos">
               @if (row.sharedGroups.length) {
                 <div class="chip-list">
                   @for (group of row.sharedGroups; track group) {
@@ -118,18 +118,18 @@
                 <span class="pending-label">Sin compartir</span>
               }
             </td>
-            <td>
+            <td data-label="Docente">
               <div class="stacked-cell">
                 <strong>{{ row.teacherName }}</strong>
                 <small>{{ row.teacherMoodleUser }}</small>
               </div>
             </td>
-            <td class="center-column">
+            <td class="center-column" data-label="Estado asignacion">
               <span class="status-badge" [ngClass]="statusClass(row.assignmentStatus)">
                 {{ statusLabel(row.assignmentStatus) }}
               </span>
             </td>
-            <td class="meet-state-column">
+            <td class="meet-state-column" data-label="Estado Meet">
               @if (canEditMeetLinks()) {
                 <select
                   class="meet-select"
@@ -146,7 +146,7 @@
                 </span>
               }
             </td>
-            <td>
+            <td data-label="Liga Meet">
               @if (canEditMeetLinks()) {
                 <div class="meet-editor">
                   <input

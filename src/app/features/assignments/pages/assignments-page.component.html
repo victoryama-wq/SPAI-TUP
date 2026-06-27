@@ -177,20 +177,20 @@
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
-            <td><strong class="moodle-id">{{ displayMoodleId(assignment) }}</strong></td>
-            <td>
+            <td data-label="ID Moodle"><strong class="moodle-id">{{ displayMoodleId(assignment) }}</strong></td>
+            <td data-label="Materia">
               <div class="stacked-cell">
                 <strong>{{ assignment.subjectName }}</strong>
               </div>
             </td>
-            <td>
+            <td data-label="Docente">
               <div class="stacked-cell">
                 <strong>{{ assignment.teacherName }}</strong>
                 <small>{{ assignment.teacherMoodleUser }}</small>
               </div>
             </td>
-            <td><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
-            <td>
+            <td data-label="Carrera"><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
+            <td data-label="Grupo">
               <div class="stacked-cell">
                 <strong>{{ isPropedeuticAssignment(assignment) ? 'Propedeutico' : isSpecialAssignment(assignment) ? 'Caso especial' : assignment.group }}</strong>
                 @if (isSpecialAssignment(assignment)) {
@@ -205,7 +205,7 @@
                 }
               </div>
             </td>
-            <td class="center-column">
+            <td class="center-column" data-label="Compartida">
               @if (isSharedInTable(assignment)) {
                 <div class="shared-indicator">
                   <span class="shared-check" aria-label="Clase compartida">
@@ -229,19 +229,19 @@
                 <span class="pending-label">No</span>
               }
             </td>
-            <td>
+            <td data-label="Observaciones">
               @if (assignment.observations) {
                 <span class="observation-cell">{{ assignment.observations }}</span>
               } @else {
                 <span class="empty-observation">Sin observaciones</span>
               }
             </td>
-            <td class="center-column">
+            <td class="center-column" data-label="Estado">
               <span class="status-badge" [ngClass]="statusClass(assignment.status)">
                 {{ statusLabel(assignment.status) }}
               </span>
             </td>
-            <td>
+            <td data-label="Acciones">
               <div class="row-actions">
                 <button
                   type="button"
