@@ -1,6 +1,8 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import {
   collection,
+  DocumentData,
+  QuerySnapshot,
   DocumentSnapshot,
   onSnapshot,
   query,
@@ -83,18 +85,49 @@ export class UserSessionService {
         );
       };
 
-      const unsubscribe = onSnapshot(userRef, async (snapshot) => {
-        if (snapshot.exists()) {
-          const appUser = { id: snapshot.id, ...snapshot.data() } as AppUser;
+      const selectEmailUserSnapshot = (emailSnapshot: QuerySnapshot<DocumentData>): DocumentSnapshot | null => {
+        const candidates = emailSnapshot.docs.filter((item) => item.data()['status'] === 'Activo');
 
-          if (appUser.status === 'Activo') {
-            emailUnsubscribe?.();
-            emailUnsubscribe = null;
-            setSession(snapshot);
-            return;
-          }
+        if (!candidates.length) {
+          return emailSnapshot.docs[0] ?? null;
         }
 
+        const withPrograms = candidates.find((item) => {
+          const assignedPrograms = item.data()['assignedPrograms'];
+
+          return Array.isArray(assignedPrograms) && assignedPrograms.length > 0 && item.id !== authUser.uid;
+        });
+
+        return withPrograms ?? candidates.find((item) => item.id !== authUser.uid) ?? candidates[0];
+      };
+
+      const normalizeComparableValue = (value: unknown): string => JSON.stringify(value ?? null);
+
+      const needsUidSync = (
+        sourceData: Omit<AppUser, 'id'>,
+        fallbackSnapshot: DocumentSnapshot | null,
+      ): boolean => {
+        if (!fallbackSnapshot?.exists() || fallbackSnapshot.id !== authUser.uid) {
+          return true;
+        }
+
+        const currentData = fallbackSnapshot.data();
+        const fieldsToCompare = [
+          'name',
+          'email',
+          'role',
+          'greetingGender',
+          'assignedPrograms',
+          'access',
+          'status',
+        ];
+
+        return fieldsToCompare.some((field) => {
+          return normalizeComparableValue(currentData[field]) !== normalizeComparableValue(sourceData[field as keyof Omit<AppUser, 'id'>]);
+        }) || currentData['authUid'] !== authUser.uid;
+      };
+
+      const listenByEmail = (fallbackSnapshot: DocumentSnapshot | null) => {
         const usersRef = collection(this.firestore, USERS_COLLECTION);
         const userQuery = query(
           usersRef,
@@ -103,13 +136,11 @@ export class UserSessionService {
 
         emailUnsubscribe?.();
         emailUnsubscribe = onSnapshot(userQuery, async (emailSnapshot) => {
-          const emailUserSnapshot =
-            emailSnapshot.docs.find((item) => item.data()['status'] === 'Activo') ??
-            emailSnapshot.docs[0];
+          const emailUserSnapshot = selectEmailUserSnapshot(emailSnapshot);
 
           if (!emailUserSnapshot) {
-            if (snapshot.exists()) {
-              setSession(snapshot);
+            if (fallbackSnapshot?.exists()) {
+              setSession(fallbackSnapshot);
               return;
             }
 
@@ -131,6 +162,10 @@ export class UserSessionService {
             return;
           }
 
+          if (!needsUidSync(emailUserData, fallbackSnapshot)) {
+            return;
+          }
+
           try {
             await setDoc(
               userRef,
@@ -147,13 +182,25 @@ export class UserSessionService {
         }, (error) => {
           console.error('No se pudo buscar el usuario por correo institucional', error);
 
-          if (snapshot.exists()) {
-            setSession(snapshot);
+          if (fallbackSnapshot?.exists()) {
+            setSession(fallbackSnapshot);
             return;
           }
 
           setUnauthenticatedAppSession();
         });
+      };
+
+      const unsubscribe = onSnapshot(userRef, async (snapshot) => {
+        if (snapshot.exists()) {
+          const appUser = { id: snapshot.id, ...snapshot.data() } as AppUser;
+
+          if (appUser.status === 'Activo') {
+            setSession(snapshot);
+          }
+        }
+
+        listenByEmail(snapshot);
       }, (error) => {
         console.error('No se pudo leer el usuario activo por UID', error);
         setUnauthenticatedAppSession();
