@@ -250,7 +250,20 @@
       <div class="content-inner">
         @if (!isAssignmentsRoute()) {
           <div class="context-row">
-            <strong>Ciclo activo: <span [class.pending]="!activeCycle()">{{ activeCycleLabel }}</span></strong>
+            <div class="cycle-status-bar" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
+              <span class="cycle-status-kicker">Ciclo activo</span>
+              <strong class="cycle-status-code">{{ activeCycleCodeLabel }}</strong>
+
+              <span class="cycle-status-divider" aria-hidden="true"></span>
+
+              <span class="cycle-status-date" [class.pending]="!activeCycleCaptureCloseLabel">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path>
+                </svg>
+                <span>Cierre de Captura</span>
+                <strong>{{ activeCycleCaptureCloseLabel || 'Pendiente' }}</strong>
+              </span>
+            </div>
           </div>
         }
 

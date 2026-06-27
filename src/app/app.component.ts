@@ -174,6 +174,16 @@ export class AppComponent {
     return `${cycle.code} - Cierre de Captura ${this.formatCycleDate(cycle.tentativeCaptureCloseAt)}`;
   }
 
+  get activeCycleCodeLabel(): string {
+    return this.activeCycle()?.code ?? 'Pendiente';
+  }
+
+  get activeCycleCaptureCloseLabel(): string {
+    const captureCloseAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return captureCloseAt ? this.formatCycleDate(captureCloseAt).toUpperCase() : '';
+  }
+
   private formatCycleDate(value: string): string {
     const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
       ? new Date(`${value}T12:00:00`)

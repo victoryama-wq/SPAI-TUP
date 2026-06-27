@@ -855,25 +855,104 @@
 }
 
 .context-row {
-  align-items: end;
+  align-items: center;
   display: flex;
   justify-content: space-between;
   margin-bottom: 24px;
 }
 
-.context-row strong {
+.cycle-status-bar {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgb(37 99 235 / 0.09), rgb(14 165 233 / 0.06)),
+    #ffffff;
+  border: 1px solid #cfe0f6;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgb(15 35 83 / 0.08);
   color: #07163c;
-  font-size: 18px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 50px;
+  padding: 8px 10px 8px 14px;
 }
 
-.context-row strong span {
-  color: #1d4ed8;
-  font-size: 22px;
+.cycle-status-bar.pending {
+  background: #ffffff;
 }
 
-.context-row strong span.pending {
-  color: #64748b;
+.cycle-status-kicker,
+.cycle-status-date span {
+  color: #1457d6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cycle-status-code {
+  align-items: center;
+  background: #1d4ed8;
+  border: 1px solid #1d4ed8;
+  border-radius: 8px;
+  color: #ffffff;
+  display: inline-flex;
   font-size: 20px;
+  font-weight: 900;
+  min-height: 34px;
+  padding: 0 13px;
+}
+
+.cycle-status-bar.pending .cycle-status-code {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.cycle-status-divider {
+  background: #bfd4f2;
+  height: 30px;
+  width: 1px;
+}
+
+.cycle-status-date {
+  align-items: center;
+  background: #edf4ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #06174a;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 11px;
+}
+
+.cycle-status-date svg {
+  fill: none;
+  height: 17px;
+  stroke: #1d4ed8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 17px;
+}
+
+.cycle-status-date strong {
+  color: #1d4ed8;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.cycle-status-date.pending {
+  background: #f8fafc;
+  border-color: #dbe4ef;
+}
+
+.cycle-status-date.pending svg,
+.cycle-status-date.pending span,
+.cycle-status-date.pending strong {
+  color: #64748b;
+  stroke: #64748b;
 }
 
 @media (max-width: 1500px) {
@@ -1069,5 +1148,13 @@
     align-items: start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .cycle-status-bar {
+    width: 100%;
+  }
+
+  .cycle-status-divider {
+    display: none;
   }
 }
