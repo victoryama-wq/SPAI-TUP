@@ -862,6 +862,12 @@
   margin-bottom: 24px;
 }
 
+.context-row.with-route-context {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(320px, 0.62fr) minmax(420px, 1fr);
+}
+
 .route-context-chip {
   align-items: center;
   background:
@@ -1040,12 +1046,11 @@
 
 .context-row.with-route-context .cycle-status-bar {
   display: flex;
-  flex: 0 0 auto;
   flex-direction: column;
   gap: 8px;
   justify-content: center;
   min-height: 78px;
-  min-width: min(430px, 100%);
+  min-width: 0;
   padding: 10px 14px;
 }
 
@@ -1274,6 +1279,10 @@
     align-items: start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .context-row.with-route-context {
+    grid-template-columns: 1fr;
   }
 
   .route-context-chip {
