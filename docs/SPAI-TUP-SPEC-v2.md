@@ -1343,9 +1343,12 @@ Reglas de `templatecourse`:
 
 Estado operativo implementado:
 
-- El modulo Moodle deja de ser placeholder y se organiza en tres pestaÃ±as: Categorias, Plantillas de curso y Lotes Moodle.
-- Categorias permite cargar CSV, alta manual, edicion y eliminacion de numeros de categoria asociados a programas/licenciaturas.
+- El modulo Moodle deja de ser placeholder y se organiza en catálogos operativos y lotes Moodle.
+- El bloque de catálogos muestra Categorias Moodle como panel lateral izquierdo y Plantillas de curso al lado derecho para consulta y captura rapida.
+- Categorias permite cargar CSV, alta manual, edicion y eliminacion de numeros de categoria asociados a programas.
 - Plantillas de curso permite cargar CSV, alta manual, edicion y eliminacion de cursos base para replicacion en Moodle.
+- Las plantillas tienen ID interno SPAI incremental oculto para el usuario; en pantalla solo se muestra el nombre corto Moodle, el tipo de plantilla y el programa cuando el tipo sea "Por programa".
+- Los tipos de plantilla contemplados son Axiologica, Demo, Transversal, Generica y Por programa.
 - Lotes Moodle muestra asignaciones del ciclo activo, permite seleccionar asignaciones, asignar plantilla, verificar categoria y generar CSV con `shortname`, `fullname`, `category`, `visible` y `templatecourse`.
 - Desde Lotes Moodle, Sistemas puede actualizar el estado operativo de una asignacion a `EN_REVISION` o `CARGADO_MOODLE`.
 - Las colecciones `moodle_categorias` y `moodle_plantillas` quedan protegidas por reglas Firestore para lectura/escritura del modulo Moodle por Sistemas.

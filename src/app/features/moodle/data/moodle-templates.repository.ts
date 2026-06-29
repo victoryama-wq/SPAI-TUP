@@ -6,6 +6,7 @@ import { MoodleCatalogStatus } from './moodle-categories.repository';
 
 export interface MoodleCourseTemplate {
   id: string;
+  internalId?: string;
   templateCourse: string;
   name: string;
   modality: string;
@@ -42,10 +43,11 @@ export class MoodleTemplatesRepository extends FirestoreRepository<MoodleCourseT
 
   upsertTemplate(payload: UpsertMoodleCourseTemplatePayload, id?: string | null): Promise<void> {
     const timestamp = new Date().toISOString();
-    const documentId = id || this.normalizeTemplateId(payload.templateCourse);
+    const documentId = id || this.nextTemplateId();
     const currentTemplate = this.templates().find((template) => template.id === documentId);
 
     return this.setDocument(documentId, {
+      internalId: currentTemplate?.internalId ?? documentId,
       templateCourse: payload.templateCourse.trim(),
       name: this.normalizeName(payload.name),
       modality: this.normalizeName(payload.modality),
@@ -69,6 +71,17 @@ export class MoodleTemplatesRepository extends FirestoreRepository<MoodleCourseT
 
   normalizeTemplateId(value: string): string {
     return value.trim().replace(/\s+/g, '-').toLowerCase();
+  }
+
+  private nextTemplateId(): string {
+    const usedNumbers = this.templates()
+      .map((template) => template.internalId || template.id)
+      .map((value) => /^TPL(\d+)$/i.exec(value)?.[1])
+      .filter((value): value is string => Boolean(value))
+      .map((value) => Number(value));
+    const nextNumber = (usedNumbers.length ? Math.max(...usedNumbers) : 0) + 1;
+
+    return `TPL${String(nextNumber).padStart(4, '0')}`;
   }
 
   private normalizeName(value: string): string {

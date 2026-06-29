@@ -1,10 +1,7 @@
 <section class="moodle-shell">
   <nav class="moodle-tabs" aria-label="Secciones Moodle">
-    <button type="button" [class.active]="activeTab === 'categorias'" (click)="setActiveTab('categorias')">
-      Categorias
-    </button>
-    <button type="button" [class.active]="activeTab === 'plantillas'" (click)="setActiveTab('plantillas')">
-      Plantillas de curso
+    <button type="button" [class.active]="activeTab === 'catalogos'" (click)="setActiveTab('catalogos')">
+      Catalogos Moodle
     </button>
     <button type="button" [class.active]="activeTab === 'lotes'" (click)="setActiveTab('lotes')">
       Lotes Moodle
@@ -30,7 +27,8 @@
     </aside>
   }
 
-  @if (activeTab === 'categorias') {
+  @if (activeTab === 'catalogos') {
+    <div class="catalog-panels">
     <section class="workspace-panel category-side-panel">
       <div class="panel-toolbar">
         <div>
@@ -87,15 +85,13 @@
         </table>
       </div>
     </section>
-  }
 
-  @if (activeTab === 'plantillas') {
-    <section class="workspace-panel">
+    <section class="workspace-panel template-side-panel">
       <div class="panel-toolbar">
         <div>
           <span>Base Moodle</span>
           <h3>Plantillas de curso</h3>
-          <p>Define los cursos origen desde donde Moodle replicara la estructura de nuevos cursos.</p>
+          <p>Define el nombre corto Moodle y el tipo de plantilla que se usara para replicar cursos.</p>
         </div>
 
         <div class="toolbar-actions">
@@ -115,22 +111,18 @@
         <table>
           <thead>
             <tr>
-              <th>ID plantilla</th>
-              <th>Nombre</th>
-              <th>Modalidad</th>
+              <th>Nombre corto Moodle</th>
+              <th>Tipo</th>
               <th>Programa</th>
-              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for (template of visibleTemplates(); track template.id) {
               <tr>
-                <td data-label="ID plantilla"><strong>{{ template.templateCourse }}</strong></td>
-                <td data-label="Nombre">{{ template.name }}</td>
-                <td data-label="Modalidad">{{ template.modality || 'General' }}</td>
-                <td data-label="Programa">{{ template.programCode || 'General' }}</td>
-                <td data-label="Estado"><span class="status-badge" [class.inactive]="template.status === 'Inactivo'">{{ template.status }}</span></td>
+                <td data-label="Nombre corto Moodle"><strong>{{ template.templateCourse }}</strong></td>
+                <td data-label="Tipo">{{ templateTypeLabel(template.modality) }}</td>
+                <td data-label="Programa">{{ isProgramTemplate(template.modality) ? (template.programCode || 'Pendiente') : 'No aplica' }}</td>
                 <td data-label="Acciones">
                   <div class="row-actions">
                     <button type="button" (click)="openTemplateModal(template)">Editar</button>
@@ -140,7 +132,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6">
+                <td colspan="4">
                   <div class="empty-state">
                     <strong>Sin plantillas registradas</strong>
                     <span>Carga un CSV o agrega una plantilla manualmente.</span>
@@ -152,6 +144,7 @@
         </table>
       </div>
     </section>
+    </div>
   }
 
   @if (activeTab === 'lotes') {
@@ -259,7 +252,7 @@
                   >
                     <option value="">Seleccionar</option>
                     @for (template of activeTemplates(); track template.id) {
-                      <option [value]="template.id">{{ template.name }}</option>
+                      <option [value]="template.id">{{ template.templateCourse }}</option>
                     }
                   </select>
                 </td>
@@ -325,23 +318,27 @@
         <h3>{{ editingTemplateId ? 'Editar plantilla' : 'Nueva plantilla' }}</h3>
 
         <div class="form-grid">
-          <label>
-            <span>ID plantilla *</span>
-            <input [(ngModel)]="templateForm.templateCourse" placeholder="templatecourse" />
-          </label>
           <label class="wide-field">
-            <span>Nombre *</span>
-            <input [(ngModel)]="templateForm.name" placeholder="Plantilla escolarizado" />
+            <span>Nombre corto Moodle *</span>
+            <input [(ngModel)]="templateForm.templateCourse" placeholder="Ej. plantilla_generica_licenciatura" />
           </label>
           <label>
-            <span>Modalidad</span>
-            <input [(ngModel)]="templateForm.modality" placeholder="General" />
+            <span>Tipo *</span>
+            <select [(ngModel)]="templateForm.modality">
+              <option value="Axiologica">Axiologica</option>
+              <option value="Demo">Demo</option>
+              <option value="Transversal">Transversal</option>
+              <option value="Generica">Generica</option>
+              <option value="Por programa">Por programa</option>
+            </select>
           </label>
-          <label>
-            <span>Programa</span>
-            <input [(ngModel)]="templateForm.programCode" placeholder="Opcional" />
-          </label>
-          <label>
+          @if (isProgramTemplate(templateForm.modality)) {
+            <label>
+              <span>Programa *</span>
+              <input [(ngModel)]="templateForm.programCode" placeholder="Ej. ADEM" />
+            </label>
+          }
+          <label [class.wide-field]="!isProgramTemplate(templateForm.modality)">
             <span>Estado</span>
             <select [(ngModel)]="templateForm.status">
               <option value="Activo">Activo</option>

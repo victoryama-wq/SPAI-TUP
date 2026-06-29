@@ -16,7 +16,7 @@ import {
   UpsertMoodleCourseTemplatePayload,
 } from '../data/moodle-templates.repository';
 
-type MoodleTab = 'categorias' | 'plantillas' | 'lotes';
+type MoodleTab = 'catalogos' | 'lotes';
 type MoodleModal = 'categoria' | 'plantilla' | null;
 
 interface CategoryFormState {
@@ -28,7 +28,6 @@ interface CategoryFormState {
 
 interface TemplateFormState {
   templateCourse: string;
-  name: string;
   modality: string;
   programCode: string;
   status: MoodleCatalogStatus;
@@ -63,7 +62,7 @@ export class MoodlePageComponent {
 
   readonly selectedAssignments = signal<string[]>([]);
 
-  activeTab: MoodleTab = 'categorias';
+  activeTab: MoodleTab = 'catalogos';
   activeModal: MoodleModal = null;
   editingCategoryId: string | null = null;
   editingTemplateId: string | null = null;
@@ -96,7 +95,8 @@ export class MoodlePageComponent {
 
   readonly visibleTemplates = computed(() =>
     [...this.templates()].sort((first, second) =>
-      first.name.localeCompare(second.name, 'es', { numeric: true }),
+      first.modality.localeCompare(second.modality, 'es', { numeric: true })
+      || first.templateCourse.localeCompare(second.templateCourse, 'es', { numeric: true }),
     ),
   );
 
@@ -166,7 +166,6 @@ export class MoodlePageComponent {
     this.templateForm = template
       ? {
           templateCourse: template.templateCourse,
-          name: template.name,
           modality: template.modality,
           programCode: template.programCode,
           status: template.status,
@@ -218,15 +217,22 @@ export class MoodlePageComponent {
       return;
     }
 
-    if (!this.templateForm.templateCourse.trim() || !this.templateForm.name.trim()) {
-      this.showMessage('Captura ID de plantilla y nombre.', 'error');
+    if (!this.templateForm.templateCourse.trim() || !this.templateForm.modality.trim()) {
+      this.showMessage('Captura nombre corto Moodle y tipo de plantilla.', 'error');
+      return;
+    }
+
+    if (this.isProgramTemplate(this.templateForm.modality) && !this.templateForm.programCode.trim()) {
+      this.showMessage('Selecciona el programa al que pertenece la plantilla.', 'error');
       return;
     }
 
     try {
       await this.templatesRepository.upsertTemplate({
         ...this.templateForm,
-        ...actor,
+        name: this.templateForm.templateCourse,
+        modality: this.normalizeTemplateType(this.templateForm.modality),
+        programCode: this.isProgramTemplate(this.templateForm.modality) ? this.templateForm.programCode : '',
         createdBy: actor.uid,
         createdByName: actor.name,
         createdByRole: actor.role,
@@ -412,6 +418,25 @@ export class MoodlePageComponent {
       ?? null;
   }
 
+  isProgramTemplate(type: string): boolean {
+    return this.normalizeSearchText(type) === 'por programa'
+      || this.normalizeSearchText(type) === 'programa';
+  }
+
+  templateTypeLabel(type: string): string {
+    const normalized = this.normalizeSearchText(type);
+    const labels: Record<string, string> = {
+      axiologica: 'Axiologica',
+      demo: 'Demo',
+      transversal: 'Transversal',
+      generica: 'Generica',
+      programa: 'Por programa',
+      'por programa': 'Por programa',
+    };
+
+    return labels[normalized] ?? (type || 'General');
+  }
+
   displayGroup(assignment: AcademicAssignment): string {
     if (assignment.special && assignment.studentEnrollments) {
       return 'Sin grupo base';
@@ -489,9 +514,9 @@ export class MoodlePageComponent {
 
     const headers = this.csvHeaderIndex(rows[0] ?? []);
     const payloads = rows.slice(1).flatMap((row): UpsertMoodleCourseTemplatePayload[] => {
-      const templateCourse = this.csvValue(row, headers, ['templatecourse', 'template_course', 'id_plantilla', 'plantilla']);
+      const templateCourse = this.csvValue(row, headers, ['nombre_corto_moodle', 'nombre_corto', 'shortname', 'templatecourse', 'template_course', 'plantilla']);
       const name = this.csvValue(row, headers, ['nombre', 'name', 'nombre_plantilla']);
-      const modality = this.csvValue(row, headers, ['modalidad', 'modality', 'tipo']);
+      const modality = this.csvValue(row, headers, ['tipo', 'modalidad', 'modality']);
       const programCode = this.csvValue(row, headers, ['programa', 'programCode', 'abreviatura']);
       const statusText = this.csvValue(row, headers, ['estado', 'status', 'activo']);
 
@@ -499,14 +524,14 @@ export class MoodlePageComponent {
         return [];
       }
 
-      if (!templateCourse || !name) {
+      if (!templateCourse) {
         return [];
       }
 
       return [{
         templateCourse,
-        name,
-        modality: modality || 'General',
+        name: name || templateCourse,
+        modality: this.normalizeTemplateType(modality),
         programCode,
         status: this.parseStatus(statusText),
         createdBy: actor.uid,
@@ -601,6 +626,28 @@ export class MoodlePageComponent {
       : 'Activo';
   }
 
+  private normalizeTemplateType(value: string): string {
+    const normalized = this.normalizeSearchText(value);
+
+    if (normalized === 'axiologica') {
+      return 'Axiologica';
+    }
+
+    if (normalized === 'demo') {
+      return 'Demo';
+    }
+
+    if (normalized === 'transversal') {
+      return 'Transversal';
+    }
+
+    if (normalized === 'programa' || normalized === 'por programa') {
+      return 'Por programa';
+    }
+
+    return 'Generica';
+  }
+
   private actorData(): ActorData | null {
     const currentSession = this.session();
     const appUser = currentSession?.appUser;
@@ -667,8 +714,7 @@ export class MoodlePageComponent {
   private emptyTemplateForm(): TemplateFormState {
     return {
       templateCourse: '',
-      name: '',
-      modality: '',
+      modality: 'Generica',
       programCode: '',
       status: 'Activo',
     };
