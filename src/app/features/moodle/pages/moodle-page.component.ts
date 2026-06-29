@@ -135,7 +135,7 @@ export class MoodlePageComponent {
     );
   });
 
-  readonly filteredCategoryProgramOptions = computed(() => {
+  filteredCategoryProgramOptions(): ProgramOption[] {
     const search = this.normalizeSearchText(this.categoryProgramSearch);
     const options = this.programOptions();
 
@@ -146,7 +146,7 @@ export class MoodlePageComponent {
     return options
       .filter((option) => this.normalizeSearchText(option.label).includes(search))
       .slice(0, 8);
-  });
+  }
 
   readonly visibleTemplates = computed(() =>
     [...this.templates()].sort((first, second) =>
