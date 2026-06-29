@@ -962,29 +962,16 @@
   transform: translateY(-1px);
 }
 
-.route-context-tabs .catalogs-tab {
-  background: #eef4ff;
-  border-color: #93b4f5;
-  color: #143f91;
-}
-
-.route-context-tabs .batches-tab {
+.route-context-tabs button {
   background: #ecfdf5;
   border-color: #a7f3d0;
   color: #047857;
 }
 
-.route-context-tabs .catalogs-tab.active {
+.route-context-tabs button.active {
   background: #1e3a8a;
   border-color: #1e3a8a;
   box-shadow: 0 10px 20px rgb(30 58 138 / 0.18);
-  color: #ffffff;
-}
-
-.route-context-tabs .batches-tab.active {
-  background: #059669;
-  border-color: #059669;
-  box-shadow: 0 10px 20px rgb(5 150 105 / 0.16);
   color: #ffffff;
 }
 
