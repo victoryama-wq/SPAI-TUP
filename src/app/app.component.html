@@ -250,6 +250,14 @@
       <div class="content-inner">
         @if (!isAssignmentsRoute()) {
           <div class="context-row">
+            @if (compactRouteContext; as routeContext) {
+              <div class="route-context-chip" aria-label="Modulo actual">
+                <span>{{ routeContext.kicker }}</span>
+                <strong>{{ routeContext.title }}</strong>
+                <small>{{ routeContext.description }}</small>
+              </div>
+            }
+
             <div class="cycle-status-bar" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
               <span class="cycle-status-kicker">Ciclo activo</span>
               <strong class="cycle-status-code">{{ activeCycleCodeLabel }}</strong>

@@ -857,8 +857,45 @@
 .context-row {
   align-items: center;
   display: flex;
+  gap: 14px;
   justify-content: space-between;
   margin-bottom: 24px;
+}
+
+.route-context-chip {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgb(37 99 235 / 0.08), rgb(14 165 233 / 0.05)),
+    #ffffff;
+  border: 1px solid #cfe0f6;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgb(15 35 83 / 0.07);
+  color: #07163c;
+  display: grid;
+  gap: 2px;
+  min-height: 50px;
+  min-width: min(520px, 100%);
+  padding: 8px 16px;
+}
+
+.route-context-chip span {
+  color: #1457d6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.route-context-chip strong {
+  color: #07163c;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.route-context-chip small {
+  color: #40577a;
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 .cycle-status-bar {
@@ -1148,6 +1185,11 @@
     align-items: start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .route-context-chip {
+    min-width: 0;
+    width: 100%;
   }
 
   .cycle-status-bar {

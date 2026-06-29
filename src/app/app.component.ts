@@ -19,6 +19,12 @@ interface NavItem {
   moduleKey: keyof ModuleAccess;
 }
 
+interface RouteContext {
+  kicker: string;
+  title: string;
+  description: string;
+}
+
 const ACADEMIC_COORDINATION_NAV_MODULES: ReadonlyArray<keyof ModuleAccess> = [
   'dashboard',
   'nomenclaturas',
@@ -182,6 +188,28 @@ export class AppComponent {
     const captureCloseAt = this.activeCycle()?.tentativeCaptureCloseAt;
 
     return captureCloseAt ? this.formatCycleDate(captureCloseAt).toUpperCase() : '';
+  }
+
+  get compactRouteContext(): RouteContext | null {
+    const path = this.router.url.split('?')[0].replace(/\/+$/, '') || '/';
+
+    if (path === '/moodle') {
+      return {
+        kicker: 'Operacion Moodle',
+        title: 'Panel Moodle',
+        description: 'Configura categorias, plantillas y lotes para crear cursos.',
+      };
+    }
+
+    if (path === '/ligas-meet') {
+      return {
+        kicker: 'Clases virtuales',
+        title: 'Ligas Meet',
+        description: 'Concentra clases virtuales y evita duplicar clases compartidas.',
+      };
+    }
+
+    return null;
   }
 
   private formatCycleDate(value: string): string {
