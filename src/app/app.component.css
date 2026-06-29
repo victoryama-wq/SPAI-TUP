@@ -963,9 +963,9 @@
 }
 
 .route-context-tabs .catalogs-tab {
-  background: #f5f3ff;
-  border-color: #c4b5fd;
-  color: #6d28d9;
+  background: #eef4ff;
+  border-color: #93b4f5;
+  color: #143f91;
 }
 
 .route-context-tabs .batches-tab {
@@ -975,9 +975,9 @@
 }
 
 .route-context-tabs .catalogs-tab.active {
-  background: #7c3aed;
-  border-color: #7c3aed;
-  box-shadow: 0 10px 20px rgb(124 58 237 / 0.16);
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  box-shadow: 0 10px 20px rgb(30 58 138 / 0.18);
   color: #ffffff;
 }
 

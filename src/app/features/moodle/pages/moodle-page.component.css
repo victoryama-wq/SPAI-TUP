@@ -88,9 +88,9 @@
 
 .moodle-tabs button.active,
 .primary-action {
-  background: #7c3aed;
-  border-color: #7c3aed;
-  box-shadow: 0 10px 20px rgb(124 58 237 / 0.16);
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  box-shadow: 0 10px 20px rgb(30 58 138 / 0.18);
   color: #ffffff;
 }
 
