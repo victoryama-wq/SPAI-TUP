@@ -159,9 +159,9 @@
 }
 
 .shared-tabs button.tab-all {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1457d6;
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: #6d28d9;
 }
 
 .shared-tabs button.tab-shared {
@@ -177,8 +177,8 @@
 }
 
 .shared-tabs button.tab-all.active {
-  background: #1d4ed8;
-  box-shadow: 0 8px 18px rgb(29 78 216 / 0.22);
+  background: #7c3aed;
+  box-shadow: 0 8px 18px rgb(124 58 237 / 0.2);
   color: #ffffff;
 }
 
