@@ -958,15 +958,23 @@
   color: #07163c;
   display: grid;
   flex: 0 0 auto;
-  gap: 8px;
+  column-gap: 10px;
+  row-gap: 8px;
+  grid-template-columns: auto auto;
+  justify-content: center;
   justify-items: center;
   min-height: 78px;
-  min-width: 430px;
+  min-width: min(430px, 100%);
   padding: 10px 14px;
 }
 
-.cycle-status-bar > .cycle-status-kicker,
+.cycle-status-bar > .cycle-status-kicker {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 .cycle-status-bar > .cycle-status-code {
+  grid-column: 2;
   grid-row: 1;
 }
 
@@ -1015,6 +1023,8 @@
   display: inline-flex;
   gap: 8px;
   grid-column: 1 / -1;
+  justify-content: center;
+  justify-self: center;
   min-height: 34px;
   padding: 0 13px;
 }
