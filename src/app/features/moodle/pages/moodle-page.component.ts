@@ -373,6 +373,18 @@ export class MoodlePageComponent {
       });
   }
 
+  downloadCategoriesTemplate(): void {
+    const rows = [
+      ['categoria', 'programa', 'nombre_programa', 'estado'],
+      ['72', 'EECI', 'Especialidad en Enfermeria en Cuidados Intensivos', 'Activo'],
+    ];
+    const csvContent = rows
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+
+    this.downloadTextFile(`${csvContent}\n`, 'plantilla-categorias-moodle.csv', 'text/csv;charset=utf-8;');
+  }
+
   importTemplatesCsv(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

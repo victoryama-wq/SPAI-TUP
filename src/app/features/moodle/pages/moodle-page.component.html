@@ -33,6 +33,7 @@
             Cargar CSV
             <input type="file" accept=".csv,text/csv" (change)="importCategoriesCsv($event)" />
           </label>
+          <button class="secondary-action button-action" type="button" (click)="downloadCategoriesTemplate()">Plantilla CSV</button>
           <button class="primary-action" type="button" (click)="openCategoryModal()">Nueva categoria</button>
         </div>
       </div>
