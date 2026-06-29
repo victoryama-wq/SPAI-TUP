@@ -855,9 +855,9 @@
 }
 
 .context-row {
-  align-items: center;
+  align-items: stretch;
   display: flex;
-  gap: 14px;
+  gap: 18px;
   justify-content: space-between;
   margin-bottom: 24px;
 }
@@ -873,18 +873,18 @@
   color: #07163c;
   display: grid;
   gap: 2px;
-  min-height: 50px;
-  min-width: min(470px, 100%);
-  padding: 8px 16px;
+  min-height: 78px;
+  min-width: min(560px, 100%);
+  padding: 10px 18px;
 }
 
 .route-context-chip.with-metrics {
   align-items: stretch;
   display: grid;
   flex: 1 1 auto;
-  gap: 10px;
-  grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.2fr);
-  max-width: 900px;
+  gap: 16px;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+  max-width: none;
 }
 
 .route-context-copy {
@@ -904,20 +904,20 @@
 
 .route-context-copy strong {
   color: #07163c;
-  font-size: 21px;
+  font-size: 26px;
   line-height: 1;
 }
 
 .route-context-copy small {
   color: #40577a;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.2;
 }
 
 .route-context-metrics {
   display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(4, minmax(92px, 1fr));
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(112px, 1fr));
 }
 
 .route-context-metrics article {
@@ -928,14 +928,14 @@
   display: grid;
   gap: 3px;
   justify-items: center;
-  min-height: 50px;
-  padding: 6px 8px;
+  min-height: 70px;
+  padding: 8px 10px;
   text-align: center;
 }
 
 .route-context-metrics article strong {
   color: #07163c;
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -956,11 +956,18 @@
   border-radius: 8px;
   box-shadow: 0 12px 28px rgb(15 35 83 / 0.08);
   color: #07163c;
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 50px;
-  padding: 8px 10px 8px 14px;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  justify-items: center;
+  min-height: 78px;
+  min-width: 430px;
+  padding: 10px 14px;
+}
+
+.cycle-status-bar > .cycle-status-kicker,
+.cycle-status-bar > .cycle-status-code {
+  grid-row: 1;
 }
 
 .cycle-status-bar.pending {
@@ -983,10 +990,10 @@
   border-radius: 8px;
   color: #ffffff;
   display: inline-flex;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 900;
-  min-height: 34px;
-  padding: 0 13px;
+  min-height: 42px;
+  padding: 0 18px;
 }
 
 .cycle-status-bar.pending .cycle-status-code {
@@ -996,9 +1003,7 @@
 }
 
 .cycle-status-divider {
-  background: #bfd4f2;
-  height: 30px;
-  width: 1px;
+  display: none;
 }
 
 .cycle-status-date {
@@ -1009,8 +1014,9 @@
   color: #06174a;
   display: inline-flex;
   gap: 8px;
+  grid-column: 1 / -1;
   min-height: 34px;
-  padding: 0 11px;
+  padding: 0 13px;
 }
 
 .cycle-status-date svg {
@@ -1025,7 +1031,7 @@
 
 .cycle-status-date strong {
   color: #1d4ed8;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
 }
 
