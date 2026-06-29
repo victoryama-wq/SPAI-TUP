@@ -57,8 +57,21 @@
                 <td data-label="Programa">{{ category.programCode }}</td>
                 <td data-label="Acciones">
                   <div class="row-actions">
-                    <button type="button" (click)="openCategoryModal(category)">Editar</button>
-                    <button type="button" class="danger-action" (click)="deleteCategory(category)">Eliminar</button>
+                    <button type="button" aria-label="Editar categoria" title="Editar categoria" (click)="openCategoryModal(category)">
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0 0-3L17.5 5.5a2.1 2.1 0 0 0-3 0L4 16v4Z"></path>
+                        <path d="M13.5 6.5l4 4"></path>
+                      </svg>
+                    </button>
+                    <button type="button" class="danger-action" aria-label="Eliminar categoria" title="Eliminar categoria" (click)="deleteCategory(category)">
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 7h16"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M6 7l1 14h10l1-14"></path>
+                        <path d="M9 7V4h6v3"></path>
+                      </svg>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -116,8 +129,21 @@
                 <td data-label="Programa">{{ isProgramTemplate(template.modality) ? (template.programCode || 'Pendiente') : 'No aplica' }}</td>
                 <td data-label="Acciones">
                   <div class="row-actions">
-                    <button type="button" (click)="openTemplateModal(template)">Editar</button>
-                    <button type="button" class="danger-action" (click)="deleteTemplate(template)">Eliminar</button>
+                    <button type="button" aria-label="Editar plantilla" title="Editar plantilla" (click)="openTemplateModal(template)">
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0 0-3L17.5 5.5a2.1 2.1 0 0 0-3 0L4 16v4Z"></path>
+                        <path d="M13.5 6.5l4 4"></path>
+                      </svg>
+                    </button>
+                    <button type="button" class="danger-action" aria-label="Eliminar plantilla" title="Eliminar plantilla" (click)="deleteTemplate(template)">
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M4 7h16"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M6 7l1 14h10l1-14"></path>
+                        <path d="M9 7V4h6v3"></path>
+                      </svg>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -292,9 +318,36 @@
             <span>Categoria Moodle *</span>
             <input [(ngModel)]="categoryForm.categoryNumber" placeholder="Ej. 123" />
           </label>
-          <label>
+          <label class="program-picker-field">
             <span>Programa *</span>
-            <input [(ngModel)]="categoryForm.programCode" placeholder="Ej. ADEM" />
+            <div class="program-picker" [class.open]="categoryProgramPickerOpen">
+              <input
+                [ngModel]="categoryProgramSearch"
+                (ngModelChange)="updateCategoryProgramSearch($event)"
+                (focus)="categoryProgramPickerOpen = true"
+                (blur)="closeCategoryProgramPickerSoon()"
+                placeholder="Escribe o selecciona programa"
+                autocomplete="off"
+              />
+              <button type="button" aria-label="Ver programas" (mousedown)="$event.preventDefault()" (click)="toggleCategoryProgramPicker()">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+            </div>
+
+            @if (categoryProgramPickerOpen) {
+              <div class="program-options">
+                @for (program of filteredCategoryProgramOptions(); track program.code) {
+                  <button type="button" (mousedown)="$event.preventDefault()" (click)="selectCategoryProgram(program)">
+                    <strong>{{ program.code }}</strong>
+                    <span>{{ program.name }}</span>
+                  </button>
+                } @empty {
+                  <div class="program-empty">Sin coincidencias en nomenclaturas activas.</div>
+                }
+              </div>
+            }
           </label>
         </div>
 

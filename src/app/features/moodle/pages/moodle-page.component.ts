@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AcademicAssignment, AssignmentStatus, AssignmentsRepository } from '../../assignments/data/assignments.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
+import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.repository';
 import {
   MoodleCatalogStatus,
   MoodleCategoriesRepository,
@@ -41,6 +42,12 @@ interface ActorData {
   role: string;
 }
 
+interface ProgramOption {
+  code: string;
+  name: string;
+  label: string;
+}
+
 @Component({
   selector: 'spai-moodle-page',
   imports: [CommonModule, FormsModule],
@@ -51,12 +58,14 @@ export class MoodlePageComponent {
   private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly categoriesRepository = inject(MoodleCategoriesRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
+  private readonly nomenclaturesRepository = inject(NomenclaturesRepository);
   private readonly route = inject(ActivatedRoute);
   private readonly templatesRepository = inject(MoodleTemplatesRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
   readonly categories = this.categoriesRepository.categories;
+  readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly templates = this.templatesRepository.templates;
   readonly categoriesReadError = this.categoriesRepository.categoriesReadError;
   readonly templatesReadError = this.templatesRepository.templatesReadError;
@@ -78,6 +87,8 @@ export class MoodlePageComponent {
   csvMessageType: 'success' | 'error' = 'success';
   batchSearch = '';
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
+  categoryProgramSearch = '';
+  categoryProgramPickerOpen = false;
   readonly templateSelections: Record<string, string> = {};
 
   categoryForm: CategoryFormState = this.emptyCategoryForm();
@@ -98,6 +109,44 @@ export class MoodlePageComponent {
       first.programCode.localeCompare(second.programCode, 'es', { numeric: true }),
     ),
   );
+
+  readonly programOptions = computed<ProgramOption[]>(() => {
+    const optionsByCode = new Map<string, ProgramOption>();
+
+    this.nomenclatures()
+      .filter((nomenclature) => nomenclature.status === 'ACTIVA')
+      .forEach((nomenclature) => {
+        const code = this.normalizeProgramCode(nomenclature.programCode || nomenclature.abbreviation);
+
+        if (!code || optionsByCode.has(code)) {
+          return;
+        }
+
+        const name = nomenclature.programName.trim();
+        optionsByCode.set(code, {
+          code,
+          name,
+          label: name ? `${code} - ${name}` : code,
+        });
+      });
+
+    return [...optionsByCode.values()].sort((first, second) =>
+      first.code.localeCompare(second.code, 'es', { numeric: true }),
+    );
+  });
+
+  readonly filteredCategoryProgramOptions = computed(() => {
+    const search = this.normalizeSearchText(this.categoryProgramSearch);
+    const options = this.programOptions();
+
+    if (!search) {
+      return options.slice(0, 8);
+    }
+
+    return options
+      .filter((option) => this.normalizeSearchText(option.label).includes(search))
+      .slice(0, 8);
+  });
 
   readonly visibleTemplates = computed(() =>
     [...this.templates()].sort((first, second) =>
@@ -158,6 +207,10 @@ export class MoodlePageComponent {
           status: category.status,
         }
       : this.emptyCategoryForm();
+    this.categoryProgramSearch = category
+      ? this.programOptionLabel(category.programCode, category.programName)
+      : '';
+    this.categoryProgramPickerOpen = false;
   }
 
   openTemplateModal(template?: MoodleCourseTemplate): void {
@@ -178,6 +231,33 @@ export class MoodlePageComponent {
     this.activeModal = null;
     this.editingCategoryId = null;
     this.editingTemplateId = null;
+    this.categoryProgramPickerOpen = false;
+  }
+
+  updateCategoryProgramSearch(value: string): void {
+    this.categoryProgramSearch = value;
+    const match = this.findProgramOption(value);
+
+    this.categoryForm.programCode = match?.code ?? this.normalizeProgramCode(value.split('-')[0] ?? value);
+    this.categoryForm.programName = match?.name ?? '';
+    this.categoryProgramPickerOpen = true;
+  }
+
+  selectCategoryProgram(option: ProgramOption): void {
+    this.categoryForm.programCode = option.code;
+    this.categoryForm.programName = option.name;
+    this.categoryProgramSearch = option.label;
+    this.categoryProgramPickerOpen = false;
+  }
+
+  toggleCategoryProgramPicker(): void {
+    this.categoryProgramPickerOpen = !this.categoryProgramPickerOpen;
+  }
+
+  closeCategoryProgramPickerSoon(): void {
+    window.setTimeout(() => {
+      this.categoryProgramPickerOpen = false;
+    }, 120);
   }
 
   async saveCategory(): Promise<void> {
@@ -188,7 +268,11 @@ export class MoodlePageComponent {
       return;
     }
 
-    if (!this.categoryForm.categoryNumber.trim() || !this.categoryForm.programCode.trim()) {
+    const selectedProgram = this.findProgramOption(this.categoryForm.programCode || this.categoryProgramSearch);
+    const programCode = selectedProgram?.code ?? this.normalizeProgramCode(this.categoryForm.programCode);
+    const programName = selectedProgram?.name ?? (this.categoryForm.programName.trim() || programCode);
+
+    if (!this.categoryForm.categoryNumber.trim() || !programCode) {
       this.showMessage('Captura numero de categoria y programa.', 'error');
       return;
     }
@@ -196,7 +280,8 @@ export class MoodlePageComponent {
     try {
       await this.categoriesRepository.upsertCategory({
         ...this.categoryForm,
-        programName: this.categoryForm.programCode,
+        programCode,
+        programName,
         status: 'Activo',
         ...actor,
         createdBy: actor.uid,
@@ -684,6 +769,32 @@ export class MoodlePageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
+  }
+
+  private normalizeProgramCode(value: string): string {
+    return value.trim().toUpperCase();
+  }
+
+  private findProgramOption(value: string): ProgramOption | null {
+    const normalizedValue = this.normalizeSearchText(value);
+    const normalizedCode = this.normalizeProgramCode(value.split('-')[0] ?? value);
+
+    return this.programOptions().find((option) =>
+      option.code === normalizedCode
+      || this.normalizeSearchText(option.label) === normalizedValue
+      || this.normalizeSearchText(option.code) === normalizedValue,
+    ) ?? null;
+  }
+
+  private programOptionLabel(code: string, name: string): string {
+    const normalizedCode = this.normalizeProgramCode(code);
+    const option = this.programOptions().find((currentOption) => currentOption.code === normalizedCode);
+
+    if (option) {
+      return option.label;
+    }
+
+    return name.trim() ? `${normalizedCode} - ${name.trim()}` : normalizedCode;
   }
 
   private escapeCsvValue(value: string): string {
