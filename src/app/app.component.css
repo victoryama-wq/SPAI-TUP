@@ -956,14 +956,11 @@
   border-radius: 8px;
   box-shadow: 0 12px 28px rgb(15 35 83 / 0.08);
   color: #07163c;
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  gap: 8px;
-  justify-content: center;
-  min-height: 78px;
-  min-width: min(430px, 100%);
-  padding: 10px 14px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 50px;
+  padding: 8px 10px 8px 14px;
 }
 
 .cycle-status-main {
@@ -993,10 +990,10 @@
   border-radius: 8px;
   color: #ffffff;
   display: inline-flex;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 900;
-  min-height: 42px;
-  padding: 0 18px;
+  min-height: 34px;
+  padding: 0 13px;
 }
 
 .cycle-status-bar.pending .cycle-status-code {
@@ -1006,7 +1003,9 @@
 }
 
 .cycle-status-divider {
-  display: none;
+  background: #bfd4f2;
+  height: 30px;
+  width: 1px;
 }
 
 .cycle-status-date {
@@ -1017,10 +1016,8 @@
   color: #06174a;
   display: inline-flex;
   gap: 8px;
-  justify-content: center;
-  justify-self: center;
   min-height: 34px;
-  padding: 0 13px;
+  padding: 0 11px;
 }
 
 .cycle-status-date svg {
@@ -1035,8 +1032,39 @@
 
 .cycle-status-date strong {
   color: #1d4ed8;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
+}
+
+.context-row.with-route-context .cycle-status-bar {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  min-height: 78px;
+  min-width: min(430px, 100%);
+  padding: 10px 14px;
+}
+
+.context-row.with-route-context .cycle-status-code {
+  font-size: 24px;
+  min-height: 42px;
+  padding: 0 18px;
+}
+
+.context-row.with-route-context .cycle-status-divider {
+  display: none;
+}
+
+.context-row.with-route-context .cycle-status-date {
+  justify-content: center;
+  justify-self: center;
+  padding: 0 13px;
+}
+
+.context-row.with-route-context .cycle-status-date strong {
+  font-size: 18px;
 }
 
 .cycle-status-date.pending {

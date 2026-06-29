@@ -249,7 +249,7 @@
     <main class="content-shell" id="main-content" tabindex="-1">
       <div class="content-inner">
         @if (!isAssignmentsRoute()) {
-          <div class="context-row">
+          <div class="context-row" [class.with-route-context]="compactRouteContext">
             <div class="cycle-status-bar" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
               <div class="cycle-status-main">
                 <span class="cycle-status-kicker">Ciclo activo</span>
