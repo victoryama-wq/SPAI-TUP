@@ -338,7 +338,7 @@
               <input [(ngModel)]="templateForm.programCode" placeholder="Ej. ADEM" />
             </label>
           }
-          <label [class.wide-field]="!isProgramTemplate(templateForm.modality)">
+          <label [class.wide-field]="isProgramTemplate(templateForm.modality)">
             <span>Estado</span>
             <select [(ngModel)]="templateForm.status">
               <option value="Activo">Activo</option>
