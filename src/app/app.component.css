@@ -896,7 +896,7 @@
 .route-context-copy span,
 .route-context-metrics span {
   color: #1457d6;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -904,13 +904,13 @@
 
 .route-context-copy strong {
   color: #07163c;
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1;
 }
 
 .route-context-copy small {
   color: #40577a;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.2;
 }
 
@@ -935,7 +935,7 @@
 
 .route-context-metrics article strong {
   color: #07163c;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
 }
 
@@ -977,7 +977,7 @@
 .cycle-status-kicker,
 .cycle-status-date span {
   color: #1457d6;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1048,9 +1048,9 @@
 }
 
 .context-row.with-route-context .cycle-status-code {
-  font-size: 24px;
-  min-height: 42px;
-  padding: 0 18px;
+  font-size: 22px;
+  min-height: 38px;
+  padding: 0 16px;
 }
 
 .context-row.with-route-context .cycle-status-divider {
@@ -1064,7 +1064,7 @@
 }
 
 .context-row.with-route-context .cycle-status-date strong {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .cycle-status-date.pending {
