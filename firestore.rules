@@ -257,6 +257,19 @@ service cloud.firestore {
       return isSystemsMember();
     }
 
+    function canReadMoodleCatalogs() {
+      return isSystemsMember()
+        || hasModuleAccess('moodle');
+    }
+
+    function canEditMoodleCatalogs() {
+      return isSystemsMember()
+        && (
+          hasModuleAccess('moodle')
+          || userRole().matches('.*Sistemas.*')
+        );
+    }
+
     function isValidMeetLinkDocument(meetLinkId) {
       return request.resource.data.assignmentId == meetLinkId
         && request.resource.data.assignmentId is string
@@ -488,6 +501,27 @@ service cloud.firestore {
         && request.resource.data.updatedBy == request.auth.uid;
 
       allow delete: if canEditMeetLinks();
+    }
+
+    match /moodle_categorias/{categoryId} {
+      allow read: if canReadMoodleCatalogs();
+      allow create, update: if canEditMoodleCatalogs()
+        && request.resource.data.categoryNumber is string
+        && request.resource.data.programCode is string
+        && request.resource.data.programName is string
+        && request.resource.data.status in ['Activo', 'Inactivo'];
+      allow delete: if canEditMoodleCatalogs();
+    }
+
+    match /moodle_plantillas/{templateId} {
+      allow read: if canReadMoodleCatalogs();
+      allow create, update: if canEditMoodleCatalogs()
+        && request.resource.data.templateCourse is string
+        && request.resource.data.name is string
+        && request.resource.data.modality is string
+        && request.resource.data.programCode is string
+        && request.resource.data.status in ['Activo', 'Inactivo'];
+      allow delete: if canEditMoodleCatalogs();
     }
 
     match /notificaciones/{notificationId} {

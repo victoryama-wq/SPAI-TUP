@@ -63,10 +63,9 @@ export const routes: Routes = [
   },
   {
     path: 'moodle',
-    loadComponent: () => import('./shared/components/placeholder-page/placeholder-page.component')
-      .then((module) => module.PlaceholderPageComponent),
+    loadComponent: () => import('./features/moodle/pages/moodle-page.component')
+      .then((module) => module.MoodlePageComponent),
     title: 'Moodle | SPAI TUP',
-    data: { title: 'Moodle', description: 'Previsualizacion y exportacion futura de CSV para Moodle.' },
   },
   {
     path: 'bitacora',

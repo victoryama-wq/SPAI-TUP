@@ -1,0 +1,383 @@
+<section class="moodle-shell">
+  <div class="moodle-heading">
+    <div>
+      <span>Operacion Moodle</span>
+      <h2>Panel Moodle</h2>
+      <p>Configura categorias, plantillas y prepara lotes para crear cursos desde las asignaciones validadas.</p>
+    </div>
+  </div>
+
+  <nav class="moodle-tabs" aria-label="Secciones Moodle">
+    <button type="button" [class.active]="activeTab === 'categorias'" (click)="setActiveTab('categorias')">
+      Categorias
+    </button>
+    <button type="button" [class.active]="activeTab === 'plantillas'" (click)="setActiveTab('plantillas')">
+      Plantillas de curso
+    </button>
+    <button type="button" [class.active]="activeTab === 'lotes'" (click)="setActiveTab('lotes')">
+      Lotes Moodle
+    </button>
+  </nav>
+
+  @if (formMessage) {
+    <div class="feedback" [class.has-errors]="formMessageType === 'error'">
+      {{ formMessage }}
+    </div>
+  }
+
+  @if (csvMessage) {
+    <div class="feedback" [class.has-errors]="csvMessageType === 'error'">
+      {{ csvMessage }}
+    </div>
+  }
+
+  @if (!canManageMoodle()) {
+    <aside class="permission-alert">
+      <strong>Modulo restringido</strong>
+      <span>El panel Moodle esta disponible para Sistemas con acceso al modulo Moodle.</span>
+    </aside>
+  }
+
+  @if (activeTab === 'categorias') {
+    <section class="workspace-panel">
+      <div class="panel-toolbar">
+        <div>
+          <span>Catalogo Moodle</span>
+          <h3>Categorias</h3>
+          <p>Relaciona el numero de categoria Moodle con cada programa o licenciatura.</p>
+        </div>
+
+        <div class="toolbar-actions">
+          <label class="secondary-action">
+            Cargar CSV
+            <input type="file" accept=".csv,text/csv" (change)="importCategoriesCsv($event)" />
+          </label>
+          <button class="primary-action" type="button" (click)="openCategoryModal()">Nueva categoria</button>
+        </div>
+      </div>
+
+      @if (categoriesReadError()) {
+        <div class="feedback has-errors">No se pudo leer el catalogo de categorias Moodle.</div>
+      }
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria Moodle</th>
+              <th>Programa</th>
+              <th>Licenciatura</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (category of visibleCategories(); track category.id) {
+              <tr>
+                <td data-label="Categoria Moodle"><strong>{{ category.categoryNumber }}</strong></td>
+                <td data-label="Programa">{{ category.programCode }}</td>
+                <td data-label="Licenciatura">{{ category.programName }}</td>
+                <td data-label="Estado"><span class="status-badge" [class.inactive]="category.status === 'Inactivo'">{{ category.status }}</span></td>
+                <td data-label="Acciones">
+                  <div class="row-actions">
+                    <button type="button" (click)="openCategoryModal(category)">Editar</button>
+                    <button type="button" class="danger-action" (click)="deleteCategory(category)">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <strong>Sin categorias registradas</strong>
+                    <span>Carga un CSV o agrega una categoria Moodle manualmente.</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @if (activeTab === 'plantillas') {
+    <section class="workspace-panel">
+      <div class="panel-toolbar">
+        <div>
+          <span>Base Moodle</span>
+          <h3>Plantillas de curso</h3>
+          <p>Define los cursos origen desde donde Moodle replicara la estructura de nuevos cursos.</p>
+        </div>
+
+        <div class="toolbar-actions">
+          <label class="secondary-action">
+            Cargar CSV
+            <input type="file" accept=".csv,text/csv" (change)="importTemplatesCsv($event)" />
+          </label>
+          <button class="primary-action" type="button" (click)="openTemplateModal()">Nueva plantilla</button>
+        </div>
+      </div>
+
+      @if (templatesReadError()) {
+        <div class="feedback has-errors">No se pudo leer el catalogo de plantillas Moodle.</div>
+      }
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID plantilla</th>
+              <th>Nombre</th>
+              <th>Modalidad</th>
+              <th>Programa</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (template of visibleTemplates(); track template.id) {
+              <tr>
+                <td data-label="ID plantilla"><strong>{{ template.templateCourse }}</strong></td>
+                <td data-label="Nombre">{{ template.name }}</td>
+                <td data-label="Modalidad">{{ template.modality || 'General' }}</td>
+                <td data-label="Programa">{{ template.programCode || 'General' }}</td>
+                <td data-label="Estado"><span class="status-badge" [class.inactive]="template.status === 'Inactivo'">{{ template.status }}</span></td>
+                <td data-label="Acciones">
+                  <div class="row-actions">
+                    <button type="button" (click)="openTemplateModal(template)">Editar</button>
+                    <button type="button" class="danger-action" (click)="deleteTemplate(template)">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state">
+                    <strong>Sin plantillas registradas</strong>
+                    <span>Carga un CSV o agrega una plantilla manualmente.</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @if (activeTab === 'lotes') {
+    <section class="workspace-panel">
+      <div class="panel-toolbar lot-toolbar">
+        <div>
+          <span>Preparacion por lote</span>
+          <h3>Asignaciones para Moodle</h3>
+          <p>Selecciona asignaciones del ciclo activo, revisa categoria y plantilla, y genera el CSV de carga.</p>
+        </div>
+
+        <div class="toolbar-actions">
+          <button class="secondary-action button-action" type="button" (click)="toggleVisibleAssignments()">
+            Seleccionar vista
+          </button>
+          <button class="primary-action" type="button" (click)="exportSelectedCsv()">
+            Generar CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="lot-filters">
+        <label>
+          <span>Busqueda</span>
+          <input
+            type="search"
+            [value]="batchSearch"
+            (input)="updateBatchSearch($any($event.target).value)"
+            placeholder="ID, materia, docente, programa o grupo"
+          />
+        </label>
+        <label>
+          <span>Estado</span>
+          <select [value]="batchStatus" (change)="updateBatchStatus($any($event.target).value)">
+            <option value="TODOS">Todos</option>
+            <option value="EN_CAPTURA">En captura</option>
+            <option value="EN_REVISION">En revision</option>
+            <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="selection-summary">
+        <strong>{{ selectedAssignments().length }}</strong>
+        <span>asignacion(es) seleccionadas para el CSV del ciclo {{ activeCycleCode() }}</span>
+      </div>
+
+      <div class="table-wrap batch-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Sel.</th>
+              <th>ID Moodle</th>
+              <th>Materia</th>
+              <th>Docente</th>
+              <th>Grupo</th>
+              <th>Categoria</th>
+              <th>Plantilla</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (assignment of moodleAssignments(); track assignment.id) {
+              <tr>
+                <td data-label="Seleccion">
+                  <input
+                    type="checkbox"
+                    [checked]="isAssignmentSelected(assignment.id)"
+                    (change)="toggleAssignment(assignment.id)"
+                    aria-label="Seleccionar asignacion Moodle"
+                  />
+                </td>
+                <td data-label="ID Moodle"><strong>{{ assignment.moodleId }}</strong></td>
+                <td data-label="Materia">{{ assignment.subjectName }}</td>
+                <td data-label="Docente">
+                  <div class="stacked-cell">
+                    <strong>{{ assignment.teacherName }}</strong>
+                    <small>{{ assignment.teacherMoodleUser }}</small>
+                  </div>
+                </td>
+                <td data-label="Grupo">
+                  <div class="stacked-cell">
+                    <strong>{{ displayGroup(assignment) }}</strong>
+                    @if (assignment.sharedGroups?.length) {
+                      <small>Comparte con {{ assignment.sharedGroups?.join(', ') }}</small>
+                    }
+                    @if (assignment.studentEnrollments) {
+                      <small>{{ assignment.studentEnrollments }}</small>
+                    }
+                  </div>
+                </td>
+                <td data-label="Categoria">
+                  @if (categoryForAssignment(assignment); as category) {
+                    <span class="data-pill">{{ category.categoryNumber }}</span>
+                    <small>{{ category.programCode }}</small>
+                  } @else {
+                    <span class="warning-pill">Pendiente</span>
+                  }
+                </td>
+                <td data-label="Plantilla">
+                  <select
+                    class="inline-select"
+                    [value]="templateForAssignment(assignment)?.id ?? ''"
+                    (change)="updateTemplateSelection(assignment.id, $any($event.target).value)"
+                  >
+                    <option value="">Seleccionar</option>
+                    @for (template of activeTemplates(); track template.id) {
+                      <option [value]="template.id">{{ template.name }}</option>
+                    }
+                  </select>
+                </td>
+                <td data-label="Estado">
+                  <select
+                    class="inline-select"
+                    [value]="assignment.status"
+                    (change)="updateAssignmentStatus(assignment, $any($event.target).value)"
+                  >
+                    <option value="EN_CAPTURA">En captura</option>
+                    <option value="EN_REVISION">En revision</option>
+                    <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+                  </select>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8">
+                  <div class="empty-state">
+                    <strong>Sin asignaciones para preparar</strong>
+                    <span>Cuando existan asignaciones en el ciclo activo apareceran aqui.</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</section>
+
+@if (activeModal) {
+  <div class="modal-backdrop" role="presentation">
+    <section class="modal-card" role="dialog" aria-modal="true">
+      <button class="close-action" type="button" aria-label="Cerrar" (click)="closeModal()">
+        <span aria-hidden="true">x</span>
+      </button>
+
+      @if (activeModal === 'categoria') {
+        <span>Catalogo Moodle</span>
+        <h3>{{ editingCategoryId ? 'Editar categoria' : 'Nueva categoria' }}</h3>
+
+        <div class="form-grid">
+          <label>
+            <span>Categoria Moodle *</span>
+            <input [(ngModel)]="categoryForm.categoryNumber" placeholder="Ej. 123" />
+          </label>
+          <label>
+            <span>Programa *</span>
+            <input [(ngModel)]="categoryForm.programCode" placeholder="Ej. ADEM" />
+          </label>
+          <label class="wide-field">
+            <span>Licenciatura</span>
+            <input [(ngModel)]="categoryForm.programName" placeholder="Administracion de Empresas" />
+          </label>
+          <label>
+            <span>Estado</span>
+            <select [(ngModel)]="categoryForm.status">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-action button-action" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="primary-action" (click)="saveCategory()">Guardar categoria</button>
+        </div>
+      }
+
+      @if (activeModal === 'plantilla') {
+        <span>Base Moodle</span>
+        <h3>{{ editingTemplateId ? 'Editar plantilla' : 'Nueva plantilla' }}</h3>
+
+        <div class="form-grid">
+          <label>
+            <span>ID plantilla *</span>
+            <input [(ngModel)]="templateForm.templateCourse" placeholder="templatecourse" />
+          </label>
+          <label class="wide-field">
+            <span>Nombre *</span>
+            <input [(ngModel)]="templateForm.name" placeholder="Plantilla escolarizado" />
+          </label>
+          <label>
+            <span>Modalidad</span>
+            <input [(ngModel)]="templateForm.modality" placeholder="General" />
+          </label>
+          <label>
+            <span>Programa</span>
+            <input [(ngModel)]="templateForm.programCode" placeholder="Opcional" />
+          </label>
+          <label>
+            <span>Estado</span>
+            <select [(ngModel)]="templateForm.status">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-action button-action" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="primary-action" (click)="saveTemplate()">Guardar plantilla</button>
+        </div>
+      }
+    </section>
+  </div>
+}

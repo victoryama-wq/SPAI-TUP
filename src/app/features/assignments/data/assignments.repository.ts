@@ -72,6 +72,13 @@ export interface DeleteAssignmentPayload {
   deletedByRole: string;
 }
 
+export interface AssignmentStatusUpdatePayload {
+  status: AssignmentStatus;
+  updatedBy: string;
+  updatedByName: string;
+  updatedByRole: string;
+}
+
 export const ASSIGNMENTS_COLLECTION = 'asignaciones';
 
 @Injectable({ providedIn: 'root' })
@@ -156,6 +163,16 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
 
   deleteAssignment(id: string, _payload: DeleteAssignmentPayload): Promise<void> {
     return this.deleteDocument(id);
+  }
+
+  updateAssignmentStatus(id: string, payload: AssignmentStatusUpdatePayload): Promise<void> {
+    return this.updateDocument(id, {
+      status: payload.status,
+      updatedBy: payload.updatedBy,
+      updatedByName: payload.updatedByName,
+      updatedByRole: payload.updatedByRole,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   async deleteAssignments(ids: string[], payload: DeleteAssignmentPayload): Promise<void> {

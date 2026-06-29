@@ -1341,6 +1341,15 @@ Reglas de `templatecourse`:
 - Licenciatura escolarizada NUT: `CURSO_DEMO_NUT`.
 - Resto de licenciaturas escolarizadas: `CURSO_DEMO_ESCOLARIZADO`.
 
+Estado operativo implementado:
+
+- El modulo Moodle deja de ser placeholder y se organiza en tres pestaÃ±as: Categorias, Plantillas de curso y Lotes Moodle.
+- Categorias permite cargar CSV, alta manual, edicion y eliminacion de numeros de categoria asociados a programas/licenciaturas.
+- Plantillas de curso permite cargar CSV, alta manual, edicion y eliminacion de cursos base para replicacion en Moodle.
+- Lotes Moodle muestra asignaciones del ciclo activo, permite seleccionar asignaciones, asignar plantilla, verificar categoria y generar CSV con `shortname`, `fullname`, `category`, `visible` y `templatecourse`.
+- Desde Lotes Moodle, Sistemas puede actualizar el estado operativo de una asignacion a `EN_REVISION` o `CARGADO_MOODLE`.
+- Las colecciones `moodle_categorias` y `moodle_plantillas` quedan protegidas por reglas Firestore para lectura/escritura del modulo Moodle por Sistemas.
+
 ### 16.1 Bitacora
 
 Modulo administrativo para consultar acciones relevantes del sistema y dar trazabilidad operativa por usuario, modulo, fecha y ciclo.
