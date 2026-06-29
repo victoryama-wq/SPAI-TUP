@@ -101,8 +101,8 @@
 
 .panel-title h3 {
   color: #07163c;
-  font-size: clamp(22px, 2.4vw, 30px);
-  margin: 6px 0 0;
+  font-size: clamp(20px, 2vw, 25px);
+  margin: 4px 0 0;
 }
 
 .filters {

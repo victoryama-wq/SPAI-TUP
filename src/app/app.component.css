@@ -935,13 +935,14 @@
 
 .route-context-metrics article strong {
   color: #07163c;
-  font-size: 26px;
+  font-size: 27px;
   line-height: 1;
 }
 
 .route-context-metrics article span {
   color: #40577a;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 900;
   letter-spacing: 0;
   line-height: 1.1;
   text-transform: none;
