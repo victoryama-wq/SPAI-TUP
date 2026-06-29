@@ -185,8 +185,8 @@ th {
 }
 
 .panel-tabs button.active {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #1e3a8a;
+  border-color: #1e3a8a;
   color: #ffffff;
 }
 
@@ -203,8 +203,8 @@ th {
 }
 
 .panel-tabs .upload-tab-action.active {
-  background: #1457d6;
-  border-color: #1457d6;
+  background: #1e3a8a;
+  border-color: #1e3a8a;
   color: #ffffff;
 }
 
@@ -397,7 +397,7 @@ th {
 }
 
 .search-action {
-  background: #1d4ed8;
+  background: #1e3a8a;
   border: 0;
   border-radius: 8px;
   color: #ffffff;
@@ -424,7 +424,7 @@ th {
 
 .primary-action {
   align-self: end;
-  background: linear-gradient(180deg, #2d72e8, #1d4ed8);
+  background: linear-gradient(180deg, #244a9b, #1e3a8a);
   border-radius: 8px;
   color: #ffffff;
   min-height: 44px;

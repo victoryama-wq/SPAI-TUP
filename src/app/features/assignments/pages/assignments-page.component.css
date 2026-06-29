@@ -753,7 +753,7 @@ th {
 }
 
 .primary-action {
-  background: linear-gradient(180deg, #2d72e8, #1d4ed8);
+  background: linear-gradient(180deg, #244a9b, #1e3a8a);
   border-radius: 8px;
   color: #ffffff;
   gap: 10px;
@@ -1404,9 +1404,9 @@ td[colspan] {
 }
 
 .special-type-button.is-active {
-  background: linear-gradient(180deg, #2d72e8, #1d4ed8);
-  border-color: #1d4ed8;
-  box-shadow: 0 10px 20px rgb(29 78 216 / 0.18);
+  background: linear-gradient(180deg, #244a9b, #1e3a8a);
+  border-color: #1e3a8a;
+  box-shadow: 0 10px 20px rgb(30 58 138 / 0.18);
 }
 
 .special-type-button.is-active strong,

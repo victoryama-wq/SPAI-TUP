@@ -229,14 +229,14 @@
 }
 
 .quick-request-launch-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 16px 32px rgb(37 99 235 / 0.15);
+  border-color: #1e3a8a;
+  box-shadow: 0 16px 32px rgb(30 58 138 / 0.15);
   transform: translateY(-1px);
 }
 
 .quick-request-launch-card:focus-visible {
-  border-color: #2563eb;
-  outline: 3px solid rgb(37 99 235 / 0.2);
+  border-color: #1e3a8a;
+  outline: 3px solid rgb(30 58 138 / 0.2);
   outline-offset: 2px;
 }
 
@@ -295,7 +295,7 @@
 }
 
 .quick-launch-count {
-  background: #1d4ed8;
+  background: #1e3a8a;
   border-radius: 999px;
   color: #ffffff;
   font-size: 12px;
@@ -345,14 +345,14 @@
 }
 
 .quick-request-button:hover {
-  border-color: #2563eb;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 0.12);
+  border-color: #1e3a8a;
+  box-shadow: 0 12px 24px rgb(30 58 138 / 0.12);
   transform: translateY(-1px);
 }
 
 .quick-request-button:focus-visible {
-  border-color: #2563eb;
-  outline: 3px solid rgb(37 99 235 / 0.2);
+  border-color: #1e3a8a;
+  outline: 3px solid rgb(30 58 138 / 0.2);
   outline-offset: 2px;
 }
 
@@ -701,7 +701,7 @@
 }
 
 .primary-action {
-  background: #2563eb;
+  background: #1e3a8a;
   color: #ffffff;
 }
 
