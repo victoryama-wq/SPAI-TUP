@@ -116,7 +116,7 @@ export class MoodlePageComponent {
     this.nomenclatures()
       .filter((nomenclature) => nomenclature.status === 'ACTIVA')
       .forEach((nomenclature) => {
-        const code = this.normalizeProgramCode(nomenclature.programCode || nomenclature.abbreviation);
+        const code = this.normalizeProgramCode(nomenclature.abbreviation || nomenclature.programCode);
 
         if (!code || optionsByCode.has(code)) {
           return;
