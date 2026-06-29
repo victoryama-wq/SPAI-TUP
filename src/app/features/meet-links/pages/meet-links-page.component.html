@@ -33,6 +33,7 @@
         <legend>Clase compartida</legend>
         <div>
           <button
+            class="tab-all"
             type="button"
             [class.active]="sharedFilter === 'TODAS'"
             [attr.aria-pressed]="sharedFilter === 'TODAS'"
@@ -41,6 +42,7 @@
             Todas
           </button>
           <button
+            class="tab-shared"
             type="button"
             [class.active]="sharedFilter === 'COMPARTIDAS'"
             [attr.aria-pressed]="sharedFilter === 'COMPARTIDAS'"
@@ -49,6 +51,7 @@
             Compartidas
           </button>
           <button
+            class="tab-unshared"
             type="button"
             [class.active]="sharedFilter === 'SIN_COMPARTIR'"
             [attr.aria-pressed]="sharedFilter === 'SIN_COMPARTIR'"
