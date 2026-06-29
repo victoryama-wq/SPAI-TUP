@@ -116,6 +116,53 @@
   gap: 7px;
 }
 
+.shared-tabs {
+  border: 0;
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.shared-tabs legend {
+  color: #1457d6;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+.shared-tabs div {
+  background: #f8fbff;
+  border: 1px solid #c9d9ef;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: 44px;
+  overflow: hidden;
+  padding: 3px;
+}
+
+.shared-tabs button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #40577a;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 0 8px;
+}
+
+.shared-tabs button.active {
+  background: #1d4ed8;
+  box-shadow: 0 8px 18px rgb(29 78 216 / 0.22);
+  color: #ffffff;
+}
+
 .filters input,
 .filters select {
   background: #f9fbff;

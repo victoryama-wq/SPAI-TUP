@@ -29,14 +29,35 @@
           placeholder="ID, grupo, docente o asignatura"
         />
       </label>
-      <label>
-        <span>Clase compartida</span>
-        <select [value]="sharedFilter" (change)="updateSharedFilter($event)">
-          <option value="TODAS">Todas</option>
-          <option value="COMPARTIDAS">Compartidas</option>
-          <option value="SIN_COMPARTIR">Sin compartir</option>
-        </select>
-      </label>
+      <fieldset class="shared-tabs" aria-label="Clase compartida">
+        <legend>Clase compartida</legend>
+        <div>
+          <button
+            type="button"
+            [class.active]="sharedFilter === 'TODAS'"
+            [attr.aria-pressed]="sharedFilter === 'TODAS'"
+            (click)="setSharedFilter('TODAS')"
+          >
+            Todas
+          </button>
+          <button
+            type="button"
+            [class.active]="sharedFilter === 'COMPARTIDAS'"
+            [attr.aria-pressed]="sharedFilter === 'COMPARTIDAS'"
+            (click)="setSharedFilter('COMPARTIDAS')"
+          >
+            Compartidas
+          </button>
+          <button
+            type="button"
+            [class.active]="sharedFilter === 'SIN_COMPARTIR'"
+            [attr.aria-pressed]="sharedFilter === 'SIN_COMPARTIR'"
+            (click)="setSharedFilter('SIN_COMPARTIR')"
+          >
+            Sin compartir
+          </button>
+        </div>
+      </fieldset>
     </div>
   </div>
 

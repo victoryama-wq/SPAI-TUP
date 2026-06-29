@@ -150,6 +150,10 @@ export class MeetLinksPageComponent {
     this.sharedFilter = (event.target as HTMLSelectElement).value as MeetSharedFilter;
   }
 
+  setSharedFilter(filter: MeetSharedFilter): void {
+    this.sharedFilter = filter;
+  }
+
   statusLabel(status: string): string {
     const labels: Record<string, string> = {
       EN_CAPTURA: 'En captura',
