@@ -1,24 +1,3 @@
-<section class="meet-overview">
-  <div class="summary-grid">
-    <article>
-      <strong>{{ meetRows().length }}</strong>
-      <span>Clases virtuales</span>
-    </article>
-    <article>
-      <strong>{{ sharedClassCount() }}</strong>
-      <span>Compartidas</span>
-    </article>
-    <article>
-      <strong>{{ capturedMeetCount() }}</strong>
-      <span>Ligas capturadas</span>
-    </article>
-    <article>
-      <strong>{{ pendingMeetCount() }}</strong>
-      <span>Pendientes</span>
-    </article>
-  </div>
-</section>
-
 @if (meetLinksReadError()) {
   <aside class="permission-alert" role="alert">
     <strong>No se pudo leer el catalogo de ligas Meet.</strong>

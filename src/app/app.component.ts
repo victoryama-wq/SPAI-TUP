@@ -6,8 +6,11 @@ import {
   SystemNotificationsRepository,
 } from './core/data/system-notifications.repository';
 import { UserSessionService } from './core/auth/user-session.service';
+import { AssignmentsRepository } from './features/assignments/data/assignments.repository';
 import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 import { CyclesRepository } from './features/cycles/data/cycles.repository';
+import { GroupsRepository } from './features/groups/data/groups.repository';
+import { MeetLinksRepository } from './features/meet-links/data/meet-links.repository';
 import { SystemRequestsRepository } from './features/system-requests/data/system-requests.repository';
 import { AppUser, ModuleAccess } from './features/users/data/users.repository';
 import { ConfirmationDialogComponent } from './shared/confirmation/confirmation-dialog.component';
@@ -23,6 +26,12 @@ interface RouteContext {
   kicker: string;
   title: string;
   description: string;
+  metrics?: RouteMetric[];
+}
+
+interface RouteMetric {
+  value: number;
+  label: string;
 }
 
 const ACADEMIC_COORDINATION_NAV_MODULES: ReadonlyArray<keyof ModuleAccess> = [
@@ -41,7 +50,10 @@ const ACADEMIC_COORDINATION_NAV_MODULES: ReadonlyArray<keyof ModuleAccess> = [
   styleUrl: './app.component.css',
 })
 export class AppComponent {
+  private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
+  private readonly groupsRepository = inject(GroupsRepository);
+  private readonly meetLinksRepository = inject(MeetLinksRepository);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
@@ -151,6 +163,65 @@ export class AppComponent {
     return role;
   });
   readonly activeCycle = this.cyclesRepository.activeCycle;
+  readonly meetRouteMetrics = computed<RouteMetric[]>(() => {
+    const activeCycle = this.activeCycle();
+
+    if (!activeCycle) {
+      return [
+        { value: 0, label: 'Clases virtuales' },
+        { value: 0, label: 'Compartidas' },
+        { value: 0, label: 'Ligas capturadas' },
+        { value: 0, label: 'Pendientes' },
+      ];
+    }
+
+    const groups = this.groupsRepository.groups();
+    const assignments = this.assignmentsRepository.assignments()
+      .filter((assignment) => assignment.cycle === activeCycle.code && !assignment.special);
+    const legacySharedAssignments = new Map<string, string[]>();
+
+    assignments
+      .filter((assignment) => assignment.shared && assignment.sourceAssignmentId)
+      .forEach((assignment) => {
+        const currentGroups = legacySharedAssignments.get(assignment.sourceAssignmentId) ?? [];
+        legacySharedAssignments.set(assignment.sourceAssignmentId, [...currentGroups, assignment.group]);
+      });
+
+    const rows = assignments
+      .filter((assignment) => !assignment.sourceAssignmentId)
+      .map((assignment) => {
+        const sharedGroups = Array.from(new Set([
+          ...(assignment.sharedGroups ?? []),
+          ...(legacySharedAssignments.get(assignment.id) ?? []),
+        ].map((group) => group.trim().toUpperCase()).filter(Boolean)));
+        const involvedGroups = [assignment.group, ...sharedGroups];
+        const hasVirtualGroup = involvedGroups.some((fullGroup) =>
+          groups.some((group) => group.fullGroup === fullGroup && group.modality === 'Virtual'),
+        );
+
+        if (!hasVirtualGroup) {
+          return null;
+        }
+
+        return {
+          id: assignment.id,
+          sharedGroups,
+        };
+      })
+      .filter((row): row is { id: string; sharedGroups: string[] } => row !== null);
+    const captured = rows.filter((row) => {
+      const meetLink = this.meetLinksRepository.meetLinks().find((link) => link.assignmentId === row.id);
+
+      return meetLink?.status === 'GENERADA' || meetLink?.status === 'REVISADA';
+    }).length;
+
+    return [
+      { value: rows.length, label: 'Clases virtuales' },
+      { value: rows.filter((row) => row.sharedGroups.length > 0).length, label: 'Compartidas' },
+      { value: captured, label: 'Ligas capturadas' },
+      { value: rows.length - captured, label: 'Pendientes' },
+    ];
+  });
 
   constructor() {
     effect(() => {
@@ -206,6 +277,7 @@ export class AppComponent {
         kicker: 'Clases virtuales',
         title: 'Ligas Meet',
         description: 'Concentra clases virtuales y evita duplicar clases compartidas.',
+        metrics: this.meetRouteMetrics(),
       };
     }
 
