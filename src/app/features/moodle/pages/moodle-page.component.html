@@ -31,12 +31,12 @@
   }
 
   @if (activeTab === 'categorias') {
-    <section class="workspace-panel">
+    <section class="workspace-panel category-side-panel">
       <div class="panel-toolbar">
         <div>
           <span>Catalogo Moodle</span>
           <h3>Categorias</h3>
-          <p>Relaciona el numero de categoria Moodle con cada programa o licenciatura.</p>
+          <p>Relaciona la categoria Moodle con el programa correspondiente.</p>
         </div>
 
         <div class="toolbar-actions">
@@ -58,8 +58,6 @@
             <tr>
               <th>Categoria Moodle</th>
               <th>Programa</th>
-              <th>Licenciatura</th>
-              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -68,8 +66,6 @@
               <tr>
                 <td data-label="Categoria Moodle"><strong>{{ category.categoryNumber }}</strong></td>
                 <td data-label="Programa">{{ category.programCode }}</td>
-                <td data-label="Licenciatura">{{ category.programName }}</td>
-                <td data-label="Estado"><span class="status-badge" [class.inactive]="category.status === 'Inactivo'">{{ category.status }}</span></td>
                 <td data-label="Acciones">
                   <div class="row-actions">
                     <button type="button" (click)="openCategoryModal(category)">Editar</button>
@@ -79,7 +75,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="5">
+                <td colspan="3">
                   <div class="empty-state">
                     <strong>Sin categorias registradas</strong>
                     <span>Carga un CSV o agrega una categoria Moodle manualmente.</span>
@@ -315,17 +311,6 @@
           <label>
             <span>Programa *</span>
             <input [(ngModel)]="categoryForm.programCode" placeholder="Ej. ADEM" />
-          </label>
-          <label class="wide-field">
-            <span>Licenciatura</span>
-            <input [(ngModel)]="categoryForm.programName" placeholder="Administracion de Empresas" />
-          </label>
-          <label>
-            <span>Estado</span>
-            <select [(ngModel)]="categoryForm.status">
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </select>
           </label>
         </div>
 

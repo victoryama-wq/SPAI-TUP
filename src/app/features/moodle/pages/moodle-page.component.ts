@@ -196,6 +196,8 @@ export class MoodlePageComponent {
     try {
       await this.categoriesRepository.upsertCategory({
         ...this.categoryForm,
+        programName: this.categoryForm.programCode,
+        status: 'Activo',
         ...actor,
         createdBy: actor.uid,
         createdByName: actor.name,
