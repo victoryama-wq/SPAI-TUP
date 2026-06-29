@@ -271,6 +271,7 @@
               <div
                 class="route-context-chip"
                 [class.with-metrics]="routeContext.metrics?.length"
+                [class.with-route-tabs]="isMoodleRoute()"
                 aria-label="Modulo actual"
               >
                 <div class="route-context-copy">
@@ -278,6 +279,27 @@
                   <strong>{{ routeContext.title }}</strong>
                   <small>{{ routeContext.description }}</small>
                 </div>
+
+                @if (isMoodleRoute()) {
+                  <nav class="route-context-tabs" aria-label="Secciones Moodle">
+                    <button
+                      type="button"
+                      class="catalogs-tab"
+                      [class.active]="activeMoodleRouteTab() === 'catalogos'"
+                      (click)="setMoodleRouteTab('catalogos')"
+                    >
+                      Catalogos Moodle
+                    </button>
+                    <button
+                      type="button"
+                      class="batches-tab"
+                      [class.active]="activeMoodleRouteTab() === 'lotes'"
+                      (click)="setMoodleRouteTab('lotes')"
+                    >
+                      Lotes Moodle
+                    </button>
+                  </nav>
+                }
 
                 @if (routeContext.metrics?.length) {
                   <div class="route-context-metrics">

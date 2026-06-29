@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AcademicAssignment, AssignmentStatus, AssignmentsRepository } from '../../assignments/data/assignments.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
@@ -49,6 +51,7 @@ export class MoodlePageComponent {
   private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly categoriesRepository = inject(MoodleCategoriesRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
+  private readonly route = inject(ActivatedRoute);
   private readonly templatesRepository = inject(MoodleTemplatesRepository);
   private readonly userSessionService = inject(UserSessionService);
 
@@ -61,8 +64,11 @@ export class MoodlePageComponent {
   readonly session = this.userSessionService.session;
 
   readonly selectedAssignments = signal<string[]>([]);
+  private readonly tabParams = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
 
-  activeTab: MoodleTab = 'catalogos';
+  readonly activeTab = computed<MoodleTab>(() => this.tabParams().get('tab') === 'lotes' ? 'lotes' : 'catalogos');
   activeModal: MoodleModal = null;
   editingCategoryId: string | null = null;
   editingTemplateId: string | null = null;
@@ -139,11 +145,6 @@ export class MoodlePageComponent {
         || first.subjectName.localeCompare(second.subjectName, 'es'),
       );
   });
-
-  setActiveTab(tab: MoodleTab): void {
-    this.activeTab = tab;
-    this.dismissMessages();
-  }
 
   openCategoryModal(category?: MoodleCategory): void {
     this.dismissMessages();

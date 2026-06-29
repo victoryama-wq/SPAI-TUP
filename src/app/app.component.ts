@@ -300,6 +300,18 @@ export class AppComponent {
     return this.router.url.split('?')[0].replace(/\/+$/, '') === '/asignaciones';
   }
 
+  isMoodleRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/moodle';
+  }
+
+  activeMoodleRouteTab(): 'catalogos' | 'lotes' {
+    return this.router.parseUrl(this.router.url).queryParams['tab'] === 'lotes' ? 'lotes' : 'catalogos';
+  }
+
+  setMoodleRouteTab(tab: 'catalogos' | 'lotes'): void {
+    void this.router.navigate(['/moodle'], { queryParams: { tab } });
+  }
+
   async toggleSession(): Promise<void> {
     this.isProfileMenuOpenSignal.set(false);
     this.isNotificationsMenuOpenSignal.set(false);

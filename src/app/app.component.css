@@ -893,6 +893,13 @@
   max-width: none;
 }
 
+.route-context-chip.with-route-tabs {
+  align-items: center;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(280px, 1fr) auto;
+}
+
 .route-context-copy {
   align-content: center;
   display: grid;
@@ -919,6 +926,65 @@
   color: #40577a;
   font-size: 15px;
   line-height: 1.25;
+}
+
+.route-context-tabs {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.route-context-tabs button {
+  align-items: center;
+  border: 1px solid #bcd3f3;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 15px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: 0.06em;
+  min-height: 44px;
+  min-width: 180px;
+  padding: 0 18px;
+  text-transform: uppercase;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.route-context-tabs button:hover {
+  transform: translateY(-1px);
+}
+
+.route-context-tabs .catalogs-tab {
+  background: #eef5ff;
+  color: #174ea6;
+}
+
+.route-context-tabs .batches-tab {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+
+.route-context-tabs .catalogs-tab.active {
+  background: #2d5be3;
+  border-color: #2d5be3;
+  box-shadow: 0 10px 20px rgb(45 91 227 / 0.18);
+  color: #ffffff;
+}
+
+.route-context-tabs .batches-tab.active {
+  background: #ea580c;
+  border-color: #ea580c;
+  box-shadow: 0 10px 20px rgb(234 88 12 / 0.16);
+  color: #ffffff;
 }
 
 .route-context-metrics {
@@ -1293,6 +1359,19 @@
   .route-context-chip.with-metrics {
     grid-template-columns: 1fr;
     max-width: none;
+  }
+
+  .route-context-chip.with-route-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .route-context-tabs {
+    justify-content: flex-start;
+  }
+
+  .route-context-tabs button {
+    flex: 1 1 180px;
+    min-width: 0;
   }
 
   .route-context-metrics {

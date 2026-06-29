@@ -1,13 +1,4 @@
 <section class="moodle-shell">
-  <nav class="moodle-tabs" aria-label="Secciones Moodle">
-    <button type="button" [class.active]="activeTab === 'catalogos'" (click)="setActiveTab('catalogos')">
-      Catalogos Moodle
-    </button>
-    <button type="button" [class.active]="activeTab === 'lotes'" (click)="setActiveTab('lotes')">
-      Lotes Moodle
-    </button>
-  </nav>
-
   @if (formMessage) {
     <div class="feedback" [class.has-errors]="formMessageType === 'error'">
       {{ formMessage }}
@@ -27,7 +18,7 @@
     </aside>
   }
 
-  @if (activeTab === 'catalogos') {
+  @if (activeTab() === 'catalogos') {
     <div class="catalog-panels">
     <section class="workspace-panel category-side-panel">
       <div class="panel-toolbar">
@@ -147,7 +138,7 @@
     </div>
   }
 
-  @if (activeTab === 'lotes') {
+  @if (activeTab() === 'lotes') {
     <section class="workspace-panel">
       <div class="panel-toolbar lot-toolbar">
         <div>
