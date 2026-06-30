@@ -449,11 +449,16 @@ export class TeachersPageComponent {
         : 'Docente guardado como pendiente de validacion.';
 
       if (isAcademicTeacher) {
-        try {
-          await this.notifySystemsAboutAcademicTeacher(normalizedMoodleUser, teacherFullName, teacherEmail);
-          this.formMessage = 'Docente guardado como pendiente de validacion y enviado a revision de Sistemas.';
-        } catch (notificationError) {
-          this.formMessage = `Docente guardado como pendiente, pero no se pudo notificar a Sistemas. ${this.errorMessage(notificationError)}`;
+        const notificationTask = this.notifySystemsAboutAcademicTeacher(normalizedMoodleUser, teacherFullName, teacherEmail);
+
+        if (notificationTask) {
+          void notificationTask
+            .then(() => {
+              this.formMessage = 'Docente guardado como pendiente de validacion y enviado a revision de Sistemas.';
+            })
+            .catch((notificationError) => {
+              this.formMessage = `Docente guardado como pendiente, pero no se pudo notificar a Sistemas. ${this.errorMessage(notificationError)}`;
+            });
         }
       }
     } catch (error) {
