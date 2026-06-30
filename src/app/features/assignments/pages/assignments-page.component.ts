@@ -354,11 +354,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     if (this.canSeeAllAssignments()) {
       return this.programs()
         .filter((program) => program.status === 'Activo')
+        .filter((program) => this.hasActiveNomenclatureForProgram(program.code))
         .map((program) => program.code)
         .sort((a, b) => a.localeCompare(b, 'es'));
     }
 
     return Array.from(this.assignedProgramCodes())
+      .filter((program) => this.hasActiveNomenclatureForProgram(program))
       .sort((a, b) => a.localeCompare(b, 'es'));
   });
 
@@ -1852,6 +1854,18 @@ export class AssignmentsPageComponent implements OnDestroy {
   private isAssignedProgram(program: string): boolean {
     return Array.from(this.programAliases(program))
       .some((alias) => this.assignedProgramCodes().has(alias));
+  }
+
+  private hasActiveNomenclatureForProgram(program: string): boolean {
+    const aliases = this.programAliases(program);
+
+    return this.nomenclatures().some((nomenclature) => {
+      return nomenclature.status === 'ACTIVA'
+        && (
+          aliases.has(nomenclature.abbreviation.trim().toUpperCase())
+          || aliases.has(nomenclature.programCode.trim().toUpperCase())
+        );
+    });
   }
 
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
