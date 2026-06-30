@@ -760,7 +760,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         id: this.editingAssignmentId,
         cycle: this.assignmentForm.cycle,
         program,
-        group: this.assignmentForm.special ? '' : group?.fullGroup ?? '',
+        group: this.groupForPayload(group),
         subjectId: subject.subjectId,
         subjectName: subject.name,
         moodleId: this.moodleIdForPayload(),
@@ -2522,7 +2522,13 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('Solo puedes seleccionar grupos de tus programas asignados como destino.');
     }
 
-    if (this.assignmentForm.special && !this.normalizedStudentEnrollments()) {
+    if (this.isEnglishForm()
+      && !this.assignmentForm.group.trim()
+      && !this.normalizedStudentEnrollments()) {
+      errors.push('Captura al menos un grupo o una matricula para la asignacion de ingles.');
+    }
+
+    if (this.assignmentForm.special && !this.isEnglishForm() && !this.normalizedStudentEnrollments()) {
       errors.push('Captura al menos una matricula para el caso especial.');
     }
 
@@ -3223,7 +3229,9 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   englishAssignmentEnrollments(assignment: AcademicAssignment): string {
-    return assignment.studentEnrollments?.trim() || 'Sin matrículas';
+    const enrollments = assignment.studentEnrollments?.trim();
+
+    return enrollments ? `Matrícula(s): ${enrollments}` : 'Sin matrículas';
   }
 
   assignmentGroupLabel(assignment: AcademicAssignment): string {
@@ -3303,6 +3311,18 @@ export class AssignmentsPageComponent implements OnDestroy {
       .map((enrollment) => enrollment.trim().toUpperCase())
       .filter(Boolean)
       .join(', ');
+  }
+
+  private groupForPayload(group: AcademicGroup | null): string {
+    if (this.isEnglishForm()) {
+      return this.assignmentForm.group.trim();
+    }
+
+    if (this.assignmentForm.special) {
+      return '';
+    }
+
+    return group?.fullGroup ?? '';
   }
 
   private normalizeSharedGroupCount(value: number | string): number {

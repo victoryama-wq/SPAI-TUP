@@ -171,7 +171,7 @@
             <th>{{ isEnglishTab() ? 'Nivel' : 'Materia' }}</th>
             <th>Docente</th>
             <th>{{ isEnglishTab() ? 'Asignación' : 'Carrera' }}</th>
-            <th>{{ isEnglishTab() ? 'Matrículas' : 'Grupo' }}</th>
+            <th>{{ isEnglishTab() ? 'Grupo / Matrículas' : 'Grupo' }}</th>
             @if (!isEnglishTab()) {
               <th class="center-column">Compartida</th>
             }
@@ -205,9 +205,14 @@
             <td [attr.data-label]="isEnglishTab() ? 'Asignación' : 'Carrera'">
               <strong>{{ isEnglishAssignment(assignment) ? englishAssignmentName(assignment) : assignmentProgramLabel(assignment) }}</strong>
             </td>
-            <td [attr.data-label]="isEnglishTab() ? 'Matrículas' : 'Grupo'">
+            <td [attr.data-label]="isEnglishTab() ? 'Grupo / Matrículas' : 'Grupo'">
               @if (isEnglishAssignment(assignment)) {
-                <span class="detail-note">{{ englishAssignmentEnrollments(assignment) }}</span>
+                <div class="stacked-cell">
+                  @if (assignment.group) {
+                    <strong>{{ assignment.group }}</strong>
+                  }
+                  <small class="detail-note">{{ englishAssignmentEnrollments(assignment) }}</small>
+                </div>
               } @else {
                 <div class="stacked-cell">
                   <strong>{{ assignmentGroupLabel(assignment) }}</strong>
@@ -477,8 +482,16 @@
               }
             </div>
           </div>
+          <label class="english-group-field">
+            <span>Grupo</span>
+            <input
+              type="text"
+              [(ngModel)]="assignmentForm.group"
+              placeholder="Ej. Grupo 1, EJE A, sabatino"
+            />
+          </label>
           <label class="special-enrollments-field">
-            <span>Matricula(s) *</span>
+            <span>Matricula(s)</span>
             <textarea
               [(ngModel)]="assignmentForm.studentEnrollments"
               rows="2"
