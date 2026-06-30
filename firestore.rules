@@ -539,6 +539,22 @@ service cloud.firestore {
       allow delete: if canEditMoodleCatalogs();
     }
 
+    match /configuracion/{configId} {
+      allow read: if canReadInstitutionalCatalogs();
+
+      allow create, update: if configId == 'docentes'
+        && (
+          canEditTeachers()
+          || (
+            isActiveUser()
+            && hasModuleAccess('docentes')
+          )
+        )
+        && request.resource.data.lastMoodleTeacherNumber is int;
+
+      allow delete: if canEditTeachers();
+    }
+
     match /notificaciones/{notificationId} {
       allow read: if isSystemsMember()
         || (

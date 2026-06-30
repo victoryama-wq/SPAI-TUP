@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { doc, getDocFromServer, orderBy } from 'firebase/firestore';
+import { doc, getDocFromServer, orderBy, runTransaction } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
@@ -52,6 +52,10 @@ export interface UpsertTeacherPayload {
 }
 
 export const TEACHERS_COLLECTION = 'docentes';
+const TEACHERS_CONFIG_COLLECTION = 'configuracion';
+const TEACHERS_CONFIG_DOCUMENT = 'docentes';
+const TEACHER_MOODLE_PREFIX = 'tup-d';
+const TEACHER_MOODLE_BASE_NUMBER = 1813;
 
 @Injectable({ providedIn: 'root' })
 export class TeachersRepository extends FirestoreRepository<Teacher> {
@@ -62,48 +66,27 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
     super(inject(FIREBASE_DB), TEACHERS_COLLECTION, orderBy('fullName', 'asc'));
   }
 
-  async upsertTeacher(payload: UpsertTeacherPayload): Promise<void> {
+  async upsertTeacher(payload: UpsertTeacherPayload, options?: { reserveMoodleUser?: boolean }): Promise<string> {
     const timestamp = new Date().toISOString();
+
+    if (options?.reserveMoodleUser) {
+      return this.upsertTeacherWithReservedMoodleUser(payload, timestamp);
+    }
+
     const normalizedMoodleUser = this.normalizeMoodleUser(payload.moodleUser);
     const currentTeacher = this.teachers().find((teacher) => teacher.id === normalizedMoodleUser);
-    const shouldValidate = payload.status === 'VALIDADO';
-    const createdByPrograms = Array.from(new Set([
-      ...(currentTeacher?.createdByPrograms ?? []).map((program) => program.trim().toUpperCase()).filter(Boolean),
-      ...payload.createdByPrograms.map((program) => program.trim().toUpperCase()).filter(Boolean),
-    ])).sort((a, b) => a.localeCompare(b, 'es'));
 
     await this.setDocument(normalizedMoodleUser, {
-      teacherCode: payload.teacherCode?.trim() || currentTeacher?.teacherCode || this.createTeacherCode(),
-      fullName: this.normalizeFullName(payload.fullName),
-      normalizedName: this.normalizeSearchText(payload.fullName),
-      moodleUser: normalizedMoodleUser,
-      normalizedMoodleUser,
-      status: payload.status,
-      origin: payload.origin,
-      email: payload.email?.trim().toLowerCase() ?? currentTeacher?.email ?? '',
-      notes: payload.notes?.trim() ?? currentTeacher?.notes ?? '',
-      createdBy: currentTeacher?.createdBy ?? payload.createdBy,
-      createdByName: currentTeacher?.createdByName ?? payload.createdByName,
-      createdByRole: currentTeacher?.createdByRole ?? payload.createdByRole,
-      createdByPrograms,
-      assignedCoordinatorIds: payload.assignedCoordinatorIds ?? currentTeacher?.assignedCoordinatorIds ?? [],
-      assignedCoordinatorNames: payload.assignedCoordinatorNames ?? currentTeacher?.assignedCoordinatorNames ?? [],
-      validatedBy: shouldValidate ? payload.createdBy : currentTeacher?.validatedBy ?? '',
-      validatedAt: shouldValidate ? timestamp : currentTeacher?.validatedAt ?? '',
-      inactivatedBy: payload.status === 'INACTIVO' ? payload.createdBy : currentTeacher?.inactivatedBy ?? '',
-      inactivatedAt: payload.status === 'INACTIVO' ? timestamp : currentTeacher?.inactivatedAt ?? '',
-      importId: payload.importId ?? currentTeacher?.importId ?? '',
-      createdAt: currentTeacher?.createdAt ?? timestamp,
-      updatedAt: timestamp,
-      deletedAt: '',
-      deletedBy: '',
+      ...this.createTeacherDocument(payload, normalizedMoodleUser, currentTeacher, timestamp),
     });
 
     void this.verifySavedTeacher(normalizedMoodleUser, timestamp)
       .catch((error) => console.warn('No se pudo confirmar el docente en Firestore.', error));
+
+    return normalizedMoodleUser;
   }
 
-  importTeachers(teachers: UpsertTeacherPayload[]): Promise<void[]> {
+  importTeachers(teachers: UpsertTeacherPayload[]): Promise<string[]> {
     return Promise.all(teachers.map((teacher) => this.upsertTeacher(teacher)));
   }
 
@@ -190,6 +173,104 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
 
   private createTeacherCode(): string {
     return `DOC-${String(this.teachers().length + 1).padStart(4, '0')}`;
+  }
+
+  private async upsertTeacherWithReservedMoodleUser(payload: UpsertTeacherPayload, timestamp: string): Promise<string> {
+    const configRef = doc(this.firestore, TEACHERS_CONFIG_COLLECTION, TEACHERS_CONFIG_DOCUMENT);
+    const localMaxNumber = this.maxRegisteredMoodleNumber();
+
+    const normalizedMoodleUser = await runTransaction(this.firestore, async (transaction) => {
+      const configSnapshot = await transaction.get(configRef);
+      const storedLastNumber = Number(configSnapshot.data()?.['lastMoodleTeacherNumber']);
+      const safeLastNumber = Number.isFinite(storedLastNumber)
+        ? Math.max(storedLastNumber, localMaxNumber, TEACHER_MOODLE_BASE_NUMBER)
+        : Math.max(localMaxNumber, TEACHER_MOODLE_BASE_NUMBER);
+      const nextNumber = safeLastNumber + 1;
+      const generatedMoodleUser = `${TEACHER_MOODLE_PREFIX}${nextNumber}`;
+      const teacherRef = doc(this.firestore, this.collectionPath, generatedMoodleUser);
+      const teacherSnapshot = await transaction.get(teacherRef);
+
+      if (teacherSnapshot.exists()) {
+        throw new Error(`El usuario Moodle ${generatedMoodleUser} ya existe. Intenta guardar nuevamente.`);
+      }
+
+      transaction.set(teacherRef, this.createTeacherDocument(
+        {
+          ...payload,
+          moodleUser: generatedMoodleUser,
+          email: `${generatedMoodleUser}@tecplayacar.edu.mx`,
+        },
+        generatedMoodleUser,
+        null,
+        timestamp,
+      ), { merge: true });
+      transaction.set(configRef, {
+        lastMoodleTeacherNumber: nextNumber,
+        updatedAt: timestamp,
+        updatedBy: payload.createdBy,
+        updatedByName: payload.createdByName,
+      }, { merge: true });
+
+      return generatedMoodleUser;
+    });
+
+    void this.verifySavedTeacher(normalizedMoodleUser, timestamp)
+      .catch((error) => console.warn('No se pudo confirmar el docente en Firestore.', error));
+
+    return normalizedMoodleUser;
+  }
+
+  private createTeacherDocument(
+    payload: UpsertTeacherPayload,
+    normalizedMoodleUser: string,
+    currentTeacher: Teacher | null | undefined,
+    timestamp: string,
+  ): Omit<Teacher, 'id'> {
+    const shouldValidate = payload.status === 'VALIDADO';
+    const createdByPrograms = Array.from(new Set([
+      ...(currentTeacher?.createdByPrograms ?? []).map((program) => program.trim().toUpperCase()).filter(Boolean),
+      ...payload.createdByPrograms.map((program) => program.trim().toUpperCase()).filter(Boolean),
+    ])).sort((a, b) => a.localeCompare(b, 'es'));
+
+    return {
+      teacherCode: payload.teacherCode?.trim() || currentTeacher?.teacherCode || this.createTeacherCode(),
+      fullName: this.normalizeFullName(payload.fullName),
+      normalizedName: this.normalizeSearchText(payload.fullName),
+      moodleUser: normalizedMoodleUser,
+      normalizedMoodleUser,
+      status: payload.status,
+      origin: payload.origin,
+      email: payload.email?.trim().toLowerCase() ?? currentTeacher?.email ?? '',
+      notes: payload.notes?.trim() ?? currentTeacher?.notes ?? '',
+      createdBy: currentTeacher?.createdBy ?? payload.createdBy,
+      createdByName: currentTeacher?.createdByName ?? payload.createdByName,
+      createdByRole: currentTeacher?.createdByRole ?? payload.createdByRole,
+      createdByPrograms,
+      assignedCoordinatorIds: payload.assignedCoordinatorIds ?? currentTeacher?.assignedCoordinatorIds ?? [],
+      assignedCoordinatorNames: payload.assignedCoordinatorNames ?? currentTeacher?.assignedCoordinatorNames ?? [],
+      validatedBy: shouldValidate ? payload.createdBy : currentTeacher?.validatedBy ?? '',
+      validatedAt: shouldValidate ? timestamp : currentTeacher?.validatedAt ?? '',
+      inactivatedBy: payload.status === 'INACTIVO' ? payload.createdBy : currentTeacher?.inactivatedBy ?? '',
+      inactivatedAt: payload.status === 'INACTIVO' ? timestamp : currentTeacher?.inactivatedAt ?? '',
+      importId: payload.importId ?? currentTeacher?.importId ?? '',
+      createdAt: currentTeacher?.createdAt ?? timestamp,
+      updatedAt: timestamp,
+      deletedAt: '',
+      deletedBy: '',
+    };
+  }
+
+  private maxRegisteredMoodleNumber(): number {
+    return this.teachers().reduce((max, teacher) => {
+      const value = this.normalizeMoodleUser(teacher.moodleUser || teacher.normalizedMoodleUser || teacher.id);
+      const match = value.match(/^tup-d(\d+)$/);
+
+      if (!match) {
+        return max;
+      }
+
+      return Math.max(max, Number(match[1]));
+    }, TEACHER_MOODLE_BASE_NUMBER);
   }
 
   private async verifySavedTeacher(documentId: string, updatedAt: string): Promise<void> {

@@ -429,24 +429,26 @@ export class TeachersPageComponent {
     }
 
     const actor = this.actorData();
-    const normalizedMoodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
     const teacherFullName = this.manualForm.fullName.trim().replace(/\s+/g, ' ').toUpperCase();
-    const teacherEmail = this.buildInstitutionalEmail(normalizedMoodleUser);
     const status: TeacherStatus = this.canManageTeachers() ? 'VALIDADO' : 'PENDIENTE';
     const isAcademicTeacher = this.isAcademicCoordination();
 
     try {
-      await this.teachersRepository.upsertTeacher({
+      const normalizedMoodleUser = await this.teachersRepository.upsertTeacher({
         fullName: teacherFullName,
-        moodleUser: normalizedMoodleUser,
+        moodleUser: this.normalizeMoodleAccount(this.manualForm.moodleUser),
         status,
         origin: 'MANUAL',
-        email: teacherEmail,
+        email: this.buildInstitutionalEmail(this.manualForm.moodleUser),
         notes: '',
         assignedCoordinatorIds: isAcademicTeacher ? [actor.createdBy] : [],
         assignedCoordinatorNames: isAcademicTeacher ? [actor.createdByName] : [],
         ...actor,
+      }, {
+        reserveMoodleUser: !this.manualRetakeTeacher,
       });
+      const teacherEmail = this.buildInstitutionalEmail(normalizedMoodleUser);
+
       this.auditLogRepository.register({
         module: 'Docentes',
         action: 'DOCENTE_CREADO',
@@ -762,7 +764,7 @@ export class TeachersPageComponent {
       errors.push('El usuario Moodle solo puede contener letras, numeros, punto, guion y guion bajo.');
     }
 
-    if (moodleUser && this.teachersRepository.hasMoodleUser(moodleUser)) {
+    if (this.manualRetakeTeacher && moodleUser && this.teachersRepository.hasMoodleUser(moodleUser)) {
       errors.push('Este usuario Moodle ya existe en el catalogo global.');
     }
 
