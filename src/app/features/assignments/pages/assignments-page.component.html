@@ -175,7 +175,7 @@
             @if (!isEnglishTab()) {
               <th class="center-column">Compartida</th>
             }
-            <th>Observaciones</th>
+            <th>{{ isEnglishTab() ? 'Adicionales al nombre' : 'Observaciones' }}</th>
             <th class="center-column">Estado</th>
             <th>Acciones</th>
           </tr>
@@ -248,7 +248,7 @@
                 }
               </td>
             }
-            <td data-label="Observaciones">
+            <td [attr.data-label]="isEnglishTab() ? 'Adicionales al nombre' : 'Observaciones'">
               @if (assignment.observations) {
                 <span class="observation-cell">{{ assignment.observations }}</span>
               } @else {
