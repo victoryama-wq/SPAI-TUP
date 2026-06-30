@@ -54,7 +54,7 @@ exports.sendEmailForNotification = onDocumentCreated(
       await transporter.sendMail({
         from: FROM_EMAIL,
         to: recipients,
-        subject: `[SPAI TUP] ${notification.title || 'Nueva notificacion'}`,
+        subject: `SPAI TUP - ${notification.title || 'Nueva notificacion'}`,
         text: plainTextBody(notification),
         html: htmlBody(notification),
       });
