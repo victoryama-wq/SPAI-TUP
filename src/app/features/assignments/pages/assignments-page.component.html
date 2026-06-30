@@ -393,102 +393,185 @@
             </button>
           </div>
         }
-        <label class="moodle-id-field">
-          <span>{{ assignmentForm.propedeutic ? 'ID Moodle' : 'ID Moodle *' }}</span>
-          <input
-            type="text"
-            [(ngModel)]="assignmentForm.moodleId"
-            [disabled]="assignmentForm.propedeutic"
-            [class.locked-input]="assignmentForm.propedeutic"
-            placeholder="asignatura-123"
-          />
-        </label>
-        <div class="subject-field combo-label">
-          <span>Materia *</span>
-          <div class="combo-control" [class.open]="isComboOpen('subject')">
-            <input
-              class="combo-input"
-              type="text"
-              [ngModel]="subjectPickerValue"
-              (ngModelChange)="updateSubjectPicker($event)"
-              (focus)="openCombo('subject')"
-              (blur)="commitSubjectPicker()"
-              (keydown.escape)="closeCombo('subject')"
-              placeholder="Escribe o selecciona materia"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button
-              class="combo-toggle"
-              type="button"
-              aria-label="Ver materias"
-              title="Ver materias"
-              (mousedown)="$event.preventDefault()"
-              (click)="toggleCombo('subject')"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m6 9 6 6 6-6"></path>
-              </svg>
-            </button>
-            @if (isComboOpen('subject')) {
-              <div class="combo-menu">
-                @for (subject of visibleSubjectPickerOptions(); track subject.id) {
-                  <button type="button" (mousedown)="$event.preventDefault(); selectSubjectOption(subject)">
-                    <strong>{{ subject.name }}</strong>
-                  </button>
-                } @empty {
-                  @if (subjectsReadError()) {
-                    <div class="combo-empty">Catalogo no disponible</div>
-                  } @else {
-                    <div class="combo-empty">{{ subjectPickerEmptyMessage() }}</div>
+        @if (isEnglishForm()) {
+          <label class="program-field">
+            <span>Campus *</span>
+            <select [(ngModel)]="assignmentForm.program">
+              <option value="">Seleccionar campus</option>
+              @for (program of destinationProgramOptions(); track program) {
+                <option [value]="program">{{ destinationProgramLabel(program) }}</option>
+              }
+            </select>
+          </label>
+          <label class="english-modality-field">
+            <span>Modalidad *</span>
+            <select [ngModel]="assignmentForm.englishModality" (ngModelChange)="onEnglishModalityChange($event)">
+              <option value="">Seleccionar modalidad</option>
+              @for (modality of englishModalityOptions(); track modality) {
+                <option [value]="modality">{{ modality }}</option>
+              }
+            </select>
+          </label>
+          <label class="english-subject-field">
+            <span>Materia *</span>
+            <select [ngModel]="assignmentForm.subjectId" (ngModelChange)="onEnglishSubjectChange($event)">
+              <option value="">{{ assignmentForm.englishModality ? 'Seleccionar materia' : 'Selecciona modalidad primero' }}</option>
+              @for (subject of englishSubjectOptions(); track subject.id) {
+                <option [value]="subject.subjectId">{{ subject.name }}</option>
+              }
+            </select>
+          </label>
+          <div class="teacher-field combo-label">
+            <span>Docente *</span>
+            <div class="combo-control" [class.open]="isComboOpen('teacher')">
+              <input
+                class="combo-input"
+                type="text"
+                [ngModel]="teacherPickerValue"
+                (ngModelChange)="updateTeacherPicker($event)"
+                (focus)="openCombo('teacher')"
+                (blur)="commitTeacherPicker()"
+                (keydown.escape)="closeCombo('teacher')"
+                placeholder="Escribe o selecciona docente"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                class="combo-toggle"
+                type="button"
+                aria-label="Ver docentes"
+                title="Ver docentes"
+                (mousedown)="$event.preventDefault()"
+                (click)="toggleCombo('teacher')"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+              @if (isComboOpen('teacher')) {
+                <div class="combo-menu">
+                  @for (teacher of visibleTeacherPickerOptions(); track teacher.moodleUser) {
+                    <button type="button" (mousedown)="$event.preventDefault(); selectTeacherOption(teacher)">
+                      <strong>{{ teacher.label }}</strong>
+                      <small>{{ teacher.note }}</small>
+                    </button>
+                  } @empty {
+                    <div class="combo-empty">Sin coincidencias</div>
                   }
-                }
-              </div>
-            }
+                </div>
+              }
+            </div>
           </div>
-        </div>
-        <div class="teacher-field combo-label">
-          <span>Docente *</span>
-          <div class="combo-control" [class.open]="isComboOpen('teacher')">
+          <label class="special-enrollments-field">
+            <span>Matricula(s) *</span>
+            <textarea
+              [(ngModel)]="assignmentForm.studentEnrollments"
+              rows="2"
+              placeholder="Una matricula por linea, o separadas por coma"
+            ></textarea>
+          </label>
+          <label class="fixed-status-field">
+            <span>Estado</span>
+            <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
+          </label>
+        } @else {
+          <label class="moodle-id-field">
+            <span>{{ assignmentForm.propedeutic ? 'ID Moodle' : 'ID Moodle *' }}</span>
             <input
-              class="combo-input"
               type="text"
-              [ngModel]="teacherPickerValue"
-              (ngModelChange)="updateTeacherPicker($event)"
-              (focus)="openCombo('teacher')"
-              (blur)="commitTeacherPicker()"
-              (keydown.escape)="closeCombo('teacher')"
-              placeholder="Escribe o selecciona docente"
-              autocomplete="off"
-              spellcheck="false"
+              [(ngModel)]="assignmentForm.moodleId"
+              [disabled]="assignmentForm.propedeutic"
+              [class.locked-input]="assignmentForm.propedeutic"
+              placeholder="asignatura-123"
             />
-            <button
-              class="combo-toggle"
-              type="button"
-              aria-label="Ver docentes"
-              title="Ver docentes"
-              (mousedown)="$event.preventDefault()"
-              (click)="toggleCombo('teacher')"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m6 9 6 6 6-6"></path>
-              </svg>
-            </button>
-            @if (isComboOpen('teacher')) {
-              <div class="combo-menu">
-                @for (teacher of visibleTeacherPickerOptions(); track teacher.moodleUser) {
-                  <button type="button" (mousedown)="$event.preventDefault(); selectTeacherOption(teacher)">
-                    <strong>{{ teacher.label }}</strong>
-                    <small>{{ teacher.note }}</small>
-                  </button>
-                } @empty {
-                  <div class="combo-empty">Sin coincidencias</div>
-                }
-              </div>
-            }
+          </label>
+          <div class="subject-field combo-label">
+            <span>Materia *</span>
+            <div class="combo-control" [class.open]="isComboOpen('subject')">
+              <input
+                class="combo-input"
+                type="text"
+                [ngModel]="subjectPickerValue"
+                (ngModelChange)="updateSubjectPicker($event)"
+                (focus)="openCombo('subject')"
+                (blur)="commitSubjectPicker()"
+                (keydown.escape)="closeCombo('subject')"
+                placeholder="Escribe o selecciona materia"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                class="combo-toggle"
+                type="button"
+                aria-label="Ver materias"
+                title="Ver materias"
+                (mousedown)="$event.preventDefault()"
+                (click)="toggleCombo('subject')"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+              @if (isComboOpen('subject')) {
+                <div class="combo-menu">
+                  @for (subject of visibleSubjectPickerOptions(); track subject.id) {
+                    <button type="button" (mousedown)="$event.preventDefault(); selectSubjectOption(subject)">
+                      <strong>{{ subject.name }}</strong>
+                    </button>
+                  } @empty {
+                    @if (subjectsReadError()) {
+                      <div class="combo-empty">Catalogo no disponible</div>
+                    } @else {
+                      <div class="combo-empty">{{ subjectPickerEmptyMessage() }}</div>
+                    }
+                  }
+                </div>
+              }
+            </div>
           </div>
-        </div>
-        @if (assignmentForm.special) {
+          <div class="teacher-field combo-label">
+            <span>Docente *</span>
+            <div class="combo-control" [class.open]="isComboOpen('teacher')">
+              <input
+                class="combo-input"
+                type="text"
+                [ngModel]="teacherPickerValue"
+                (ngModelChange)="updateTeacherPicker($event)"
+                (focus)="openCombo('teacher')"
+                (blur)="commitTeacherPicker()"
+                (keydown.escape)="closeCombo('teacher')"
+                placeholder="Escribe o selecciona docente"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button
+                class="combo-toggle"
+                type="button"
+                aria-label="Ver docentes"
+                title="Ver docentes"
+                (mousedown)="$event.preventDefault()"
+                (click)="toggleCombo('teacher')"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+              @if (isComboOpen('teacher')) {
+                <div class="combo-menu">
+                  @for (teacher of visibleTeacherPickerOptions(); track teacher.moodleUser) {
+                    <button type="button" (mousedown)="$event.preventDefault(); selectTeacherOption(teacher)">
+                      <strong>{{ teacher.label }}</strong>
+                      <small>{{ teacher.note }}</small>
+                    </button>
+                  } @empty {
+                    <div class="combo-empty">Sin coincidencias</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @if (assignmentForm.special && !isEnglishForm()) {
           <label class="program-field">
             <span>{{ modeTab() === 'Inglés' ? 'Campus *' : 'Carrera *' }}</span>
             <select [(ngModel)]="assignmentForm.program">
@@ -510,7 +593,7 @@
             <span>Estado</span>
             <strong class="readonly-status">{{ statusLabel(assignmentForm.status) }}</strong>
           </label>
-        } @else {
+        } @else if (!isEnglishForm()) {
           <label class="program-field">
             <span>Carrera</span>
             <input type="text" [value]="selectedFormProgramLabel()" readonly />
@@ -632,7 +715,7 @@
           }
         }
         <details class="assignment-details wide-field">
-          <summary>Detalles operativos</summary>
+          <summary>{{ isEnglishForm() ? 'Agregar mas detalles al nombre de la asignacion' : 'Detalles operativos' }}</summary>
           <div class="details-grid">
             @if (!assignmentForm.special) {
               <label class="compact-textarea-field">
@@ -645,7 +728,7 @@
               </label>
             }
             <label>
-              <span>Observaciones</span>
+              <span>{{ isEnglishForm() ? 'Detalle adicional' : 'Observaciones' }}</span>
               <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
             </label>
           </div>

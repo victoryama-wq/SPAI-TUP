@@ -60,12 +60,17 @@ const POSTGRADUATE_TEXT_MARKERS = [
   'master',
 ];
 const ENGLISH_TEXT_MARKERS = ['ingles', 'idioma ingles', 'lengua inglesa', 'english'];
+const ENGLISH_MOODLE_ID = 'INGLES';
+const ENGLISH_SCHOOL_LEVELS = ['1A', '1B', '2A', '2B', '3A', '3B'];
+const ENGLISH_EXECUTIVE_LEVELS = ['A1-1', 'A1-2', 'A2-1', 'A2-2', 'B1-1', 'B1-2'];
 
 interface AssignmentFormState {
   cycle: string;
   program: string;
   group: string;
   subjectId: string;
+  englishModality: string;
+  englishLevel: string;
   moodleId: string;
   teacherMoodleUser: string;
   status: AssignmentStatus;
@@ -601,6 +606,8 @@ export class AssignmentsPageComponent implements OnDestroy {
       program: assignment.program,
       group: assignment.group,
       subjectId: assignment.subjectId,
+      englishModality: this.englishModalityForAssignment(assignment),
+      englishLevel: this.englishLevelForAssignment(assignment),
       moodleId: assignment.moodleId,
       teacherMoodleUser: assignment.teacherMoodleUser,
       status: 'EN_CAPTURA',
@@ -1193,6 +1200,10 @@ export class AssignmentsPageComponent implements OnDestroy {
     return `${group.fullGroup} - ${group.programName}`;
   }
 
+  isEnglishForm(): boolean {
+    return this.modeTab() === 'Inglés' && this.assignmentForm.special;
+  }
+
   destinationProgramLabel(program: string): string {
     if (this.modeTab() !== 'Inglés') {
       return program;
@@ -1209,6 +1220,38 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     return program;
+  }
+
+  englishModalityOptions(): string[] {
+    return ['Escolarizado', 'Ejecutivo'];
+  }
+
+  englishSubjectOptions(): Subject[] {
+    if (this.assignmentForm.englishModality === 'Escolarizado') {
+      return this.activeSubjects()
+        .filter((subject) => this.englishSubjectLevel(subject, ENGLISH_SCHOOL_LEVELS) !== null)
+        .sort((a, b) => this.englishSubjectSortValue(a).localeCompare(this.englishSubjectSortValue(b), 'es'));
+    }
+
+    if (this.assignmentForm.englishModality === 'Ejecutivo') {
+      return this.activeSubjects()
+        .filter((subject) => this.englishSubjectLevel(subject, ENGLISH_EXECUTIVE_LEVELS) !== null)
+        .sort((a, b) => this.englishSubjectSortValue(a).localeCompare(this.englishSubjectSortValue(b), 'es'));
+    }
+
+    return [];
+  }
+
+  onEnglishModalityChange(value: string): void {
+    this.assignmentForm.englishModality = value;
+    this.assignmentForm.englishLevel = '';
+    this.assignmentForm.subjectId = '';
+  }
+
+  onEnglishSubjectChange(subjectId: string): void {
+    this.assignmentForm.subjectId = subjectId;
+    const subject = this.selectedSubject();
+    this.assignmentForm.englishLevel = subject ? this.englishLevelForSubject(subject) : '';
   }
 
   visibleSubjectPickerOptions(): Subject[] {
@@ -1519,6 +1562,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private moodleIdForPayload(): string {
+    if (this.isEnglishForm()) {
+      return ENGLISH_MOODLE_ID;
+    }
+
     return this.assignmentForm.propedeutic ? PROPEDEUTIC_MOODLE_ID : this.assignmentForm.moodleId;
   }
 
@@ -2400,6 +2447,10 @@ export class AssignmentsPageComponent implements OnDestroy {
         : 'El programa es obligatorio para casos especiales.');
     }
 
+    if (this.isEnglishForm() && !this.assignmentForm.englishModality) {
+      errors.push('La modalidad es obligatoria para asignaciones de ingles.');
+    }
+
     if (!this.assignmentForm.special && !this.assignmentForm.group) {
       errors.push(`El ${this.assignmentForm.shared ? 'grupo base' : 'grupo'} es obligatorio.`);
     }
@@ -2456,9 +2507,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     const selectedSubject = this.selectedSubject();
 
     if (selectedSubject && !this.isSubjectAllowedForCurrentForm(selectedSubject)) {
-      errors.push(this.assignmentForm.propedeutic
-        ? 'En propedeuticos solo puedes seleccionar cursos TUP -- o FCS --.'
-        : 'Los cursos TUP -- y FCS -- solo se usan en propedeuticos.');
+      if (this.isEnglishForm()) {
+        errors.push('La materia seleccionada no corresponde a la modalidad de ingles.');
+      } else {
+        errors.push(this.assignmentForm.propedeutic
+          ? 'En propedeuticos solo puedes seleccionar cursos TUP -- o FCS --.'
+          : 'Los cursos TUP -- y FCS -- solo se usan en propedeuticos.');
+      }
     }
 
     if (!moodleId) {
@@ -2470,6 +2525,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (!this.assignmentForm.propedeutic
+      && !this.isEnglishForm()
       && moodleId
       && this.assignmentsRepository.hasMoodleIdConflict(
         this.assignmentForm.cycle,
@@ -2537,9 +2593,86 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private isSubjectAllowedForCurrentForm(subject: Subject): boolean {
+    if (this.isEnglishForm()) {
+      return this.isEnglishSubjectAllowedForCurrentForm(subject);
+    }
+
     const isPropedeuticSubject = this.isPropedeuticSubject(subject);
 
     return this.assignmentForm.propedeutic ? isPropedeuticSubject : !isPropedeuticSubject;
+  }
+
+  private isEnglishSubjectAllowedForCurrentForm(subject: Subject): boolean {
+    if (this.assignmentForm.englishModality === 'Escolarizado') {
+      return this.englishSubjectLevel(subject, ENGLISH_SCHOOL_LEVELS) !== null;
+    }
+
+    if (this.assignmentForm.englishModality === 'Ejecutivo') {
+      return this.englishSubjectLevel(subject, ENGLISH_EXECUTIVE_LEVELS) !== null;
+    }
+
+    return false;
+  }
+
+  private englishLevelForSubject(subject: Subject): string {
+    return this.englishSubjectLevel(subject, [...ENGLISH_SCHOOL_LEVELS, ...ENGLISH_EXECUTIVE_LEVELS]) ?? '';
+  }
+
+  private englishSubjectLevel(subject: Subject, allowedLevels: string[]): string | null {
+    const subjectTokens = [
+      subject.name,
+      subject.subjectId,
+    ].map((value) => this.normalizeEnglishLevel(value));
+
+    return allowedLevels.find((level) => {
+      const normalizedLevel = this.normalizeEnglishLevel(level);
+
+      return subjectTokens.some((token) => token === normalizedLevel);
+    }) ?? null;
+  }
+
+  private englishSubjectSortValue(subject: Subject): string {
+    return this.englishLevelForSubject(subject) || subject.name;
+  }
+
+  private normalizeEnglishLevel(value: string): string {
+    return value.trim().toUpperCase().replace(/\s+/g, '');
+  }
+
+  private englishLevelForAssignment(assignment: AcademicAssignment): string {
+    const subject = this.subjects().find((item) => item.subjectId === assignment.subjectId);
+
+    if (subject) {
+      return this.englishLevelForSubject(subject);
+    }
+
+    return this.englishSubjectLevel({
+      id: '',
+      subjectId: assignment.subjectId,
+      name: assignment.subjectName,
+      normalizedName: '',
+      status: 'Activo',
+      origin: 'MANUAL',
+      createdBy: '',
+      createdByName: '',
+      createdByRole: '',
+      createdAt: '',
+      updatedAt: '',
+    }, [...ENGLISH_SCHOOL_LEVELS, ...ENGLISH_EXECUTIVE_LEVELS]) ?? '';
+  }
+
+  private englishModalityForAssignment(assignment: AcademicAssignment): string {
+    const level = this.englishLevelForAssignment(assignment);
+
+    if (ENGLISH_SCHOOL_LEVELS.includes(level)) {
+      return 'Escolarizado';
+    }
+
+    if (ENGLISH_EXECUTIVE_LEVELS.includes(level)) {
+      return 'Ejecutivo';
+    }
+
+    return '';
   }
 
   private isPropedeuticSubject(subject: Subject): boolean {
@@ -2986,6 +3119,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   displayMoodleId(assignment: AcademicAssignment): string {
+    if (this.isEnglishAssignment(assignment)) {
+      return 'Inglés';
+    }
+
     return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : assignment.moodleId;
   }
 
@@ -3274,6 +3411,8 @@ export class AssignmentsPageComponent implements OnDestroy {
       program: '',
       group: '',
       subjectId: '',
+      englishModality: '',
+      englishLevel: '',
       moodleId: '',
       teacherMoodleUser: '',
       status: 'EN_CAPTURA',
