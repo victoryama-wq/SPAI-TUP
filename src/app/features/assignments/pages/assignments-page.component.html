@@ -471,7 +471,7 @@
                       <small>{{ teacher.note }}</small>
                     </button>
                   } @empty {
-                    <div class="combo-empty">Sin coincidencias</div>
+                    <div class="combo-empty">{{ teacherPickerEmptyMessage() }}</div>
                   }
                 </div>
               }
@@ -579,7 +579,7 @@
                       <small>{{ teacher.note }}</small>
                     </button>
                   } @empty {
-                    <div class="combo-empty">Sin coincidencias</div>
+                    <div class="combo-empty">{{ teacherPickerEmptyMessage() }}</div>
                   }
                 </div>
               }

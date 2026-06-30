@@ -11,6 +11,7 @@ import { ProgramsRepository } from '../../nomenclatures/data/programs.repository
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
+import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import {
   AcademicAssignment,
   AssignmentStatus,
@@ -108,6 +109,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
+  private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
@@ -119,6 +121,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly teachers = this.teachersRepository.teachers;
+  readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
@@ -1292,6 +1295,14 @@ export class AssignmentsPageComponent implements OnDestroy {
     return 'Sin coincidencias';
   }
 
+  teacherPickerEmptyMessage(): string {
+    if (this.isEnglishForm() && !this.selectableTeachersForCurrentForm().length) {
+      return 'Sin docentes asignados a la coordinacion de Ingles';
+    }
+
+    return 'Sin coincidencias';
+  }
+
   visibleTeacherPickerOptions(): TeacherPickerOption[] {
     const query = this.normalizeSearch(this.teacherPickerValue);
     const options: TeacherPickerOption[] = [
@@ -1300,7 +1311,7 @@ export class AssignmentsPageComponent implements OnDestroy {
         label: TEMPORARY_TEACHER_NAME,
         note: TEMPORARY_TEACHER_USER,
       },
-      ...this.validatedTeachers().map((teacher) => ({
+      ...this.selectableTeachersForCurrentForm().map((teacher) => ({
         moodleUser: teacher.moodleUser,
         label: teacher.fullName,
         note: teacher.moodleUser,
@@ -2611,6 +2622,51 @@ export class AssignmentsPageComponent implements OnDestroy {
       .filter((subject) => this.isSubjectAllowedForCurrentForm(subject));
   }
 
+  private selectableTeachersForCurrentForm(): Teacher[] {
+    return this.validatedTeachers()
+      .filter((teacher) => this.isTeacherAllowedForCurrentForm(teacher));
+  }
+
+  private isTeacherAllowedForCurrentForm(teacher: Teacher): boolean {
+    if (!this.isEnglishForm()) {
+      return true;
+    }
+
+    return this.teacherBelongsToEnglishCoordination(teacher);
+  }
+
+  private teacherBelongsToEnglishCoordination(teacher: Teacher): boolean {
+    if (teacher.createdByPrograms.some((program) => this.isEnglishProgramCode(program))) {
+      return true;
+    }
+
+    const englishCoordinators = this.englishCoordinatorUsers();
+
+    if (!englishCoordinators.length) {
+      return false;
+    }
+
+    const assignedIds = new Set((teacher.assignedCoordinatorIds ?? []).map((value) => value.trim()).filter(Boolean));
+    const assignedNames = new Set(
+      (teacher.assignedCoordinatorNames ?? [])
+        .map((value) => this.normalizeSearchText(value))
+        .filter(Boolean),
+    );
+
+    return englishCoordinators.some((coordinator) => {
+      return assignedIds.has(coordinator.id)
+        || (coordinator.authUid ? assignedIds.has(coordinator.authUid) : false)
+        || assignedNames.has(this.normalizeSearchText(coordinator.name))
+        || assignedNames.has(this.normalizeSearchText(coordinator.email));
+    });
+  }
+
+  private englishCoordinatorUsers(): AppUser[] {
+    return this.users()
+      .filter((user) => user.status === 'Activo')
+      .filter((user) => user.assignedPrograms.some((program) => this.isEnglishProgramCode(program)));
+  }
+
   private isSubjectAllowedForCurrentForm(subject: Subject): boolean {
     if (this.isEnglishForm()) {
       return this.isEnglishSubjectAllowedForCurrentForm(subject);
@@ -2731,7 +2787,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return TEMPORARY_TEACHER_USER;
     }
 
-    const teacher = this.validatedTeachers().find((item) => {
+    const teacher = this.selectableTeachersForCurrentForm().find((item) => {
       return [
         this.teacherPickerLabel(item),
         item.fullName,
@@ -3186,7 +3242,8 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private selectedTeacher(): Teacher | null {
-    return this.teachers().find((teacher) => teacher.moodleUser === this.assignmentForm.teacherMoodleUser) ?? null;
+    return this.selectableTeachersForCurrentForm()
+      .find((teacher) => teacher.moodleUser === this.assignmentForm.teacherMoodleUser) ?? null;
   }
 
   private hasValidTeacherSelection(): boolean {
