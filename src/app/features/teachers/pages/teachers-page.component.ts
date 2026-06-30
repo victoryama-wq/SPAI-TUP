@@ -26,6 +26,8 @@ interface TeacherPreviewRow {
 type TeacherPanel = 'catalog' | 'mine' | 'csv' | 'pending';
 const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEACHERS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const TEACHER_MOODLE_PREFIX = 'tup-d';
+const TEACHER_MOODLE_BASE_NUMBER = 1813;
 
 @Component({
   selector: 'spai-teachers-page',
@@ -72,6 +74,7 @@ export class TeachersPageComponent {
     moodleUser: '',
     email: '',
   };
+  manualRetakeTeacher = false;
   editForm = {
     teacherCode: '',
     fullName: '',
@@ -275,6 +278,7 @@ export class TeachersPageComponent {
   openManualModal(): void {
     this.formMessage = '';
     this.formErrors = [];
+    this.resetManualForm();
     this.isManualModalOpen = true;
   }
 
@@ -282,7 +286,7 @@ export class TeachersPageComponent {
     this.isManualModalOpen = false;
     this.formMessage = '';
     this.formErrors = [];
-    this.manualForm = { fullName: '', moodleUser: '', email: '' };
+    this.resetManualForm();
   }
 
   openEditModal(teacher: Teacher): void {
@@ -381,6 +385,18 @@ export class TeachersPageComponent {
     this.manualForm.email = moodleUser;
   }
 
+  toggleManualRetakeTeacher(): void {
+    this.manualRetakeTeacher = !this.manualRetakeTeacher;
+
+    if (this.manualRetakeTeacher) {
+      this.manualForm.moodleUser = '';
+      this.manualForm.email = '';
+      return;
+    }
+
+    this.assignGeneratedMoodleUser();
+  }
+
   selectPageSize(event: Event): void {
     this.pageSize = Number((event.target as HTMLSelectElement).value) || 10;
     this.resetPagination();
@@ -442,7 +458,7 @@ export class TeachersPageComponent {
         metadata: { status, origin: 'MANUAL' },
       });
 
-      this.manualForm = { fullName: '', moodleUser: '', email: '' };
+      this.resetManualForm();
       this.isManualModalOpen = false;
       this.formMessage = status === 'VALIDADO'
         ? 'Docente guardado y validado correctamente.'
@@ -751,6 +767,34 @@ export class TeachersPageComponent {
     }
 
     return errors;
+  }
+
+  private resetManualForm(): void {
+    this.manualRetakeTeacher = false;
+    this.manualForm = { fullName: '', moodleUser: '', email: '' };
+    this.assignGeneratedMoodleUser();
+  }
+
+  private assignGeneratedMoodleUser(): void {
+    const nextMoodleUser = this.nextMoodleUser();
+
+    this.manualForm.moodleUser = nextMoodleUser;
+    this.manualForm.email = nextMoodleUser;
+  }
+
+  private nextMoodleUser(): string {
+    const maxNumber = this.activeTeacherRecords().reduce((max, teacher) => {
+      const value = this.normalizeMoodleAccount(teacher.moodleUser || teacher.normalizedMoodleUser || teacher.id);
+      const match = value.match(/^tup-d(\d+)$/);
+
+      if (!match) {
+        return max;
+      }
+
+      return Math.max(max, Number(match[1]));
+    }, TEACHER_MOODLE_BASE_NUMBER);
+
+    return `${TEACHER_MOODLE_PREFIX}${maxNumber + 1}`;
   }
 
   private isRealTeacherRecord(teacher: Teacher): boolean {

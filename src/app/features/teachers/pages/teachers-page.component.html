@@ -405,9 +405,24 @@
             type="text"
             [ngModel]="manualForm.moodleUser"
             (ngModelChange)="updateManualMoodleUser($event)"
-            placeholder="jperez"
+            [readonly]="!manualRetakeTeacher"
+            [attr.aria-readonly]="!manualRetakeTeacher"
+            [class.locked-input]="!manualRetakeTeacher"
+            placeholder="tup-d1814"
           />
+          <small>
+            {{ manualRetakeTeacher ? 'Captura el usuario Moodle anterior del docente.' : 'Se genera automaticamente con el consecutivo institucional.' }}
+          </small>
         </label>
+        <button
+          type="button"
+          class="retake-teacher-action"
+          [class.active]="manualRetakeTeacher"
+          (click)="toggleManualRetakeTeacher()"
+        >
+          <strong>{{ manualRetakeTeacher ? 'Usuario nuevo' : 'Docente que retoma' }}</strong>
+          <small>{{ manualRetakeTeacher ? 'Volver al consecutivo' : 'Usar usuario anterior' }}</small>
+        </button>
         <label>
           <span>Correo</span>
           <div class="domain-field derived-field">

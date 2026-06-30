@@ -355,6 +355,52 @@ th {
   padding: 0 12px;
 }
 
+.teacher-form input.locked-input {
+  background: #eef5ff;
+  color: #1d4ed8;
+  cursor: default;
+  font-weight: 900;
+}
+
+.teacher-form label small {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.retake-teacher-action {
+  align-self: end;
+  background: #f8fbff;
+  border: 1px solid #bfd3f2;
+  border-radius: 8px;
+  color: #1e3a8a;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  min-height: 58px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.retake-teacher-action strong {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.retake-teacher-action small {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.retake-teacher-action.active {
+  background: #eaf2ff;
+  border-color: #2d62e8;
+  box-shadow: 0 0 0 3px rgba(45, 98, 232, 0.12);
+}
+
 .static-form-field {
   background: #f9fbff;
   border: 1px solid #c9d9ef;
