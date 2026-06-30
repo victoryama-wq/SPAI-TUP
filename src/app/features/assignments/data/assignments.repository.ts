@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { addDoc, collection, orderBy } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocFromServer, orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
@@ -134,10 +134,13 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
         assignmentDocument,
       );
 
+      await this.verifySavedAssignment(createdDocument.id, timestamp);
+
       return createdDocument.id;
     }
 
     await this.setDocument(documentId, assignmentDocument);
+    await this.verifySavedAssignment(documentId, timestamp);
 
     return documentId;
   }
@@ -187,5 +190,14 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return Array.from(new Set(
       values.map((value) => value.trim().toUpperCase()).filter(Boolean),
     ));
+  }
+
+  private async verifySavedAssignment(documentId: string, updatedAt: string): Promise<void> {
+    const snapshot = await getDocFromServer(doc(this.firestore, this.collectionPath, documentId));
+    const savedUpdatedAt = snapshot.data()?.['updatedAt'];
+
+    if (!snapshot.exists() || savedUpdatedAt !== updatedAt) {
+      throw new Error('La asignacion no se confirmo en Firestore.');
+    }
   }
 }
