@@ -375,6 +375,7 @@
         class="assignment-form"
         [class.special-mode-form]="modeTab() === 'Especiales' || modeTab() === 'Inglés'"
         [class.special-case-active]="assignmentForm.special"
+        [class.english-mode-form]="isEnglishForm()"
       >
         @if (modeTab() === 'Especiales') {
           <div class="special-type-controls" role="group" aria-label="Tipo de asignacion especial">
@@ -728,25 +729,36 @@
             </div>
           }
         }
-        <details class="assignment-details wide-field">
-          <summary>{{ isEnglishForm() ? 'Agregar mas detalles al nombre de la asignacion' : 'Detalles operativos' }}</summary>
-          <div class="details-grid">
-            @if (!assignmentForm.special) {
-              <label class="compact-textarea-field">
-                <span>Matriculas adicionales</span>
-                <textarea
-                  [(ngModel)]="assignmentForm.studentEnrollments"
-                  rows="2"
-                  placeholder="Una por linea o separadas por coma"
-                ></textarea>
+        @if (isEnglishForm()) {
+          <label class="english-name-detail-field wide-field">
+            <span>Adicionales al nombre</span>
+            <textarea
+              [(ngModel)]="assignmentForm.observations"
+              rows="2"
+              placeholder="Ej. EJE, sabatino, grupo 1"
+            ></textarea>
+          </label>
+        } @else {
+          <details class="assignment-details wide-field">
+            <summary>Detalles operativos</summary>
+            <div class="details-grid">
+              @if (!assignmentForm.special) {
+                <label class="compact-textarea-field">
+                  <span>Matriculas adicionales</span>
+                  <textarea
+                    [(ngModel)]="assignmentForm.studentEnrollments"
+                    rows="2"
+                    placeholder="Una por linea o separadas por coma"
+                  ></textarea>
+                </label>
+              }
+              <label>
+                <span>Observaciones</span>
+                <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
               </label>
-            }
-            <label>
-              <span>{{ isEnglishForm() ? 'Detalle adicional' : 'Observaciones' }}</span>
-              <textarea [(ngModel)]="assignmentForm.observations" rows="4"></textarea>
-            </label>
-          </div>
-        </details>
+            </div>
+          </details>
+        }
       </div>
 
       @if (formErrors.length) {

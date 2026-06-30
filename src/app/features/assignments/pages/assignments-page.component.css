@@ -1440,6 +1440,45 @@ td[colspan] {
   grid-column: 3 / 4;
 }
 
+.assignment-form.english-mode-form {
+  grid-template-columns: minmax(160px, 190px) minmax(240px, 320px) minmax(360px, 1fr) minmax(130px, 155px);
+  justify-content: center;
+}
+
+.english-mode-form .program-field {
+  grid-column: 1 / 2;
+}
+
+.english-mode-form .english-modality-field {
+  grid-column: 2 / 3;
+}
+
+.english-mode-form .english-subject-field {
+  grid-column: 3 / 5;
+}
+
+.english-mode-form .teacher-field {
+  grid-column: 1 / 3;
+}
+
+.english-mode-form .special-enrollments-field {
+  grid-column: 3 / 4;
+}
+
+.english-mode-form > .fixed-status-field {
+  grid-column: 4 / 5;
+}
+
+.english-name-detail-field {
+  display: grid;
+  gap: 7px;
+}
+
+.english-name-detail-field textarea {
+  min-height: 50px;
+  resize: vertical;
+}
+
 .special-enrollments-field textarea {
   min-height: 44px;
   resize: vertical;
@@ -1754,6 +1793,34 @@ td[colspan] {
     grid-column: 3 / 4;
   }
 
+  .assignment-form.english-mode-form {
+    grid-template-columns: minmax(160px, 220px) minmax(260px, 1fr) minmax(130px, 155px);
+  }
+
+  .english-mode-form .program-field {
+    grid-column: 1 / 2;
+  }
+
+  .english-mode-form .english-modality-field {
+    grid-column: 2 / 3;
+  }
+
+  .english-mode-form .english-subject-field {
+    grid-column: 1 / 3;
+  }
+
+  .english-mode-form .teacher-field {
+    grid-column: 1 / 3;
+  }
+
+  .english-mode-form .special-enrollments-field {
+    grid-column: 2 / 3;
+  }
+
+  .english-mode-form > .fixed-status-field {
+    grid-column: 3 / 4;
+  }
+
   .assignment-search {
     grid-column: 1 / -1;
     grid-template-columns: 180px minmax(440px, 1fr);
@@ -1872,6 +1939,10 @@ td[colspan] {
     justify-content: stretch;
   }
 
+  .assignment-form.english-mode-form {
+    grid-template-columns: 1fr;
+  }
+
   .assignments-overview,
   .table-panel {
     padding-inline: 14px;
@@ -1924,7 +1995,13 @@ td[colspan] {
 
   .special-case-active .program-field,
   .special-case-active .special-enrollments-field,
-  .special-case-active > .fixed-status-field {
+  .special-case-active > .fixed-status-field,
+  .english-mode-form .program-field,
+  .english-mode-form .english-modality-field,
+  .english-mode-form .english-subject-field,
+  .english-mode-form .teacher-field,
+  .english-mode-form .special-enrollments-field,
+  .english-mode-form > .fixed-status-field {
     grid-column: 1 / -1;
   }
 
