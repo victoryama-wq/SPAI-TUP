@@ -490,11 +490,11 @@
         </div>
         @if (assignmentForm.special) {
           <label class="program-field">
-            <span>Carrera *</span>
+            <span>{{ modeTab() === 'Inglés' ? 'Campus *' : 'Carrera *' }}</span>
             <select [(ngModel)]="assignmentForm.program">
-              <option value="">Seleccionar carrera</option>
+              <option value="">{{ modeTab() === 'Inglés' ? 'Seleccionar campus' : 'Seleccionar carrera' }}</option>
               @for (program of destinationProgramOptions(); track program) {
-                <option [value]="program">{{ program }}</option>
+                <option [value]="program">{{ destinationProgramLabel(program) }}</option>
               }
             </select>
           </label>

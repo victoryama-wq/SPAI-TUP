@@ -34,7 +34,7 @@ const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
 const MAX_SEARCH_SUGGESTIONS = 8;
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
-const ENGLISH_PROGRAM_CODES = new Set(['ING', 'INGLES', 'IDIOMAS', 'IDIOMA']);
+const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS', 'INGLES', 'IDIOMAS', 'IDIOMA']);
 const HEALTH_TEXT_MARKERS = [
   'facultad de ciencias de la salud',
   'ciencias de la salud',
@@ -351,18 +351,37 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   readonly destinationProgramOptions = computed(() => {
+    const tab = this.modeTab();
+    const activePrograms = this.activeNomenclatureProgramOptions()
+      .filter((program) => {
+        const isEnglishProgram = this.isEnglishProgramCode(program);
+
+        return tab === 'Inglés' ? isEnglishProgram : !isEnglishProgram;
+      });
+
     if (this.canSeeAllAssignments()) {
-      return this.programs()
-        .filter((program) => program.status === 'Activo')
-        .filter((program) => this.hasActiveNomenclatureForProgram(program.code))
-        .map((program) => program.code)
-        .sort((a, b) => a.localeCompare(b, 'es'));
+      return activePrograms;
     }
 
-    return Array.from(this.assignedProgramCodes())
-      .filter((program) => this.hasActiveNomenclatureForProgram(program))
-      .sort((a, b) => a.localeCompare(b, 'es'));
+    return activePrograms
+      .filter((program) => this.isAssignedProgram(program));
   });
+
+  private activeNomenclatureProgramOptions(): string[] {
+    const programCodes = new Set<string>();
+
+    this.nomenclatures()
+      .filter((nomenclature) => nomenclature.status === 'ACTIVA')
+      .forEach((nomenclature) => {
+        const abbreviation = nomenclature.abbreviation.trim().toUpperCase();
+
+        if (abbreviation) {
+          programCodes.add(abbreviation);
+        }
+      });
+
+    return Array.from(programCodes).sort((a, b) => a.localeCompare(b, 'es'));
+  }
 
   readonly catalogAssignmentsForActiveCycle = computed(() => {
     const activeCycle = this.activeCycle();
@@ -1174,6 +1193,24 @@ export class AssignmentsPageComponent implements OnDestroy {
     return `${group.fullGroup} - ${group.programName}`;
   }
 
+  destinationProgramLabel(program: string): string {
+    if (this.modeTab() !== 'Inglés') {
+      return program;
+    }
+
+    const normalizedProgram = program.trim().toUpperCase();
+
+    if (normalizedProgram === 'ING') {
+      return 'Campus TUP';
+    }
+
+    if (normalizedProgram === 'ING-FCS') {
+      return 'Facultad de Ciencias de la Salud';
+    }
+
+    return program;
+  }
+
   visibleSubjectPickerOptions(): Subject[] {
     const query = this.normalizeSearch(this.subjectPickerValue);
     const selectableSubjects = this.selectableSubjectsForCurrentForm();
@@ -1856,18 +1893,6 @@ export class AssignmentsPageComponent implements OnDestroy {
       .some((alias) => this.assignedProgramCodes().has(alias));
   }
 
-  private hasActiveNomenclatureForProgram(program: string): boolean {
-    const aliases = this.programAliases(program);
-
-    return this.nomenclatures().some((nomenclature) => {
-      return nomenclature.status === 'ACTIVA'
-        && (
-          aliases.has(nomenclature.abbreviation.trim().toUpperCase())
-          || aliases.has(nomenclature.programCode.trim().toUpperCase())
-        );
-    });
-  }
-
   private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
     const query = this.searchQuery();
 
@@ -2370,7 +2395,9 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (this.assignmentForm.special && !this.assignmentForm.program) {
-      errors.push('El programa es obligatorio para casos especiales.');
+      errors.push(this.modeTab() === 'Inglés'
+        ? 'El campus es obligatorio para asignaciones de ingles.'
+        : 'El programa es obligatorio para casos especiales.');
     }
 
     if (!this.assignmentForm.special && !this.assignmentForm.group) {
