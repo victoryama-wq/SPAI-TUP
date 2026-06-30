@@ -344,6 +344,13 @@ th {
   gap: 7px;
 }
 
+.name-fields {
+  display: grid;
+  gap: 14px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .teacher-form input,
 .filters input,
 .filters select {
@@ -1113,6 +1120,10 @@ th {
 @media (max-width: 720px) {
   .summary-grid,
   .teacher-form {
+    grid-template-columns: 1fr;
+  }
+
+  .name-fields {
     grid-template-columns: 1fr;
   }
 

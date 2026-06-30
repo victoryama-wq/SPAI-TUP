@@ -70,7 +70,9 @@ export class TeachersPageComponent {
   readonly pageSizeOptions = TEACHERS_PAGE_SIZE_OPTIONS;
 
   manualForm = {
-    fullName: '',
+    names: '',
+    paternalLastName: '',
+    maternalLastName: '',
     moodleUser: '',
     email: '',
   };
@@ -429,7 +431,7 @@ export class TeachersPageComponent {
     }
 
     const actor = this.actorData();
-    const teacherFullName = this.manualForm.fullName.trim().replace(/\s+/g, ' ').toUpperCase();
+    const teacherFullName = this.manualTeacherFullName();
     const status: TeacherStatus = this.canManageTeachers() ? 'VALIDADO' : 'PENDIENTE';
     const isAcademicTeacher = this.isAcademicCoordination();
 
@@ -752,8 +754,12 @@ export class TeachersPageComponent {
     const errors: string[] = [];
     const moodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
 
-    if (!this.manualForm.fullName.trim()) {
-      errors.push('El nombre completo es obligatorio.');
+    if (!this.manualForm.names.trim()) {
+      errors.push('El nombre es obligatorio.');
+    }
+
+    if (!this.manualForm.paternalLastName.trim()) {
+      errors.push('El apellido paterno es obligatorio.');
     }
 
     if (!moodleUser) {
@@ -773,8 +779,26 @@ export class TeachersPageComponent {
 
   private resetManualForm(): void {
     this.manualRetakeTeacher = false;
-    this.manualForm = { fullName: '', moodleUser: '', email: '' };
+    this.manualForm = {
+      names: '',
+      paternalLastName: '',
+      maternalLastName: '',
+      moodleUser: '',
+      email: '',
+    };
     this.assignGeneratedMoodleUser();
+  }
+
+  private manualTeacherFullName(): string {
+    return [
+      this.manualForm.names,
+      this.manualForm.paternalLastName,
+      this.manualForm.maternalLastName,
+    ]
+      .map((value) => value.trim().replace(/\s+/g, ' '))
+      .filter(Boolean)
+      .join(' ')
+      .toUpperCase();
   }
 
   private assignGeneratedMoodleUser(): void {

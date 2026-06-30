@@ -395,10 +395,20 @@
       </div>
 
       <div class="teacher-form">
-        <label>
-          <span>Nombre completo *</span>
-          <input type="text" [(ngModel)]="manualForm.fullName" placeholder="JUAN PEREZ LOPEZ" />
-        </label>
+        <div class="name-fields">
+          <label>
+            <span>Nombres *</span>
+            <input type="text" [(ngModel)]="manualForm.names" placeholder="JUAN" />
+          </label>
+          <label>
+            <span>Apellido paterno *</span>
+            <input type="text" [(ngModel)]="manualForm.paternalLastName" placeholder="PEREZ" />
+          </label>
+          <label>
+            <span>Apellido materno</span>
+            <input type="text" [(ngModel)]="manualForm.maternalLastName" placeholder="LOPEZ" />
+          </label>
+        </div>
         <label>
           <span>Usuario Moodle *</span>
           <input
