@@ -46,6 +46,7 @@
         [class.tab-salud]="tab.value === 'Salud'"
         [class.tab-posgrados]="tab.value === 'Posgrados'"
         [class.tab-especiales]="tab.value === 'Especiales'"
+        [class.tab-ingles]="tab.value === 'Inglés'"
         (click)="selectModeTab(tab.value)"
       >
         <span>{{ tab.label }}</span>
@@ -358,7 +359,7 @@
 
       <div
         class="assignment-form"
-        [class.special-mode-form]="modeTab() === 'Especiales'"
+        [class.special-mode-form]="modeTab() === 'Especiales' || modeTab() === 'Inglés'"
         [class.special-case-active]="assignmentForm.special"
       >
         @if (modeTab() === 'Especiales') {

@@ -20,7 +20,7 @@ import {
 } from '../data/assignments.repository';
 
 type AssignmentStatusFilter = AssignmentStatus | 'TODOS';
-type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales';
+type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales' | 'Inglés';
 type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 type AssignmentComboField = 'subject' | 'teacher' | 'group';
 type AssignmentCatalogScope = 'OWN' | 'GLOBAL';
@@ -34,6 +34,7 @@ const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
 const MAX_SEARCH_SUGGESTIONS = 8;
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
+const ENGLISH_PROGRAM_CODES = new Set(['ING', 'INGLES', 'IDIOMAS', 'IDIOMA']);
 const HEALTH_TEXT_MARKERS = [
   'facultad de ciencias de la salud',
   'ciencias de la salud',
@@ -58,6 +59,7 @@ const POSTGRADUATE_TEXT_MARKERS = [
   'postgrado',
   'master',
 ];
+const ENGLISH_TEXT_MARKERS = ['ingles', 'idioma ingles', 'lengua inglesa', 'english'];
 
 interface AssignmentFormState {
   cycle: string;
@@ -240,12 +242,12 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (this.canCaptureAssignments() && this.canManageAssignments()) {
-      if (this.modeTab() !== 'Especiales' && !this.destinationGroupOptions().length) {
+      if (!this.isEnrollmentCaptureTab() && !this.destinationGroupOptions().length) {
         messages.push('No hay grupos activos disponibles para tus programas en el ciclo activo.');
       }
 
-      if (this.modeTab() === 'Especiales' && !this.destinationProgramOptions().length) {
-        messages.push('No hay programas disponibles para capturar casos especiales.');
+      if (this.isEnrollmentCaptureTab() && !this.destinationProgramOptions().length) {
+        messages.push('No hay programas disponibles para capturar asignaciones por matricula.');
       }
 
       if (!this.activeSubjects().length) {
@@ -421,7 +423,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly modeTabs = computed(() => {
-    const tabs: AssignmentModeTab[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales'];
+    const tabs: AssignmentModeTab[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
 
     return tabs.map((tab) => ({
       label: tab,
@@ -551,7 +553,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.shareGroupSearch.set('');
     this.lockedShareGroups.set([]);
     this.activeComboField = null;
-    this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.modeTab() === 'Especiales');
+    this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.isEnrollmentCaptureTab());
     this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
@@ -669,7 +671,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.shareGroupSearch.set('');
     this.lockedShareGroups.set([]);
     this.activeComboField = null;
-    this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
+    this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.isEnrollmentCaptureTab());
     this.syncPickerInputsFromForm();
   }
 
@@ -1944,6 +1946,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
+    if (this.isEnglishAssignment(assignment)) {
+      return 'Inglés';
+    }
+
     if (this.isSpecialAssignment(assignment) || this.isSpecialCourseAssignment(assignment)) {
       return 'Especiales';
     }
@@ -1962,11 +1968,17 @@ export class AssignmentsPageComponent implements OnDestroy {
     const program = this.programForAssignment(assignment);
     const normalizedProgram = this.normalizeSearchText([
       assignment.program,
+      assignment.subjectName,
       program?.name,
       program?.academicArea,
       program?.programType,
       program?.modality,
     ].join(' '));
+
+    if (this.isEnglishProgramCode(assignment.program)
+      || this.referencesEnglishProgram(normalizedProgram)) {
+      return 'Inglés';
+    }
 
     if (!normalizedGroup || normalizedGroup.endsWith('c.a') || normalizedGroup.endsWith('c a')) {
       return 'Especiales';
@@ -2681,6 +2693,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private groupMode(group: AcademicGroup): AssignmentModeTab | null {
+    if (this.isEnglishGroup(group)) {
+      return 'Inglés';
+    }
+
     if (this.isSpecialGroup(group)) {
       return 'Especiales';
     }
@@ -2736,10 +2752,58 @@ export class AssignmentsPageComponent implements OnDestroy {
     return HEALTH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
   }
 
+  private isEnglishProgramCode(programCode: string): boolean {
+    return ENGLISH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
+  }
+
   private referencesHealthFaculty(value: string): boolean {
     const normalizedValue = this.normalizeSearchText(value);
 
     return HEALTH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
+  }
+
+  private referencesEnglishProgram(value: string): boolean {
+    const normalizedValue = this.normalizeSearchText(value);
+
+    return ENGLISH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
+  }
+
+  private isEnglishAssignment(assignment: AcademicAssignment): boolean {
+    const program = this.programForAssignment(assignment);
+    const subject = this.subjects().find((item) => item.subjectId === assignment.subjectId);
+    const searchText = this.normalizeSearchText([
+      assignment.program,
+      assignment.subjectName,
+      subject?.name,
+      program?.name,
+      program?.academicArea,
+      program?.programType,
+      program?.modality,
+    ].join(' '));
+
+    return this.isEnglishProgramCode(assignment.program)
+      || this.referencesEnglishProgram(searchText);
+  }
+
+  private isEnglishGroup(group: AcademicGroup): boolean {
+    const program = this.programForGroup(group);
+    const nomenclature = this.nomenclatureForGroup(group);
+    const searchText = this.normalizeSearchText([
+      group.programAbbreviation,
+      group.programName,
+      group.academicArea,
+      program?.name,
+      program?.academicArea,
+      program?.programType,
+      nomenclature?.abbreviation,
+      nomenclature?.programCode,
+      nomenclature?.programName,
+    ].join(' '));
+
+    return this.isEnglishProgramCode(group.programAbbreviation)
+      || (nomenclature ? this.isEnglishProgramCode(nomenclature.abbreviation) : false)
+      || (nomenclature ? this.isEnglishProgramCode(nomenclature.programCode) : false)
+      || this.referencesEnglishProgram(searchText);
   }
 
   private isHealthPostgraduateFallback(group: AcademicGroup): boolean {
@@ -3028,7 +3092,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.shareGroupSearch.set('');
     this.lockedShareGroups.set([]);
     this.activeComboField = null;
-    this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.modeTab() === 'Especiales');
+    this.assignmentForm = this.emptyForm(this.activeCycle()?.code ?? '', this.isEnrollmentCaptureTab());
     this.syncPickerInputsFromForm();
   }
 
@@ -3182,5 +3246,9 @@ export class AssignmentsPageComponent implements OnDestroy {
       propedeutic: false,
       studentEnrollments: '',
     };
+  }
+
+  private isEnrollmentCaptureTab(tab = this.modeTab()): boolean {
+    return tab === 'Especiales' || tab === 'Inglés';
   }
 }
