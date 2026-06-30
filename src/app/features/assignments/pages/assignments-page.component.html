@@ -165,12 +165,16 @@
       @if (visibleAssignments().length) {
         <thead>
           <tr>
-            <th>ID Moodle</th>
-            <th>Materia</th>
+            @if (!isEnglishTab()) {
+              <th>ID Moodle</th>
+            }
+            <th>{{ isEnglishTab() ? 'Nivel' : 'Materia' }}</th>
             <th>Docente</th>
-            <th>Carrera</th>
-            <th>Grupo</th>
-            <th class="center-column">Compartida</th>
+            <th>{{ isEnglishTab() ? 'Asignación' : 'Carrera' }}</th>
+            <th>{{ isEnglishTab() ? 'Matrículas' : 'Grupo' }}</th>
+            @if (!isEnglishTab()) {
+              <th class="center-column">Compartida</th>
+            }
             <th>Observaciones</th>
             <th class="center-column">Estado</th>
             <th>Acciones</th>
@@ -180,14 +184,16 @@
       <tbody>
         @for (assignment of visibleAssignments(); track assignment.id) {
           <tr>
-            <td data-label="ID Moodle">
-              <strong class="moodle-id" [class.propedeutic-id]="isPropedeuticAssignment(assignment)">
-                {{ displayMoodleId(assignment) }}
-              </strong>
-            </td>
-            <td data-label="Materia">
+            @if (!isEnglishTab()) {
+              <td data-label="ID Moodle">
+                <strong class="moodle-id" [class.propedeutic-id]="isPropedeuticAssignment(assignment)">
+                  {{ displayMoodleId(assignment) }}
+                </strong>
+              </td>
+            }
+            <td [attr.data-label]="isEnglishTab() ? 'Nivel' : 'Materia'">
               <div class="stacked-cell">
-                <strong>{{ assignment.subjectName }}</strong>
+                <strong>{{ isEnglishAssignment(assignment) ? englishAssignmentLevel(assignment) : assignment.subjectName }}</strong>
               </div>
             </td>
             <td data-label="Docente">
@@ -196,44 +202,52 @@
                 <small>{{ assignment.teacherMoodleUser }}</small>
               </div>
             </td>
-            <td data-label="Carrera"><strong>{{ assignmentProgramLabel(assignment) }}</strong></td>
-            <td data-label="Grupo">
-              <div class="stacked-cell">
-                <strong>{{ assignmentGroupLabel(assignment) }}</strong>
-                @if (isSpecialCourseAssignment(assignment)) {
-                  <small>Curso especial por grupo</small>
-                } @else if (isSharedFromAnotherCoordination(assignment)) {
-                  <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
-                }
-                @if (assignment.studentEnrollments) {
-                  <small class="detail-note">Matricula(s): {{ assignment.studentEnrollments }}</small>
-                }
-              </div>
+            <td [attr.data-label]="isEnglishTab() ? 'Asignación' : 'Carrera'">
+              <strong>{{ isEnglishAssignment(assignment) ? englishAssignmentName(assignment) : assignmentProgramLabel(assignment) }}</strong>
             </td>
-            <td class="center-column" data-label="Compartida">
-              @if (isSharedInTable(assignment)) {
-                <div class="shared-indicator">
-                  <span class="shared-check" aria-label="Clase compartida">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5"></path>
-                    </svg>
-                  </span>
-                  <button
-                    class="shared-view-action"
-                    type="button"
-                    [attr.aria-label]="sharedAssignmentDetails(assignment)"
-                    [title]="sharedAssignmentDetails(assignment)"
-                    (click)="showSharedAssignmentDetails(assignment)"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
-                    </svg>
-                  </button>
-                </div>
+            <td [attr.data-label]="isEnglishTab() ? 'Matrículas' : 'Grupo'">
+              @if (isEnglishAssignment(assignment)) {
+                <span class="detail-note">{{ englishAssignmentEnrollments(assignment) }}</span>
               } @else {
-                <span class="pending-label">No</span>
+                <div class="stacked-cell">
+                  <strong>{{ assignmentGroupLabel(assignment) }}</strong>
+                  @if (isSpecialCourseAssignment(assignment)) {
+                    <small>Curso especial por grupo</small>
+                  } @else if (isSharedFromAnotherCoordination(assignment)) {
+                    <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
+                  }
+                  @if (assignment.studentEnrollments) {
+                    <small class="detail-note">Matricula(s): {{ assignment.studentEnrollments }}</small>
+                  }
+                </div>
               }
             </td>
+            @if (!isEnglishTab()) {
+              <td class="center-column" data-label="Compartida">
+                @if (isSharedInTable(assignment)) {
+                  <div class="shared-indicator">
+                    <span class="shared-check" aria-label="Clase compartida">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    </span>
+                    <button
+                      class="shared-view-action"
+                      type="button"
+                      [attr.aria-label]="sharedAssignmentDetails(assignment)"
+                      [title]="sharedAssignmentDetails(assignment)"
+                      (click)="showSharedAssignmentDetails(assignment)"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                } @else {
+                  <span class="pending-label">No</span>
+                }
+              </td>
+            }
             <td data-label="Observaciones">
               @if (assignment.observations) {
                 <span class="observation-cell">{{ assignment.observations }}</span>
@@ -277,7 +291,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="9">
+            <td [attr.colspan]="assignmentTableColumnCount()">
               <div class="empty-state">
                 <strong>{{ emptyAssignmentsTitle() }}</strong>
                 <span>{{ emptyAssignmentsMessage() }}</span>
@@ -413,9 +427,9 @@
             </select>
           </label>
           <label class="english-subject-field">
-            <span>Materia *</span>
+            <span>Nivel *</span>
             <select [ngModel]="assignmentForm.subjectId" (ngModelChange)="onEnglishSubjectChange($event)">
-              <option value="">{{ assignmentForm.englishModality ? 'Seleccionar materia' : 'Selecciona modalidad primero' }}</option>
+              <option value="">{{ assignmentForm.englishModality ? 'Seleccionar nivel' : 'Selecciona modalidad primero' }}</option>
               @for (subject of englishSubjectOptions(); track subject.id) {
                 <option [value]="subject.subjectId">{{ subject.name }}</option>
               }

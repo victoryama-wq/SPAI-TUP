@@ -1184,6 +1184,14 @@ export class AssignmentsPageComponent implements OnDestroy {
     return this.activeComboField === field;
   }
 
+  isEnglishTab(): boolean {
+    return this.modeTab() === 'Inglés';
+  }
+
+  assignmentTableColumnCount(): number {
+    return this.isEnglishTab() ? 7 : 9;
+  }
+
   subjectPickerLabel(subject: Subject): string {
     return subject.name;
   }
@@ -2942,7 +2950,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     return ENGLISH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
   }
 
-  private isEnglishAssignment(assignment: AcademicAssignment): boolean {
+  isEnglishAssignment(assignment: AcademicAssignment): boolean {
     const program = this.programForAssignment(assignment);
     const subject = this.subjects().find((item) => item.subjectId === assignment.subjectId);
     const searchText = this.normalizeSearchText([
@@ -3124,6 +3132,26 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     return this.isPropedeuticAssignment(assignment) ? PROPEDEUTIC_MOODLE_LABEL : assignment.moodleId;
+  }
+
+  englishAssignmentLevel(assignment: AcademicAssignment): string {
+    return this.englishLevelForAssignment(assignment) || assignment.subjectName;
+  }
+
+  englishAssignmentName(assignment: AcademicAssignment): string {
+    return [
+      assignment.cycle,
+      assignment.program,
+      this.englishAssignmentLevel(assignment),
+      assignment.observations,
+    ]
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  englishAssignmentEnrollments(assignment: AcademicAssignment): string {
+    return assignment.studentEnrollments?.trim() || 'Sin matrículas';
   }
 
   assignmentGroupLabel(assignment: AcademicAssignment): string {
