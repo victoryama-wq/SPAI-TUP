@@ -198,7 +198,7 @@ service cloud.firestore {
 
     function canWriteAssignment() {
       return canWriteAssignmentProgram(request.resource.data.program)
-        || canCreateOwnAssignment();
+        || canCreateOwnNonEnglishAssignment();
     }
 
     function canCreateOwnAssignment() {
@@ -206,14 +206,29 @@ service cloud.firestore {
         && request.resource.data.createdBy == request.auth.uid;
     }
 
+    function canCreateOwnNonEnglishAssignment() {
+      return canCreateOwnAssignment()
+        && !isEnglishAssignmentProgram(request.resource.data.program);
+    }
+
     function canWriteOwnAssignment() {
       return hasInstitutionalEmail()
         && resource.data.createdBy == request.auth.uid;
     }
 
+    function canWriteOwnNonEnglishAssignment() {
+      return canWriteOwnAssignment()
+        && !isEnglishAssignmentProgram(resource.data.program);
+    }
+
+    function isEnglishAssignmentProgram(program) {
+      return program is string
+        && ['ING', 'ING-FCS', 'INGLES', 'IDIOMAS', 'IDIOMA'].hasAny([program]);
+    }
+
     function canDeleteAssignment() {
       return canWriteAssignmentProgram(resource.data.program)
-        || canWriteOwnAssignment()
+        || canWriteOwnNonEnglishAssignment()
         || canWriteExistingSharedAssignmentFromSource();
     }
 
@@ -435,7 +450,7 @@ service cloud.firestore {
       allow update: if (
           canWriteAssignmentProgram(resource.data.program)
           || canUpdateSharedAssignmentParticipation()
-          || canWriteOwnAssignment()
+          || canWriteOwnNonEnglishAssignment()
           || canWriteExistingSharedAssignmentFromSource()
         )
         && request.resource.data.program == resource.data.program

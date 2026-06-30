@@ -1843,11 +1843,22 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private canModifyAssignment(assignment: AcademicAssignment): boolean {
+    if (this.isEnglishAssignment(assignment)) {
+      return this.canSeeAllAssignments()
+        || this.assignmentPrograms(assignment).some((program) => {
+          return this.isEnglishProgramCode(program) && this.isAssignedProgram(program);
+        });
+    }
+
     return this.canSeeAllAssignments()
       || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
   }
 
   private canManageBaseAssignment(assignment: AcademicAssignment): boolean {
+    if (this.isEnglishAssignment(assignment)) {
+      return this.canModifyAssignment(assignment);
+    }
+
     return this.canSeeAllAssignments()
       || this.isAssignedProgram(assignment.program)
       || this.wasAssignmentCreatedByCurrentUser(assignment);
@@ -2764,6 +2775,11 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private canUseDestinationProgram(program: string): boolean {
     const normalizedProgram = program.trim().toUpperCase();
+
+    if (this.modeTab() === 'Inglés' || this.isEnglishProgramCode(normalizedProgram)) {
+      return this.canSeeAllAssignments()
+        || (this.isEnglishProgramCode(normalizedProgram) && this.isAssignedProgram(normalizedProgram));
+    }
 
     return this.canSeeAllAssignments()
       || this.isAssignedProgram(normalizedProgram);
