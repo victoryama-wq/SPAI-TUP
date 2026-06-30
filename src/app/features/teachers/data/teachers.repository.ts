@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { orderBy } from 'firebase/firestore';
+import { doc, getDocFromServer, orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
@@ -62,7 +62,7 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
     super(inject(FIREBASE_DB), TEACHERS_COLLECTION, orderBy('fullName', 'asc'));
   }
 
-  upsertTeacher(payload: UpsertTeacherPayload): Promise<void> {
+  async upsertTeacher(payload: UpsertTeacherPayload): Promise<void> {
     const timestamp = new Date().toISOString();
     const normalizedMoodleUser = this.normalizeMoodleUser(payload.moodleUser);
     const currentTeacher = this.teachers().find((teacher) => teacher.id === normalizedMoodleUser);
@@ -72,7 +72,7 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       ...payload.createdByPrograms.map((program) => program.trim().toUpperCase()).filter(Boolean),
     ])).sort((a, b) => a.localeCompare(b, 'es'));
 
-    return this.setDocument(normalizedMoodleUser, {
+    await this.setDocument(normalizedMoodleUser, {
       teacherCode: payload.teacherCode?.trim() || currentTeacher?.teacherCode || this.createTeacherCode(),
       fullName: this.normalizeFullName(payload.fullName),
       normalizedName: this.normalizeSearchText(payload.fullName),
@@ -98,6 +98,8 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       deletedAt: '',
       deletedBy: '',
     });
+
+    await this.verifySavedTeacher(normalizedMoodleUser, timestamp);
   }
 
   importTeachers(teachers: UpsertTeacherPayload[]): Promise<void[]> {
@@ -187,5 +189,14 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
 
   private createTeacherCode(): string {
     return `DOC-${String(this.teachers().length + 1).padStart(4, '0')}`;
+  }
+
+  private async verifySavedTeacher(documentId: string, updatedAt: string): Promise<void> {
+    const snapshot = await getDocFromServer(doc(this.firestore, this.collectionPath, documentId));
+    const savedUpdatedAt = snapshot.data()?.['updatedAt'];
+
+    if (!snapshot.exists() || savedUpdatedAt !== updatedAt) {
+      throw new Error('El docente no se confirmo en Firestore.');
+    }
   }
 }
