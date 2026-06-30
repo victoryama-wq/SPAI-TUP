@@ -99,7 +99,8 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       deletedBy: '',
     });
 
-    await this.verifySavedTeacher(normalizedMoodleUser, timestamp);
+    void this.verifySavedTeacher(normalizedMoodleUser, timestamp)
+      .catch((error) => console.warn('No se pudo confirmar el docente en Firestore.', error));
   }
 
   importTeachers(teachers: UpsertTeacherPayload[]): Promise<void[]> {
