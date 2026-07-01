@@ -377,27 +377,31 @@ th {
 }
 
 .retake-teacher-action {
-  align-self: stretch;
+  align-items: center;
+  align-self: start;
   background: #f8fbff;
   border: 1px solid #bfd3f2;
   border-radius: 8px;
   color: #1e3a8a;
   cursor: pointer;
-  display: grid;
-  gap: 3px;
-  min-height: 58px;
-  padding: 10px 12px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  min-height: 50px;
+  padding: 10px 14px;
   text-align: left;
 }
 
-.manual-moodle-field,
-.manual-email-field {
+.manual-moodle-field {
   grid-column: 1;
 }
 
-.retake-teacher-action {
+.manual-email-field {
   grid-column: 2;
-  grid-row: 2 / span 2;
+}
+
+.retake-teacher-action {
+  grid-column: 1 / -1;
 }
 
 .retake-teacher-action strong {
@@ -410,6 +414,7 @@ th {
   color: #64748b;
   font-size: 12px;
   font-weight: 800;
+  text-align: right;
 }
 
 .retake-teacher-action.active {

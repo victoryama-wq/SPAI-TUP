@@ -424,6 +424,13 @@
             {{ manualRetakeTeacher ? 'Captura el usuario Moodle anterior del docente.' : 'Se genera automaticamente con el consecutivo institucional.' }}
           </small>
         </label>
+        <label class="manual-email-field">
+          <span>Correo</span>
+          <div class="domain-field derived-field">
+            <input type="text" [value]="manualForm.email" placeholder="jperez" readonly aria-readonly="true" />
+            <span>@tecplayacar.edu.mx</span>
+          </div>
+        </label>
         <button
           type="button"
           class="retake-teacher-action"
@@ -433,13 +440,6 @@
           <strong>{{ manualRetakeTeacher ? 'Usuario nuevo' : 'Docente que retoma' }}</strong>
           <small>{{ manualRetakeTeacher ? 'Volver al consecutivo' : 'Usar usuario anterior' }}</small>
         </button>
-        <label class="manual-email-field">
-          <span>Correo</span>
-          <div class="domain-field derived-field">
-            <input type="text" [value]="manualForm.email" placeholder="jperez" readonly aria-readonly="true" />
-            <span>@tecplayacar.edu.mx</span>
-          </div>
-        </label>
         @if (isAcademicCoordination()) {
           <div class="static-form-field">
             <span>Coordinador asignado</span>
