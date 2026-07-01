@@ -21,7 +21,14 @@ import {
 
 type MoodleTab = 'catalogos' | 'lotes';
 type MoodleModal = 'categoria' | 'plantilla' | null;
+type MoodleBatchMode = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales' | 'Inglés';
 const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
+const MOODLE_BATCH_MODES: MoodleBatchMode[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
+const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
+const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
+const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
+const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
+const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'especialidad', 'especializacion', 'doctorado', 'posgrado'];
 
 interface CategoryFormState {
   categoryNumber: string;
@@ -93,6 +100,7 @@ export class MoodlePageComponent {
   categoryCurrentPage = 1;
   categoryPageSize = 5;
   readonly categoryPageSizeOptions = CATEGORY_PAGE_SIZE_OPTIONS;
+  readonly batchModes = MOODLE_BATCH_MODES;
   readonly templateSelections: Record<string, string> = {};
 
   categoryForm: CategoryFormState = this.emptyCategoryForm();
@@ -204,6 +212,29 @@ export class MoodlePageComponent {
         || first.subjectName.localeCompare(second.subjectName, 'es'),
       );
   });
+
+  readonly currentCycleMoodleAssignments = computed(() => {
+    const activeCycle = this.activeCycle();
+
+    if (!activeCycle) {
+      return [];
+    }
+
+    return this.assignments()
+      .filter((assignment) => assignment.cycle === activeCycle.code)
+      .filter((assignment) => !assignment.sourceAssignmentId);
+  });
+
+  readonly loadedMoodleAssignments = computed(() =>
+    this.currentCycleMoodleAssignments().filter((assignment) => this.isLoadedInMoodle(assignment)),
+  );
+
+  readonly batchModeSummary = computed(() =>
+    this.batchModes.map((mode) => ({
+      mode,
+      count: this.loadedMoodleAssignments().filter((assignment) => this.assignmentBatchMode(assignment) === mode).length,
+    })),
+  );
 
   openCategoryModal(category?: MoodleCategory): void {
     this.dismissMessages();
@@ -598,6 +629,101 @@ export class MoodlePageComponent {
     };
 
     return labels[status];
+  }
+
+  private isLoadedInMoodle(assignment: AcademicAssignment): boolean {
+    return assignment.status === 'CARGADO_MOODLE' || assignment.status === 'VALIDADO';
+  }
+
+  private assignmentBatchMode(assignment: AcademicAssignment): MoodleBatchMode {
+    if (this.isEnglishAssignment(assignment)) {
+      return 'Inglés';
+    }
+
+    if (assignment.special || assignment.assignmentType === 'ESPECIAL' || assignment.assignmentType === 'CURSO_ESPECIAL') {
+      return 'Especiales';
+    }
+
+    const program = this.nomenclatureForProgram(assignment.program);
+    const normalizedGroup = this.normalizeSearchText(assignment.group);
+    const normalizedProgram = this.normalizeSearchText([
+      assignment.program,
+      assignment.subjectName,
+      program?.programName,
+      program?.planName,
+      program?.notes,
+    ].join(' '));
+
+    if (!normalizedGroup || normalizedGroup.endsWith('c.a') || normalizedGroup.endsWith('c a')) {
+      return 'Especiales';
+    }
+
+    if (this.isHealthProgramCode(assignment.program) || this.referencesHealthFaculty(normalizedProgram)) {
+      return 'Salud';
+    }
+
+    if (POSTGRADUATE_TEXT_MARKERS.some((marker) => normalizedProgram.includes(marker))) {
+      return this.referencesHealthFaculty(normalizedProgram) ? 'Salud' : 'Posgrados';
+    }
+
+    const groupCode = this.assignmentGroupCode(assignment.group);
+
+    if (groupCode === '53') {
+      return 'Virtual';
+    }
+
+    if (groupCode === '23' || groupCode === '24') {
+      return 'Ejecutivo';
+    }
+
+    return 'Escolarizado';
+  }
+
+  private isEnglishAssignment(assignment: AcademicAssignment): boolean {
+    const program = this.nomenclatureForProgram(assignment.program);
+    const searchText = this.normalizeSearchText([
+      assignment.program,
+      assignment.subjectName,
+      program?.programName,
+      program?.notes,
+    ].join(' '));
+
+    return this.isEnglishProgramCode(assignment.program) || this.referencesEnglishProgram(searchText);
+  }
+
+  private isHealthProgramCode(programCode: string): boolean {
+    return HEALTH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
+  }
+
+  private isEnglishProgramCode(programCode: string): boolean {
+    return ENGLISH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
+  }
+
+  private referencesHealthFaculty(value: string): boolean {
+    const normalizedValue = this.normalizeSearchText(value);
+
+    return HEALTH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
+  }
+
+  private referencesEnglishProgram(value: string): boolean {
+    const normalizedValue = this.normalizeSearchText(value);
+
+    return ENGLISH_TEXT_MARKERS.some((marker) => normalizedValue.includes(marker));
+  }
+
+  private nomenclatureForProgram(programCode: string) {
+    const normalizedProgram = programCode.trim().toUpperCase();
+
+    return this.nomenclatures().find((nomenclature) =>
+      nomenclature.abbreviation.trim().toUpperCase() === normalizedProgram
+      || nomenclature.programCode.trim().toUpperCase() === normalizedProgram,
+    );
+  }
+
+  private assignmentGroupCode(group: string): string {
+    const match = group.trim().toUpperCase().match(/\s(11|12|23|24|53)\s/);
+
+    return match?.[1] ?? '';
   }
 
   private async saveCategoryRows(rows: string[][]): Promise<void> {

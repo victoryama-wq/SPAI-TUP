@@ -210,140 +210,168 @@
   }
 
   @if (activeTab() === 'lotes') {
-    <section class="workspace-panel">
-      <div class="panel-toolbar lot-toolbar">
-        <div>
-          <span>Preparacion por lote</span>
-          <h3>Asignaciones para Moodle</h3>
-          <p>Selecciona asignaciones del ciclo activo, revisa categoria y plantilla, y genera el CSV de carga.</p>
+    <div class="lot-layout">
+      <section class="workspace-panel lot-main-panel">
+        <div class="panel-toolbar lot-toolbar">
+          <div>
+            <span>Preparacion por lote</span>
+            <h3>Asignaciones para Moodle</h3>
+            <p>Selecciona asignaciones del ciclo activo, revisa categoria y plantilla, y genera el CSV de carga.</p>
+          </div>
+
+          <div class="toolbar-actions">
+            <button class="secondary-action button-action" type="button" (click)="toggleVisibleAssignments()">
+              Seleccionar vista
+            </button>
+            <button class="primary-action" type="button" (click)="exportSelectedCsv()">
+              Generar CSV
+            </button>
+          </div>
         </div>
 
-        <div class="toolbar-actions">
-          <button class="secondary-action button-action" type="button" (click)="toggleVisibleAssignments()">
-            Seleccionar vista
-          </button>
-          <button class="primary-action" type="button" (click)="exportSelectedCsv()">
-            Generar CSV
-          </button>
+        <div class="lot-filters">
+          <label>
+            <span>Busqueda</span>
+            <input
+              type="search"
+              [value]="batchSearch"
+              (input)="updateBatchSearch($any($event.target).value)"
+              placeholder="ID, materia, docente, programa o grupo"
+            />
+          </label>
+          <label>
+            <span>Estado</span>
+            <select [value]="batchStatus" (change)="updateBatchStatus($any($event.target).value)">
+              <option value="TODOS">Todos</option>
+              <option value="EN_CAPTURA">En captura</option>
+              <option value="EN_REVISION">En revision</option>
+              <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+            </select>
+          </label>
         </div>
-      </div>
 
-      <div class="lot-filters">
-        <label>
-          <span>Busqueda</span>
-          <input
-            type="search"
-            [value]="batchSearch"
-            (input)="updateBatchSearch($any($event.target).value)"
-            placeholder="ID, materia, docente, programa o grupo"
-          />
-        </label>
-        <label>
-          <span>Estado</span>
-          <select [value]="batchStatus" (change)="updateBatchStatus($any($event.target).value)">
-            <option value="TODOS">Todos</option>
-            <option value="EN_CAPTURA">En captura</option>
-            <option value="EN_REVISION">En revision</option>
-            <option value="CARGADO_MOODLE">Cargado en Moodle</option>
-          </select>
-        </label>
-      </div>
+        <div class="selection-summary">
+          <strong>{{ selectedAssignments().length }}</strong>
+          <span>asignacion(es) seleccionadas para el CSV del ciclo {{ activeCycleCode() }}</span>
+        </div>
 
-      <div class="selection-summary">
-        <strong>{{ selectedAssignments().length }}</strong>
-        <span>asignacion(es) seleccionadas para el CSV del ciclo {{ activeCycleCode() }}</span>
-      </div>
-
-      <div class="table-wrap batch-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Sel.</th>
-              <th>ID Moodle</th>
-              <th>Materia</th>
-              <th>Docente</th>
-              <th>Grupo</th>
-              <th>Categoria</th>
-              <th>Plantilla</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (assignment of moodleAssignments(); track assignment.id) {
+        <div class="table-wrap batch-table">
+          <table>
+            <thead>
               <tr>
-                <td data-label="Seleccion">
-                  <input
-                    type="checkbox"
-                    [checked]="isAssignmentSelected(assignment.id)"
-                    (change)="toggleAssignment(assignment.id)"
-                    aria-label="Seleccionar asignacion Moodle"
-                  />
-                </td>
-                <td data-label="ID Moodle"><strong>{{ assignment.moodleId }}</strong></td>
-                <td data-label="Materia">{{ assignment.subjectName }}</td>
-                <td data-label="Docente">
-                  <div class="stacked-cell">
-                    <strong>{{ assignment.teacherName }}</strong>
-                    <small>{{ assignment.teacherMoodleUser }}</small>
-                  </div>
-                </td>
-                <td data-label="Grupo">
-                  <div class="stacked-cell">
-                    <strong>{{ displayGroup(assignment) }}</strong>
-                    @if (assignment.sharedGroups?.length) {
-                      <small>Comparte con {{ assignment.sharedGroups?.join(', ') }}</small>
-                    }
-                    @if (assignment.studentEnrollments) {
-                      <small>{{ assignment.studentEnrollments }}</small>
-                    }
-                  </div>
-                </td>
-                <td data-label="Categoria">
-                  @if (categoryForAssignment(assignment); as category) {
-                    <span class="data-pill">{{ category.categoryNumber }}</span>
-                    <small>{{ category.programCode }}</small>
-                  } @else {
-                    <span class="warning-pill">Pendiente</span>
-                  }
-                </td>
-                <td data-label="Plantilla">
-                  <select
-                    class="inline-select"
-                    [value]="templateForAssignment(assignment)?.id ?? ''"
-                    (change)="updateTemplateSelection(assignment.id, $any($event.target).value)"
-                  >
-                    <option value="">Seleccionar</option>
-                    @for (template of activeTemplates(); track template.id) {
-                      <option [value]="template.id">{{ template.templateCourse }}</option>
-                    }
-                  </select>
-                </td>
-                <td data-label="Estado">
-                  <select
-                    class="inline-select"
-                    [value]="assignment.status"
-                    (change)="updateAssignmentStatus(assignment, $any($event.target).value)"
-                  >
-                    <option value="EN_CAPTURA">En captura</option>
-                    <option value="EN_REVISION">En revision</option>
-                    <option value="CARGADO_MOODLE">Cargado en Moodle</option>
-                  </select>
-                </td>
+                <th>Sel.</th>
+                <th>ID Moodle</th>
+                <th>Materia</th>
+                <th>Docente</th>
+                <th>Grupo</th>
+                <th>Categoria</th>
+                <th>Plantilla</th>
+                <th>Estado</th>
               </tr>
-            } @empty {
-              <tr>
-                <td colspan="8">
-                  <div class="empty-state">
-                    <strong>Sin asignaciones para preparar</strong>
-                    <span>Cuando existan asignaciones en el ciclo activo apareceran aqui.</span>
-                  </div>
-                </td>
-              </tr>
+            </thead>
+            <tbody>
+              @for (assignment of moodleAssignments(); track assignment.id) {
+                <tr>
+                  <td data-label="Seleccion">
+                    <input
+                      type="checkbox"
+                      [checked]="isAssignmentSelected(assignment.id)"
+                      (change)="toggleAssignment(assignment.id)"
+                      aria-label="Seleccionar asignacion Moodle"
+                    />
+                  </td>
+                  <td data-label="ID Moodle"><strong>{{ assignment.moodleId }}</strong></td>
+                  <td data-label="Materia">{{ assignment.subjectName }}</td>
+                  <td data-label="Docente">
+                    <div class="stacked-cell">
+                      <strong>{{ assignment.teacherName }}</strong>
+                      <small>{{ assignment.teacherMoodleUser }}</small>
+                    </div>
+                  </td>
+                  <td data-label="Grupo">
+                    <div class="stacked-cell">
+                      <strong>{{ displayGroup(assignment) }}</strong>
+                      @if (assignment.sharedGroups?.length) {
+                        <small>Comparte con {{ assignment.sharedGroups?.join(', ') }}</small>
+                      }
+                      @if (assignment.studentEnrollments) {
+                        <small>{{ assignment.studentEnrollments }}</small>
+                      }
+                    </div>
+                  </td>
+                  <td data-label="Categoria">
+                    @if (categoryForAssignment(assignment); as category) {
+                      <span class="data-pill">{{ category.categoryNumber }}</span>
+                      <small>{{ category.programCode }}</small>
+                    } @else {
+                      <span class="warning-pill">Pendiente</span>
+                    }
+                  </td>
+                  <td data-label="Plantilla">
+                    <select
+                      class="inline-select"
+                      [value]="templateForAssignment(assignment)?.id ?? ''"
+                      (change)="updateTemplateSelection(assignment.id, $any($event.target).value)"
+                    >
+                      <option value="">Seleccionar</option>
+                      @for (template of activeTemplates(); track template.id) {
+                        <option [value]="template.id">{{ template.templateCourse }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td data-label="Estado">
+                    <select
+                      class="inline-select"
+                      [value]="assignment.status"
+                      (change)="updateAssignmentStatus(assignment, $any($event.target).value)"
+                    >
+                      <option value="EN_CAPTURA">En captura</option>
+                      <option value="EN_REVISION">En revision</option>
+                      <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+                    </select>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8">
+                    <div class="empty-state">
+                      <strong>Sin asignaciones para preparar</strong>
+                      <span>Cuando existan asignaciones en el ciclo activo apareceran aqui.</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="moodle-follow-panel" aria-label="Seguimiento de lotes cargados">
+        <section class="follow-card">
+          <span>Seguimiento</span>
+          <h3>Lotes cargados</h3>
+          <p>{{ loadedMoodleAssignments().length }} asignacion(es) con estado Cargado en Moodle.</p>
+        </section>
+
+        <section class="follow-card">
+          <span>Por modalidad</span>
+          <div class="mode-summary-list">
+            @for (item of batchModeSummary(); track item.mode) {
+              <div class="mode-summary-row">
+                <strong>{{ item.count }}</strong>
+                <span>{{ item.mode }}</span>
+              </div>
             }
-          </tbody>
-        </table>
-      </div>
-    </section>
+          </div>
+        </section>
+
+        <section class="follow-card">
+          <span>Vista actual</span>
+          <strong class="follow-total">{{ moodleAssignments().length }}</strong>
+          <p>asignaciones visibles con los filtros aplicados.</p>
+        </section>
+      </aside>
+    </div>
   }
 </section>
 

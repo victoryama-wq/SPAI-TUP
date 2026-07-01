@@ -115,6 +115,90 @@
   padding: 26px 30px 30px;
 }
 
+.lot-layout {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 260px;
+}
+
+.lot-main-panel {
+  min-width: 0;
+}
+
+.moodle-follow-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.follow-card {
+  background: #f8fbff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.follow-card span {
+  color: #1457d6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.follow-card h3 {
+  color: #07163c;
+  font-size: 18px;
+  margin: 0;
+}
+
+.follow-card p {
+  color: #40577a;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.mode-summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mode-summary-row {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  color: #1f365d;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-height: 38px;
+  padding: 7px 10px;
+}
+
+.mode-summary-row strong,
+.follow-total {
+  color: #07163c;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.mode-summary-row span {
+  color: #334b70;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-align: right;
+  text-transform: none;
+}
+
+.follow-total {
+  display: block;
+}
+
 .catalog-panels {
   align-items: start;
   display: grid;
@@ -677,6 +761,14 @@ td small {
 }
 
 @media (max-width: 900px) {
+  .lot-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-follow-panel {
+    grid-template-columns: 1fr;
+  }
+
   .catalog-panels {
     grid-template-columns: 1fr;
   }
