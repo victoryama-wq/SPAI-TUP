@@ -29,6 +29,7 @@ const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
 const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
 const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
 const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'especialidad', 'especializacion', 'doctorado', 'posgrado'];
+const NURSING_HEALTH_TEMPLATE = 'CURSO_DEMO_ENF';
 const DEFAULT_TEMPLATE_BY_MODE: Partial<Record<MoodleBatchMode, string>> = {
   Escolarizado: 'CURSO_DEMO_ESCOLARIZADO',
 };
@@ -639,7 +640,9 @@ export class MoodlePageComponent {
   }
 
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
-    const templateCourse = DEFAULT_TEMPLATE_BY_MODE[this.assignmentBatchMode(assignment)];
+    const templateCourse = this.isNursingHealthBaseGroup(assignment)
+      ? NURSING_HEALTH_TEMPLATE
+      : DEFAULT_TEMPLATE_BY_MODE[this.assignmentBatchMode(assignment)];
 
     if (!templateCourse) {
       return null;
@@ -715,6 +718,10 @@ export class MoodlePageComponent {
 
   private isHealthProgramCode(programCode: string): boolean {
     return HEALTH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
+  }
+
+  private isNursingHealthBaseGroup(assignment: AcademicAssignment): boolean {
+    return /\bENF\s+(11|12)\b/i.test(assignment.group);
   }
 
   private isEnglishProgramCode(programCode: string): boolean {
