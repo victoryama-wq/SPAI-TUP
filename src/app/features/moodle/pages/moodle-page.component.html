@@ -308,16 +308,23 @@
                     }
                   </td>
                   <td data-label="Plantilla">
-                    <select
-                      class="inline-select"
-                      [ngModel]="templateForAssignment(assignment)?.id ?? ''"
-                      (ngModelChange)="updateTemplateSelection(assignment.id, $event)"
-                    >
-                      <option value="">Seleccionar</option>
-                      @for (template of activeTemplates(); track template.id) {
-                        <option [value]="template.id">{{ template.templateCourse }}</option>
-                      }
-                    </select>
+                    @if (automaticTemplateForDisplay(assignment); as automaticTemplate) {
+                      <span class="template-auto-pill">
+                        <strong>{{ automaticTemplate.templateCourse }}</strong>
+                        <small>Automatica</small>
+                      </span>
+                    } @else {
+                      <select
+                        class="inline-select"
+                        [ngModel]="templateForAssignment(assignment)?.id ?? ''"
+                        (ngModelChange)="updateTemplateSelection(assignment.id, $event)"
+                      >
+                        <option value="">Seleccionar</option>
+                        @for (template of activeTemplates(); track template.id) {
+                          <option [value]="template.id">{{ template.templateCourse }}</option>
+                        }
+                      </select>
+                    }
                   </td>
                   <td data-label="Estado">
                     <select

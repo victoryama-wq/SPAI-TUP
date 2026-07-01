@@ -597,6 +597,12 @@ export class MoodlePageComponent {
       ?? null;
   }
 
+  automaticTemplateForDisplay(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    return this.templateSelections[assignment.id]
+      ? null
+      : this.automaticTemplateForAssignment(assignment);
+  }
+
   isProgramTemplate(type: string): boolean {
     return this.normalizeSearchText(type) === 'por programa'
       || this.normalizeSearchText(type) === 'programa';
