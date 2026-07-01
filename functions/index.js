@@ -14,6 +14,8 @@ const SMTP_HOST = 'smtp.gmail.com';
 const SMTP_PORT = 587;
 const SMTP_USER = 'noreply@tecplayacar.edu.mx';
 const FROM_EMAIL = 'SPAI TUP <noreply@tecplayacar.edu.mx>';
+const BRAND_LOGO_URL = 'https://spai-6ef68.web.app/brand/tup-logo-full.png';
+const BRAND_MASCOT_URL = 'https://spai-6ef68.web.app/brand/tup-mascot-login.png';
 
 exports.sendEmailForNotification = onDocumentCreated(
   {
@@ -124,30 +126,92 @@ function matchesAcademicTarget(user, target) {
 }
 
 function plainTextBody(notification) {
+  const messageLines = notificationMessageLines(notification);
+
   return [
-    notification.title || 'Nueva notificacion SPAI TUP',
+    'El sistema SPAI notifica.',
     '',
-    notification.message || '',
-    '',
-    `Tipo: ${notification.type || 'Sin tipo'}`,
-    `Modulo: ${notification.entity || 'SPAI TUP'}`,
-    `Generado por: ${notification.actorName || 'SPAI TUP'}`,
+    audienceMessage(notification),
+    ...messageLines.map((line) => line ? line : ''),
+    'Por favor darle seguimiento.',
   ].join('\n');
 }
 
 function htmlBody(notification) {
+  const messageLines = notificationMessageLines(notification);
+
   return `
-    <div style="font-family:Arial,sans-serif;color:#07183f;line-height:1.45">
-      <h2 style="margin:0 0 12px;color:#143f91">${escapeHtml(notification.title || 'Nueva notificacion SPAI TUP')}</h2>
-      <p style="font-size:15px;margin:0 0 16px">${escapeHtml(notification.message || '')}</p>
-      <table style="border-collapse:collapse;font-size:13px;color:#334866">
-        <tr><td style="padding:4px 12px 4px 0;font-weight:700">Tipo</td><td>${escapeHtml(notification.type || 'Sin tipo')}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;font-weight:700">Modulo</td><td>${escapeHtml(notification.entity || 'SPAI TUP')}</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;font-weight:700">Generado por</td><td>${escapeHtml(notification.actorName || 'SPAI TUP')}</td></tr>
-      </table>
-      <p style="margin-top:18px;font-size:12px;color:#64748b">Este correo fue generado automaticamente por SPAI TUP.</p>
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f7ff;margin:0;padding:28px 0;font-family:Arial,sans-serif;color:#07183f">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="680" cellpadding="0" cellspacing="0" style="width:680px;max-width:100%;background:#ffffff;border:1px solid #d7e4f8;border-radius:10px;overflow:hidden">
+            <tr>
+              <td style="padding:28px 30px 24px;background:#ffffff">
+                <img src="${BRAND_LOGO_URL}" width="260" alt="Tecnologico Universitario Playacar" style="display:block;max-width:260px;width:100%;height:auto">
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#071f5f;border-top:4px solid #41b9e8;padding:24px 30px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="vertical-align:middle">
+                      <div style="color:#c8d7ff;font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase">Sistema de Planeacion Academica Institucional</div>
+                      <h1 style="color:#ffffff;font-size:28px;line-height:1.15;margin:8px 0 0">El sistema SPAI notifica.</h1>
+                    </td>
+                    <td width="110" align="right" style="vertical-align:middle">
+                      <img src="${BRAND_MASCOT_URL}" width="88" alt="" style="display:block;width:88px;max-width:88px;height:auto">
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 30px 14px">
+                <p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${escapeHtml(audienceMessage(notification))}</p>
+                ${messageLines.map((line) => (
+                  line
+                    ? `<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${escapeHtml(line)}</p>`
+                    : '<div style="height:4px"></div>'
+                )).join('')}
+                <p style="font-size:16px;line-height:1.55;margin:0 0 18px;color:#24385c">Por favor darle seguimiento.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f8fbff;border-top:1px solid #d7e4f8;padding:16px 30px;color:#64748b;font-size:12px;line-height:1.45">
+                Este correo fue generado automaticamente por SPAI TUP. No respondas a este mensaje.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
+}
+
+function audienceMessage(notification) {
+  if (notification.target === 'SISTEMAS') {
+    return 'Equipo de Sistemas, ha llegado una nueva solicitud.';
+  }
+
+  return 'Ha llegado una nueva notificacion para seguimiento.';
+}
+
+function notificationMessageLines(notification) {
+  const actorName = notification.actorName || 'la coordinacion correspondiente';
+  const title = notification.title || 'Nueva notificacion';
+  const message = notification.message || '';
+
+  if (notification.type === 'DOCENTE_NUEVO') {
+    return [
+      `La Coordinacion Academica correspondiente a ${actorName} agrego un nuevo docente.`,
+      message,
+    ].filter((line, index) => index === 0 || Boolean(line));
+  }
+
+  return [
+    `La Coordinacion Academica correspondiente a ${actorName} genero la siguiente solicitud: ${title}.`,
+    message,
+  ].filter((line, index) => index === 0 || Boolean(line));
 }
 
 function markEmailStatus(notificationId, payload) {
