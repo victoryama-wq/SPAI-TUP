@@ -310,8 +310,8 @@
                   <td data-label="Plantilla">
                     <select
                       class="inline-select"
-                      [value]="templateForAssignment(assignment)?.id ?? ''"
-                      (change)="updateTemplateSelection(assignment.id, $any($event.target).value)"
+                      [ngModel]="templateForAssignment(assignment)?.id ?? ''"
+                      (ngModelChange)="updateTemplateSelection(assignment.id, $event)"
                     >
                       <option value="">Seleccionar</option>
                       @for (template of activeTemplates(); track template.id) {
