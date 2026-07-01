@@ -257,17 +257,24 @@
 
 .template-side-panel th:nth-child(1),
 .template-side-panel td:nth-child(1) {
-  width: 34%;
+  width: 46%;
 }
 
 .template-side-panel th:nth-child(2),
 .template-side-panel td:nth-child(2) {
-  width: 22%;
+  width: 16%;
 }
 
 .template-side-panel th:nth-child(4),
 .template-side-panel td:nth-child(4) {
-  width: 180px;
+  width: 116px;
+}
+
+.template-course-name {
+  display: block;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .panel-toolbar {

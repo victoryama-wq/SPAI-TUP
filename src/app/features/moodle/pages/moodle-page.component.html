@@ -169,7 +169,9 @@
           <tbody>
             @for (template of visibleTemplates(); track template.id) {
               <tr>
-                <td data-label="Nombre corto Moodle"><strong>{{ template.templateCourse }}</strong></td>
+                <td data-label="Nombre corto Moodle">
+                  <strong class="template-course-name">{{ template.templateCourse }}</strong>
+                </td>
                 <td data-label="Tipo">{{ templateTypeLabel(template.modality) }}</td>
                 <td data-label="Programa">{{ isProgramTemplate(template.modality) ? (template.programCode || 'Pendiente') : 'No aplica' }}</td>
                 <td data-label="Acciones">
