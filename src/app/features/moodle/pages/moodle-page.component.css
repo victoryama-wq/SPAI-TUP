@@ -240,7 +240,7 @@
 
 .category-side-panel th,
 .category-side-panel td {
-  padding: 10px 10px;
+  padding: 10px 8px;
 }
 
 .template-side-panel th,
@@ -250,7 +250,7 @@
 
 .category-side-panel th:nth-child(1),
 .category-side-panel td:nth-child(1) {
-  width: 18%;
+  width: auto;
 }
 
 .category-side-panel th:nth-child(2),
@@ -258,6 +258,8 @@
   font-size: 13px;
   line-height: 1.25;
   overflow-wrap: anywhere;
+  padding-left: 4px;
+  padding-right: 4px;
   width: auto;
   word-break: break-word;
 }
@@ -268,6 +270,14 @@
   padding-right: 6px;
   text-align: center;
   width: 58px;
+}
+
+.category-side-panel .category-number-column {
+  width: 84px;
+}
+
+.category-side-panel .category-actions-column {
+  width: 56px;
 }
 
 .category-side-panel .row-actions {

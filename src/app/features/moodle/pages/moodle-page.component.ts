@@ -74,6 +74,10 @@ const SPECIAL_MOODLE_PROGRAM_OPTIONS: ProgramOption[] = [
   },
 ];
 
+const CATEGORY_PROGRAM_ALIASES: Record<string, string> = {
+  PROPEDEUTICOS_SALUD: 'PROPEDEUTICOS_FCS',
+};
+
 @Component({
   selector: 'spai-moodle-page',
   imports: [CommonModule, FormsModule],
@@ -136,7 +140,8 @@ export class MoodlePageComponent {
 
   readonly visibleCategories = computed(() =>
     [...this.categories()].sort((first, second) =>
-      first.programCode.localeCompare(second.programCode, 'es', { numeric: true }),
+      this.normalizeCategoryProgramAlias(first.programCode)
+        .localeCompare(this.normalizeCategoryProgramAlias(second.programCode), 'es', { numeric: true }),
     ),
   );
 
@@ -601,8 +606,13 @@ export class MoodlePageComponent {
 
   categoryForAssignment(assignment: AcademicAssignment): MoodleCategory | null {
     return this.categories().find((category) =>
-      category.status === 'Activo' && category.programCode === assignment.program,
+      category.status === 'Activo'
+        && this.normalizeCategoryProgramAlias(category.programCode) === this.normalizeCategoryProgramAlias(assignment.program),
     ) ?? null;
+  }
+
+  categoryProgramDisplay(category: MoodleCategory): string {
+    return this.normalizeCategoryProgramAlias(category.programCode);
   }
 
   templateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
@@ -1041,7 +1051,7 @@ export class MoodlePageComponent {
   }
 
   private programOptionLabel(code: string, name: string): string {
-    const normalizedCode = this.normalizeProgramCode(code);
+    const normalizedCode = this.normalizeCategoryProgramAlias(code);
     const option = this.programOptions().find((currentOption) => currentOption.code === normalizedCode);
 
     if (option) {
@@ -1049,6 +1059,12 @@ export class MoodlePageComponent {
     }
 
     return name.trim() ? `${normalizedCode} - ${name.trim()}` : normalizedCode;
+  }
+
+  private normalizeCategoryProgramAlias(programCode: string): string {
+    const normalizedCode = this.normalizeProgramCode(programCode);
+
+    return CATEGORY_PROGRAM_ALIASES[normalizedCode] ?? normalizedCode;
   }
 
   private escapeCsvValue(value: string): string {

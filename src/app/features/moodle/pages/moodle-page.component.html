@@ -44,6 +44,11 @@
 
       <div class="table-wrap">
         <table>
+          <colgroup>
+            <col class="category-number-column" />
+            <col class="category-program-column" />
+            <col class="category-actions-column" />
+          </colgroup>
           <thead>
             <tr>
               <th>Categoria Moodle</th>
@@ -55,7 +60,7 @@
             @for (category of paginatedCategories(); track category.id) {
               <tr>
                 <td data-label="Categoria Moodle"><strong>{{ category.categoryNumber }}</strong></td>
-                <td data-label="Programa">{{ category.programCode }}</td>
+                <td data-label="Programa">{{ categoryProgramDisplay(category) }}</td>
                 <td data-label="Acciones">
                   <div class="row-actions">
                     <button type="button" aria-label="Editar categoria" title="Editar categoria" (click)="openCategoryModal(category)">
