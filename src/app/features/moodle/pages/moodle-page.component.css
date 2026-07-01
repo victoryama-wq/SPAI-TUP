@@ -250,7 +250,7 @@
 
 .category-side-panel th:nth-child(1),
 .category-side-panel td:nth-child(1) {
-  width: 24%;
+  width: 18%;
 }
 
 .category-side-panel th:nth-child(2),
@@ -267,7 +267,7 @@
   padding-left: 6px;
   padding-right: 6px;
   text-align: center;
-  width: 62px;
+  width: 58px;
 }
 
 .category-side-panel .row-actions {

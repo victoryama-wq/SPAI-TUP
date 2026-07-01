@@ -68,9 +68,9 @@ const SPECIAL_MOODLE_PROGRAM_OPTIONS: ProgramOption[] = [
     label: 'PROPEDEUTICOS_TUP - Propedeuticos TUP',
   },
   {
-    code: 'PROPEDEUTICOS_SALUD',
+    code: 'PROPEDEUTICOS_FCS',
     name: 'Propedeuticos Salud',
-    label: 'PROPEDEUTICOS_SALUD - Propedeuticos Salud',
+    label: 'PROPEDEUTICOS_FCS - Propedeuticos Salud',
   },
 ];
 
