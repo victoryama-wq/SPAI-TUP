@@ -115,7 +115,7 @@ export class MoodlePageComponent {
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
   categoryProgramSearch = '';
   categoryProgramPickerOpen = false;
-  categoryCurrentPage = 1;
+  categoryCurrentPage = signal(1);
   categoryPageSize = 5;
   readonly categoryPageSizeOptions = CATEGORY_PAGE_SIZE_OPTIONS;
   readonly batchModes = MOODLE_BATCH_MODES;
@@ -322,15 +322,15 @@ export class MoodlePageComponent {
 
   selectCategoryPageSize(event: Event): void {
     this.categoryPageSize = Number((event.target as HTMLSelectElement).value) || 5;
-    this.categoryCurrentPage = 1;
+    this.categoryCurrentPage.set(1);
   }
 
   goToPreviousCategoryPage(): void {
-    this.categoryCurrentPage = Math.max(1, this.currentCategorySafePage() - 1);
+    this.categoryCurrentPage.set(Math.max(1, this.currentCategorySafePage() - 1));
   }
 
   goToNextCategoryPage(): void {
-    this.categoryCurrentPage = Math.min(this.totalCategoryPages(), this.currentCategorySafePage() + 1);
+    this.categoryCurrentPage.set(Math.min(this.totalCategoryPages(), this.currentCategorySafePage() + 1));
   }
 
   totalCategoryPages(): number {
@@ -338,7 +338,7 @@ export class MoodlePageComponent {
   }
 
   currentCategorySafePage(): number {
-    return Math.min(this.categoryCurrentPage, this.totalCategoryPages());
+    return Math.min(this.categoryCurrentPage(), this.totalCategoryPages());
   }
 
   categoryPaginationStart(): number {

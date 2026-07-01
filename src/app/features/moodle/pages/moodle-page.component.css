@@ -247,12 +247,34 @@
 
 .category-side-panel th:nth-child(1),
 .category-side-panel td:nth-child(1) {
-  width: 34%;
+  width: 24%;
+}
+
+.category-side-panel th:nth-child(2),
+.category-side-panel td:nth-child(2) {
+  font-size: 13px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  width: auto;
+  word-break: break-word;
 }
 
 .category-side-panel th:nth-child(3),
 .category-side-panel td:nth-child(3) {
-  width: 104px;
+  width: 72px;
+}
+
+.category-side-panel .row-actions {
+  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+}
+
+.category-side-panel .row-actions button {
+  height: 34px;
+  min-height: 34px;
+  width: 34px;
 }
 
 .template-side-panel th:nth-child(1),
