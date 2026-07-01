@@ -30,6 +30,7 @@ const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la
 const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
 const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'especialidad', 'especializacion', 'doctorado', 'posgrado'];
 const NURSING_HEALTH_TEMPLATE = 'CURSO_DEMO_ENF';
+const NUTRITION_HEALTH_TEMPLATE = 'CURSO_DEMO_NUT';
 const DEFAULT_TEMPLATE_BY_MODE: Partial<Record<MoodleBatchMode, string>> = {
   Escolarizado: 'CURSO_DEMO_ESCOLARIZADO',
 };
@@ -642,6 +643,8 @@ export class MoodlePageComponent {
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
     const templateCourse = this.isNursingHealthBaseGroup(assignment)
       ? NURSING_HEALTH_TEMPLATE
+      : this.isNutritionHealthBaseGroup(assignment)
+        ? NUTRITION_HEALTH_TEMPLATE
       : DEFAULT_TEMPLATE_BY_MODE[this.assignmentBatchMode(assignment)];
 
     if (!templateCourse) {
@@ -722,6 +725,10 @@ export class MoodlePageComponent {
 
   private isNursingHealthBaseGroup(assignment: AcademicAssignment): boolean {
     return /\bENF\s+(11|12)\b/i.test(assignment.group);
+  }
+
+  private isNutritionHealthBaseGroup(assignment: AcademicAssignment): boolean {
+    return /\bNUT\s+(11|12)\b/i.test(assignment.group);
   }
 
   private isEnglishProgramCode(programCode: string): boolean {
