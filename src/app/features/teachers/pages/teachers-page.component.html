@@ -409,7 +409,7 @@
             <input type="text" [(ngModel)]="manualForm.maternalLastName" placeholder="LOPEZ" />
           </label>
         </div>
-        <label>
+        <label class="manual-moodle-field">
           <span>Usuario Moodle *</span>
           <input
             type="text"
@@ -433,7 +433,7 @@
           <strong>{{ manualRetakeTeacher ? 'Usuario nuevo' : 'Docente que retoma' }}</strong>
           <small>{{ manualRetakeTeacher ? 'Volver al consecutivo' : 'Usar usuario anterior' }}</small>
         </button>
-        <label>
+        <label class="manual-email-field">
           <span>Correo</span>
           <div class="domain-field derived-field">
             <input type="text" [value]="manualForm.email" placeholder="jperez" readonly aria-readonly="true" />

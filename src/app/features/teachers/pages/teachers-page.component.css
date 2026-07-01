@@ -377,7 +377,7 @@ th {
 }
 
 .retake-teacher-action {
-  align-self: end;
+  align-self: stretch;
   background: #f8fbff;
   border: 1px solid #bfd3f2;
   border-radius: 8px;
@@ -388,6 +388,16 @@ th {
   min-height: 58px;
   padding: 10px 12px;
   text-align: left;
+}
+
+.manual-moodle-field,
+.manual-email-field {
+  grid-column: 1;
+}
+
+.retake-teacher-action {
+  grid-column: 2;
+  grid-row: 2 / span 2;
 }
 
 .retake-teacher-action strong {
@@ -997,6 +1007,7 @@ th {
 }
 
 .modal-panel .teacher-form {
+  align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -1125,6 +1136,13 @@ th {
 
   .name-fields {
     grid-template-columns: 1fr;
+  }
+
+  .manual-moodle-field,
+  .manual-email-field,
+  .retake-teacher-action {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .panel-title {
