@@ -14,7 +14,7 @@ const SMTP_HOST = 'smtp.gmail.com';
 const SMTP_PORT = 587;
 const SMTP_USER = 'noreply@tecplayacar.edu.mx';
 const FROM_EMAIL = 'SPAI TUP <noreply@tecplayacar.edu.mx>';
-const BRAND_LOGO_URL = 'https://spai-6ef68.web.app/brand/tup-playacar-logo.png';
+const BRAND_LOGO_URL = 'https://spai-6ef68.web.app/brand/tup-logo-full.png';
 const BRAND_MASCOT_URL = 'https://spai-6ef68.web.app/brand/tup-mascot-login.png';
 
 exports.sendEmailForNotification = onDocumentCreated(
@@ -150,7 +150,7 @@ function htmlBody(notification) {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="vertical-align:middle">
-                      <img src="${BRAND_LOGO_URL}" width="230" alt="Tecnologico Universitario Playacar" style="display:block;max-width:230px;width:100%;height:auto;margin:0 0 18px">
+                      <img src="${BRAND_LOGO_URL}" width="320" alt="Tecnologico Universitario Playacar" style="display:block;max-width:320px;width:100%;height:auto;margin:0 0 18px;filter:drop-shadow(0 10px 22px rgba(2,8,23,0.28))">
                       <div style="color:#c8d7ff;font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase">Sistema de Planeacion Academica Institucional</div>
                       <h1 style="color:#ffffff;font-size:28px;line-height:1.15;margin:8px 0 0">El sistema SPAI notifica.</h1>
                     </td>
