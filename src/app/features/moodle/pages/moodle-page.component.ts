@@ -29,6 +29,9 @@ const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
 const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
 const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
 const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'especialidad', 'especializacion', 'doctorado', 'posgrado'];
+const DEFAULT_TEMPLATE_BY_MODE: Partial<Record<MoodleBatchMode, string>> = {
+  Escolarizado: 'CURSO_DEMO_ESCOLARIZADO',
+};
 
 interface CategoryFormState {
   categoryNumber: string;
@@ -587,8 +590,8 @@ export class MoodlePageComponent {
       : null;
 
     return selectedTemplate
+      ?? this.automaticTemplateForAssignment(assignment)
       ?? this.activeTemplates().find((template) => template.programCode === assignment.program)
-      ?? this.activeTemplates()[0]
       ?? null;
   }
 
@@ -633,6 +636,25 @@ export class MoodlePageComponent {
 
   private isLoadedInMoodle(assignment: AcademicAssignment): boolean {
     return assignment.status === 'CARGADO_MOODLE' || assignment.status === 'VALIDADO';
+  }
+
+  private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    const templateCourse = DEFAULT_TEMPLATE_BY_MODE[this.assignmentBatchMode(assignment)];
+
+    if (!templateCourse) {
+      return null;
+    }
+
+    return this.findActiveTemplateByCourse(templateCourse);
+  }
+
+  private findActiveTemplateByCourse(templateCourse: string): MoodleCourseTemplate | null {
+    const targetKey = this.normalizeTemplateCourseKey(templateCourse);
+
+    return this.activeTemplates().find((template) =>
+      this.normalizeTemplateCourseKey(template.templateCourse) === targetKey
+      || this.normalizeTemplateCourseKey(template.name) === targetKey,
+    ) ?? null;
   }
 
   private assignmentBatchMode(assignment: AcademicAssignment): MoodleBatchMode {
@@ -943,6 +965,10 @@ export class MoodlePageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
+  }
+
+  private normalizeTemplateCourseKey(value: string): string {
+    return this.normalizeForMoodle(value).replace(/[\s-]+/g, '_');
   }
 
   private normalizeSearchText(value: string): string {
