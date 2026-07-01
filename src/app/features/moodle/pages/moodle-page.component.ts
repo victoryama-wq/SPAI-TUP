@@ -641,7 +641,11 @@ export class MoodlePageComponent {
   templateTypeLabel(type: string): string {
     const normalized = this.normalizeSearchText(type);
     const labels: Record<string, string> = {
-      axiologica: 'Axiologica',
+      axiologica: 'Axiologica-Generica',
+      'axiologica-generica': 'Axiologica-Generica',
+      'axiologica generica': 'Axiologica-Generica',
+      'axiologica-transversales': 'Axiologica-Transversales',
+      'axiologica transversales': 'Axiologica-Transversales',
       demo: 'Demo',
       transversal: 'Transversal',
       generica: 'Generica',
@@ -971,8 +975,12 @@ export class MoodlePageComponent {
   private normalizeTemplateType(value: string): string {
     const normalized = this.normalizeSearchText(value);
 
-    if (normalized === 'axiologica') {
-      return 'Axiologica';
+    if (normalized === 'axiologica' || normalized === 'axiologica-generica' || normalized === 'axiologica generica') {
+      return 'Axiologica-Generica';
+    }
+
+    if (normalized === 'axiologica-transversales' || normalized === 'axiologica transversales') {
+      return 'Axiologica-Transversales';
     }
 
     if (normalized === 'demo') {
