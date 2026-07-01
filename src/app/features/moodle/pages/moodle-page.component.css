@@ -250,6 +250,7 @@
 
 .category-side-panel th:nth-child(1),
 .category-side-panel td:nth-child(1) {
+  min-width: 76px;
   width: auto;
 }
 
@@ -273,7 +274,7 @@
 }
 
 .category-side-panel .category-number-column {
-  width: 84px;
+  width: 92px;
 }
 
 .category-side-panel .category-actions-column {
