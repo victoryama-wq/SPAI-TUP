@@ -146,15 +146,13 @@ function htmlBody(notification) {
         <td align="center">
           <table role="presentation" width="680" cellpadding="0" cellspacing="0" style="width:680px;max-width:100%;background:#ffffff;border:1px solid #d7e4f8;border-radius:10px;overflow:hidden">
             <tr>
-              <td style="padding:28px 30px 24px;background:#ffffff">
-                <img src="${BRAND_LOGO_URL}" width="260" alt="Tecnologico Universitario Playacar" style="display:block;max-width:260px;width:100%;height:auto">
-              </td>
-            </tr>
-            <tr>
-              <td style="background:#071f5f;border-top:4px solid #41b9e8;padding:24px 30px">
+              <td style="background:#071f5f;border-top:4px solid #41b9e8;padding:24px 30px 26px">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="vertical-align:middle">
+                      <div style="background:#ffffff;border-radius:8px;display:inline-block;padding:12px 16px;margin:0 0 18px">
+                        <img src="${BRAND_LOGO_URL}" width="230" alt="Tecnologico Universitario Playacar" style="display:block;max-width:230px;width:100%;height:auto">
+                      </div>
                       <div style="color:#c8d7ff;font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase">Sistema de Planeacion Academica Institucional</div>
                       <h1 style="color:#ffffff;font-size:28px;line-height:1.15;margin:8px 0 0">El sistema SPAI notifica.</h1>
                     </td>
