@@ -92,9 +92,9 @@
 
       @if (visibleCategories().length > 0) {
         <div class="catalog-pagination" aria-label="Paginacion de categorias Moodle">
-          <strong>
+          <span class="catalog-pagination-summary">
             Mostrando {{ categoryPaginationStart() }}-{{ categoryPaginationEnd() }} de {{ visibleCategories().length }}
-          </strong>
+          </span>
 
           <div class="catalog-pagination-controls">
             <label>
