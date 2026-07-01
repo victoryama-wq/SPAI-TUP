@@ -615,6 +615,7 @@ export class MoodlePageComponent {
       demo: 'Demo',
       transversal: 'Transversal',
       generica: 'Generica',
+      propedeutico: 'Propedeutico',
       programa: 'Por programa',
       'por programa': 'Por programa',
     };
@@ -950,6 +951,10 @@ export class MoodlePageComponent {
 
     if (normalized === 'transversal') {
       return 'Transversal';
+    }
+
+    if (normalized === 'propedeutico') {
+      return 'Propedeutico';
     }
 
     if (normalized === 'programa' || normalized === 'por programa') {
