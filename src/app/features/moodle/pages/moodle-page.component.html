@@ -52,7 +52,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (category of visibleCategories(); track category.id) {
+            @for (category of paginatedCategories(); track category.id) {
               <tr>
                 <td data-label="Categoria Moodle"><strong>{{ category.categoryNumber }}</strong></td>
                 <td data-label="Programa">{{ category.programCode }}</td>
@@ -89,6 +89,36 @@
           </tbody>
         </table>
       </div>
+
+      @if (visibleCategories().length > 0) {
+        <div class="catalog-pagination" aria-label="Paginacion de categorias Moodle">
+          <strong>
+            Mostrando {{ categoryPaginationStart() }}-{{ categoryPaginationEnd() }} de {{ visibleCategories().length }}
+          </strong>
+
+          <div class="catalog-pagination-controls">
+            <label>
+              <span>Por pagina</span>
+              <select [value]="categoryPageSize" (change)="selectCategoryPageSize($event)">
+                @for (option of categoryPageSizeOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+            <button type="button" [disabled]="currentCategorySafePage() === 1" (click)="goToPreviousCategoryPage()">
+              Anterior
+            </button>
+            <span>{{ currentCategorySafePage() }} / {{ totalCategoryPages() }}</span>
+            <button
+              type="button"
+              [disabled]="currentCategorySafePage() === totalCategoryPages()"
+              (click)="goToNextCategoryPage()"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      }
     </section>
 
     <section class="workspace-panel template-side-panel">

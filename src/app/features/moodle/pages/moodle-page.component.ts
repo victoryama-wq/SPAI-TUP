@@ -21,6 +21,7 @@ import {
 
 type MoodleTab = 'catalogos' | 'lotes';
 type MoodleModal = 'categoria' | 'plantilla' | null;
+const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
 
 interface CategoryFormState {
   categoryNumber: string;
@@ -89,6 +90,9 @@ export class MoodlePageComponent {
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
   categoryProgramSearch = '';
   categoryProgramPickerOpen = false;
+  categoryCurrentPage = 1;
+  categoryPageSize = 5;
+  readonly categoryPageSizeOptions = CATEGORY_PAGE_SIZE_OPTIONS;
   readonly templateSelections: Record<string, string> = {};
 
   categoryForm: CategoryFormState = this.emptyCategoryForm();
@@ -109,6 +113,12 @@ export class MoodlePageComponent {
       first.programCode.localeCompare(second.programCode, 'es', { numeric: true }),
     ),
   );
+
+  readonly paginatedCategories = computed(() => {
+    const startIndex = (this.currentCategorySafePage() - 1) * this.categoryPageSize;
+
+    return this.visibleCategories().slice(startIndex, startIndex + this.categoryPageSize);
+  });
 
   readonly programOptions = computed<ProgramOption[]>(() => {
     const optionsByCode = new Map<string, ProgramOption>();
@@ -252,6 +262,41 @@ export class MoodlePageComponent {
 
   toggleCategoryProgramPicker(): void {
     this.categoryProgramPickerOpen = !this.categoryProgramPickerOpen;
+  }
+
+  selectCategoryPageSize(event: Event): void {
+    this.categoryPageSize = Number((event.target as HTMLSelectElement).value) || 5;
+    this.categoryCurrentPage = 1;
+  }
+
+  goToPreviousCategoryPage(): void {
+    this.categoryCurrentPage = Math.max(1, this.currentCategorySafePage() - 1);
+  }
+
+  goToNextCategoryPage(): void {
+    this.categoryCurrentPage = Math.min(this.totalCategoryPages(), this.currentCategorySafePage() + 1);
+  }
+
+  totalCategoryPages(): number {
+    return Math.max(1, Math.ceil(this.visibleCategories().length / this.categoryPageSize));
+  }
+
+  currentCategorySafePage(): number {
+    return Math.min(this.categoryCurrentPage, this.totalCategoryPages());
+  }
+
+  categoryPaginationStart(): number {
+    const total = this.visibleCategories().length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return (this.currentCategorySafePage() - 1) * this.categoryPageSize + 1;
+  }
+
+  categoryPaginationEnd(): number {
+    return Math.min(this.currentCategorySafePage() * this.categoryPageSize, this.visibleCategories().length);
   }
 
   closeCategoryProgramPickerSoon(): void {

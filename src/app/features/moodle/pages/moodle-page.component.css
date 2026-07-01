@@ -237,6 +237,74 @@
   overflow: hidden;
 }
 
+.catalog-pagination {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  color: #1f365d;
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.catalog-pagination > strong {
+  font-size: 13px;
+}
+
+.catalog-pagination-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.catalog-pagination-controls label {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.catalog-pagination-controls label span {
+  color: #40577a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.catalog-pagination-controls select,
+.catalog-pagination-controls button {
+  background: #f8fbff;
+  border: 1px solid #bfd3f2;
+  border-radius: 8px;
+  color: #174ea6;
+  font-weight: 900;
+  min-height: 38px;
+  padding: 0 12px;
+}
+
+.catalog-pagination-controls select {
+  min-width: 76px;
+}
+
+.catalog-pagination-controls button {
+  cursor: pointer;
+}
+
+.catalog-pagination-controls button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.catalog-pagination-controls > span {
+  color: #07163c;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 0 2px;
+}
+
 table {
   border-collapse: collapse;
   table-layout: fixed;
