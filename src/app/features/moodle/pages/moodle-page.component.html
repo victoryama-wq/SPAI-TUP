@@ -105,16 +105,30 @@
                 }
               </select>
             </label>
-            <button type="button" [disabled]="currentCategorySafePage() === 1" (click)="goToPreviousCategoryPage()">
-              Anterior
+            <button
+              type="button"
+              class="pagination-icon-action"
+              aria-label="Pagina anterior"
+              title="Anterior"
+              [disabled]="currentCategorySafePage() === 1"
+              (click)="goToPreviousCategoryPage()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m15 18-6-6 6-6"></path>
+              </svg>
             </button>
             <span>{{ currentCategorySafePage() }} / {{ totalCategoryPages() }}</span>
             <button
               type="button"
+              class="pagination-icon-action"
+              aria-label="Pagina siguiente"
+              title="Siguiente"
               [disabled]="currentCategorySafePage() === totalCategoryPages()"
               (click)="goToNextCategoryPage()"
             >
-              Siguiente
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m9 18 6-6-6-6"></path>
+              </svg>
             </button>
           </div>
         </div>
