@@ -138,7 +138,7 @@ function plainTextBody(notification) {
 }
 
 function htmlBody(notification) {
-  const messageLines = notificationMessageLines(notification);
+  const messageLines = notificationHtmlMessageLines(notification);
 
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f7ff;margin:0;padding:28px 0;font-family:Arial,sans-serif;color:#07183f">
@@ -165,10 +165,10 @@ function htmlBody(notification) {
             </tr>
             <tr>
               <td style="padding:28px 30px 14px">
-                <p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${escapeHtml(audienceMessage(notification))}</p>
+                <p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c"><strong>${escapeHtml(audienceMessage(notification))}</strong></p>
                 ${messageLines.map((line) => (
                   line
-                    ? `<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${escapeHtml(line)}</p>`
+                    ? `<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${line}</p>`
                     : '<div style="height:4px"></div>'
                 )).join('')}
                 <p style="font-size:16px;line-height:1.55;margin:0 0 18px;color:#24385c">Por favor darle seguimiento.</p>
@@ -209,6 +209,25 @@ function notificationMessageLines(notification) {
   return [
     `La Coordinacion Academica correspondiente a ${actorName} genero la siguiente solicitud: ${title}.`,
     message,
+  ].filter((line, index) => index === 0 || Boolean(line));
+}
+
+function notificationHtmlMessageLines(notification) {
+  const actorName = notification.actorName || 'la coordinacion correspondiente';
+  const title = notification.title || 'Nueva notificacion';
+  const message = notification.message || '';
+  const escapedActor = escapeHtml(actorName);
+
+  if (notification.type === 'DOCENTE_NUEVO') {
+    return [
+      `La Coordinacion Academica correspondiente a <strong>${escapedActor}</strong> agrego un nuevo docente.`,
+      message ? escapeHtml(message) : '',
+    ].filter((line, index) => index === 0 || Boolean(line));
+  }
+
+  return [
+    `La Coordinacion Academica correspondiente a <strong>${escapedActor}</strong> genero la siguiente solicitud: ${escapeHtml(title)}.`,
+    message ? escapeHtml(message) : '',
   ].filter((line, index) => index === 0 || Boolean(line));
 }
 
