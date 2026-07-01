@@ -146,30 +146,36 @@ function htmlBody(notification) {
         <td align="center">
           <table role="presentation" width="680" cellpadding="0" cellspacing="0" style="width:680px;max-width:100%;background:#ffffff;border:1px solid #d7e4f8;border-radius:10px;overflow:hidden">
             <tr>
-              <td style="background:#071f5f;border-top:4px solid #41b9e8;padding:24px 30px 26px">
+              <td style="background:#071f5f;border-top:4px solid #41b9e8;padding:22px 30px 24px">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="vertical-align:middle">
-                      <img src="${BRAND_LOGO_URL}" width="320" alt="Tecnologico Universitario Playacar" style="display:block;max-width:320px;width:100%;height:auto;margin:0 0 18px;filter:drop-shadow(0 10px 22px rgba(2,8,23,0.28))">
-                      <div style="color:#c8d7ff;font-size:13px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase">Sistema de Planeacion Academica Institucional</div>
-                      <h1 style="color:#ffffff;font-size:28px;line-height:1.15;margin:8px 0 0">El sistema SPAI notifica.</h1>
+                      <img src="${BRAND_LOGO_URL}" width="290" alt="Tecnologico Universitario Playacar" style="display:block;max-width:290px;width:100%;height:auto;margin:0 0 16px;filter:drop-shadow(0 10px 22px rgba(2,8,23,0.28))">
+                      <div style="color:#c8d7ff;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase">Sistema de Planeacion Academica Institucional</div>
+                      <h1 style="color:#ffffff;font-size:24px;line-height:1.18;margin:8px 0 0">El sistema SPAI notifica.</h1>
                     </td>
                     <td width="110" align="right" style="vertical-align:middle">
-                      <img src="${BRAND_MASCOT_URL}" width="88" alt="" style="display:block;width:88px;max-width:88px;height:auto">
+                      <img src="${BRAND_MASCOT_URL}" width="76" alt="" style="display:block;width:76px;max-width:76px;height:auto">
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
-              <td style="padding:28px 30px 14px">
-                <p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c"><strong>${escapeHtml(audienceMessage(notification))}</strong></p>
-                ${messageLines.map((line) => (
-                  line
-                    ? `<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#24385c">${line}</p>`
-                    : '<div style="height:4px"></div>'
-                )).join('')}
-                <p style="font-size:16px;line-height:1.55;margin:0 0 18px;color:#24385c">Por favor darle seguimiento.</p>
+              <td style="padding:26px 30px 22px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fbff;border:1px solid #d7e4f8;border-left:5px solid #1e3a8a;border-radius:8px">
+                  <tr>
+                    <td style="padding:22px 24px">
+                      <p style="font-size:18px;line-height:1.62;margin:0 0 18px;color:#07183f"><strong>${escapeHtml(audienceMessage(notification))}</strong></p>
+                      ${messageLines.map((line) => (
+                        line
+                          ? `<p style="font-size:18px;line-height:1.62;margin:0 0 16px;color:#1f3357">${line}</p>`
+                          : '<div style="height:4px"></div>'
+                      )).join('')}
+                      <p style="font-size:18px;line-height:1.62;margin:0;color:#07183f"><strong>Por favor darle seguimiento.</strong></p>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
