@@ -61,6 +61,19 @@ interface ProgramOption {
   label: string;
 }
 
+const SPECIAL_MOODLE_PROGRAM_OPTIONS: ProgramOption[] = [
+  {
+    code: 'PROPEDEUTICOS_TUP',
+    name: 'Propedeuticos TUP',
+    label: 'PROPEDEUTICOS_TUP - Propedeuticos TUP',
+  },
+  {
+    code: 'PROPEDEUTICOS_SALUD',
+    name: 'Propedeuticos Salud',
+    label: 'PROPEDEUTICOS_SALUD - Propedeuticos Salud',
+  },
+];
+
 @Component({
   selector: 'spai-moodle-page',
   imports: [CommonModule, FormsModule],
@@ -153,9 +166,16 @@ export class MoodlePageComponent {
         });
       });
 
-    return [...optionsByCode.values()].sort((first, second) =>
+    const sortedOptions = [...optionsByCode.values()].sort((first, second) =>
       first.code.localeCompare(second.code, 'es', { numeric: true }),
     );
+
+    return [
+      ...SPECIAL_MOODLE_PROGRAM_OPTIONS,
+      ...sortedOptions.filter((option) =>
+        !SPECIAL_MOODLE_PROGRAM_OPTIONS.some((specialOption) => specialOption.code === option.code),
+      ),
+    ];
   });
 
   filteredCategoryProgramOptions(): ProgramOption[] {
