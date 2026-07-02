@@ -734,6 +734,56 @@ export class TeachersPageComponent {
     URL.revokeObjectURL(url);
   }
 
+  downloadTeachersCoordinationReport(): void {
+    if (!this.canManageTeachers()) {
+      return;
+    }
+
+    const headers = [
+      'coordinacion_asignada',
+      'programas_asignados',
+      'docente',
+      'usuario_moodle',
+      'correo',
+      'estatus',
+      'origen',
+      'alta_por',
+      'rol_alta',
+      'actualizacion',
+    ];
+    const rows = this.activeTeacherRecords()
+      .slice()
+      .sort((a, b) => {
+        const coordinatorCompare = this.teacherCoordinatorNames(a).localeCompare(this.teacherCoordinatorNames(b), 'es');
+
+        return coordinatorCompare || a.fullName.localeCompare(b.fullName, 'es');
+      })
+      .map((teacher) => [
+        this.teacherCoordinatorNames(teacher),
+        teacher.createdByPrograms.length ? teacher.createdByPrograms.join('; ') : 'Sin programas asignados',
+        teacher.fullName,
+        teacher.moodleUser,
+        teacher.email || '',
+        this.statusLabel(teacher.status),
+        teacher.origin,
+        teacher.createdByName,
+        teacher.createdByRole,
+        this.formatCsvDate(teacher.updatedAt || teacher.createdAt),
+      ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([`\uFEFF${csvContent}\n`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `docentes-por-coordinacion-${dateStamp}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   statusClass(status: TeacherStatus): string {
     return status.toLowerCase();
   }
@@ -1280,6 +1330,26 @@ export class TeachersPageComponent {
       .replace(/@tecplayacar[.]edu[.]mx$/i, '')
       .replace(/@.*$/i, '')
       .trim();
+  }
+
+  private formatCsvDate(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   }
 
   private errorMessage(error: unknown): string {

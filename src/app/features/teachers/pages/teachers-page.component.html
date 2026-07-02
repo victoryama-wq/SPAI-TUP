@@ -42,6 +42,15 @@
         >
           Plantilla CSV
         </button>
+        <button
+          class="report-tab-action"
+          type="button"
+          aria-label="Descargar reporte CSV de docentes por coordinacion"
+          title="Descargar reporte CSV de docentes por coordinacion"
+          (click)="downloadTeachersCoordinationReport()"
+        >
+          Reporte CSV
+        </button>
         <button type="button" [class.active]="selectedPanel === 'pending'" (click)="selectPanel('pending')">
           Pendientes
         </button>

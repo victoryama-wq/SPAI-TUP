@@ -89,7 +89,8 @@
 .panel-tabs button,
 .primary-tab-action,
 .upload-tab-action,
-.template-tab-action {
+.template-tab-action,
+.report-tab-action {
   min-height: 42px;
 }
 
@@ -169,6 +170,7 @@ th {
 .primary-tab-action,
 .upload-tab-action,
 .template-tab-action,
+.report-tab-action,
 .row-actions button {
   background: #edf4ff;
   border: 1px solid #c9d9ef;
@@ -212,6 +214,12 @@ th {
   background: #fff7ed;
   border-color: #fed7aa;
   color: #9a3412;
+}
+
+.panel-tabs .report-tab-action {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
 }
 
 .summary-grid {
@@ -280,7 +288,8 @@ th {
   .panel-tabs button,
   .primary-tab-action,
   .upload-tab-action,
-  .template-tab-action {
+  .template-tab-action,
+  .report-tab-action {
     min-height: 40px;
     padding-inline: 10px;
   }
