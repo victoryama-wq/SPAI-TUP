@@ -260,13 +260,14 @@ export class SubjectsPageComponent {
 
     const actor = this.actorData();
     const normalizedSubjectId = this.currentManualSubjectId();
+    const normalizedSubjectName = this.normalizeSubjectName(this.manualForm.name);
     const action = this.editingSubjectId ? 'ASIGNATURA_EDITADA' : 'ASIGNATURA_CREADA';
     const previousSubjectId = this.editingSubjectId;
 
     try {
       await this.subjectsRepository.upsertSubject({
         subjectId: normalizedSubjectId,
-        name: this.manualForm.name,
+        name: normalizedSubjectName,
         status: this.manualForm.status,
         origin: 'MANUAL',
         ...actor,
@@ -281,7 +282,7 @@ export class SubjectsPageComponent {
         action,
         description: previousSubjectId && previousSubjectId !== normalizedSubjectId
           ? `Se corrigio el ID de asignatura ${previousSubjectId} a ${normalizedSubjectId}.`
-          : `Se guardo la asignatura ${normalizedSubjectId} - ${this.manualForm.name.trim()}.`,
+          : `Se guardo la asignatura ${normalizedSubjectId} - ${normalizedSubjectName}.`,
         user: actor.createdByName,
         userRole: actor.createdByRole,
         entity: 'asignaturas',
@@ -721,7 +722,7 @@ export class SubjectsPageComponent {
       const explicitSubjectId = this.subjectsRepository.normalizeSubjectId(
         this.getCsvValue(row, headerIndex, 'id_asignatura'),
       );
-      const name = this.getCsvValue(row, headerIndex, 'nombre_asignatura');
+      const name = this.normalizeSubjectName(this.getCsvValue(row, headerIndex, 'nombre_asignatura'));
       const activeText = this.getCsvValue(row, headerIndex, 'activo');
 
       if (!explicitSubjectId && !name && !activeText) {
@@ -964,18 +965,25 @@ export class SubjectsPageComponent {
     return subject.updatedAt || subject.createdAt || '';
   }
 
+  normalizeSubjectName(value: string): string {
+    return value.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
   private preferredSubjectName(currentName: string | undefined, incomingName: string): string {
     const normalizedIncomingName = this.normalizeSearchText(incomingName);
 
     if (!currentName || this.normalizeSearchText(currentName) !== normalizedIncomingName) {
-      return incomingName;
+      return this.normalizeSubjectName(incomingName);
     }
+
+    const normalizedCurrentName = this.normalizeSubjectName(currentName);
+    const normalizedIncomingDisplayName = this.normalizeSubjectName(incomingName);
 
     if (this.hasDiacritics(incomingName) || !this.hasDiacritics(currentName)) {
-      return incomingName;
+      return normalizedIncomingDisplayName;
     }
 
-    return currentName;
+    return normalizedCurrentName;
   }
 
   private hasDiacritics(value: string): boolean {

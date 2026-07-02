@@ -43,12 +43,13 @@ export class SubjectsRepository extends FirestoreRepository<Subject> {
   upsertSubject(payload: UpsertSubjectPayload): Promise<void> {
     const timestamp = new Date().toISOString();
     const documentId = this.normalizeSubjectId(payload.subjectId);
+    const normalizedSubjectName = this.normalizeSubjectName(payload.name);
     const currentSubject = this.subjects().find((subject) => subject.id === documentId);
 
     return this.setDocument(documentId, {
       subjectId: documentId,
-      name: this.normalizeSubjectName(payload.name),
-      normalizedName: this.normalizeSearchText(payload.name),
+      name: normalizedSubjectName,
+      normalizedName: this.normalizeSearchText(normalizedSubjectName),
       status: payload.status,
       origin: payload.origin,
       createdBy: currentSubject?.createdBy ?? payload.createdBy,

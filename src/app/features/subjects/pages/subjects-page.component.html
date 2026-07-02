@@ -460,7 +460,12 @@
         </label>
         <label>
           <span>Nombre de asignatura *</span>
-          <input type="text" [(ngModel)]="manualForm.name" placeholder="DERECHO TRIBUTARIO SUSTANTIVO" />
+          <input
+            type="text"
+            [ngModel]="manualForm.name"
+            (ngModelChange)="manualForm.name = normalizeSubjectName($event)"
+            placeholder="DERECHO TRIBUTARIO SUSTANTIVO"
+          />
         </label>
         <label>
           <span>Estatus</span>
