@@ -602,6 +602,12 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.formMessage = '';
     this.shareGroupSearch.set('');
     this.activeComboField = null;
+    const isEnglishAssignment = this.isEnglishAssignment(assignment);
+
+    if (isEnglishAssignment) {
+      this.modeTab.set('Inglés');
+    }
+
     const sharedGroups = this.assignmentSharedGroups(assignment);
     this.lockedShareGroups.set(this.lockedSharedGroupsForAssignment(assignment, sharedGroups));
     this.assignmentForm = {
@@ -619,8 +625,8 @@ export class AssignmentsPageComponent implements OnDestroy {
       sourceAssignmentId: '',
       sharedGroupCount: sharedGroups.length,
       shareGroups: sharedGroups,
-      special: this.isSpecialAssignment(assignment),
-      specialType: this.specialTypeForAssignment(assignment),
+      special: isEnglishAssignment || this.isSpecialAssignment(assignment),
+      specialType: isEnglishAssignment ? 'enrollments' : this.specialTypeForAssignment(assignment),
       propedeutic: this.isPropedeuticAssignment(assignment),
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
