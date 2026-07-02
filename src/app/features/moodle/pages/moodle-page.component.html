@@ -236,6 +236,26 @@
           </div>
         </div>
 
+        <div class="batch-mode-tabs" aria-label="Asignaciones Moodle por modalidad">
+          @for (tab of batchModeTabs(); track tab.mode) {
+            <button
+              type="button"
+              [class.active]="activeBatchMode() === tab.mode"
+              [class.tab-escolarizado]="tab.mode === 'Escolarizado'"
+              [class.tab-ejecutivo]="tab.mode === 'Ejecutivo'"
+              [class.tab-virtual]="tab.mode === 'Virtual'"
+              [class.tab-salud]="tab.mode === 'Salud'"
+              [class.tab-posgrados]="tab.mode === 'Posgrados'"
+              [class.tab-especiales]="tab.mode === 'Especiales'"
+              [class.tab-ingles]="tab.mode === 'Inglés'"
+              (click)="selectBatchMode(tab.mode)"
+            >
+              <span>{{ tab.mode }}</span>
+              <strong>{{ tab.count }}</strong>
+            </button>
+          }
+        </div>
+
         <div class="lot-filters">
           <label>
             <span>Busqueda</span>
@@ -349,8 +369,8 @@
                 <tr>
                   <td colspan="8">
                     <div class="empty-state">
-                      <strong>Sin asignaciones para preparar</strong>
-                      <span>Cuando existan asignaciones en el ciclo activo apareceran aqui.</span>
+                      <strong>Sin asignaciones en {{ activeBatchMode() }}</strong>
+                      <span>Cuando existan asignaciones del ciclo activo en esta pestana apareceran aqui.</span>
                     </div>
                   </td>
                 </tr>

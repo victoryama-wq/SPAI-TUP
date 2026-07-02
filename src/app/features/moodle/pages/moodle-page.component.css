@@ -724,6 +724,92 @@ select {
   font-size: 22px;
 }
 
+.batch-mode-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 18px;
+}
+
+.batch-mode-tabs button {
+  align-items: center;
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border);
+  border-radius: 8px;
+  color: var(--tab-color);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+.batch-mode-tabs button.active {
+  background: #ffffff;
+  box-shadow: inset 0 4px 0 var(--tab-color);
+}
+
+.batch-mode-tabs span {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.batch-mode-tabs strong {
+  align-items: center;
+  background: rgb(255 255 255 / 0.78);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 13px;
+  justify-content: center;
+  min-width: 26px;
+  padding: 4px 8px;
+}
+
+.batch-mode-tabs .tab-escolarizado {
+  --tab-bg: #e8f1ff;
+  --tab-border: #9abdf5;
+  --tab-color: #1457d6;
+}
+
+.batch-mode-tabs .tab-ejecutivo {
+  --tab-bg: #eef0ff;
+  --tab-border: #a8b0ea;
+  --tab-color: #3949ab;
+}
+
+.batch-mode-tabs .tab-virtual {
+  --tab-bg: #f2eefe;
+  --tab-border: #b7a6e8;
+  --tab-color: #5b3ea4;
+}
+
+.batch-mode-tabs .tab-salud {
+  --tab-bg: #e8f6f2;
+  --tab-border: #8bc7b7;
+  --tab-color: #177260;
+}
+
+.batch-mode-tabs .tab-posgrados {
+  --tab-bg: #fce7f3;
+  --tab-border: #f0a4c8;
+  --tab-color: #be185d;
+}
+
+.batch-mode-tabs .tab-especiales {
+  --tab-bg: #fff1e6;
+  --tab-border: #d9a06f;
+  --tab-color: #9a4f16;
+}
+
+.batch-mode-tabs .tab-ingles {
+  --tab-bg: #e7f8ff;
+  --tab-border: #74bddc;
+  --tab-color: #075985;
+}
+
 .batch-table th:nth-child(1),
 .batch-table td:nth-child(1) {
   width: 54px;

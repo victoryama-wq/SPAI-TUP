@@ -117,6 +117,7 @@ export class MoodlePageComponent {
   csvMessageType: 'success' | 'error' = 'success';
   batchSearch = '';
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
+  readonly activeBatchMode = signal<MoodleBatchMode>('Escolarizado');
   categoryProgramSearch = '';
   categoryProgramPickerOpen = false;
   categoryCurrentPage = signal(1);
@@ -219,6 +220,7 @@ export class MoodlePageComponent {
     return this.assignments()
       .filter((assignment) => assignment.cycle === activeCycle.code)
       .filter((assignment) => !assignment.sourceAssignmentId)
+      .filter((assignment) => this.assignmentBatchMode(assignment) === this.activeBatchMode())
       .filter((assignment) => this.batchStatus === 'TODOS' || assignment.status === this.batchStatus)
       .filter((assignment) => {
         if (!search) {
@@ -265,6 +267,17 @@ export class MoodlePageComponent {
       count: this.loadedMoodleAssignments().filter((assignment) => this.assignmentBatchMode(assignment) === mode).length,
     })),
   );
+
+  readonly batchModeTabs = computed(() =>
+    this.batchModes.map((mode) => ({
+      mode,
+      count: this.currentCycleMoodleAssignments().filter((assignment) => this.assignmentBatchMode(assignment) === mode).length,
+    })),
+  );
+
+  selectBatchMode(mode: MoodleBatchMode): void {
+    this.activeBatchMode.set(mode);
+  }
 
   openCategoryModal(category?: MoodleCategory): void {
     this.dismissMessages();
