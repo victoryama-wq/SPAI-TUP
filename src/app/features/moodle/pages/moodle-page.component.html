@@ -369,14 +369,44 @@
           </div>
 
           <div class="toolbar-actions">
-            <button class="secondary-action button-action" type="button" (click)="toggleVisibleAssignments()">
-              Seleccionar vista
+            <button
+              class="secondary-action button-action lot-icon-action"
+              type="button"
+              aria-label="Seleccionar vista"
+              title="Seleccionar vista"
+              (click)="toggleVisibleAssignments()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </button>
-            <button class="secondary-action button-action view-switch-action" type="button" (click)="toggleBatchViewMode()">
-              {{ batchViewToggleLabel() }}
+            <button
+              class="secondary-action button-action lot-icon-action view-switch-action"
+              type="button"
+              [attr.aria-label]="batchViewToggleLabel()"
+              [attr.title]="batchViewToggleLabel()"
+              (click)="toggleBatchViewMode()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 5h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 19h16"></path>
+                <path d="M8 5v14"></path>
+              </svg>
             </button>
-            <button class="primary-action" type="button" (click)="exportSelectedCsv()">
-              Generar CSV
+            <button
+              class="primary-action lot-icon-action"
+              type="button"
+              aria-label="Generar CSV"
+              title="Generar CSV"
+              (click)="exportSelectedCsv()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 3v12"></path>
+                <path d="m7 10 5 5 5-5"></path>
+                <path d="M5 21h14"></path>
+              </svg>
             </button>
           </div>
         </div>

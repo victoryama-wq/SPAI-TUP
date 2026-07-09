@@ -2423,6 +2423,7 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - Cuando una asignacion cambia de estado, deja de aparecer en la vista del estado anterior y solo aparece al seleccionar el filtro correspondiente.
 - El filtro superior de **Estado** debe recalcular la tabla al instante y usar la misma paleta visual que los estados de cada fila.
 - El boton para cambiar de vista se ubica entre **Seleccionar vista** y **Generar CSV**.
+- Los comandos superiores de Lotes Moodle se muestran como botones compactos con icono y tooltip para mantener los tres en una sola linea.
 - El estado en Lotes debe mostrarse con diseño dinamico, no como selector plano cuando sea posible.
 
 Reglas de deteccion de plantilla:

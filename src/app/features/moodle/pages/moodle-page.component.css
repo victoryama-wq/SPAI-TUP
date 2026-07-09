@@ -203,6 +203,28 @@
   white-space: nowrap;
 }
 
+.lot-toolbar .toolbar-actions {
+  flex-wrap: nowrap;
+}
+
+.lot-icon-action {
+  flex: 0 0 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
+  width: 46px;
+}
+
+.lot-icon-action svg {
+  fill: none;
+  height: 21px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  width: 21px;
+}
+
 .enrollment-export-actions {
   display: grid;
   gap: 8px;
