@@ -362,9 +362,15 @@ export class TeachersPageComponent {
     }
 
     this.formErrors = [];
+    const phoneError = this.validateTeacherPhone(this.editForm.phone);
 
     if (!this.editForm.fullName.trim()) {
       this.formErrors = ['El nombre completo es obligatorio.'];
+      return;
+    }
+
+    if (phoneError) {
+      this.formErrors = [phoneError];
       return;
     }
 
@@ -424,6 +430,14 @@ export class TeachersPageComponent {
 
     this.manualForm.moodleUser = moodleUser;
     this.manualForm.email = moodleUser;
+  }
+
+  updateManualPhone(value: string): void {
+    this.manualForm.phone = this.normalizePhoneInput(value);
+  }
+
+  updateEditPhone(value: string): void {
+    this.editForm.phone = this.normalizePhoneInput(value);
   }
 
   toggleManualRetakeTeacher(): void {
@@ -865,6 +879,7 @@ export class TeachersPageComponent {
   private validateManualForm(): string[] {
     const errors: string[] = [];
     const moodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
+    const phoneError = this.validateTeacherPhone(this.manualForm.phone);
 
     if (!this.manualForm.names.trim()) {
       errors.push('El nombre es obligatorio.');
@@ -884,6 +899,10 @@ export class TeachersPageComponent {
 
     if (this.manualRetakeTeacher && moodleUser && this.teachersRepository.hasMoodleUser(moodleUser)) {
       errors.push('Este usuario Moodle ya existe en el catalogo global.');
+    }
+
+    if (phoneError) {
+      errors.push(phoneError);
     }
 
     return errors;
@@ -1085,6 +1104,8 @@ export class TeachersPageComponent {
     const status = this.parseStatus(context.statusText || 'VALIDADO');
     const paymentType = this.parsePaymentType(context.paymentTypeText);
     const category = this.parseTeacherCategory(context.categoryText);
+    const normalizedPhone = this.normalizePhoneInput(context.phone);
+    const phoneError = this.validateTeacherPhone(context.phone);
     const existingTeacher = context.existingTeachersByMoodleUser.get(normalizedMoodleUser);
     const operation: TeacherPreviewRow['operation'] = existingTeacher ? 'ACTUALIZAR' : 'CREAR';
     const coordinatorAssignments = this.resolveCsvCoordinatorAssignments(context.coordinators);
@@ -1113,6 +1134,10 @@ export class TeachersPageComponent {
       observations.push('La categoria debe ser V-35hrs, M-25hrs o N-15hrs.');
     }
 
+    if (phoneError) {
+      observations.push(phoneError);
+    }
+
     if (existingTeacher && !context.statusText) {
       observations.push('Para actualizar un docente existente, el CSV debe indicar estatus.');
     }
@@ -1137,7 +1162,7 @@ export class TeachersPageComponent {
       email: context.email,
       paymentType: paymentType ?? '',
       category: category ?? '',
-      phone: context.phone,
+      phone: normalizedPhone,
       coordinators: context.coordinators,
       notes: context.notes,
       operation: observations.length ? 'ERROR' : operation,
@@ -1151,7 +1176,7 @@ export class TeachersPageComponent {
             email: context.email || existingTeacher?.email,
             paymentType: paymentType || existingTeacher?.paymentType || '',
             category: category || existingTeacher?.category || '',
-            phone: context.phone || existingTeacher?.phone,
+            phone: normalizedPhone || existingTeacher?.phone,
             notes: context.notes || existingTeacher?.notes,
             createdByPrograms: coordinatorAssignments.length
               ? Array.from(new Set(coordinatorAssignments.flatMap((coordinator) => coordinator.assignedPrograms)))
@@ -1410,6 +1435,24 @@ export class TeachersPageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, '_');
+  }
+
+  private normalizePhoneInput(value: string): string {
+    return value.replace(/\D/g, '').slice(0, 10);
+  }
+
+  private validateTeacherPhone(value: string): string {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      return '';
+    }
+
+    if (!/^\d+$/.test(trimmedValue) || trimmedValue.length !== 10) {
+      return 'El telefono debe tener 10 digitos numericos.';
+    }
+
+    return '';
   }
 
   private parseCoordinatorNames(value: string): string[] {

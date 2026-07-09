@@ -811,7 +811,7 @@ Reglas:
 - En alta manual, `correo` ya no se captura como dato independiente; se construye desde `usuario_moodle` y el dominio institucional.
 - `tipo_pago` es opcional y acepta `EFECTIVO`, `SANTANDER` o `BANORTE`.
 - `categoria` es opcional y acepta `V-35hrs`, `M-25hrs` o `N-15hrs`.
-- `telefono` es opcional y se conserva como dato operativo de contacto del docente.
+- `telefono` es opcional; si se captura debe tener exactamente 10 digitos numericos.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
 - El enlace puede hacerse por nombre, correo institucional, `authUid` o ID interno.
@@ -2218,7 +2218,7 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - El modal de alta y edicion de Docentes permite registrar metadatos operativos:
   - Tipo de pago: `Efectivo`, `Santander` o `Banorte`.
   - Categoria: `V-35hrs`, `M-25hrs` o `N-15hrs`.
-  - Telefono del docente.
+  - Telefono del docente, limitado a 10 digitos numericos.
 - La tabla actual del catalogo de Docentes muestra tipo de pago, categoria y telefono para facilitar revision operativa.
 - La plantilla CSV de Docentes incluye `tipo_pago`, `categoria` y `telefono` para completar o actualizar informacion pendiente de forma masiva.
 - Coordinacion Academica puede agregar docentes; quedan pendientes hasta validacion de Sistemas.

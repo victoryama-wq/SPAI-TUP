@@ -485,7 +485,15 @@
           </label>
           <label>
             <span>Telefono</span>
-            <input type="tel" [(ngModel)]="manualForm.phone" placeholder="9841234567" />
+            <input
+              type="tel"
+              inputmode="numeric"
+              maxlength="10"
+              pattern="[0-9]{10}"
+              [ngModel]="manualForm.phone"
+              (ngModelChange)="updateManualPhone($event)"
+              placeholder="9841234567"
+            />
           </label>
         </div>
         <button
@@ -577,7 +585,15 @@
         </label>
         <label>
           <span>Telefono</span>
-          <input type="tel" [(ngModel)]="editForm.phone" placeholder="9841234567" />
+          <input
+            type="tel"
+            inputmode="numeric"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            [ngModel]="editForm.phone"
+            (ngModelChange)="updateEditPhone($event)"
+            placeholder="9841234567"
+          />
         </label>
         <label class="full-form-field">
           <span>Observaciones</span>
