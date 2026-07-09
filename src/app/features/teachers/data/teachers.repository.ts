@@ -6,7 +6,7 @@ import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 export type TeacherStatus = 'PENDIENTE' | 'VALIDADO' | 'INACTIVO';
 export type TeacherOrigin = 'MANUAL' | 'CSV';
 export type TeacherPaymentType = 'EFECTIVO' | 'SANTANDER' | 'BANORTE';
-export type TeacherCategory = 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS';
+export type TeacherCategory = 'V_35HRS' | 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS';
 
 export interface Teacher {
   id: string;

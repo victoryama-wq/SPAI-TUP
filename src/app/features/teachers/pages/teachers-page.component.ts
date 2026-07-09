@@ -44,7 +44,7 @@ const TEACHER_PAYMENT_OPTIONS: Array<{ value: TeacherPaymentType; label: string 
   { value: 'BANORTE', label: 'Banorte' },
 ];
 const TEACHER_CATEGORY_OPTIONS: Array<{ value: TeacherCategory; label: string }> = [
-  { value: 'VIP_35HRS', label: 'VIP 35hrs' },
+  { value: 'V_35HRS', label: 'V-35hrs' },
   { value: 'M_25HRS', label: 'M-25hrs' },
   { value: 'N_15HRS', label: 'N-15hrs' },
 ];
@@ -760,7 +760,7 @@ export class TeachersPageComponent {
   downloadCsvTemplate(): void {
     const csvContent = [
       ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'tipo_pago', 'categoria', 'telefono', 'coordinador_responsable', 'observaciones'],
-      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'VIP 35hrs', '9841234567', 'Nombre o correo de coordinacion academica', ''],
+      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'V-35hrs', '9841234567', 'Nombre o correo de coordinacion academica', ''],
       ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'BANORTE', 'M-25hrs', '9847654321', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
       ['', '', 'usuario.existente', 'INACTIVO', '', 'EFECTIVO', 'N-15hrs', '', '', 'Ejemplo para actualizar un docente existente'],
     ]
@@ -854,6 +854,10 @@ export class TeachersPageComponent {
   }
 
   teacherCategoryLabel(value?: TeacherCategory | ''): string {
+    if (value === 'VIP_35HRS') {
+      return 'V-35hrs';
+    }
+
     const option = this.teacherCategoryOptions.find((category) => category.value === value);
     return option?.label ?? 'Sin registrar';
   }
@@ -1106,7 +1110,7 @@ export class TeachersPageComponent {
     }
 
     if (category === null) {
-      observations.push('La categoria debe ser VIP 35hrs, M-25hrs o N-15hrs.');
+      observations.push('La categoria debe ser V-35hrs, M-25hrs o N-15hrs.');
     }
 
     if (existingTeacher && !context.statusText) {
@@ -1384,8 +1388,8 @@ export class TeachersPageComponent {
       return '';
     }
 
-    if (['VIP_35HRS', 'VIP_35_HRS', 'VIP35HRS'].includes(normalizedValue)) {
-      return 'VIP_35HRS';
+    if (['V_35HRS', 'V_35_HRS', 'V35HRS', 'VIP_35HRS', 'VIP_35_HRS', 'VIP35HRS'].includes(normalizedValue)) {
+      return 'V_35HRS';
     }
 
     if (['M_25HRS', 'M_25_HRS', 'M25HRS'].includes(normalizedValue)) {

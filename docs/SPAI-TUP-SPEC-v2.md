@@ -796,7 +796,7 @@ CSV esperado:
 
 ```csv
 id_docente,nombre_completo,usuario_moodle,estatus,correo,tipo_pago,categoria,telefono,coordinador_responsable,observaciones
-DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,VIP 35hrs,9841234567,Lizett Mendez Prueba,
+DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,V-35hrs,9841234567,Lizett Mendez Prueba,
 DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,BANORTE,M-25hrs,9847654321,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
 ```
 
@@ -810,7 +810,7 @@ Reglas:
 - `correo` es opcional.
 - En alta manual, `correo` ya no se captura como dato independiente; se construye desde `usuario_moodle` y el dominio institucional.
 - `tipo_pago` es opcional y acepta `EFECTIVO`, `SANTANDER` o `BANORTE`.
-- `categoria` es opcional y acepta `VIP 35hrs`, `M-25hrs` o `N-15hrs`.
+- `categoria` es opcional y acepta `V-35hrs`, `M-25hrs` o `N-15hrs`.
 - `telefono` es opcional y se conserva como dato operativo de contacto del docente.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
@@ -1658,7 +1658,7 @@ export interface Docente {
   usuario_moodle: string
   correo?: string
   tipo_pago?: 'EFECTIVO' | 'SANTANDER' | 'BANORTE'
-  categoria?: 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS'
+  categoria?: 'V_35HRS' | 'M_25HRS' | 'N_15HRS'
   telefono?: string
   estatus: 'PENDIENTE' | 'VALIDADO' | 'INACTIVO'
   creado_por: string
@@ -2217,7 +2217,7 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - Si se captura un correo completo, el sistema conserva la parte local antes de `@` para formar el usuario Moodle.
 - El modal de alta y edicion de Docentes permite registrar metadatos operativos:
   - Tipo de pago: `Efectivo`, `Santander` o `Banorte`.
-  - Categoria: `VIP 35hrs`, `M-25hrs` o `N-15hrs`.
+  - Categoria: `V-35hrs`, `M-25hrs` o `N-15hrs`.
   - Telefono del docente.
 - La tabla actual del catalogo de Docentes muestra tipo de pago, categoria y telefono para facilitar revision operativa.
 - La plantilla CSV de Docentes incluye `tipo_pago`, `categoria` y `telefono` para completar o actualizar informacion pendiente de forma masiva.
