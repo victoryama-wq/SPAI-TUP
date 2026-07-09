@@ -144,6 +144,9 @@
               <th>Operacion</th>
               <th>Estatus</th>
               <th>Correo</th>
+              <th>Pago</th>
+              <th>Categoria</th>
+              <th>Telefono</th>
               <th>Coordinador responsable</th>
               <th>Observaciones</th>
             </tr>
@@ -157,6 +160,9 @@
                 <td>{{ row.operation }}</td>
                 <td>{{ row.payload?.status || row.statusText || '-' }}</td>
                 <td>{{ row.email || '-' }}</td>
+                <td>{{ row.paymentType ? paymentTypeLabel(row.paymentType) : '-' }}</td>
+                <td>{{ row.category ? teacherCategoryLabel(row.category) : '-' }}</td>
+                <td>{{ row.phone || '-' }}</td>
                 <td>{{ row.coordinators.length ? row.coordinators.join(', ') : '-' }}</td>
                 <td>
                   @if (row.observations.length) {
@@ -232,6 +238,9 @@
         <tr>
           <th>Docente</th>
           <th>Usuario Moodle</th>
+          <th>Tipo de pago</th>
+          <th>Categoria</th>
+          <th>Telefono</th>
           <th>Estatus</th>
           <th>Origen</th>
           <th>Coordinacion asignada</th>
@@ -253,6 +262,21 @@
               </div>
             </td>
             <td><strong class="moodle-user">{{ teacher.moodleUser }}</strong></td>
+            <td>
+              @if (teacher.paymentType) {
+                <span class="meta-badge">{{ paymentTypeLabel(teacher.paymentType) }}</span>
+              } @else {
+                <span class="muted-value">Sin registrar</span>
+              }
+            </td>
+            <td>
+              @if (teacher.category) {
+                <span class="meta-badge">{{ teacherCategoryLabel(teacher.category) }}</span>
+              } @else {
+                <span class="muted-value">Sin registrar</span>
+              }
+            </td>
+            <td>{{ teacher.phone || '-' }}</td>
             <td>
               <span class="status-badge" [ngClass]="statusClass(teacher.status)">
                 {{ statusLabel(teacher.status) }}
@@ -342,7 +366,7 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="canManageTeachers() ? 9 : 8">
+            <td [attr.colspan]="canManageTeachers() ? 12 : 11">
               <div class="empty-state">
                 <strong>{{ emptyTeachersTitle() }}</strong>
                 <span>{{ emptyTeachersMessage() }}</span>
@@ -440,6 +464,30 @@
             <span>@tecplayacar.edu.mx</span>
           </div>
         </label>
+        <div class="teacher-extra-fields">
+          <label>
+            <span>Tipo de pago</span>
+            <select [(ngModel)]="manualForm.paymentType">
+              <option value="">Sin registrar</option>
+              @for (option of paymentTypeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Categoria</span>
+            <select [(ngModel)]="manualForm.category">
+              <option value="">Sin registrar</option>
+              @for (option of teacherCategoryOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Telefono</span>
+            <input type="tel" [(ngModel)]="manualForm.phone" placeholder="9841234567" />
+          </label>
+        </div>
         <button
           type="button"
           class="retake-teacher-action"
@@ -508,6 +556,32 @@
         <label>
           <span>Correo</span>
           <input type="email" [(ngModel)]="editForm.email" placeholder="juan.perez@tecplayacar.edu.mx" />
+        </label>
+        <label>
+          <span>Tipo de pago</span>
+          <select [(ngModel)]="editForm.paymentType">
+            <option value="">Sin registrar</option>
+            @for (option of paymentTypeOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Categoria</span>
+          <select [(ngModel)]="editForm.category">
+            <option value="">Sin registrar</option>
+            @for (option of teacherCategoryOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>Telefono</span>
+          <input type="tel" [(ngModel)]="editForm.phone" placeholder="9841234567" />
+        </label>
+        <label class="full-form-field">
+          <span>Observaciones</span>
+          <input type="text" [(ngModel)]="editForm.notes" placeholder="Observaciones internas" />
         </label>
         <div class="coordinator-field">
           <span>Coordinacion asignada</span>

@@ -795,9 +795,9 @@ Tipos soportados:
 CSV esperado:
 
 ```csv
-id_docente,nombre_completo,usuario_moodle,estatus,correo,coordinador_responsable,observaciones
-DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,Lizett Mendez Prueba,
-DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
+id_docente,nombre_completo,usuario_moodle,estatus,correo,tipo_pago,categoria,telefono,coordinador_responsable,observaciones
+DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,VIP 35hrs,9841234567,Lizett Mendez Prueba,
+DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,BANORTE,M-25hrs,9847654321,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
 ```
 
 Reglas:
@@ -809,11 +809,15 @@ Reglas:
 - Si `estatus` viene vacio, se guarda como `VALIDADO`.
 - `correo` es opcional.
 - En alta manual, `correo` ya no se captura como dato independiente; se construye desde `usuario_moodle` y el dominio institucional.
+- `tipo_pago` es opcional y acepta `EFECTIVO`, `SANTANDER` o `BANORTE`.
+- `categoria` es opcional y acepta `VIP 35hrs`, `M-25hrs` o `N-15hrs`.
+- `telefono` es opcional y se conserva como dato operativo de contacto del docente.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
 - El enlace puede hacerse por nombre, correo institucional, `authUid` o ID interno.
 - Si el coordinador no existe o no es Coordinacion Academica activa, la fila queda con observacion y no se guarda hasta corregirla.
 - La carga CSV funciona como upsert: crea docentes nuevos y actualiza docentes existentes por `usuario_moodle`.
+- Si en una actualizacion CSV los campos opcionales de pago, categoria, telefono u observaciones vienen vacios, el sistema conserva el dato existente del docente.
 
 ### Importar asignaturas
 
@@ -1652,6 +1656,10 @@ export interface Docente {
   id_docente: string
   nombre_completo: string
   usuario_moodle: string
+  correo?: string
+  tipo_pago?: 'EFECTIVO' | 'SANTANDER' | 'BANORTE'
+  categoria?: 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS'
+  telefono?: string
   estatus: 'PENDIENTE' | 'VALIDADO' | 'INACTIVO'
   creado_por: string
   fecha_creacion: Date
@@ -2207,6 +2215,12 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - Existe opcion **Docente que retoma** para capturar un usuario Moodle anterior cuando un docente regresa.
 - El correo se deriva del usuario Moodle con dominio fijo `@tecplayacar.edu.mx`.
 - Si se captura un correo completo, el sistema conserva la parte local antes de `@` para formar el usuario Moodle.
+- El modal de alta y edicion de Docentes permite registrar metadatos operativos:
+  - Tipo de pago: `Efectivo`, `Santander` o `Banorte`.
+  - Categoria: `VIP 35hrs`, `M-25hrs` o `N-15hrs`.
+  - Telefono del docente.
+- La tabla actual del catalogo de Docentes muestra tipo de pago, categoria y telefono para facilitar revision operativa.
+- La plantilla CSV de Docentes incluye `tipo_pago`, `categoria` y `telefono` para completar o actualizar informacion pendiente de forma masiva.
 - Coordinacion Academica puede agregar docentes; quedan pendientes hasta validacion de Sistemas.
 - Al registrar un docente pendiente, Sistemas recibe notificacion en campanita y correo institucional cuando el servicio de correo este configurado.
 - Al validar o activar un docente, la coordinacion relacionada recibe notificacion en campanita.

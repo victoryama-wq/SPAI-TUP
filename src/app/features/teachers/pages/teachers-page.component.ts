@@ -5,7 +5,14 @@ import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
-import { Teacher, TeacherStatus, TeachersRepository, UpsertTeacherPayload } from '../data/teachers.repository';
+import {
+  Teacher,
+  TeacherCategory,
+  TeacherPaymentType,
+  TeacherStatus,
+  TeachersRepository,
+  UpsertTeacherPayload,
+} from '../data/teachers.repository';
 import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import { SystemRequestsRepository } from '../../system-requests/data/system-requests.repository';
@@ -16,6 +23,9 @@ interface TeacherPreviewRow {
   moodleUser: string;
   statusText: string;
   email: string;
+  paymentType: TeacherPaymentType | '';
+  category: TeacherCategory | '';
+  phone: string;
   coordinators: string[];
   notes: string;
   operation: 'CREAR' | 'ACTUALIZAR' | 'ERROR';
@@ -28,6 +38,16 @@ const TEMPORARY_TEACHER_USER = 'temporalmente_sin_docente';
 const TEACHERS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const TEACHER_MOODLE_PREFIX = 'tup-d';
 const TEACHER_MOODLE_BASE_NUMBER = 1813;
+const TEACHER_PAYMENT_OPTIONS: Array<{ value: TeacherPaymentType; label: string }> = [
+  { value: 'EFECTIVO', label: 'Efectivo' },
+  { value: 'SANTANDER', label: 'Santander' },
+  { value: 'BANORTE', label: 'Banorte' },
+];
+const TEACHER_CATEGORY_OPTIONS: Array<{ value: TeacherCategory; label: string }> = [
+  { value: 'VIP_35HRS', label: 'VIP 35hrs' },
+  { value: 'M_25HRS', label: 'M-25hrs' },
+  { value: 'N_15HRS', label: 'N-15hrs' },
+];
 
 @Component({
   selector: 'spai-teachers-page',
@@ -68,6 +88,8 @@ export class TeachersPageComponent {
   currentPage = 1;
   pageSize = 10;
   readonly pageSizeOptions = TEACHERS_PAGE_SIZE_OPTIONS;
+  readonly paymentTypeOptions = TEACHER_PAYMENT_OPTIONS;
+  readonly teacherCategoryOptions = TEACHER_CATEGORY_OPTIONS;
 
   manualForm = {
     names: '',
@@ -75,12 +97,18 @@ export class TeachersPageComponent {
     maternalLastName: '',
     moodleUser: '',
     email: '',
+    paymentType: '' as TeacherPaymentType | '',
+    category: '' as TeacherCategory | '',
+    phone: '',
   };
   manualRetakeTeacher = false;
   editForm = {
     teacherCode: '',
     fullName: '',
     email: '',
+    paymentType: '' as TeacherPaymentType | '',
+    category: '' as TeacherCategory | '',
+    phone: '',
     notes: '',
   };
 
@@ -301,6 +329,9 @@ export class TeachersPageComponent {
       teacherCode: teacher.teacherCode,
       fullName: teacher.fullName,
       email: teacher.email,
+      paymentType: teacher.paymentType ?? '',
+      category: teacher.category ?? '',
+      phone: teacher.phone ?? '',
       notes: teacher.notes,
     };
     this.selectedTeacherCoordinatorIds = this.resolveTeacherCoordinatorIds(teacher);
@@ -310,7 +341,15 @@ export class TeachersPageComponent {
 
   closeEditModal(): void {
     this.editModalTeacher = null;
-    this.editForm = { teacherCode: '', fullName: '', email: '', notes: '' };
+    this.editForm = {
+      teacherCode: '',
+      fullName: '',
+      email: '',
+      paymentType: '',
+      category: '',
+      phone: '',
+      notes: '',
+    };
     this.selectedTeacherCoordinatorIds = [];
     this.formErrors = [];
   }
@@ -442,6 +481,9 @@ export class TeachersPageComponent {
         status,
         origin: 'MANUAL',
         email: this.buildInstitutionalEmail(this.manualForm.moodleUser),
+        paymentType: this.manualForm.paymentType,
+        category: this.manualForm.category,
+        phone: this.manualForm.phone,
         notes: '',
         assignedCoordinatorIds: isAcademicTeacher ? [actor.createdBy] : [],
         assignedCoordinatorNames: isAcademicTeacher ? [actor.createdByName] : [],
@@ -717,10 +759,10 @@ export class TeachersPageComponent {
 
   downloadCsvTemplate(): void {
     const csvContent = [
-      ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'coordinador_responsable', 'observaciones'],
-      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'Nombre o correo de coordinacion academica', ''],
-      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
-      ['', '', 'usuario.existente', 'INACTIVO', '', '', 'Ejemplo para inactivar un docente existente'],
+      ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'tipo_pago', 'categoria', 'telefono', 'coordinador_responsable', 'observaciones'],
+      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'VIP 35hrs', '9841234567', 'Nombre o correo de coordinacion academica', ''],
+      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'BANORTE', 'M-25hrs', '9847654321', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
+      ['', '', 'usuario.existente', 'INACTIVO', '', 'EFECTIVO', 'N-15hrs', '', '', 'Ejemplo para actualizar un docente existente'],
     ]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
@@ -745,6 +787,9 @@ export class TeachersPageComponent {
       'docente',
       'usuario_moodle',
       'correo',
+      'tipo_pago',
+      'categoria',
+      'telefono',
       'estatus',
       'origen',
       'alta_por',
@@ -764,6 +809,9 @@ export class TeachersPageComponent {
         teacher.fullName,
         teacher.moodleUser,
         teacher.email || '',
+        this.paymentTypeLabel(teacher.paymentType),
+        this.teacherCategoryLabel(teacher.category),
+        teacher.phone || '',
         this.statusLabel(teacher.status),
         teacher.origin,
         teacher.createdByName,
@@ -798,6 +846,16 @@ export class TeachersPageComponent {
     }
 
     return 'Inactivo';
+  }
+
+  paymentTypeLabel(value?: TeacherPaymentType | ''): string {
+    const option = this.paymentTypeOptions.find((paymentType) => paymentType.value === value);
+    return option?.label ?? 'Sin registrar';
+  }
+
+  teacherCategoryLabel(value?: TeacherCategory | ''): string {
+    const option = this.teacherCategoryOptions.find((category) => category.value === value);
+    return option?.label ?? 'Sin registrar';
   }
 
   private validateManualForm(): string[] {
@@ -835,6 +893,9 @@ export class TeachersPageComponent {
       maternalLastName: '',
       moodleUser: '',
       email: '',
+      paymentType: '',
+      category: '',
+      phone: '',
     };
     this.assignGeneratedMoodleUser();
   }
@@ -899,6 +960,11 @@ export class TeachersPageComponent {
         teacher.normalizedMoodleUser,
         teacher.teacherCode,
         teacher.email,
+        teacher.paymentType,
+        this.paymentTypeLabel(teacher.paymentType),
+        teacher.category,
+        this.teacherCategoryLabel(teacher.category),
+        teacher.phone,
         teacher.status,
         this.statusLabel(teacher.status),
         teacher.origin,
@@ -947,13 +1013,27 @@ export class TeachersPageComponent {
       const moodleUser = this.getCsvValue(row, headerIndex, 'usuario_moodle');
       const statusText = this.getCsvValue(row, headerIndex, 'estatus');
       const email = this.getCsvValue(row, headerIndex, 'correo');
+      const paymentTypeText = this.getCsvAliasValue(row, headerIndex, ['tipo_pago', 'pago', 'forma_pago']);
+      const categoryText = this.getCsvAliasValue(row, headerIndex, ['categoria', 'categoria_docente']);
+      const phone = this.getCsvAliasValue(row, headerIndex, ['telefono', 'telefono_docente', 'celular']);
       const coordinators = this.parseCoordinatorNames(
         this.getCsvValue(row, headerIndex, 'coordinador_responsable')
         || this.getCsvValue(row, headerIndex, 'coordinadores'),
       );
       const notes = this.getCsvValue(row, headerIndex, 'observaciones');
 
-      if (!teacherCode && !fullName && !moodleUser && !statusText && !email && !coordinators.length && !notes) {
+      if (
+        !teacherCode
+        && !fullName
+        && !moodleUser
+        && !statusText
+        && !email
+        && !paymentTypeText
+        && !categoryText
+        && !phone
+        && !coordinators.length
+        && !notes
+      ) {
         return [];
       }
 
@@ -965,6 +1045,9 @@ export class TeachersPageComponent {
           moodleUser,
           statusText,
           email,
+          paymentTypeText,
+          categoryText,
+          phone,
           coordinators,
           notes,
           fileMoodleUsers,
@@ -983,6 +1066,9 @@ export class TeachersPageComponent {
     moodleUser: string;
     statusText: string;
     email: string;
+    paymentTypeText: string;
+    categoryText: string;
+    phone: string;
     coordinators: string[];
     notes: string;
     fileMoodleUsers: Set<string>;
@@ -993,6 +1079,8 @@ export class TeachersPageComponent {
     const observations: string[] = [];
     const normalizedMoodleUser = this.teachersRepository.normalizeMoodleUser(context.moodleUser);
     const status = this.parseStatus(context.statusText || 'VALIDADO');
+    const paymentType = this.parsePaymentType(context.paymentTypeText);
+    const category = this.parseTeacherCategory(context.categoryText);
     const existingTeacher = context.existingTeachersByMoodleUser.get(normalizedMoodleUser);
     const operation: TeacherPreviewRow['operation'] = existingTeacher ? 'ACTUALIZAR' : 'CREAR';
     const coordinatorAssignments = this.resolveCsvCoordinatorAssignments(context.coordinators);
@@ -1011,6 +1099,14 @@ export class TeachersPageComponent {
 
     if (!status) {
       observations.push('El estatus debe ser PENDIENTE, VALIDADO o INACTIVO.');
+    }
+
+    if (paymentType === null) {
+      observations.push('El tipo de pago debe ser EFECTIVO, SANTANDER o BANORTE.');
+    }
+
+    if (category === null) {
+      observations.push('La categoria debe ser VIP 35hrs, M-25hrs o N-15hrs.');
     }
 
     if (existingTeacher && !context.statusText) {
@@ -1035,6 +1131,9 @@ export class TeachersPageComponent {
       moodleUser: normalizedMoodleUser,
       statusText: context.statusText,
       email: context.email,
+      paymentType: paymentType ?? '',
+      category: category ?? '',
+      phone: context.phone,
       coordinators: context.coordinators,
       notes: context.notes,
       operation: observations.length ? 'ERROR' : operation,
@@ -1046,6 +1145,9 @@ export class TeachersPageComponent {
             status,
             origin: 'CSV',
             email: context.email || existingTeacher?.email,
+            paymentType: paymentType || existingTeacher?.paymentType || '',
+            category: category || existingTeacher?.category || '',
+            phone: context.phone || existingTeacher?.phone,
             notes: context.notes || existingTeacher?.notes,
             createdByPrograms: coordinatorAssignments.length
               ? Array.from(new Set(coordinatorAssignments.flatMap((coordinator) => coordinator.assignedPrograms)))
@@ -1227,6 +1329,18 @@ export class TeachersPageComponent {
     return index === undefined ? '' : (row[index] ?? '').trim();
   }
 
+  private getCsvAliasValue(row: string[], headerIndex: Map<string, number>, headers: string[]): string {
+    for (const header of headers) {
+      const value = this.getCsvValue(row, headerIndex, header);
+
+      if (value) {
+        return value;
+      }
+    }
+
+    return '';
+  }
+
   private parseStatus(value: string): TeacherStatus | null {
     const normalizedValue = value
       .trim()
@@ -1239,6 +1353,59 @@ export class TeachersPageComponent {
     }
 
     return null;
+  }
+
+  private parsePaymentType(value: string): TeacherPaymentType | '' | null {
+    const normalizedValue = this.normalizeCatalogValue(value);
+
+    if (!normalizedValue) {
+      return '';
+    }
+
+    if (normalizedValue === 'EFECTIVO') {
+      return 'EFECTIVO';
+    }
+
+    if (normalizedValue === 'SANTANDER') {
+      return 'SANTANDER';
+    }
+
+    if (normalizedValue === 'BANORTE') {
+      return 'BANORTE';
+    }
+
+    return null;
+  }
+
+  private parseTeacherCategory(value: string): TeacherCategory | '' | null {
+    const normalizedValue = this.normalizeCatalogValue(value).replace(/-/g, '_');
+
+    if (!normalizedValue) {
+      return '';
+    }
+
+    if (['VIP_35HRS', 'VIP_35_HRS', 'VIP35HRS'].includes(normalizedValue)) {
+      return 'VIP_35HRS';
+    }
+
+    if (['M_25HRS', 'M_25_HRS', 'M25HRS'].includes(normalizedValue)) {
+      return 'M_25HRS';
+    }
+
+    if (['N_15HRS', 'N_15_HRS', 'N15HRS'].includes(normalizedValue)) {
+      return 'N_15HRS';
+    }
+
+    return null;
+  }
+
+  private normalizeCatalogValue(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '_');
   }
 
   private parseCoordinatorNames(value: string): string[] {

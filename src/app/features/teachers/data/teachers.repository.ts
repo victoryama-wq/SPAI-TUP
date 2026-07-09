@@ -5,6 +5,8 @@ import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
 export type TeacherStatus = 'PENDIENTE' | 'VALIDADO' | 'INACTIVO';
 export type TeacherOrigin = 'MANUAL' | 'CSV';
+export type TeacherPaymentType = 'EFECTIVO' | 'SANTANDER' | 'BANORTE';
+export type TeacherCategory = 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS';
 
 export interface Teacher {
   id: string;
@@ -16,6 +18,9 @@ export interface Teacher {
   status: TeacherStatus;
   origin: TeacherOrigin;
   email: string;
+  paymentType?: TeacherPaymentType | '';
+  category?: TeacherCategory | '';
+  phone?: string;
   notes: string;
   createdBy: string;
   createdByName: string;
@@ -41,6 +46,9 @@ export interface UpsertTeacherPayload {
   status: TeacherStatus;
   origin: TeacherOrigin;
   email?: string;
+  paymentType?: TeacherPaymentType | '';
+  category?: TeacherCategory | '';
+  phone?: string;
   notes?: string;
   createdBy: string;
   createdByName: string;
@@ -109,13 +117,16 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
 
   updateTeacherDetails(
     teacher: Teacher,
-    payload: Pick<UpsertTeacherPayload, 'teacherCode' | 'fullName' | 'email' | 'notes'>,
+    payload: Pick<UpsertTeacherPayload, 'teacherCode' | 'fullName' | 'email' | 'paymentType' | 'category' | 'phone' | 'notes'>,
   ): Promise<void> {
     return this.updateDocument(teacher.id, {
       teacherCode: payload.teacherCode?.trim() || teacher.teacherCode,
       fullName: this.normalizeFullName(payload.fullName),
       normalizedName: this.normalizeSearchText(payload.fullName),
       email: payload.email?.trim().toLowerCase() ?? '',
+      paymentType: payload.paymentType ?? '',
+      category: payload.category ?? '',
+      phone: payload.phone?.trim() ?? '',
       notes: payload.notes?.trim() ?? '',
       updatedAt: new Date().toISOString(),
     });
@@ -241,6 +252,9 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       status: payload.status,
       origin: payload.origin,
       email: payload.email?.trim().toLowerCase() ?? currentTeacher?.email ?? '',
+      paymentType: payload.paymentType ?? currentTeacher?.paymentType ?? '',
+      category: payload.category ?? currentTeacher?.category ?? '',
+      phone: payload.phone?.trim() ?? currentTeacher?.phone ?? '',
       notes: payload.notes?.trim() ?? currentTeacher?.notes ?? '',
       createdBy: currentTeacher?.createdBy ?? payload.createdBy,
       createdByName: currentTeacher?.createdByName ?? payload.createdByName,

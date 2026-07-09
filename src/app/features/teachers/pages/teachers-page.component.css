@@ -361,6 +361,7 @@ th {
 }
 
 .teacher-form input,
+.teacher-form select,
 .filters input,
 .filters select {
   background: #f9fbff;
@@ -407,6 +408,13 @@ th {
 
 .manual-email-field {
   grid-column: 2;
+}
+
+.teacher-extra-fields {
+  display: grid;
+  gap: 14px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .retake-teacher-action {
@@ -459,6 +467,30 @@ th {
 .static-form-field small {
   color: #64748b;
   font-size: 12px;
+}
+
+.full-form-field,
+.coordinator-field {
+  grid-column: 1 / -1;
+}
+
+.meta-badge {
+  background: #eef5ff;
+  border: 1px solid #cfe0f7;
+  border-radius: 999px;
+  color: #1e3a8a;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.muted-value {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .search-filter {
