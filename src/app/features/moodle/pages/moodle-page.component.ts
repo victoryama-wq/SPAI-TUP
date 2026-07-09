@@ -22,6 +22,7 @@ import {
 type MoodleTab = 'catalogos' | 'lotes';
 type MoodleModal = 'categoria' | 'plantilla' | null;
 type MoodleBatchMode = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales' | 'Inglés';
+type MoodleBatchView = 'modalidad' | 'plantilla';
 const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
 const MOODLE_BATCH_MODES: MoodleBatchMode[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
@@ -53,6 +54,10 @@ interface ActorData {
   uid: string;
   name: string;
   role: string;
+}
+
+interface TemplateCsvPreviewRow extends UpsertMoodleCourseTemplatePayload {
+  rowNumber: number;
 }
 
 interface ProgramOption {
@@ -115,14 +120,25 @@ export class MoodlePageComponent {
   formMessageType: 'success' | 'error' = 'success';
   csvMessage = '';
   csvMessageType: 'success' | 'error' = 'success';
+  templateCsvPreview: TemplateCsvPreviewRow[] = [];
   batchSearch = '';
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
   readonly activeBatchMode = signal<MoodleBatchMode>('Escolarizado');
+  readonly batchViewMode = signal<MoodleBatchView>('modalidad');
+  readonly activeBatchStatusPanel = signal<AssignmentStatus>('EN_CAPTURA');
+  readonly activeBatchTemplateType = signal('');
+  readonly activeTemplateType = signal('');
+  readonly templateSearch = signal('');
   categoryProgramSearch = '';
   categoryProgramPickerOpen = false;
+  templateProgramSearch = '';
+  templateProgramPickerOpen = false;
   categoryCurrentPage = signal(1);
+  templateCurrentPage = signal(1);
   categoryPageSize = 5;
+  templatePageSize = 5;
   readonly categoryPageSizeOptions = CATEGORY_PAGE_SIZE_OPTIONS;
+  readonly templatePageSizeOptions = CATEGORY_PAGE_SIZE_OPTIONS;
   readonly batchModes = MOODLE_BATCH_MODES;
   readonly templateSelections: Record<string, string> = {};
 
@@ -184,6 +200,12 @@ export class MoodlePageComponent {
     ];
   });
 
+  readonly templateProgramOptions = computed<ProgramOption[]>(() =>
+    this.programOptions().filter((option) =>
+      !SPECIAL_MOODLE_PROGRAM_OPTIONS.some((specialOption) => specialOption.code === option.code),
+    ),
+  );
+
   filteredCategoryProgramOptions(): ProgramOption[] {
     const search = this.normalizeSearchText(this.categoryProgramSearch);
     const options = this.programOptions();
@@ -197,16 +219,85 @@ export class MoodlePageComponent {
       .slice(0, 8);
   }
 
-  readonly visibleTemplates = computed(() =>
+  filteredTemplateProgramOptions(): ProgramOption[] {
+    const search = this.normalizeSearchText(this.templateProgramSearch);
+    const options = this.templateProgramOptions();
+
+    if (!search) {
+      return options.slice(0, 8);
+    }
+
+    return options
+      .filter((option) => this.normalizeSearchText(option.label).includes(search))
+      .slice(0, 8);
+  }
+
+  readonly sortedTemplates = computed(() =>
     [...this.templates()].sort((first, second) =>
       first.modality.localeCompare(second.modality, 'es', { numeric: true })
       || first.templateCourse.localeCompare(second.templateCourse, 'es', { numeric: true }),
     ),
   );
 
+  readonly visibleTemplates = computed(() => {
+    const activeType = this.resolvedTemplateType();
+    const search = this.normalizeSearchText(this.templateSearch());
+    const templatesByType = activeType
+      ? this.sortedTemplates().filter((template) => this.templateTypeLabel(template.modality) === activeType)
+      : this.sortedTemplates();
+
+    if (!search) {
+      return templatesByType;
+    }
+
+    return templatesByType.filter((template) => {
+      const searchText = this.normalizeSearchText([
+        template.templateCourse,
+        template.name,
+        this.templateTypeLabel(template.modality),
+        template.programCode,
+        template.programCode ? this.programOptionLabel(template.programCode, template.programCode) : '',
+      ].join(' '));
+
+      return searchText.includes(search);
+    });
+  });
+
+  readonly paginatedTemplates = computed(() => {
+    const startIndex = (this.currentTemplateSafePage() - 1) * this.templatePageSize;
+
+    return this.visibleTemplates().slice(startIndex, startIndex + this.templatePageSize);
+  });
+
   readonly activeTemplates = computed(() =>
     this.templates().filter((template) => template.status === 'Activo'),
   );
+
+  readonly templateTypeTabs = computed(() => {
+    const summary = new Map<string, number>();
+
+    this.templates().forEach((template) => {
+      const label = this.templateTypeLabel(template.modality);
+      summary.set(label, (summary.get(label) ?? 0) + 1);
+    });
+
+    const typeTabs = [...summary.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((first, second) => first.label.localeCompare(second.label, 'es', { numeric: true }));
+
+    return typeTabs;
+  });
+
+  readonly resolvedTemplateType = computed(() => {
+    const activeType = this.activeTemplateType();
+    const tabs = this.templateTypeTabs();
+
+    if (tabs.some((tab) => tab.label === activeType)) {
+      return activeType;
+    }
+
+    return tabs[0]?.label ?? '';
+  });
 
   readonly moodleAssignments = computed(() => {
     const activeCycle = this.activeCycle();
@@ -220,8 +311,8 @@ export class MoodlePageComponent {
     return this.assignments()
       .filter((assignment) => assignment.cycle === activeCycle.code)
       .filter((assignment) => !assignment.sourceAssignmentId)
-      .filter((assignment) => this.assignmentBatchMode(assignment) === this.activeBatchMode())
-      .filter((assignment) => this.batchStatus === 'TODOS' || assignment.status === this.batchStatus)
+      .filter((assignment) => this.assignmentMatchesActiveBatchView(assignment))
+      .filter((assignment) => this.batchStatus === 'TODOS' || this.assignmentMatchesStatusGroup(assignment, this.batchStatus))
       .filter((assignment) => {
         if (!search) {
           return true;
@@ -257,6 +348,61 @@ export class MoodlePageComponent {
       .filter((assignment) => !assignment.sourceAssignmentId);
   });
 
+  readonly batchStatusScopeAssignments = computed(() => {
+    const search = this.normalizeSearchText(this.batchSearch);
+
+    return this.currentCycleMoodleAssignments()
+      .filter((assignment) => this.assignmentMatchesActiveBatchView(assignment))
+      .filter((assignment) => {
+        if (!search) {
+          return true;
+        }
+
+        return this.normalizeSearchText([
+          assignment.moodleId,
+          assignment.subjectName,
+          assignment.teacherName,
+          assignment.teacherMoodleUser,
+          assignment.program,
+          assignment.group,
+          assignment.sharedGroups?.join(' '),
+          assignment.studentEnrollments,
+        ].join(' ')).includes(search);
+      })
+      .sort((first, second) =>
+        first.program.localeCompare(second.program, 'es', { numeric: true })
+        || first.group.localeCompare(second.group, 'es', { numeric: true })
+        || first.subjectName.localeCompare(second.subjectName, 'es'),
+      );
+  });
+
+  readonly batchStatusTabs = computed(() => {
+    const assignments = this.batchStatusScopeAssignments();
+
+    return [
+      {
+        status: 'EN_CAPTURA' as AssignmentStatus,
+        label: 'Pendientes',
+        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'EN_CAPTURA')).length,
+      },
+      {
+        status: 'EN_REVISION' as AssignmentStatus,
+        label: 'En revision',
+        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'EN_REVISION')).length,
+      },
+      {
+        status: 'CARGADO_MOODLE' as AssignmentStatus,
+        label: 'Cargadas',
+        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'CARGADO_MOODLE')).length,
+      },
+    ];
+  });
+
+  readonly batchStatusPanelAssignments = computed(() =>
+    this.batchStatusScopeAssignments()
+      .filter((assignment) => this.assignmentMatchesStatusGroup(assignment, this.activeBatchStatusPanel())),
+  );
+
   readonly loadedMoodleAssignments = computed(() =>
     this.currentCycleMoodleAssignments().filter((assignment) => this.isLoadedInMoodle(assignment)),
   );
@@ -275,9 +421,77 @@ export class MoodlePageComponent {
     })),
   );
 
+  readonly batchTemplateTypeTabs = computed(() => {
+    const summary = new Map<string, number>();
+
+    this.currentCycleMoodleAssignments().forEach((assignment) => {
+      const label = this.assignmentTemplateType(assignment);
+      summary.set(label, (summary.get(label) ?? 0) + 1);
+    });
+
+    return [...summary.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((first, second) => first.label.localeCompare(second.label, 'es', { numeric: true }));
+  });
+
+  readonly resolvedBatchTemplateType = computed(() => {
+    const activeType = this.activeBatchTemplateType();
+    const tabs = this.batchTemplateTypeTabs();
+
+    if (tabs.some((tab) => tab.label === activeType)) {
+      return activeType;
+    }
+
+    return tabs[0]?.label ?? '';
+  });
+
+  readonly batchTemplateTypeSummary = computed(() =>
+    this.batchTemplateTypeTabs().map((tab) => ({
+      label: tab.label,
+      count: this.loadedMoodleAssignments().filter((assignment) => this.assignmentTemplateType(assignment) === tab.label).length,
+    })),
+  );
+
   selectBatchMode(mode: MoodleBatchMode): void {
     this.activeBatchMode.set(mode);
   }
+
+  selectBatchTemplateType(type: string): void {
+    this.activeBatchTemplateType.set(type);
+  }
+
+  selectTemplateType(type: string): void {
+    this.activeTemplateType.set(type);
+    this.templateCurrentPage.set(1);
+  }
+
+  updateTemplateSearch(value: string): void {
+    this.templateSearch.set(value);
+    this.templateCurrentPage.set(1);
+  }
+
+  clearTemplateSearch(): void {
+    this.templateSearch.set('');
+    this.templateCurrentPage.set(1);
+  }
+
+  toggleBatchViewMode(): void {
+    this.batchViewMode.set(this.batchViewMode() === 'modalidad' ? 'plantilla' : 'modalidad');
+    this.selectedAssignments.set([]);
+  }
+
+  batchViewToggleLabel(): string {
+    return this.batchViewMode() === 'modalidad'
+      ? 'Vista por plantilla'
+      : 'Vista por modalidad';
+  }
+
+  batchEmptyLabel(): string {
+    return this.batchViewMode() === 'modalidad'
+      ? this.activeBatchMode()
+      : (this.resolvedBatchTemplateType() || 'tipo de plantilla');
+  }
+
 
   openCategoryModal(category?: MoodleCategory): void {
     this.dismissMessages();
@@ -309,6 +523,10 @@ export class MoodlePageComponent {
           status: template.status,
         }
       : this.emptyTemplateForm();
+    this.templateProgramSearch = template && this.isProgramTemplate(template.modality)
+      ? this.programOptionLabel(template.programCode, template.programCode)
+      : '';
+    this.templateProgramPickerOpen = false;
   }
 
   closeModal(): void {
@@ -316,6 +534,7 @@ export class MoodlePageComponent {
     this.editingCategoryId = null;
     this.editingTemplateId = null;
     this.categoryProgramPickerOpen = false;
+    this.templateProgramPickerOpen = false;
   }
 
   updateCategoryProgramSearch(value: string): void {
@@ -338,6 +557,34 @@ export class MoodlePageComponent {
     this.categoryProgramPickerOpen = !this.categoryProgramPickerOpen;
   }
 
+  updateTemplateType(value: string): void {
+    this.templateForm.modality = value;
+
+    if (!this.isProgramTemplate(value)) {
+      this.templateForm.programCode = '';
+      this.templateProgramSearch = '';
+      this.templateProgramPickerOpen = false;
+    }
+  }
+
+  updateTemplateProgramSearch(value: string): void {
+    this.templateProgramSearch = value;
+    const match = this.findTemplateProgramOption(value);
+
+    this.templateForm.programCode = match?.code ?? this.normalizeProgramCode(value.split('-')[0] ?? value);
+    this.templateProgramPickerOpen = true;
+  }
+
+  selectTemplateProgram(option: ProgramOption): void {
+    this.templateForm.programCode = option.code;
+    this.templateProgramSearch = option.label;
+    this.templateProgramPickerOpen = false;
+  }
+
+  toggleTemplateProgramPicker(): void {
+    this.templateProgramPickerOpen = !this.templateProgramPickerOpen;
+  }
+
   selectCategoryPageSize(event: Event): void {
     this.categoryPageSize = Number((event.target as HTMLSelectElement).value) || 5;
     this.categoryCurrentPage.set(1);
@@ -351,12 +598,33 @@ export class MoodlePageComponent {
     this.categoryCurrentPage.set(Math.min(this.totalCategoryPages(), this.currentCategorySafePage() + 1));
   }
 
+  selectTemplatePageSize(event: Event): void {
+    this.templatePageSize = Number((event.target as HTMLSelectElement).value) || 5;
+    this.templateCurrentPage.set(1);
+  }
+
+  goToPreviousTemplatePage(): void {
+    this.templateCurrentPage.set(Math.max(1, this.currentTemplateSafePage() - 1));
+  }
+
+  goToNextTemplatePage(): void {
+    this.templateCurrentPage.set(Math.min(this.totalTemplatePages(), this.currentTemplateSafePage() + 1));
+  }
+
   totalCategoryPages(): number {
     return Math.max(1, Math.ceil(this.visibleCategories().length / this.categoryPageSize));
   }
 
+  totalTemplatePages(): number {
+    return Math.max(1, Math.ceil(this.visibleTemplates().length / this.templatePageSize));
+  }
+
   currentCategorySafePage(): number {
     return Math.min(this.categoryCurrentPage(), this.totalCategoryPages());
+  }
+
+  currentTemplateSafePage(): number {
+    return Math.min(this.templateCurrentPage(), this.totalTemplatePages());
   }
 
   categoryPaginationStart(): number {
@@ -373,9 +641,29 @@ export class MoodlePageComponent {
     return Math.min(this.currentCategorySafePage() * this.categoryPageSize, this.visibleCategories().length);
   }
 
+  templatePaginationStart(): number {
+    const total = this.visibleTemplates().length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return (this.currentTemplateSafePage() - 1) * this.templatePageSize + 1;
+  }
+
+  templatePaginationEnd(): number {
+    return Math.min(this.currentTemplateSafePage() * this.templatePageSize, this.visibleTemplates().length);
+  }
+
   closeCategoryProgramPickerSoon(): void {
     window.setTimeout(() => {
       this.categoryProgramPickerOpen = false;
+    }, 120);
+  }
+
+  closeTemplateProgramPickerSoon(): void {
+    window.setTimeout(() => {
+      this.templateProgramPickerOpen = false;
     }, 120);
   }
 
@@ -390,15 +678,23 @@ export class MoodlePageComponent {
     const selectedProgram = this.findProgramOption(this.categoryForm.programCode || this.categoryProgramSearch);
     const programCode = selectedProgram?.code ?? this.normalizeProgramCode(this.categoryForm.programCode);
     const programName = selectedProgram?.name ?? (this.categoryForm.programName.trim() || programCode);
+    const categoryNumber = this.categoryForm.categoryNumber.trim();
 
-    if (!this.categoryForm.categoryNumber.trim() || !programCode) {
+    if (!categoryNumber || !programCode) {
       this.showMessage('Captura numero de categoria y programa.', 'error');
       return;
     }
 
     try {
+      const currentCategory = this.categories().find((category) => category.id === this.editingCategoryId);
+      const addsProgramToSameCategory = !!currentCategory
+        && currentCategory.categoryNumber.trim() === categoryNumber
+        && this.normalizeProgramCode(currentCategory.programCode) !== programCode;
+      const categoryIdToUpdate = addsProgramToSameCategory ? null : this.editingCategoryId;
+
       await this.categoriesRepository.upsertCategory({
         ...this.categoryForm,
+        categoryNumber,
         programCode,
         programName,
         status: 'Activo',
@@ -406,9 +702,14 @@ export class MoodlePageComponent {
         createdBy: actor.uid,
         createdByName: actor.name,
         createdByRole: actor.role,
-      }, this.editingCategoryId);
+      }, categoryIdToUpdate);
       this.closeModal();
-      this.showMessage('Categoria Moodle guardada correctamente.', 'success');
+      this.showMessage(
+        addsProgramToSameCategory
+          ? 'Programa agregado a la categoria Moodle correctamente.'
+          : 'Categoria Moodle guardada correctamente.',
+        'success',
+      );
     } catch (error) {
       this.showMessage(`No se pudo guardar la categoria. ${this.errorMessage(error)}`, 'error');
     }
@@ -427,7 +728,14 @@ export class MoodlePageComponent {
       return;
     }
 
-    if (this.isProgramTemplate(this.templateForm.modality) && !this.templateForm.programCode.trim()) {
+    const templateMatches = this.filteredTemplateProgramOptions();
+    const selectedProgram = this.isProgramTemplate(this.templateForm.modality)
+      ? this.findTemplateProgramOption(this.templateForm.programCode || this.templateProgramSearch)
+        ?? (templateMatches.length === 1 ? templateMatches[0] : null)
+      : null;
+    const programCode = selectedProgram?.code ?? '';
+
+    if (this.isProgramTemplate(this.templateForm.modality) && !programCode) {
       this.showMessage('Selecciona el programa al que pertenece la plantilla.', 'error');
       return;
     }
@@ -437,7 +745,7 @@ export class MoodlePageComponent {
         ...this.templateForm,
         name: this.templateForm.templateCourse,
         modality: this.normalizeTemplateType(this.templateForm.modality),
-        programCode: this.isProgramTemplate(this.templateForm.modality) ? this.templateForm.programCode : '',
+        programCode: this.isProgramTemplate(this.templateForm.modality) ? programCode : '',
         createdBy: actor.uid,
         createdByName: actor.name,
         createdByRole: actor.role,
@@ -504,6 +812,20 @@ export class MoodlePageComponent {
     this.downloadTextFile(`${csvContent}\n`, 'plantilla-categorias-moodle.csv', 'text/csv;charset=utf-8;');
   }
 
+  downloadTemplatesTemplate(): void {
+    const rows = [
+      ['nombre_corto_moodle', 'tipo', 'programa'],
+      ['CURSO_DEMO_ESCOLARIZADO', 'Demo', ''],
+      ['AX0101_PERTENENCIA_INSTITUCIONAL_Y_VALORES_UNIVERSITARIOS', 'Axiologica-Generica', ''],
+      ['DGD01', 'Por programa', 'DIGRAF'],
+    ];
+    const csvContent = rows
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, 'plantilla-plantillas-curso-moodle.csv', 'text/csv;charset=utf-8;');
+  }
+
   importTemplatesCsv(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -513,10 +835,46 @@ export class MoodlePageComponent {
     }
 
     void this.readCsvFile(file)
-      .then((rows) => this.saveTemplateRows(rows))
+      .then((rows) => this.prepareTemplateCsvPreview(rows))
+      .catch((error) => {
+        this.templateCsvPreview = [];
+        this.showCsvMessage(`No se pudo leer el CSV. ${this.errorMessage(error)}`, 'error');
+      })
       .finally(() => {
         input.value = '';
       });
+  }
+
+  cancelTemplateCsvPreview(): void {
+    this.templateCsvPreview = [];
+    this.csvMessage = '';
+  }
+
+  templateCsvPreviewSample(): TemplateCsvPreviewRow[] {
+    return this.templateCsvPreview.slice(0, 8);
+  }
+
+  async confirmTemplateCsvImport(): Promise<void> {
+    if (!this.templateCsvPreview.length) {
+      return;
+    }
+
+    const payloads = this.templateCsvPreview.map(({ rowNumber: _rowNumber, ...payload }) => payload);
+
+    try {
+      await this.templatesRepository.importTemplates(payloads);
+      const firstTemplateType = payloads[0]?.modality;
+
+      if (firstTemplateType) {
+        this.activeTemplateType.set(this.templateTypeLabel(firstTemplateType));
+      }
+
+      this.templateCurrentPage.set(1);
+      this.templateCsvPreview = [];
+      this.showCsvMessage(`Se cargaron ${payloads.length} plantilla(s) Moodle.`, 'success');
+    } catch (error) {
+      this.showCsvMessage(`No se pudo cargar el CSV. ${this.errorMessage(error)}`, 'error');
+    }
   }
 
   updateBatchSearch(value: string): void {
@@ -525,6 +883,15 @@ export class MoodlePageComponent {
 
   updateBatchStatus(value: string): void {
     this.batchStatus = value as AssignmentStatus | 'TODOS';
+
+    if (value !== 'TODOS') {
+      this.activeBatchStatusPanel.set(value as AssignmentStatus);
+    }
+  }
+
+  selectBatchStatusPanel(status: AssignmentStatus): void {
+    this.activeBatchStatusPanel.set(status);
+    this.batchStatus = status;
   }
 
   updateTemplateSelection(assignmentId: string, templateId: string): void {
@@ -574,16 +941,14 @@ export class MoodlePageComponent {
     }
 
     const csvRows = [
-      ['shortname', 'fullname', 'category', 'visible', 'templatecourse'],
+      ['shortname', 'fullname', 'category', 'templatecourse'],
       ...selectedRows.map((assignment) => {
-        const fullname = this.moodleFullname(assignment);
         const template = this.templateForAssignment(assignment);
 
         return [
-          fullname.replace(/\s+/g, '_'),
-          fullname,
+          this.moodleShortname(assignment),
+          this.moodleFullname(assignment),
           this.categoryForAssignment(assignment)?.categoryNumber ?? '',
-          '1',
           template?.templateCourse ?? '',
         ];
       }),
@@ -592,8 +957,75 @@ export class MoodlePageComponent {
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
 
-    this.downloadTextFile(`${csvContent}\n`, `moodle-cursos-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-cursos-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
     this.showMessage('CSV Moodle generado correctamente.', 'success');
+  }
+
+  exportGroupEnrollmentCsv(): void {
+    const loadedRows = this.loadedMoodleAssignments();
+
+    if (!loadedRows.length) {
+      this.showMessage('No hay asignaciones cargadas en Moodle para generar matriculacion por grupo.', 'error');
+      return;
+    }
+
+    const csvRows = [['shortname', 'enrolment_1', 'enrolment_1_cohortidnumber', 'enrolment_1_role']];
+
+    loadedRows.forEach((assignment) => {
+      const courseShortname = this.moodleShortname(assignment);
+
+      this.moodleGroupEnrollmentTargets(assignment).forEach((target) => {
+        csvRows.push([courseShortname, 'cohort', target, 'student']);
+      });
+    });
+
+    if (csvRows.length === 1) {
+      this.showMessage('Las asignaciones cargadas no tienen grupos para matricular.', 'error');
+      return;
+    }
+
+    const csvContent = csvRows
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-matriculacion-grupos-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
+    this.showMessage('CSV de matriculacion por grupos generado correctamente.', 'success');
+  }
+
+  exportStudentEnrollmentCsv(): void {
+    const loadedRows = this.loadedMoodleAssignments();
+
+    if (!loadedRows.length) {
+      this.showMessage('No hay asignaciones cargadas en Moodle para generar matriculacion individual.', 'error');
+      return;
+    }
+
+    const csvRows = [['username', 'course1', 'role1']];
+
+    loadedRows.forEach((assignment) => {
+      const courseShortname = this.moodleShortname(assignment);
+      const teacherUsername = this.moodleTeacherEnrollmentTarget(assignment);
+
+      this.moodleStudentEnrollmentTargets(assignment).forEach((studentUsername) => {
+        csvRows.push([studentUsername, courseShortname, 'student']);
+      });
+
+      if (teacherUsername) {
+        csvRows.push([teacherUsername, courseShortname, 'editingteacher']);
+      }
+    });
+
+    if (csvRows.length === 1) {
+      this.showMessage('Las asignaciones cargadas no tienen matriculas ni docentes para matricular.', 'error');
+      return;
+    }
+
+    const csvContent = csvRows
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-matriculacion-individual-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
+    this.showMessage('CSV de matriculacion individual generado correctamente.', 'success');
   }
 
   async updateAssignmentStatus(assignment: AcademicAssignment, status: AssignmentStatus): Promise<void> {
@@ -618,10 +1050,14 @@ export class MoodlePageComponent {
   }
 
   categoryForAssignment(assignment: AcademicAssignment): MoodleCategory | null {
-    return this.categories().find((category) =>
-      category.status === 'Activo'
-        && this.normalizeCategoryProgramAlias(category.programCode) === this.normalizeCategoryProgramAlias(assignment.program),
-    ) ?? null;
+    const candidatePrograms = this.categoryProgramCandidatesForAssignment(assignment);
+
+    return candidatePrograms
+      .map((programCode) => this.categories().find((category) =>
+        category.status === 'Activo'
+          && this.normalizeCategoryProgramAlias(category.programCode) === programCode,
+      ) ?? null)
+      .find((category): category is MoodleCategory => category !== null) ?? null;
   }
 
   categoryProgramDisplay(category: MoodleCategory): string {
@@ -633,17 +1069,31 @@ export class MoodlePageComponent {
     const selectedTemplate = selectedId
       ? this.templates().find((template) => template.id === selectedId)
       : null;
+    const automaticTemplate = this.automaticTemplateForAssignment(assignment);
 
     return selectedTemplate
-      ?? this.automaticTemplateForAssignment(assignment)
-      ?? this.activeTemplates().find((template) => template.programCode === assignment.program)
-      ?? null;
+      ?? automaticTemplate
+      ?? this.fallbackProgramTemplateForAssignment(assignment);
+  }
+
+  private requiresStrictCodeTemplate(assignment: AcademicAssignment): boolean {
+    return this.isPlan2027Assignment(assignment) || this.isPsychologyAssignment(assignment);
+  }
+
+  private fallbackProgramTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    return this.requiresStrictCodeTemplate(assignment)
+      ? null
+      : this.activeTemplates().find((template) => template.programCode === assignment.program) ?? null;
   }
 
   automaticTemplateForDisplay(assignment: AcademicAssignment): MoodleCourseTemplate | null {
     return this.templateSelections[assignment.id]
       ? null
       : this.automaticTemplateForAssignment(assignment);
+  }
+
+  requiresPlan2027SubjectCode(assignment: AcademicAssignment): boolean {
+    return this.isPlan2027Assignment(assignment) && !this.subjectStartsWithOperationalCode(assignment.subjectName);
   }
 
   isProgramTemplate(type: string): boolean {
@@ -663,11 +1113,59 @@ export class MoodlePageComponent {
       transversal: 'Transversal',
       generica: 'Generica',
       propedeutico: 'Propedeutico',
+      'fusionadas de maestria': 'Fusionadas de Maestria',
+      'fusionadas-de-maestria': 'Fusionadas de Maestria',
+      'profesionalizantes compartidas': 'Profesionalizantes Compartidas',
+      'profesionalizantes-compartidas': 'Profesionalizantes Compartidas',
       programa: 'Por programa',
       'por programa': 'Por programa',
     };
 
     return labels[normalized] ?? (type || 'General');
+  }
+
+  templateTypeClass(type: string): string {
+    const normalized = this.normalizeSearchText(type);
+
+    if (normalized.includes('axiologica') && normalized.includes('transversales')) {
+      return 'type-axiologica-transversales';
+    }
+
+    if (normalized.includes('axiologica')) {
+      return 'type-axiologica-generica';
+    }
+
+    if (normalized === 'demo') {
+      return 'type-demo';
+    }
+
+    if (normalized === 'transversal') {
+      return 'type-transversal';
+    }
+
+    if (normalized === 'propedeutico') {
+      return 'type-propedeutico';
+    }
+
+    if (normalized === 'fusionadas de maestria' || normalized === 'fusionadas-de-maestria') {
+      return 'type-fusionadas-maestria';
+    }
+
+    if (normalized === 'profesionalizantes compartidas' || normalized === 'profesionalizantes-compartidas') {
+      return 'type-profesionalizantes-compartidas';
+    }
+
+    if (this.isProgramTemplate(type)) {
+      return 'type-programa';
+    }
+
+    return 'type-generica';
+  }
+
+  assignmentTemplateType(assignment: AcademicAssignment): string {
+    const template = this.templateForAssignment(assignment);
+
+    return template ? this.templateTypeLabel(template.modality) : 'Sin plantilla';
   }
 
   displayGroup(assignment: AcademicAssignment): string {
@@ -690,22 +1188,144 @@ export class MoodlePageComponent {
     return labels[status];
   }
 
+  statusSelectClass(status: AssignmentStatus): string {
+    if (status === 'CARGADO_MOODLE' || status === 'VALIDADO') {
+      return 'status-loaded';
+    }
+
+    if (status === 'EN_REVISION' || status === 'CON_OBSERVACION') {
+      return 'status-review';
+    }
+
+    return 'status-capture';
+  }
+
   private isLoadedInMoodle(assignment: AcademicAssignment): boolean {
     return assignment.status === 'CARGADO_MOODLE' || assignment.status === 'VALIDADO';
   }
 
+  private assignmentMatchesStatusGroup(assignment: AcademicAssignment, status: AssignmentStatus): boolean {
+    if (status === 'CARGADO_MOODLE') {
+      return this.isLoadedInMoodle(assignment);
+    }
+
+    if (status === 'EN_REVISION') {
+      return assignment.status === 'EN_REVISION' || assignment.status === 'CON_OBSERVACION';
+    }
+
+    return assignment.status === 'EN_CAPTURA';
+  }
+
+  private assignmentMatchesActiveBatchView(assignment: AcademicAssignment): boolean {
+    if (this.batchViewMode() === 'plantilla') {
+      const activeType = this.resolvedBatchTemplateType();
+      return !activeType || this.assignmentTemplateType(assignment) === activeType;
+    }
+
+    return this.assignmentBatchMode(assignment) === this.activeBatchMode();
+  }
+
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    if (this.isPsychologyAssignment(assignment)) {
+      return this.findActiveTemplateByPsychologySubjectCode(assignment.subjectName);
+    }
+
+    if (this.isPlan2027Assignment(assignment)) {
+      return this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
+    }
+
+    const templateBySubjectCode = this.findActiveTemplateBySubjectCode(assignment.subjectName);
+
+    if (templateBySubjectCode) {
+      return templateBySubjectCode;
+    }
+
+    const batchMode = this.assignmentBatchMode(assignment);
+
+    if (batchMode === 'Ejecutivo' || batchMode === 'Virtual' || batchMode === 'Especiales') {
+      const templateBySubjectName = this.findActiveTemplateBySubjectName(assignment.subjectName);
+
+      if (templateBySubjectName) {
+        return templateBySubjectName;
+      }
+    }
+
     const templateCourse = this.isNursingHealthBaseGroup(assignment)
       ? NURSING_HEALTH_TEMPLATE
       : this.isNutritionHealthBaseGroup(assignment)
         ? NUTRITION_HEALTH_TEMPLATE
-      : DEFAULT_TEMPLATE_BY_MODE[this.assignmentBatchMode(assignment)];
+      : DEFAULT_TEMPLATE_BY_MODE[batchMode];
 
     if (!templateCourse) {
       return null;
     }
 
     return this.findActiveTemplateByCourse(templateCourse);
+  }
+
+  private findActiveTemplateBySubjectCode(subjectName: string): MoodleCourseTemplate | null {
+    const subjectCode = this.extractAxiologicalCode(subjectName);
+
+    if (!subjectCode) {
+      return null;
+    }
+
+    return this.activeTemplates().find((template) =>
+      this.extractAxiologicalCode(template.templateCourse) === subjectCode
+      || this.extractAxiologicalCode(template.name) === subjectCode,
+    ) ?? null;
+  }
+
+  private findActiveTemplateByInitialSubjectCode(
+    subjectName: string,
+    options: { allowPrefix?: boolean } = {},
+  ): MoodleCourseTemplate | null {
+    const subjectCode = this.extractInitialOperationalCode(subjectName);
+
+    if (!subjectCode) {
+      return null;
+    }
+
+    const templatesWithCode = this.activeTemplates().map((template) => ({
+      template,
+      code: this.extractInitialOperationalCode(template.templateCourse)
+        || this.extractInitialOperationalCode(template.name),
+    })).filter((entry) => entry.code);
+    const exactMatch = templatesWithCode.find((entry) => entry.code === subjectCode);
+
+    if (exactMatch || !options.allowPrefix) {
+      return exactMatch?.template ?? null;
+    }
+
+    return templatesWithCode
+      .filter((entry) => subjectCode.startsWith(entry.code) && entry.code.length < subjectCode.length)
+      .sort((current, next) => next.code.length - current.code.length)[0]?.template ?? null;
+  }
+
+  private findActiveTemplateByPsychologySubjectCode(subjectName: string): MoodleCourseTemplate | null {
+    const subjectCode = this.extractPsychologyTemplateCode(subjectName);
+
+    if (!subjectCode) {
+      return null;
+    }
+
+    return this.activeTemplates().find((template) =>
+      this.extractInitialOperationalCode(template.templateCourse) === subjectCode
+      || this.extractInitialOperationalCode(template.name) === subjectCode,
+    ) ?? null;
+  }
+
+  private findActiveTemplateBySubjectName(subjectName: string): MoodleCourseTemplate | null {
+    const subjectKey = this.normalizeCourseComparableKey(subjectName);
+
+    if (!subjectKey) {
+      return null;
+    }
+
+    return this.activeTemplates().find((template) =>
+      this.normalizeCourseComparableKey(template.templateCourse) === subjectKey
+      || this.normalizeCourseComparableKey(template.name) === subjectKey,
+    ) ?? null;
   }
 
   private findActiveTemplateByCourse(templateCourse: string): MoodleCourseTemplate | null {
@@ -785,6 +1405,39 @@ export class MoodlePageComponent {
     return /\bNUT\s+(11|12)\b/i.test(assignment.group);
   }
 
+  private isPsychologyAssignment(assignment: AcademicAssignment): boolean {
+    const nomenclature = this.nomenclatureForAssignment(assignment);
+    const searchText = this.normalizeSearchText([
+      assignment.program,
+      assignment.group,
+      nomenclature?.programName,
+      nomenclature?.notes,
+    ].join(' '));
+
+    return assignment.program.trim().toUpperCase() === 'PSIC'
+      || /\bPSIC\b/.test(assignment.group.trim().toUpperCase())
+      || searchText.includes('psicologia');
+  }
+
+  private isPlan2027Assignment(assignment: AcademicAssignment): boolean {
+    const nomenclature = this.nomenclatureForAssignment(assignment);
+    const searchText = this.normalizeSearchText([
+      assignment.program,
+      assignment.group,
+      nomenclature?.planName,
+      nomenclature?.planCode,
+      nomenclature?.notes,
+    ].join(' '));
+
+    return /\b2027\b/.test(searchText);
+  }
+
+  private subjectStartsWithOperationalCode(subjectName: string): boolean {
+    const normalizedSubject = subjectName.trim().toUpperCase();
+
+    return /^[A-ZÑ]{2,12}\d{2,4}(?=\s|[-_]|$)/.test(normalizedSubject);
+  }
+
   private isEnglishProgramCode(programCode: string): boolean {
     return ENGLISH_PROGRAM_CODES.has(programCode.trim().toUpperCase());
   }
@@ -808,6 +1461,41 @@ export class MoodlePageComponent {
       nomenclature.abbreviation.trim().toUpperCase() === normalizedProgram
       || nomenclature.programCode.trim().toUpperCase() === normalizedProgram,
     );
+  }
+
+  private nomenclatureForAssignment(assignment: AcademicAssignment) {
+    return this.nomenclatureForProgram(assignment.program)
+      ?? this.nomenclatureForProgram(this.assignmentGroupProgramCode(assignment.group));
+  }
+
+  private categoryProgramCandidatesForAssignment(assignment: AcademicAssignment): string[] {
+    const programs = [
+      this.assignmentGroupProgramCode(assignment.group),
+      assignment.program,
+    ];
+
+    if (this.isEnglishAssignment(assignment)) {
+      programs.push('ING');
+    }
+
+    return Array.from(new Set(
+      programs
+        .map((programCode) => this.normalizeCategoryProgramAlias(programCode))
+        .filter(Boolean),
+    ));
+  }
+
+  private assignmentGroupProgramCode(group: string): string {
+    const normalizedGroup = group.trim().toUpperCase();
+    const flexibleMatch = normalizedGroup.match(/^\S+\s+([A-Z-]+)\s+\S+/);
+
+    if (flexibleMatch?.[1]) {
+      return flexibleMatch[1];
+    }
+
+    const match = group.trim().toUpperCase().match(/^\S+\s+([A-ZÑ-]+)\s+\d{2}\b/);
+
+    return match?.[1] ?? '';
   }
 
   private assignmentGroupCode(group: string): string {
@@ -863,7 +1551,7 @@ export class MoodlePageComponent {
     }
   }
 
-  private async saveTemplateRows(rows: string[][]): Promise<void> {
+  private prepareTemplateCsvPreview(rows: string[][]): void {
     const actor = this.actorData();
 
     if (!actor || !this.canManageMoodle()) {
@@ -871,8 +1559,21 @@ export class MoodlePageComponent {
       return;
     }
 
+    const payloads = this.templatePayloadsFromRows(rows, actor);
+
+    if (!payloads.length) {
+      this.templateCsvPreview = [];
+      this.showCsvMessage('El CSV no contiene plantillas validas. Revisa que tenga nombre_corto_moodle, tipo y programa.', 'error');
+      return;
+    }
+
+    this.templateCsvPreview = payloads;
+    this.showCsvMessage(`Vista previa lista: ${payloads.length} plantilla(s) detectada(s).`, 'success');
+  }
+
+  private templatePayloadsFromRows(rows: string[][], actor: ActorData): TemplateCsvPreviewRow[] {
     const headers = this.csvHeaderIndex(rows[0] ?? []);
-    const payloads = rows.slice(1).flatMap((row): UpsertMoodleCourseTemplatePayload[] => {
+    return rows.slice(1).flatMap((row, index): TemplateCsvPreviewRow[] => {
       const templateCourse = this.csvValue(row, headers, ['nombre_corto_moodle', 'nombre_corto', 'shortname', 'templatecourse', 'template_course', 'plantilla']);
       const name = this.csvValue(row, headers, ['nombre', 'name', 'nombre_plantilla']);
       const modality = this.csvValue(row, headers, ['tipo', 'modalidad', 'modality']);
@@ -883,11 +1584,12 @@ export class MoodlePageComponent {
         return [];
       }
 
-      if (!templateCourse) {
+      if (!templateCourse || !modality) {
         return [];
       }
 
       return [{
+        rowNumber: index + 2,
         templateCourse,
         name: name || templateCourse,
         modality: this.normalizeTemplateType(modality),
@@ -898,18 +1600,6 @@ export class MoodlePageComponent {
         createdByRole: actor.role,
       }];
     });
-
-    if (!payloads.length) {
-      this.showCsvMessage('El CSV no contiene plantillas validas.', 'error');
-      return;
-    }
-
-    try {
-      await this.templatesRepository.importTemplates(payloads);
-      this.showCsvMessage(`Se cargaron ${payloads.length} plantilla(s) Moodle.`, 'success');
-    } catch (error) {
-      this.showCsvMessage(`No se pudo cargar el CSV. ${this.errorMessage(error)}`, 'error');
-    }
   }
 
   private readCsvFile(file: File): Promise<string[][]> {
@@ -923,15 +1613,41 @@ export class MoodlePageComponent {
   }
 
   private parseCsv(content: string): string[][] {
-    return content
+    const lines = content
       .replace(/^\uFEFF/, '')
       .split(/\r?\n/)
       .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => this.parseCsvLine(line));
+      .filter(Boolean);
+    const delimiter = this.detectCsvDelimiter(lines[0] ?? '');
+
+    return lines.map((line) => this.parseCsvLine(line, delimiter));
   }
 
-  private parseCsvLine(line: string): string[] {
+  private detectCsvDelimiter(line: string): ',' | ';' {
+    return this.countCsvDelimiter(line, ';') > this.countCsvDelimiter(line, ',') ? ';' : ',';
+  }
+
+  private countCsvDelimiter(line: string, delimiter: ',' | ';'): number {
+    let count = 0;
+    let insideQuotes = false;
+
+    for (let index = 0; index < line.length; index += 1) {
+      const char = line[index];
+      const nextChar = line[index + 1];
+
+      if (char === '"' && insideQuotes && nextChar === '"') {
+        index += 1;
+      } else if (char === '"') {
+        insideQuotes = !insideQuotes;
+      } else if (char === delimiter && !insideQuotes) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
+  private parseCsvLine(line: string, delimiter: ',' | ';' = ','): string[] {
     const values: string[] = [];
     let current = '';
     let insideQuotes = false;
@@ -945,7 +1661,7 @@ export class MoodlePageComponent {
         index += 1;
       } else if (char === '"') {
         insideQuotes = !insideQuotes;
-      } else if (char === ',' && !insideQuotes) {
+      } else if (char === delimiter && !insideQuotes) {
         values.push(current.trim());
         current = '';
       } else {
@@ -1008,6 +1724,14 @@ export class MoodlePageComponent {
       return 'Propedeutico';
     }
 
+    if (normalized === 'fusionadas de maestria' || normalized === 'fusionadas-de-maestria') {
+      return 'Fusionadas de Maestria';
+    }
+
+    if (normalized === 'profesionalizantes compartidas' || normalized === 'profesionalizantes-compartidas') {
+      return 'Profesionalizantes Compartidas';
+    }
+
     if (normalized === 'programa' || normalized === 'por programa') {
       return 'Por programa';
     }
@@ -1030,8 +1754,82 @@ export class MoodlePageComponent {
     };
   }
 
+  private moodleShortname(assignment: AcademicAssignment): string {
+    return this.moodleFullname(assignment).replace(/\s+/g, '_');
+  }
+
   private moodleFullname(assignment: AcademicAssignment): string {
-    return this.normalizeForMoodle(`${assignment.moodleId} ${assignment.subjectName} ${assignment.cycle}`);
+    const subjectName = this.subjectNameWithoutInitialCode(assignment.subjectName);
+
+    return this.normalizeMoodleCourseText(`${assignment.moodleId} ${subjectName} ${assignment.cycle}`);
+  }
+
+  private subjectNameWithoutInitialCode(value: string): string {
+    return this.normalizeMoodleCourseText(value)
+      .replace(/^(?:AX|PSIC|[A-Z]{2,12})\d{2,4}\s*(?:[-–—:]\s*)?/, '')
+      .trim();
+  }
+
+  private normalizeMoodleCourseText(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  private currentInstitutionalUsername(): string {
+    const email = this.session()?.email ?? this.session()?.appUser?.email ?? '';
+    const [username] = email.split('@');
+
+    return username.trim().toLowerCase();
+  }
+
+  private moodleGroupEnrollmentTargets(assignment: AcademicAssignment): string[] {
+    const targets = [
+      assignment.group,
+      ...(assignment.sharedGroups ?? []),
+    ];
+
+    return Array.from(new Set(
+      targets
+        .map((target) => target.trim().toUpperCase())
+        .filter(Boolean),
+    ));
+  }
+
+  private moodleStudentEnrollmentTargets(assignment: AcademicAssignment): string[] {
+    return Array.from(new Set(
+      this.splitEnrollmentValues(assignment.studentEnrollments)
+        .map((student) => this.normalizeStudentUsername(student))
+        .filter(Boolean),
+    ));
+  }
+
+  private moodleTeacherEnrollmentTarget(assignment: AcademicAssignment): string {
+    const teacherUser = assignment.teacherMoodleUser.trim().toLowerCase();
+
+    if (!teacherUser || teacherUser.includes('temporalmente')) {
+      return '';
+    }
+
+    return teacherUser;
+  }
+
+  private normalizeStudentUsername(value: string): string {
+    const normalized = value.trim().toLowerCase().replace(/\s+/g, '');
+
+    if (!normalized) {
+      return '';
+    }
+
+    return normalized.startsWith('tup') ? normalized : `tup${normalized}`;
+  }
+
+  private splitEnrollmentValues(value: string): string[] {
+    return value
+      .split(/[\n,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
 
   private normalizeForMoodle(value: string): string {
@@ -1045,6 +1843,28 @@ export class MoodlePageComponent {
 
   private normalizeTemplateCourseKey(value: string): string {
     return this.normalizeForMoodle(value).replace(/[\s-]+/g, '_');
+  }
+
+  private normalizeCourseComparableKey(value: string): string {
+    return this.normalizeForMoodle(value).replace(/[^A-Z0-9]+/g, '');
+  }
+
+  private extractAxiologicalCode(value: string): string {
+    return /^AX\d{3,4}(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[0] ?? '';
+  }
+
+  private extractInitialOperationalCode(value: string): string {
+    return /^([A-Z]{2,12}\d{2,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[1] ?? '';
+  }
+
+  private extractPsychologyTemplateCode(value: string): string {
+    const match = /^PSIC(\d{2,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value));
+
+    if (!match) {
+      return '';
+    }
+
+    return `PSIC${match[1].slice(-2)}`;
   }
 
   private normalizeSearchText(value: string): string {
@@ -1065,6 +1885,17 @@ export class MoodlePageComponent {
     const normalizedCode = this.normalizeProgramCode(value.split('-')[0] ?? value);
 
     return this.programOptions().find((option) =>
+      option.code === normalizedCode
+      || this.normalizeSearchText(option.label) === normalizedValue
+      || this.normalizeSearchText(option.code) === normalizedValue,
+    ) ?? null;
+  }
+
+  private findTemplateProgramOption(value: string): ProgramOption | null {
+    const normalizedValue = this.normalizeSearchText(value);
+    const normalizedCode = this.normalizeProgramCode(value.split('-')[0] ?? value);
+
+    return this.templateProgramOptions().find((option) =>
       option.code === normalizedCode
       || this.normalizeSearchText(option.label) === normalizedValue
       || this.normalizeSearchText(option.code) === normalizedValue,

@@ -141,25 +141,114 @@
     </section>
 
     <section class="workspace-panel template-side-panel">
-      <div class="panel-toolbar">
-        <div>
+      <div class="panel-toolbar template-panel-toolbar">
+        <div class="template-heading-copy">
           <span>Base Moodle</span>
           <h3>Plantillas de curso</h3>
           <p>Define el nombre corto Moodle y el tipo de plantilla que se usara para replicar cursos.</p>
         </div>
 
-        <div class="toolbar-actions">
-          <label class="secondary-action">
-            Cargar CSV
-            <input type="file" accept=".csv,text/csv" (change)="importTemplatesCsv($event)" />
-          </label>
-          <button class="primary-action" type="button" (click)="openTemplateModal()">Nueva plantilla</button>
-        </div>
+        <div class="template-header-tools">
+          <div class="toolbar-actions">
+            <label class="secondary-action">
+              Cargar CSV
+              <input type="file" accept=".csv,text/csv" (change)="importTemplatesCsv($event)" />
+            </label>
+            <button class="secondary-action button-action" type="button" (click)="downloadTemplatesTemplate()">Plantilla CSV</button>
+            <button class="primary-action" type="button" (click)="openTemplateModal()">Nueva plantilla</button>
+          </div>
+
+          <div class="template-search-row">
+            <label>
+              <span>Buscar plantilla</span>
+              <div class="template-search-control">
+                <input
+                  type="search"
+                  [ngModel]="templateSearch()"
+                  (ngModelChange)="updateTemplateSearch($event)"
+                  placeholder="Nombre corto, tipo o programa"
+                  autocomplete="off"
+                />
+                @if (templateSearch()) {
+                  <button type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearTemplateSearch()">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M18 6 6 18"></path>
+                      <path d="m6 6 12 12"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
+            </label>
+          </div>
+      </div>
       </div>
 
       @if (templatesReadError()) {
         <div class="feedback has-errors">No se pudo leer el catalogo de plantillas Moodle.</div>
       }
+
+      @if (templateCsvPreview.length) {
+        <section class="csv-preview-panel" aria-label="Vista previa de plantillas CSV">
+          <div class="csv-preview-heading">
+            <div>
+              <span>Vista previa CSV</span>
+              <strong>{{ templateCsvPreview.length }} plantilla(s) detectada(s)</strong>
+            </div>
+
+            <div class="csv-preview-actions">
+              <button class="secondary-action button-action" type="button" (click)="cancelTemplateCsvPreview()">Cancelar</button>
+              <button class="primary-action" type="button" (click)="confirmTemplateCsvImport()">Confirmar carga</button>
+            </div>
+          </div>
+
+          <div class="csv-preview-table">
+            <table>
+              <thead>
+                <tr>
+                  <th class="csv-row-column">Fila</th>
+                  <th class="csv-template-column">Nombre corto Moodle</th>
+                  <th class="csv-type-column">Tipo</th>
+                  <th class="csv-program-column">Programa</th>
+                  <th class="csv-status-column">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of templateCsvPreviewSample(); track row.rowNumber) {
+                  <tr>
+                    <td class="csv-row-column">{{ row.rowNumber }}</td>
+                    <td class="csv-template-column"><strong>{{ row.templateCourse }}</strong></td>
+                    <td class="csv-type-column">
+                      <span class="template-type-pill" [ngClass]="templateTypeClass(row.modality)">
+                        {{ templateTypeLabel(row.modality) }}
+                      </span>
+                    </td>
+                    <td class="csv-program-column">{{ isProgramTemplate(row.modality) ? (row.programCode || 'Pendiente') : 'No aplica' }}</td>
+                    <td class="csv-status-column">{{ row.status }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (templateCsvPreview.length > 8) {
+            <p class="csv-preview-more">Mostrando 8 de {{ templateCsvPreview.length }} registros. Al confirmar se cargan todos.</p>
+          }
+        </section>
+      }
+
+      <div class="template-type-tabs" aria-label="Clasificacion de plantillas por tipo">
+        @for (tab of templateTypeTabs(); track tab.label) {
+            <button
+              type="button"
+              [class.active]="resolvedTemplateType() === tab.label"
+              [ngClass]="templateTypeClass(tab.label)"
+              (click)="selectTemplateType(tab.label)"
+            >
+              <span>{{ tab.label }}</span>
+              <strong>{{ tab.count }}</strong>
+            </button>
+        }
+      </div>
 
       <div class="table-wrap">
         <table>
@@ -172,12 +261,16 @@
             </tr>
           </thead>
           <tbody>
-            @for (template of visibleTemplates(); track template.id) {
+            @for (template of paginatedTemplates(); track template.id) {
               <tr>
                 <td data-label="Nombre corto Moodle">
                   <strong class="template-course-name">{{ template.templateCourse }}</strong>
                 </td>
-                <td data-label="Tipo">{{ templateTypeLabel(template.modality) }}</td>
+                <td data-label="Tipo">
+                  <span class="template-type-pill" [ngClass]="templateTypeClass(template.modality)">
+                    {{ templateTypeLabel(template.modality) }}
+                  </span>
+                </td>
                 <td data-label="Programa">{{ isProgramTemplate(template.modality) ? (template.programCode || 'Pendiente') : 'No aplica' }}</td>
                 <td data-label="Acciones">
                   <div class="row-actions">
@@ -203,8 +296,13 @@
               <tr>
                 <td colspan="4">
                   <div class="empty-state">
-                    <strong>Sin plantillas registradas</strong>
-                    <span>Carga un CSV o agrega una plantilla manualmente.</span>
+                    @if (templateSearch()) {
+                      <strong>Sin coincidencias</strong>
+                      <span>No hay plantillas que coincidan con la busqueda actual.</span>
+                    } @else {
+                      <strong>Sin plantillas registradas</strong>
+                      <span>Carga un CSV o agrega una plantilla manualmente.</span>
+                    }
                   </div>
                 </td>
               </tr>
@@ -212,6 +310,50 @@
           </tbody>
         </table>
       </div>
+
+      @if (visibleTemplates().length > 0) {
+        <div class="catalog-pagination template-pagination" aria-label="Paginacion de plantillas Moodle">
+          <span class="catalog-pagination-summary">
+            Mostrando {{ templatePaginationStart() }}-{{ templatePaginationEnd() }} de {{ visibleTemplates().length }}
+          </span>
+
+          <div class="catalog-pagination-controls">
+            <label>
+              <span>Por pagina</span>
+              <select [value]="templatePageSize" (change)="selectTemplatePageSize($event)">
+                @for (option of templatePageSizeOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+            <button
+              type="button"
+              class="pagination-icon-action"
+              aria-label="Pagina anterior"
+              title="Anterior"
+              [disabled]="currentTemplateSafePage() === 1"
+              (click)="goToPreviousTemplatePage()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m15 18-6-6 6-6"></path>
+              </svg>
+            </button>
+            <span>{{ currentTemplateSafePage() }} / {{ totalTemplatePages() }}</span>
+            <button
+              type="button"
+              class="pagination-icon-action"
+              aria-label="Pagina siguiente"
+              title="Siguiente"
+              [disabled]="currentTemplateSafePage() === totalTemplatePages()"
+              (click)="goToNextTemplatePage()"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m9 18 6-6-6-6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
     </section>
     </div>
   }
@@ -230,31 +372,55 @@
             <button class="secondary-action button-action" type="button" (click)="toggleVisibleAssignments()">
               Seleccionar vista
             </button>
+            <button class="secondary-action button-action view-switch-action" type="button" (click)="toggleBatchViewMode()">
+              {{ batchViewToggleLabel() }}
+            </button>
             <button class="primary-action" type="button" (click)="exportSelectedCsv()">
               Generar CSV
             </button>
           </div>
         </div>
 
-        <div class="batch-mode-tabs" aria-label="Asignaciones Moodle por modalidad">
-          @for (tab of batchModeTabs(); track tab.mode) {
-            <button
-              type="button"
-              [class.active]="activeBatchMode() === tab.mode"
-              [class.tab-escolarizado]="tab.mode === 'Escolarizado'"
-              [class.tab-ejecutivo]="tab.mode === 'Ejecutivo'"
-              [class.tab-virtual]="tab.mode === 'Virtual'"
-              [class.tab-salud]="tab.mode === 'Salud'"
-              [class.tab-posgrados]="tab.mode === 'Posgrados'"
-              [class.tab-especiales]="tab.mode === 'Especiales'"
-              [class.tab-ingles]="tab.mode === 'Inglés'"
-              (click)="selectBatchMode(tab.mode)"
-            >
-              <span>{{ tab.mode }}</span>
-              <strong>{{ tab.count }}</strong>
-            </button>
-          }
-        </div>
+        @if (batchViewMode() === 'modalidad') {
+          <div class="batch-mode-tabs" aria-label="Asignaciones Moodle por modalidad">
+            @for (tab of batchModeTabs(); track tab.mode) {
+              <button
+                type="button"
+                [class.active]="activeBatchMode() === tab.mode"
+                [class.tab-escolarizado]="tab.mode === 'Escolarizado'"
+                [class.tab-ejecutivo]="tab.mode === 'Ejecutivo'"
+                [class.tab-virtual]="tab.mode === 'Virtual'"
+                [class.tab-salud]="tab.mode === 'Salud'"
+                [class.tab-posgrados]="tab.mode === 'Posgrados'"
+                [class.tab-especiales]="tab.mode === 'Especiales'"
+                [class.tab-ingles]="tab.mode === 'Inglés'"
+                (click)="selectBatchMode(tab.mode)"
+              >
+                <span>{{ tab.mode }}</span>
+                <strong>{{ tab.count }}</strong>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="batch-mode-tabs batch-template-tabs" aria-label="Asignaciones Moodle por tipo de plantilla">
+            @for (tab of batchTemplateTypeTabs(); track tab.label) {
+              <button
+                type="button"
+                [class.active]="resolvedBatchTemplateType() === tab.label"
+                [ngClass]="templateTypeClass(tab.label)"
+                (click)="selectBatchTemplateType(tab.label)"
+              >
+                <span>{{ tab.label }}</span>
+                <strong>{{ tab.count }}</strong>
+              </button>
+            } @empty {
+              <button type="button" class="type-empty active" disabled>
+                <span>Sin plantillas</span>
+                <strong>0</strong>
+              </button>
+            }
+          </div>
+        }
 
         <div class="lot-filters">
           <label>
@@ -308,7 +474,14 @@
                     />
                   </td>
                   <td data-label="ID Moodle"><strong>{{ assignment.moodleId }}</strong></td>
-                  <td data-label="Materia">{{ assignment.subjectName }}</td>
+                  <td data-label="Materia">
+                    <div class="batch-subject-cell">
+                      <span>{{ assignment.subjectName }}</span>
+                      @if (requiresPlan2027SubjectCode(assignment)) {
+                        <span class="warning-pill plan-warning-pill">Verificar codigo plan 2027</span>
+                      }
+                    </div>
+                  </td>
                   <td data-label="Docente">
                     <div class="stacked-cell">
                       <strong>{{ assignment.teacherName }}</strong>
@@ -355,7 +528,8 @@
                   </td>
                   <td data-label="Estado">
                     <select
-                      class="inline-select"
+                      class="inline-select status-select"
+                      [ngClass]="statusSelectClass(assignment.status)"
                       [value]="assignment.status"
                       (change)="updateAssignmentStatus(assignment, $any($event.target).value)"
                     >
@@ -369,8 +543,8 @@
                 <tr>
                   <td colspan="8">
                     <div class="empty-state">
-                      <strong>Sin asignaciones en {{ activeBatchMode() }}</strong>
-                      <span>Cuando existan asignaciones del ciclo activo en esta pestana apareceran aqui.</span>
+                      <strong>Sin asignaciones en {{ batchEmptyLabel() }}</strong>
+                      <span>Cuando existan asignaciones del ciclo activo en esta vista apareceran aqui.</span>
                     </div>
                   </td>
                 </tr>
@@ -387,17 +561,101 @@
           <p>{{ loadedMoodleAssignments().length }} asignacion(es) con estado Cargado en Moodle.</p>
         </section>
 
-        <section class="follow-card">
-          <span>Por modalidad</span>
-          <div class="mode-summary-list">
-            @for (item of batchModeSummary(); track item.mode) {
-              <div class="mode-summary-row">
-                <strong>{{ item.count }}</strong>
-                <span>{{ item.mode }}</span>
+        <section class="follow-card status-consult-card">
+          <span>Por estado</span>
+          <h3>Consulta de asignaciones</h3>
+
+          <div class="status-consult-tabs" aria-label="Consultar asignaciones Moodle por estado">
+            @for (tab of batchStatusTabs(); track tab.status) {
+              <button
+                type="button"
+                [class.active]="activeBatchStatusPanel() === tab.status"
+                [ngClass]="statusSelectClass(tab.status)"
+                (click)="selectBatchStatusPanel(tab.status)"
+              >
+                <strong>{{ tab.count }}</strong>
+                <span>{{ tab.label }}</span>
+              </button>
+            }
+          </div>
+
+          <div class="status-assignment-list">
+            @for (assignment of batchStatusPanelAssignments(); track assignment.id) {
+              <article class="status-assignment-item">
+                <strong>{{ assignment.moodleId }} - {{ assignment.subjectName }}</strong>
+                <small>{{ displayGroup(assignment) }}</small>
+              </article>
+            } @empty {
+              <div class="status-assignment-empty">
+                No hay asignaciones en este estado para la vista actual.
               </div>
             }
           </div>
         </section>
+
+        <div class="enrollment-export-actions" aria-label="Opciones de matriculacion CSV">
+          <button
+            class="secondary-action button-action enrollment-action"
+            type="button"
+            title="Matriculacion por grupo"
+            aria-label="Generar CSV de matriculacion por grupo"
+            (click)="exportGroupEnrollmentCsv()"
+          >
+            <span>Matriculaci&oacute;n</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </button>
+          <button
+            class="secondary-action button-action enrollment-action"
+            type="button"
+            title="Matriculacion individual"
+            aria-label="Generar CSV de matriculacion individual"
+            (click)="exportStudentEnrollmentCsv()"
+          >
+            <span>Matriculaci&oacute;n</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4v2"></path>
+              <circle cx="14" cy="7" r="4"></circle>
+              <path d="M3 11h4"></path>
+              <path d="M5 9v4"></path>
+            </svg>
+          </button>
+        </div>
+
+        @if (batchViewMode() === 'modalidad') {
+          <section class="follow-card">
+            <span>Por modalidad</span>
+            <div class="mode-summary-list">
+              @for (item of batchModeSummary(); track item.mode) {
+                <div class="mode-summary-row">
+                  <strong>{{ item.count }}</strong>
+                  <span>{{ item.mode }}</span>
+                </div>
+              }
+            </div>
+          </section>
+        } @else {
+          <section class="follow-card">
+            <span>Por tipo de plantilla</span>
+            <div class="mode-summary-list">
+              @for (item of batchTemplateTypeSummary(); track item.label) {
+                <div class="mode-summary-row">
+                  <strong>{{ item.count }}</strong>
+                  <span>{{ item.label }}</span>
+                </div>
+              } @empty {
+                <div class="mode-summary-row">
+                  <strong>0</strong>
+                  <span>Sin plantillas</span>
+                </div>
+              }
+            </div>
+          </section>
+        }
 
         <section class="follow-card">
           <span>Vista actual</span>
@@ -475,20 +733,49 @@
           </label>
           <label>
             <span>Tipo *</span>
-            <select [(ngModel)]="templateForm.modality">
+            <select [ngModel]="templateForm.modality" (ngModelChange)="updateTemplateType($event)">
               <option value="Axiologica-Transversales">Axiologica-Transversales</option>
               <option value="Axiologica-Generica">Axiologica-Generica</option>
               <option value="Demo">Demo</option>
               <option value="Transversal">Transversal</option>
               <option value="Generica">Generica</option>
               <option value="Propedeutico">Propedeutico</option>
+              <option value="Fusionadas de Maestria">Fusionadas de Maestria</option>
+              <option value="Profesionalizantes Compartidas">Profesionalizantes Compartidas</option>
               <option value="Por programa">Por programa</option>
             </select>
           </label>
           @if (isProgramTemplate(templateForm.modality)) {
-            <label>
+            <label class="program-picker-field">
               <span>Programa *</span>
-              <input [(ngModel)]="templateForm.programCode" placeholder="Ej. ADEM" />
+              <div class="program-picker" [class.open]="templateProgramPickerOpen">
+                <input
+                  [ngModel]="templateProgramSearch"
+                  (ngModelChange)="updateTemplateProgramSearch($event)"
+                  (focus)="templateProgramPickerOpen = true"
+                  (blur)="closeTemplateProgramPickerSoon()"
+                  placeholder="Escribe o selecciona programa"
+                  autocomplete="off"
+                />
+                <button type="button" aria-label="Ver programas" (mousedown)="$event.preventDefault()" (click)="toggleTemplateProgramPicker()">
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 9 6 6 6-6"></path>
+                  </svg>
+                </button>
+              </div>
+
+              @if (templateProgramPickerOpen) {
+                <div class="program-options">
+                  @for (program of filteredTemplateProgramOptions(); track program.code) {
+                    <button type="button" (mousedown)="$event.preventDefault()" (click)="selectTemplateProgram(program)">
+                      <strong>{{ program.code }}</strong>
+                      <span>{{ program.name }}</span>
+                    </button>
+                  } @empty {
+                    <div class="program-empty">Sin coincidencias en nomenclaturas activas.</div>
+                  }
+                </div>
+              }
             </label>
           }
           <label [class.wide-field]="isProgramTemplate(templateForm.modality)">
