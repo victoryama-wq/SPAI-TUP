@@ -1,0 +1,215 @@
+<section class="audit-shell">
+  <header class="audit-overview">
+    <div class="audit-title-card">
+      <span>Auditoria operativa</span>
+      <h2>Bitacora del sistema</h2>
+      <p>Consulta acciones, cambios y movimientos relevantes sin duplicar datos tecnicos.</p>
+    </div>
+
+    <div class="audit-summary-grid" aria-label="Resumen de bitacora">
+      <article>
+        <strong>{{ sortedEntries().length }}</strong>
+        <span>Eventos registrados</span>
+      </article>
+      <article>
+        <strong>{{ todayCount() }}</strong>
+        <span>Eventos de hoy</span>
+      </article>
+      <article>
+        <strong>{{ moduleOptions().length }}</strong>
+        <span>Modulos con actividad</span>
+      </article>
+      <article>
+        <strong>{{ activeUsersCount() }}</strong>
+        <span>Usuarios con actividad</span>
+      </article>
+    </div>
+  </header>
+
+  <p class="error-banner" *ngIf="readError()">
+    No se pudo leer la bitacora. Firestore rechazo la consulta o el usuario no tiene permiso.
+  </p>
+
+  <section class="audit-workspace">
+    <main class="audit-main-panel">
+      <div class="panel-title-row">
+        <div>
+          <span>Registro institucional</span>
+          <h3>Movimientos recientes</h3>
+        </div>
+        <button type="button" class="ghost-action" (click)="resetFilters()">Limpiar filtros</button>
+      </div>
+
+      <form class="filters-grid">
+        <label class="search-field">
+          <span>Buscar</span>
+          <input
+            type="search"
+            placeholder="Modulo, accion, usuario, descripcion o folio"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="setSearchTerm($event)"
+            name="searchTerm"
+          />
+        </label>
+
+        <label>
+          <span>Modulo</span>
+          <select
+            [ngModel]="selectedModule()"
+            (ngModelChange)="setModule($event)"
+            name="selectedModule"
+          >
+            <option value="Todos">Todos</option>
+            <option *ngFor="let module of moduleOptions()" [value]="module">
+              {{ moduleLabel(module) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Accion</span>
+          <select
+            [ngModel]="selectedAction()"
+            (ngModelChange)="setAction($event)"
+            name="selectedAction"
+          >
+            <option value="Todas">Todas</option>
+            <option *ngFor="let action of actionOptions()" [value]="action">
+              {{ actionLabel(action) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Periodo</span>
+          <select
+            [ngModel]="selectedPeriod()"
+            (ngModelChange)="setPeriod($event)"
+            name="selectedPeriod"
+          >
+            <option value="Todos">Todos</option>
+            <option value="Hoy">Hoy</option>
+            <option value="7 dias">Ultimos 7 dias</option>
+            <option value="30 dias">Ultimos 30 dias</option>
+          </select>
+        </label>
+      </form>
+
+      <div class="audit-list" *ngIf="visibleEntries().length; else emptyLog">
+        <article
+          class="audit-entry"
+          *ngFor="let entry of visibleEntries(); trackBy: trackByEntryId"
+          [class]="'audit-entry ' + entryTone(entry)"
+        >
+          <div class="entry-marker" aria-hidden="true"></div>
+
+          <div class="entry-body">
+            <div class="entry-heading">
+              <div class="entry-title">
+                <span class="action-pill">{{ actionLabel(entry.action) }}</span>
+                <strong>{{ moduleLabel(entry.module) }}</strong>
+              </div>
+              <time [attr.datetime]="entry.createdAt">{{ formatShortDate(entry.createdAt) }}</time>
+            </div>
+
+            <p>{{ entry.description || 'Movimiento registrado sin descripcion.' }}</p>
+
+            <div class="entry-meta">
+              <span>{{ entry.user || 'Usuario no identificado' }}</span>
+              <span *ngIf="entry.userRole">{{ entry.userRole }}</span>
+              <span *ngIf="entry.entity || entry.entityId">
+                {{ entry.entity || 'Registro' }}<ng-container *ngIf="entry.entityId">: {{ entry.entityId }}</ng-container>
+              </span>
+            </div>
+
+            <details *ngIf="metadataPairs(entry).length">
+              <summary>Ver detalles tecnicos</summary>
+              <dl>
+                <ng-container *ngFor="let pair of metadataPairs(entry)">
+                  <dt>{{ pair.key }}</dt>
+                  <dd>{{ pair.value }}</dd>
+                </ng-container>
+              </dl>
+            </details>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #emptyLog>
+        <div class="empty-state">
+          <strong>Sin movimientos visibles</strong>
+          <p *ngIf="sortedEntries().length; else noLog">
+            Hay {{ sortedEntries().length }} evento(s), pero ninguno coincide con los filtros aplicados.
+          </p>
+          <ng-template #noLog>
+            <p>Aun no hay movimientos registrados en la bitacora.</p>
+          </ng-template>
+        </div>
+      </ng-template>
+
+      <div class="pagination-bar">
+        <strong>
+          Mostrando {{ pageStart() }}-{{ pageEnd() }} de {{ filteredEntries().length }}
+        </strong>
+        <div class="pagination-controls">
+          <label>
+            Por pagina
+            <select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)" name="pageSize">
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="25">25</option>
+            </select>
+          </label>
+          <button type="button" (click)="previousPage()" [disabled]="safeCurrentPage() <= 1">
+            Anterior
+          </button>
+          <span>{{ safeCurrentPage() }} / {{ totalPages() }}</span>
+          <button type="button" (click)="nextPage()" [disabled]="safeCurrentPage() >= totalPages()">
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="audit-side-panel">
+      <section class="side-card">
+        <span>Seguimiento</span>
+        <h3>Ultima actividad</h3>
+        <ng-container *ngIf="lastEntry(); else noRecent">
+          <strong>{{ moduleLabel(lastEntry()!.module) }}</strong>
+          <p>{{ actionLabel(lastEntry()!.action) }} por {{ lastEntry()!.user || 'usuario no identificado' }}.</p>
+          <time [attr.datetime]="lastEntry()!.createdAt">{{ formatDate(lastEntry()!.createdAt) }}</time>
+        </ng-container>
+        <ng-template #noRecent>
+          <p>Sin actividad registrada por ahora.</p>
+        </ng-template>
+      </section>
+
+      <section class="side-card">
+        <span>Por modulo</span>
+        <div class="summary-list" *ngIf="moduleSummary().length; else noModules">
+          <div class="summary-row" *ngFor="let item of moduleSummary()">
+            <strong>{{ item.value }}</strong>
+            <span>{{ moduleLabel(item.label) }}</span>
+          </div>
+        </div>
+        <ng-template #noModules>
+          <p>Sin modulos en esta vista.</p>
+        </ng-template>
+      </section>
+
+      <section class="side-card">
+        <span>Por accion</span>
+        <div class="summary-list" *ngIf="actionSummary().length; else noActions">
+          <div class="summary-row" *ngFor="let item of actionSummary()">
+            <strong>{{ item.value }}</strong>
+            <span>{{ actionLabel(item.label) }}</span>
+          </div>
+        </div>
+        <ng-template #noActions>
+          <p>Sin acciones en esta vista.</p>
+        </ng-template>
+      </section>
+    </aside>
+  </section>
+</section>

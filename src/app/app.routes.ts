@@ -69,10 +69,9 @@ export const routes: Routes = [
   },
   {
     path: 'bitacora',
-    loadComponent: () => import('./shared/components/placeholder-page/placeholder-page.component')
-      .then((module) => module.PlaceholderPageComponent),
+    loadComponent: () => import('./features/audit/pages/audit-log-page.component')
+      .then((module) => module.AuditLogPageComponent),
     title: 'Bitacora | SPAI TUP',
-    data: { title: 'Bitacora del sistema', description: 'Registro de acciones, cambios operativos y auditoria de modulos.' },
   },
   {
     path: '**',

@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { addDoc, collection } from 'firebase/firestore';
+import { orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
+import { FirestoreRepository } from './firestore.repository';
 
 export interface AuditLogEntry {
   id: string;
@@ -29,11 +30,16 @@ export interface CreateAuditLogPayload {
 export const AUDIT_LOG_COLLECTION = 'bitacora';
 
 @Injectable({ providedIn: 'root' })
-export class AuditLogRepository {
-  private readonly firestore = inject(FIREBASE_DB);
+export class AuditLogRepository extends FirestoreRepository<AuditLogEntry> {
+  readonly entries = this.items;
+  readonly entriesReadError = this.readError;
+
+  constructor() {
+    super(inject(FIREBASE_DB), AUDIT_LOG_COLLECTION, orderBy('createdAt', 'desc'));
+  }
 
   register(payload: CreateAuditLogPayload): void {
-    void addDoc(collection(this.firestore, AUDIT_LOG_COLLECTION), {
+    void this.addDocument({
       module: payload.module,
       action: payload.action,
       description: payload.description,
