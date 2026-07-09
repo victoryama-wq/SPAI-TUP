@@ -427,14 +427,19 @@
             <span>Busqueda</span>
             <input
               type="search"
-              [value]="batchSearch"
+              [value]="batchSearch()"
               (input)="updateBatchSearch($any($event.target).value)"
               placeholder="ID, materia, docente, programa o grupo"
             />
           </label>
           <label>
             <span>Estado</span>
-            <select [value]="batchStatus" (change)="updateBatchStatus($any($event.target).value)">
+            <select
+              class="status-select batch-status-filter"
+              [ngClass]="batchStatusSelectClass()"
+              [value]="batchStatus()"
+              (change)="updateBatchStatus($any($event.target).value)"
+            >
               <option value="TODOS">Todos</option>
               <option value="EN_CAPTURA">En captura</option>
               <option value="EN_REVISION">En revision</option>

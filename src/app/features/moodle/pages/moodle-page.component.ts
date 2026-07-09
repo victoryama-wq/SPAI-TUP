@@ -121,8 +121,8 @@ export class MoodlePageComponent {
   csvMessage = '';
   csvMessageType: 'success' | 'error' = 'success';
   templateCsvPreview: TemplateCsvPreviewRow[] = [];
-  batchSearch = '';
-  batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
+  readonly batchSearch = signal('');
+  readonly batchStatus = signal<AssignmentStatus | 'TODOS'>('TODOS');
   readonly activeBatchMode = signal<MoodleBatchMode>('Escolarizado');
   readonly batchViewMode = signal<MoodleBatchView>('modalidad');
   readonly activeBatchTemplateType = signal('');
@@ -305,13 +305,14 @@ export class MoodlePageComponent {
       return [];
     }
 
-    const search = this.normalizeSearchText(this.batchSearch);
+    const search = this.normalizeSearchText(this.batchSearch());
+    const selectedStatus = this.batchStatus();
 
     return this.assignments()
       .filter((assignment) => assignment.cycle === activeCycle.code)
       .filter((assignment) => !assignment.sourceAssignmentId)
       .filter((assignment) => this.assignmentMatchesActiveBatchView(assignment))
-      .filter((assignment) => this.batchStatus === 'TODOS' || this.assignmentMatchesStatusGroup(assignment, this.batchStatus))
+      .filter((assignment) => selectedStatus === 'TODOS' || this.assignmentMatchesStatusGroup(assignment, selectedStatus))
       .filter((assignment) => {
         if (!search) {
           return true;
@@ -822,11 +823,11 @@ export class MoodlePageComponent {
   }
 
   updateBatchSearch(value: string): void {
-    this.batchSearch = value;
+    this.batchSearch.set(value);
   }
 
   updateBatchStatus(value: string): void {
-    this.batchStatus = value as AssignmentStatus | 'TODOS';
+    this.batchStatus.set(value as AssignmentStatus | 'TODOS');
   }
 
   updateTemplateSelection(assignmentId: string, templateId: string): void {
@@ -1133,6 +1134,11 @@ export class MoodlePageComponent {
     }
 
     return 'status-capture';
+  }
+
+  batchStatusSelectClass(): string {
+    const status = this.batchStatus();
+    return status === 'TODOS' ? 'status-all' : this.statusSelectClass(status);
   }
 
   private isLoadedInMoodle(assignment: AcademicAssignment): boolean {

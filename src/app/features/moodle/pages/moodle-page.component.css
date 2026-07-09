@@ -1479,6 +1479,16 @@ td small {
   color: #166534;
 }
 
+.status-select.status-all {
+  --status-bg: #eef6ff;
+  --status-border: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.batch-status-filter {
+  min-height: 44px;
+}
+
 .status-select:focus {
   box-shadow:
     0 0 0 3px rgb(37 99 235 / 0.16),
