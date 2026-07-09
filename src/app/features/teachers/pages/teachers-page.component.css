@@ -414,7 +414,7 @@ th {
   display: grid;
   gap: 14px;
   grid-column: 1 / -1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .retake-teacher-action {
@@ -1169,6 +1169,10 @@ th {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .teacher-extra-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .filters {
     grid-template-columns: minmax(360px, 1fr) 180px;
   }
@@ -1181,6 +1185,10 @@ th {
   }
 
   .name-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-extra-fields {
     grid-template-columns: 1fr;
   }
 

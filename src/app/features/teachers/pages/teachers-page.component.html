@@ -147,6 +147,7 @@
               <th>Pago</th>
               <th>Categoria</th>
               <th>Telefono</th>
+              <th>Ubicacion</th>
               <th>Coordinador responsable</th>
               <th>Observaciones</th>
             </tr>
@@ -163,6 +164,7 @@
                 <td>{{ row.paymentType ? paymentTypeLabel(row.paymentType) : '-' }}</td>
                 <td>{{ row.category ? teacherCategoryLabel(row.category) : '-' }}</td>
                 <td>{{ row.phone || '-' }}</td>
+                <td>{{ row.location ? teacherLocationLabel(row.location) : '-' }}</td>
                 <td>{{ row.coordinators.length ? row.coordinators.join(', ') : '-' }}</td>
                 <td>
                   @if (row.observations.length) {
@@ -241,6 +243,7 @@
           <th>Tipo de pago</th>
           <th>Categoria</th>
           <th>Telefono</th>
+          <th>Ubicacion</th>
           <th>Estatus</th>
           <th>Origen</th>
           <th>Coordinacion asignada</th>
@@ -277,6 +280,13 @@
               }
             </td>
             <td>{{ teacher.phone || '-' }}</td>
+            <td>
+              @if (teacher.location) {
+                <span class="meta-badge">{{ teacherLocationLabel(teacher.location) }}</span>
+              } @else {
+                <span class="muted-value">Sin registrar</span>
+              }
+            </td>
             <td>
               <span class="status-badge" [ngClass]="statusClass(teacher.status)">
                 {{ statusLabel(teacher.status) }}
@@ -366,7 +376,7 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="canManageTeachers() ? 12 : 11">
+            <td [attr.colspan]="canManageTeachers() ? 13 : 12">
               <div class="empty-state">
                 <strong>{{ emptyTeachersTitle() }}</strong>
                 <span>{{ emptyTeachersMessage() }}</span>
@@ -495,6 +505,15 @@
               placeholder="9841234567"
             />
           </label>
+          <label>
+            <span>Ubicacion</span>
+            <select [(ngModel)]="manualForm.location">
+              <option value="">Sin registrar</option>
+              @for (option of teacherLocationOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
         </div>
         <button
           type="button"
@@ -594,6 +613,15 @@
             (ngModelChange)="updateEditPhone($event)"
             placeholder="9841234567"
           />
+        </label>
+        <label>
+          <span>Ubicacion</span>
+          <select [(ngModel)]="editForm.location">
+            <option value="">Sin registrar</option>
+            @for (option of teacherLocationOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
         </label>
         <label class="full-form-field">
           <span>Observaciones</span>

@@ -8,6 +8,7 @@ import { ConfirmationDialogService } from '../../../shared/confirmation/confirma
 import {
   Teacher,
   TeacherCategory,
+  TeacherLocation,
   TeacherPaymentType,
   TeacherStatus,
   TeachersRepository,
@@ -26,6 +27,7 @@ interface TeacherPreviewRow {
   paymentType: TeacherPaymentType | '';
   category: TeacherCategory | '';
   phone: string;
+  location: TeacherLocation | '';
   coordinators: string[];
   notes: string;
   operation: 'CREAR' | 'ACTUALIZAR' | 'ERROR';
@@ -47,6 +49,11 @@ const TEACHER_CATEGORY_OPTIONS: Array<{ value: TeacherCategory; label: string }>
   { value: 'V_35HRS', label: 'V-35hrs' },
   { value: 'M_25HRS', label: 'M-25hrs' },
   { value: 'N_15HRS', label: 'N-15hrs' },
+];
+const TEACHER_LOCATION_OPTIONS: Array<{ value: TeacherLocation; label: string }> = [
+  { value: 'FORANEO', label: 'Foraneo' },
+  { value: 'LOCAL', label: 'Local' },
+  { value: 'VIRTUAL', label: 'Virtual' },
 ];
 
 @Component({
@@ -90,6 +97,7 @@ export class TeachersPageComponent {
   readonly pageSizeOptions = TEACHERS_PAGE_SIZE_OPTIONS;
   readonly paymentTypeOptions = TEACHER_PAYMENT_OPTIONS;
   readonly teacherCategoryOptions = TEACHER_CATEGORY_OPTIONS;
+  readonly teacherLocationOptions = TEACHER_LOCATION_OPTIONS;
 
   manualForm = {
     names: '',
@@ -100,6 +108,7 @@ export class TeachersPageComponent {
     paymentType: '' as TeacherPaymentType | '',
     category: '' as TeacherCategory | '',
     phone: '',
+    location: '' as TeacherLocation | '',
   };
   manualRetakeTeacher = false;
   editForm = {
@@ -109,6 +118,7 @@ export class TeachersPageComponent {
     paymentType: '' as TeacherPaymentType | '',
     category: '' as TeacherCategory | '',
     phone: '',
+    location: '' as TeacherLocation | '',
     notes: '',
   };
 
@@ -332,6 +342,7 @@ export class TeachersPageComponent {
       paymentType: teacher.paymentType ?? '',
       category: teacher.category ?? '',
       phone: teacher.phone ?? '',
+      location: teacher.location ?? '',
       notes: teacher.notes,
     };
     this.selectedTeacherCoordinatorIds = this.resolveTeacherCoordinatorIds(teacher);
@@ -348,6 +359,7 @@ export class TeachersPageComponent {
       paymentType: '',
       category: '',
       phone: '',
+      location: '',
       notes: '',
     };
     this.selectedTeacherCoordinatorIds = [];
@@ -498,6 +510,7 @@ export class TeachersPageComponent {
         paymentType: this.manualForm.paymentType,
         category: this.manualForm.category,
         phone: this.manualForm.phone,
+        location: this.manualForm.location,
         notes: '',
         assignedCoordinatorIds: isAcademicTeacher ? [actor.createdBy] : [],
         assignedCoordinatorNames: isAcademicTeacher ? [actor.createdByName] : [],
@@ -773,10 +786,10 @@ export class TeachersPageComponent {
 
   downloadCsvTemplate(): void {
     const csvContent = [
-      ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'tipo_pago', 'categoria', 'telefono', 'coordinador_responsable', 'observaciones'],
-      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'V-35hrs', '9841234567', 'Nombre o correo de coordinacion academica', ''],
-      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'BANORTE', 'M-25hrs', '9847654321', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
-      ['', '', 'usuario.existente', 'INACTIVO', '', 'EFECTIVO', 'N-15hrs', '', '', 'Ejemplo para actualizar un docente existente'],
+      ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'tipo_pago', 'categoria', 'telefono', 'ubicacion', 'coordinador_responsable', 'observaciones'],
+      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'V-35hrs', '9841234567', 'LOCAL', 'Nombre o correo de coordinacion academica', ''],
+      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'BANORTE', 'M-25hrs', '9847654321', 'FORANEO', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
+      ['', '', 'usuario.existente', 'INACTIVO', '', 'EFECTIVO', 'N-15hrs', '', 'VIRTUAL', '', 'Ejemplo para actualizar un docente existente'],
     ]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
@@ -804,6 +817,7 @@ export class TeachersPageComponent {
       'tipo_pago',
       'categoria',
       'telefono',
+      'ubicacion',
       'estatus',
       'origen',
       'alta_por',
@@ -826,6 +840,7 @@ export class TeachersPageComponent {
         this.paymentTypeLabel(teacher.paymentType),
         this.teacherCategoryLabel(teacher.category),
         teacher.phone || '',
+        this.teacherLocationLabel(teacher.location),
         this.statusLabel(teacher.status),
         teacher.origin,
         teacher.createdByName,
@@ -876,6 +891,11 @@ export class TeachersPageComponent {
     return option?.label ?? 'Sin registrar';
   }
 
+  teacherLocationLabel(value?: TeacherLocation | ''): string {
+    const option = this.teacherLocationOptions.find((location) => location.value === value);
+    return option?.label ?? 'Sin registrar';
+  }
+
   private validateManualForm(): string[] {
     const errors: string[] = [];
     const moodleUser = this.normalizeMoodleAccount(this.manualForm.moodleUser);
@@ -919,6 +939,7 @@ export class TeachersPageComponent {
       paymentType: '',
       category: '',
       phone: '',
+      location: '',
     };
     this.assignGeneratedMoodleUser();
   }
@@ -988,6 +1009,8 @@ export class TeachersPageComponent {
         teacher.category,
         this.teacherCategoryLabel(teacher.category),
         teacher.phone,
+        teacher.location,
+        this.teacherLocationLabel(teacher.location),
         teacher.status,
         this.statusLabel(teacher.status),
         teacher.origin,
@@ -1039,6 +1062,7 @@ export class TeachersPageComponent {
       const paymentTypeText = this.getCsvAliasValue(row, headerIndex, ['tipo_pago', 'pago', 'forma_pago']);
       const categoryText = this.getCsvAliasValue(row, headerIndex, ['categoria', 'categoria_docente']);
       const phone = this.getCsvAliasValue(row, headerIndex, ['telefono', 'telefono_docente', 'celular']);
+      const locationText = this.getCsvAliasValue(row, headerIndex, ['ubicacion', 'ubicacion_docente', 'modalidad_docente']);
       const coordinators = this.parseCoordinatorNames(
         this.getCsvValue(row, headerIndex, 'coordinador_responsable')
         || this.getCsvValue(row, headerIndex, 'coordinadores'),
@@ -1054,6 +1078,7 @@ export class TeachersPageComponent {
         && !paymentTypeText
         && !categoryText
         && !phone
+        && !locationText
         && !coordinators.length
         && !notes
       ) {
@@ -1071,6 +1096,7 @@ export class TeachersPageComponent {
           paymentTypeText,
           categoryText,
           phone,
+          locationText,
           coordinators,
           notes,
           fileMoodleUsers,
@@ -1092,6 +1118,7 @@ export class TeachersPageComponent {
     paymentTypeText: string;
     categoryText: string;
     phone: string;
+    locationText: string;
     coordinators: string[];
     notes: string;
     fileMoodleUsers: Set<string>;
@@ -1106,6 +1133,7 @@ export class TeachersPageComponent {
     const category = this.parseTeacherCategory(context.categoryText);
     const normalizedPhone = this.normalizePhoneInput(context.phone);
     const phoneError = this.validateTeacherPhone(context.phone);
+    const location = this.parseTeacherLocation(context.locationText);
     const existingTeacher = context.existingTeachersByMoodleUser.get(normalizedMoodleUser);
     const operation: TeacherPreviewRow['operation'] = existingTeacher ? 'ACTUALIZAR' : 'CREAR';
     const coordinatorAssignments = this.resolveCsvCoordinatorAssignments(context.coordinators);
@@ -1138,6 +1166,10 @@ export class TeachersPageComponent {
       observations.push(phoneError);
     }
 
+    if (location === null) {
+      observations.push('La ubicacion debe ser FORANEO, LOCAL o VIRTUAL.');
+    }
+
     if (existingTeacher && !context.statusText) {
       observations.push('Para actualizar un docente existente, el CSV debe indicar estatus.');
     }
@@ -1163,6 +1195,7 @@ export class TeachersPageComponent {
       paymentType: paymentType ?? '',
       category: category ?? '',
       phone: normalizedPhone,
+      location: location ?? '',
       coordinators: context.coordinators,
       notes: context.notes,
       operation: observations.length ? 'ERROR' : operation,
@@ -1177,6 +1210,7 @@ export class TeachersPageComponent {
             paymentType: paymentType || existingTeacher?.paymentType || '',
             category: category || existingTeacher?.category || '',
             phone: normalizedPhone || existingTeacher?.phone,
+            location: location || existingTeacher?.location || '',
             notes: context.notes || existingTeacher?.notes,
             createdByPrograms: coordinatorAssignments.length
               ? Array.from(new Set(coordinatorAssignments.flatMap((coordinator) => coordinator.assignedPrograms)))
@@ -1423,6 +1457,28 @@ export class TeachersPageComponent {
 
     if (['N_15HRS', 'N_15_HRS', 'N15HRS'].includes(normalizedValue)) {
       return 'N_15HRS';
+    }
+
+    return null;
+  }
+
+  private parseTeacherLocation(value: string): TeacherLocation | '' | null {
+    const normalizedValue = this.normalizeCatalogValue(value);
+
+    if (!normalizedValue) {
+      return '';
+    }
+
+    if (['FORANEO', 'FORANEA'].includes(normalizedValue)) {
+      return 'FORANEO';
+    }
+
+    if (normalizedValue === 'LOCAL') {
+      return 'LOCAL';
+    }
+
+    if (normalizedValue === 'VIRTUAL') {
+      return 'VIRTUAL';
     }
 
     return null;

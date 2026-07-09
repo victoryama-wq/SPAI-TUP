@@ -7,6 +7,7 @@ export type TeacherStatus = 'PENDIENTE' | 'VALIDADO' | 'INACTIVO';
 export type TeacherOrigin = 'MANUAL' | 'CSV';
 export type TeacherPaymentType = 'EFECTIVO' | 'SANTANDER' | 'BANORTE';
 export type TeacherCategory = 'V_35HRS' | 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS';
+export type TeacherLocation = 'FORANEO' | 'LOCAL' | 'VIRTUAL';
 
 export interface Teacher {
   id: string;
@@ -21,6 +22,7 @@ export interface Teacher {
   paymentType?: TeacherPaymentType | '';
   category?: TeacherCategory | '';
   phone?: string;
+  location?: TeacherLocation | '';
   notes: string;
   createdBy: string;
   createdByName: string;
@@ -49,6 +51,7 @@ export interface UpsertTeacherPayload {
   paymentType?: TeacherPaymentType | '';
   category?: TeacherCategory | '';
   phone?: string;
+  location?: TeacherLocation | '';
   notes?: string;
   createdBy: string;
   createdByName: string;
@@ -117,7 +120,7 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
 
   updateTeacherDetails(
     teacher: Teacher,
-    payload: Pick<UpsertTeacherPayload, 'teacherCode' | 'fullName' | 'email' | 'paymentType' | 'category' | 'phone' | 'notes'>,
+    payload: Pick<UpsertTeacherPayload, 'teacherCode' | 'fullName' | 'email' | 'paymentType' | 'category' | 'phone' | 'location' | 'notes'>,
   ): Promise<void> {
     return this.updateDocument(teacher.id, {
       teacherCode: payload.teacherCode?.trim() || teacher.teacherCode,
@@ -127,6 +130,7 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       paymentType: payload.paymentType ?? '',
       category: payload.category ?? '',
       phone: payload.phone?.trim() ?? '',
+      location: payload.location ?? '',
       notes: payload.notes?.trim() ?? '',
       updatedAt: new Date().toISOString(),
     });
@@ -255,6 +259,7 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       paymentType: payload.paymentType ?? currentTeacher?.paymentType ?? '',
       category: payload.category ?? currentTeacher?.category ?? '',
       phone: payload.phone?.trim() ?? currentTeacher?.phone ?? '',
+      location: payload.location ?? currentTeacher?.location ?? '',
       notes: payload.notes?.trim() ?? currentTeacher?.notes ?? '',
       createdBy: currentTeacher?.createdBy ?? payload.createdBy,
       createdByName: currentTeacher?.createdByName ?? payload.createdByName,

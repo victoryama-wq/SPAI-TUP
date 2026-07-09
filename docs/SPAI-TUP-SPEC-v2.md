@@ -795,9 +795,9 @@ Tipos soportados:
 CSV esperado:
 
 ```csv
-id_docente,nombre_completo,usuario_moodle,estatus,correo,tipo_pago,categoria,telefono,coordinador_responsable,observaciones
-DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,V-35hrs,9841234567,Lizett Mendez Prueba,
-DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,BANORTE,M-25hrs,9847654321,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
+id_docente,nombre_completo,usuario_moodle,estatus,correo,tipo_pago,categoria,telefono,ubicacion,coordinador_responsable,observaciones
+DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,V-35hrs,9841234567,LOCAL,Lizett Mendez Prueba,
+DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,BANORTE,M-25hrs,9847654321,FORANEO,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
 ```
 
 Reglas:
@@ -812,12 +812,13 @@ Reglas:
 - `tipo_pago` es opcional y acepta `EFECTIVO`, `SANTANDER` o `BANORTE`.
 - `categoria` es opcional y acepta `V-35hrs`, `M-25hrs` o `N-15hrs`.
 - `telefono` es opcional; si se captura debe tener exactamente 10 digitos numericos.
+- `ubicacion` es opcional y acepta `FORANEO`, `LOCAL` o `VIRTUAL`.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
 - El enlace puede hacerse por nombre, correo institucional, `authUid` o ID interno.
 - Si el coordinador no existe o no es Coordinacion Academica activa, la fila queda con observacion y no se guarda hasta corregirla.
 - La carga CSV funciona como upsert: crea docentes nuevos y actualiza docentes existentes por `usuario_moodle`.
-- Si en una actualizacion CSV los campos opcionales de pago, categoria, telefono u observaciones vienen vacios, el sistema conserva el dato existente del docente.
+- Si en una actualizacion CSV los campos opcionales de pago, categoria, telefono, ubicacion u observaciones vienen vacios, el sistema conserva el dato existente del docente.
 
 ### Importar asignaturas
 
@@ -1660,6 +1661,7 @@ export interface Docente {
   tipo_pago?: 'EFECTIVO' | 'SANTANDER' | 'BANORTE'
   categoria?: 'V_35HRS' | 'M_25HRS' | 'N_15HRS'
   telefono?: string
+  ubicacion?: 'FORANEO' | 'LOCAL' | 'VIRTUAL'
   estatus: 'PENDIENTE' | 'VALIDADO' | 'INACTIVO'
   creado_por: string
   fecha_creacion: Date
@@ -2219,8 +2221,9 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
   - Tipo de pago: `Efectivo`, `Santander` o `Banorte`.
   - Categoria: `V-35hrs`, `M-25hrs` o `N-15hrs`.
   - Telefono del docente, limitado a 10 digitos numericos.
-- La tabla actual del catalogo de Docentes muestra tipo de pago, categoria y telefono para facilitar revision operativa.
-- La plantilla CSV de Docentes incluye `tipo_pago`, `categoria` y `telefono` para completar o actualizar informacion pendiente de forma masiva.
+  - Ubicacion: `Foraneo`, `Local` o `Virtual`.
+- La tabla actual del catalogo de Docentes muestra tipo de pago, categoria, telefono y ubicacion para facilitar revision operativa.
+- La plantilla CSV de Docentes incluye `tipo_pago`, `categoria`, `telefono` y `ubicacion` para completar o actualizar informacion pendiente de forma masiva.
 - Coordinacion Academica puede agregar docentes; quedan pendientes hasta validacion de Sistemas.
 - Al registrar un docente pendiente, Sistemas recibe notificacion en campanita y correo institucional cuando el servicio de correo este configurado.
 - Al validar o activar un docente, la coordinacion relacionada recibe notificacion en campanita.
