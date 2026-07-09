@@ -414,7 +414,15 @@ th {
   display: grid;
   gap: 14px;
   grid-column: 1 / -1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr) minmax(112px, 0.7fr) minmax(166px, 1.2fr);
+}
+
+.teacher-phone-field input {
+  max-width: 150px;
+}
+
+.teacher-location-field select {
+  min-width: 166px;
 }
 
 .retake-teacher-action {
