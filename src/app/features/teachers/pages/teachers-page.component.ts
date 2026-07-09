@@ -837,7 +837,7 @@ export class TeachersPageComponent {
         teacher.fullName,
         teacher.moodleUser,
         teacher.email || '',
-        this.paymentTypeLabel(teacher.paymentType),
+        this.paymentTypeReportCode(teacher.paymentType),
         this.teacherCategoryLabel(teacher.category),
         teacher.phone || '',
         this.teacherLocationLabel(teacher.location),
@@ -880,6 +880,19 @@ export class TeachersPageComponent {
   paymentTypeLabel(value?: TeacherPaymentType | ''): string {
     const option = this.paymentTypeOptions.find((paymentType) => paymentType.value === value);
     return option?.label ?? 'Sin registrar';
+  }
+
+  private paymentTypeReportCode(value?: TeacherPaymentType | ''): string {
+    switch (value) {
+      case 'SANTANDER':
+        return '1';
+      case 'BANORTE':
+        return '2';
+      case 'EFECTIVO':
+        return '3';
+      default:
+        return '';
+    }
   }
 
   teacherCategoryLabel(value?: TeacherCategory | ''): string {

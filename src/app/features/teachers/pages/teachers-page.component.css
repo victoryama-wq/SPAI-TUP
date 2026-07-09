@@ -367,9 +367,12 @@ th {
   background: #f9fbff;
   border: 1px solid #c9d9ef;
   border-radius: 8px;
+  box-sizing: border-box;
   color: #07163c;
   min-height: 44px;
+  min-width: 0;
   padding: 0 12px;
+  width: 100%;
 }
 
 .teacher-form input.locked-input {
@@ -412,17 +415,25 @@ th {
 
 .teacher-extra-fields {
   display: grid;
-  gap: 14px;
+  gap: 14px 28px;
   grid-column: 1 / -1;
-  grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr) minmax(112px, 0.7fr) minmax(166px, 1.2fr);
+  grid-template-columns: minmax(134px, 1fr) minmax(134px, 1fr) 112px minmax(210px, 1.2fr);
+}
+
+.teacher-phone-field {
+  justify-self: start;
+  max-width: 112px;
+  min-width: 0;
+  width: 112px;
 }
 
 .teacher-phone-field input {
-  max-width: 150px;
+  width: 100%;
 }
 
-.teacher-location-field select {
-  min-width: 166px;
+.teacher-location-field {
+  min-width: 0;
+  width: 100%;
 }
 
 .retake-teacher-action {
@@ -1065,6 +1076,16 @@ th {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.modal-panel .teacher-form > .teacher-phone-field {
+  max-width: 118px;
+  width: 118px;
+}
+
+.modal-panel .teacher-form > .teacher-location-field {
+  min-width: 0;
+  width: 100%;
+}
+
 .assignment-modal {
   max-width: 760px;
 }
@@ -1178,7 +1199,8 @@ th {
   }
 
   .teacher-extra-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 24px;
+    grid-template-columns: minmax(128px, 1fr) minmax(128px, 1fr) minmax(104px, 112px) minmax(190px, 1.25fr);
   }
 
   .filters {
@@ -1198,6 +1220,13 @@ th {
 
   .teacher-extra-fields {
     grid-template-columns: 1fr;
+  }
+
+  .teacher-phone-field,
+  .teacher-location-field {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
   }
 
   .manual-moodle-field,

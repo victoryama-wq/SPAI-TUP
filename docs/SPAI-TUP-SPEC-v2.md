@@ -2224,6 +2224,7 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
   - Ubicacion: `Foraneo`, `Local` o `Virtual`.
 - La tabla actual del catalogo de Docentes muestra tipo de pago, categoria, telefono y ubicacion para facilitar revision operativa.
 - La plantilla CSV de Docentes incluye `tipo_pago`, `categoria`, `telefono` y `ubicacion` para completar o actualizar informacion pendiente de forma masiva.
+- El reporte CSV de Docentes exporta `tipo_pago` con codificacion administrativa: `1` Santander, `2` Banorte y `3` Efectivo.
 - Coordinacion Academica puede agregar docentes; quedan pendientes hasta validacion de Sistemas.
 - Al registrar un docente pendiente, Sistemas recibe notificacion en campanita y correo institucional cuando el servicio de correo este configurado.
 - Al validar o activar un docente, la coordinacion relacionada recibe notificacion en campanita.
