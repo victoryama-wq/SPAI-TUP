@@ -125,7 +125,6 @@ export class MoodlePageComponent {
   batchStatus: AssignmentStatus | 'TODOS' = 'TODOS';
   readonly activeBatchMode = signal<MoodleBatchMode>('Escolarizado');
   readonly batchViewMode = signal<MoodleBatchView>('modalidad');
-  readonly activeBatchStatusPanel = signal<AssignmentStatus>('EN_CAPTURA');
   readonly activeBatchTemplateType = signal('');
   readonly activeTemplateType = signal('');
   readonly templateSearch = signal('');
@@ -347,61 +346,6 @@ export class MoodlePageComponent {
       .filter((assignment) => assignment.cycle === activeCycle.code)
       .filter((assignment) => !assignment.sourceAssignmentId);
   });
-
-  readonly batchStatusScopeAssignments = computed(() => {
-    const search = this.normalizeSearchText(this.batchSearch);
-
-    return this.currentCycleMoodleAssignments()
-      .filter((assignment) => this.assignmentMatchesActiveBatchView(assignment))
-      .filter((assignment) => {
-        if (!search) {
-          return true;
-        }
-
-        return this.normalizeSearchText([
-          assignment.moodleId,
-          assignment.subjectName,
-          assignment.teacherName,
-          assignment.teacherMoodleUser,
-          assignment.program,
-          assignment.group,
-          assignment.sharedGroups?.join(' '),
-          assignment.studentEnrollments,
-        ].join(' ')).includes(search);
-      })
-      .sort((first, second) =>
-        first.program.localeCompare(second.program, 'es', { numeric: true })
-        || first.group.localeCompare(second.group, 'es', { numeric: true })
-        || first.subjectName.localeCompare(second.subjectName, 'es'),
-      );
-  });
-
-  readonly batchStatusTabs = computed(() => {
-    const assignments = this.batchStatusScopeAssignments();
-
-    return [
-      {
-        status: 'EN_CAPTURA' as AssignmentStatus,
-        label: 'Pendientes',
-        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'EN_CAPTURA')).length,
-      },
-      {
-        status: 'EN_REVISION' as AssignmentStatus,
-        label: 'En revision',
-        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'EN_REVISION')).length,
-      },
-      {
-        status: 'CARGADO_MOODLE' as AssignmentStatus,
-        label: 'Cargadas',
-        count: assignments.filter((assignment) => this.assignmentMatchesStatusGroup(assignment, 'CARGADO_MOODLE')).length,
-      },
-    ];
-  });
-
-  readonly batchStatusPanelAssignments = computed(() =>
-    this.batchStatusScopeAssignments()
-      .filter((assignment) => this.assignmentMatchesStatusGroup(assignment, this.activeBatchStatusPanel())),
-  );
 
   readonly loadedMoodleAssignments = computed(() =>
     this.currentCycleMoodleAssignments().filter((assignment) => this.isLoadedInMoodle(assignment)),
@@ -883,15 +827,6 @@ export class MoodlePageComponent {
 
   updateBatchStatus(value: string): void {
     this.batchStatus = value as AssignmentStatus | 'TODOS';
-
-    if (value !== 'TODOS') {
-      this.activeBatchStatusPanel.set(value as AssignmentStatus);
-    }
-  }
-
-  selectBatchStatusPanel(status: AssignmentStatus): void {
-    this.activeBatchStatusPanel.set(status);
-    this.batchStatus = status;
   }
 
   updateTemplateSelection(assignmentId: string, templateId: string): void {

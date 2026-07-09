@@ -561,38 +561,6 @@
           <p>{{ loadedMoodleAssignments().length }} asignacion(es) con estado Cargado en Moodle.</p>
         </section>
 
-        <section class="follow-card status-consult-card">
-          <span>Por estado</span>
-          <h3>Consulta de asignaciones</h3>
-
-          <div class="status-consult-tabs" aria-label="Consultar asignaciones Moodle por estado">
-            @for (tab of batchStatusTabs(); track tab.status) {
-              <button
-                type="button"
-                [class.active]="activeBatchStatusPanel() === tab.status"
-                [ngClass]="statusSelectClass(tab.status)"
-                (click)="selectBatchStatusPanel(tab.status)"
-              >
-                <strong>{{ tab.count }}</strong>
-                <span>{{ tab.label }}</span>
-              </button>
-            }
-          </div>
-
-          <div class="status-assignment-list">
-            @for (assignment of batchStatusPanelAssignments(); track assignment.id) {
-              <article class="status-assignment-item">
-                <strong>{{ assignment.moodleId }} - {{ assignment.subjectName }}</strong>
-                <small>{{ displayGroup(assignment) }}</small>
-              </article>
-            } @empty {
-              <div class="status-assignment-empty">
-                No hay asignaciones en este estado para la vista actual.
-              </div>
-            }
-          </div>
-        </section>
-
         <div class="enrollment-export-actions" aria-label="Opciones de matriculacion CSV">
           <button
             class="secondary-action button-action enrollment-action"

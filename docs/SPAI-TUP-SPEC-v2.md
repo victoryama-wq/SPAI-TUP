@@ -2415,13 +2415,12 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
   - Especiales.
   - Ingles.
 - Tambien existe vista por plantilla para revisar asignaciones agrupadas por tipo de plantilla.
-- El panel de seguimiento muestra lotes cargados, conteos por modalidad y consulta directa de asignaciones por estado.
-- La consulta por estado debe mostrar listas reales de asignaciones, no solo resumen numerico:
-  - Pendientes: asignaciones en captura.
-  - En revision: asignaciones en revision o con observacion.
-  - Cargadas: asignaciones cargadas en Moodle o validadas.
-- Al seleccionar un estado desde el panel de seguimiento, la tabla principal de Lotes Moodle se filtra al mismo estado para identificar rapidamente cuales asignaciones requieren seguimiento.
-- La consulta por estado respeta el ciclo activo, la vista seleccionada por modalidad o plantilla y la busqueda aplicada.
+- El panel de seguimiento muestra lotes cargados y conteos por modalidad.
+- El filtro **Estado** de la tabla principal controla la consulta operativa por estatus:
+  - En captura: muestra solo asignaciones pendientes de preparar.
+  - En revision: muestra asignaciones en revision o con observacion.
+  - Cargado en Moodle: muestra asignaciones cargadas en Moodle o validadas.
+- Cuando una asignacion cambia de estado, deja de aparecer en la vista del estado anterior y solo aparece al seleccionar el filtro correspondiente.
 - El boton para cambiar de vista se ubica entre **Seleccionar vista** y **Generar CSV**.
 - El estado en Lotes debe mostrarse con diseño dinamico, no como selector plano cuando sea posible.
 
