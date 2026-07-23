@@ -521,7 +521,7 @@ th {
   align-items: end;
   display: grid;
   gap: 12px;
-  grid-template-columns: 180px minmax(560px, 1fr);
+  grid-template-columns: 1fr;
 }
 
 .search-box {
@@ -581,10 +581,6 @@ th {
   width: 18px;
 }
 
-.search-suggestion-menu {
-  max-height: 340px;
-}
-
 .readonly-filter strong {
   align-items: center;
   background: #dbeafe;
@@ -624,6 +620,14 @@ th {
   min-width: 0;
   padding: 0 12px;
   width: 100%;
+}
+
+.filters .search-box input {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  min-height: 34px;
+  padding: 0;
 }
 
 .assignment-form textarea {
@@ -915,6 +919,85 @@ th {
   display: none;
   height: 0;
   width: 0;
+}
+
+.pagination-bar {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid #d7e4f8;
+  border-radius: 8px;
+  color: #334155;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 14px 16px;
+}
+
+.pagination-bar > span {
+  color: #10244a;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.pagination-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.pagination-controls label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-controls label span {
+  color: #40577a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pagination-controls select,
+.pagination-controls button {
+  border-radius: 8px;
+  font-family: inherit;
+  min-height: 40px;
+}
+
+.pagination-controls select {
+  background: #ffffff;
+  border: 1px solid #c9d9ef;
+  color: #07163c;
+  font-weight: 900;
+  padding: 0 12px;
+}
+
+.pagination-controls button {
+  background: #edf4ff;
+  border: 1px solid #bfd2f0;
+  color: #1d4ed8;
+  cursor: pointer;
+  font-weight: 900;
+  padding: 0 14px;
+}
+
+.pagination-controls button:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.pagination-controls strong {
+  color: #07163c;
+  font-size: 14px;
+  min-width: 54px;
+  text-align: center;
 }
 
 table {
@@ -1473,16 +1556,6 @@ td[colspan] {
   grid-column: 5 / 6;
 }
 
-.english-name-detail-field {
-  display: grid;
-  gap: 7px;
-}
-
-.english-name-detail-field textarea {
-  min-height: 50px;
-  resize: vertical;
-}
-
 .special-enrollments-field textarea {
   min-height: 44px;
   resize: vertical;
@@ -1831,7 +1904,7 @@ td[colspan] {
 
   .assignment-search {
     grid-column: 1 / -1;
-    grid-template-columns: 180px minmax(440px, 1fr);
+    grid-template-columns: 1fr;
   }
 
 }
@@ -1846,6 +1919,16 @@ td[colspan] {
   .table-wrap {
     border: 0;
     overflow-x: hidden;
+  }
+
+  .pagination-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination-controls {
+    justify-content: flex-start;
+    width: 100%;
   }
 
   table,

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
@@ -82,7 +82,7 @@ export const ACADEMIC_COORDINATION_ACCESS: ModuleAccess = {
 
 @Injectable({ providedIn: 'root' })
 export class UsersRepository extends FirestoreRepository<AppUser> {
-  readonly users = this.items;
+  readonly users = computed(() => this.deduplicateUsers(this.items()));
   readonly usersReadError = this.readError;
 
   constructor() {
@@ -182,5 +182,71 @@ export class UsersRepository extends FirestoreRepository<AppUser> {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  private deduplicateUsers(users: AppUser[]): AppUser[] {
+    const groupedUsers = new Map<string, AppUser[]>();
+
+    users.forEach((user) => {
+      const key = this.userIdentityKey(user);
+      const currentUsers = groupedUsers.get(key) ?? [];
+      currentUsers.push(user);
+      groupedUsers.set(key, currentUsers);
+    });
+
+    return Array.from(groupedUsers.values())
+      .map((group) => this.canonicalUser(group))
+      .sort((a, b) => this.timestampValue(b.createdAt) - this.timestampValue(a.createdAt));
+  }
+
+  private canonicalUser(users: AppUser[]): AppUser {
+    const preferredUser = [...users].sort((a, b) => this.userPriority(b) - this.userPriority(a))[0];
+    const programsSource = [...users].sort((a, b) => b.assignedPrograms.length - a.assignedPrograms.length)[0];
+    const accessSource = [...users].sort((a, b) => this.enabledAccessCount(b.access) - this.enabledAccessCount(a.access))[0];
+
+    return {
+      ...preferredUser,
+      assignedPrograms: preferredUser.assignedPrograms.length
+        ? preferredUser.assignedPrograms
+        : programsSource.assignedPrograms,
+      access: this.enabledAccessCount(preferredUser.access)
+        ? preferredUser.access
+        : accessSource.access,
+    };
+  }
+
+  private userPriority(user: AppUser): number {
+    return [
+      user.status === 'Activo' ? 10000 : 0,
+      user.authUid && user.id === user.authUid ? 5000 : 0,
+      user.authUid ? 1000 : 0,
+      user.assignedPrograms.length * 10,
+      this.enabledAccessCount(user.access),
+      this.timestampValue(user.updatedAt) / 10000000000000,
+    ].reduce((total, value) => total + value, 0);
+  }
+
+  private userIdentityKey(user: AppUser): string {
+    const email = user.email.trim().toLowerCase();
+
+    if (email) {
+      return `email:${email}`;
+    }
+
+    if (user.authUid) {
+      return `auth:${user.authUid}`;
+    }
+
+    return `id:${user.id}`;
+  }
+
+  private enabledAccessCount(access: ModuleAccess): number {
+    return Object.values(access).filter(Boolean).length;
+  }
+
+  private timestampValue(timestamp: string): number {
+    const value = Date.parse(timestamp);
+
+    return Number.isFinite(value) ? value : 0;
   }
 }

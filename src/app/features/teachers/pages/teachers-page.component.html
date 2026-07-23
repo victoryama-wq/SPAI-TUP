@@ -11,13 +11,11 @@
         <button type="button" class="active" (click)="toggleAcademicTeacherView()">
           {{ academicShowsGlobalTeachers ? 'Mis docentes' : 'Ver Global de docentes' }}
         </button>
-        <button class="primary-tab-action" type="button" (click)="openManualModal()">
-          Nuevo docente
-        </button>
-      } @else {
-        <button class="primary-tab-action" type="button" (click)="openManualModal()">
-          Nuevo docente
-        </button>
+      }
+      <button class="primary-tab-action" type="button" (click)="openManualModal()">
+        Nuevo docente
+      </button>
+      @if (canManageTeachers()) {
         <button
           class="upload-tab-action"
           type="button"
@@ -43,6 +41,17 @@
           Plantilla CSV
         </button>
         <button
+          class="moodle-tab-action"
+          type="button"
+          aria-label="Descargar CSV Moodle de docentes pendientes"
+          title="Descargar CSV Moodle de docentes pendientes"
+          (click)="downloadPendingTeachersMoodleCsv()"
+        >
+          Moodle pendientes
+        </button>
+      }
+      @if (canDownloadTeacherReport()) {
+        <button
           class="report-tab-action"
           type="button"
           aria-label="Descargar reporte CSV de docentes por coordinacion"
@@ -51,6 +60,8 @@
         >
           Reporte CSV
         </button>
+      }
+      @if (canManageTeachers()) {
         <button type="button" [class.active]="selectedPanel === 'pending'" (click)="selectPanel('pending')">
           Pendientes
         </button>
@@ -250,7 +261,7 @@
           <th>Alta por</th>
           <th>Correo</th>
           <th>Actualizacion</th>
-          @if (canManageTeachers()) {
+          @if (showTeacherActionsColumn()) {
             <th>Acciones</th>
           }
         </tr>
@@ -288,8 +299,8 @@
               }
             </td>
             <td>
-              <span class="status-badge" [ngClass]="statusClass(teacher.status)">
-                {{ statusLabel(teacher.status) }}
+              <span class="status-badge" [ngClass]="teacherStatusClass(teacher)">
+                {{ teacherStatusLabel(teacher) }}
               </span>
             </td>
             <td>{{ teacher.origin }}</td>
@@ -306,58 +317,60 @@
             </td>
             <td>{{ teacher.email || '-' }}</td>
             <td>{{ teacher.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-            @if (canManageTeachers()) {
+            @if (showTeacherActionsColumn()) {
               <td>
                 <div class="row-actions">
-                  <button
-                    type="button"
-                    class="icon-row-action"
-                    aria-label="Cambiar asignacion"
-                    title="Cambiar asignacion"
-                    (click)="openAssignmentModal(teacher)"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M12 5H8a5 5 0 0 0 0 10h1M12 19h4a5 5 0 0 0 0-10h-1"></path>
-                    </svg>
-                  </button>
-                  @if (teacher.status !== 'VALIDADO') {
+                  @if (canManageTeachers()) {
                     <button
                       type="button"
-                      class="icon-row-action success-action"
-                      aria-label="Activar docente"
-                      title="Activar docente"
-                      (click)="updateTeacherStatus(teacher, 'VALIDADO')"
+                      class="icon-row-action"
+                      aria-label="Cambiar asignacion"
+                      title="Cambiar asignacion"
+                      (click)="openAssignmentModal(teacher)"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M20 6 9 17l-5-5"></path>
+                        <path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M12 5H8a5 5 0 0 0 0 10h1M12 19h4a5 5 0 0 0 0-10h-1"></path>
                       </svg>
                     </button>
-                  }
-                  <button
-                    type="button"
-                    class="icon-row-action"
-                    aria-label="Editar docente"
-                    title="Editar docente"
-                    (click)="openEditModal(teacher)"
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                    </svg>
-                  </button>
-                  @if (teacher.status !== 'INACTIVO') {
+                    @if (teacher.status !== 'VALIDADO') {
+                      <button
+                        type="button"
+                        class="icon-row-action success-action"
+                        aria-label="Activar docente"
+                        title="Activar docente"
+                        (click)="updateTeacherStatus(teacher, 'VALIDADO')"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                      </button>
+                    }
                     <button
                       type="button"
-                      class="icon-row-action danger-action"
-                      aria-label="Inactivar docente"
-                      title="Inactivar docente"
-                      (click)="updateTeacherStatus(teacher, 'INACTIVO')"
+                      class="icon-row-action"
+                      aria-label="Editar docente"
+                      title="Editar docente"
+                      (click)="openEditModal(teacher)"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M18 6 6 18M6 6l12 12"></path>
+                        <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                       </svg>
                     </button>
+                    @if (teacher.status !== 'INACTIVO') {
+                      <button
+                        type="button"
+                        class="icon-row-action danger-action"
+                        aria-label="Inactivar docente"
+                        title="Inactivar docente"
+                        (click)="updateTeacherStatus(teacher, 'INACTIVO')"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M18 6 6 18M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    }
                   }
-                  @if (teacher.status === 'INACTIVO') {
+                  @if (canDeleteTeacher(teacher)) {
                     <button
                       type="button"
                       class="icon-row-action danger-action"
@@ -376,7 +389,7 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="canManageTeachers() ? 13 : 12">
+            <td [attr.colspan]="showTeacherActionsColumn() ? 13 : 12">
               <div class="empty-state">
                 <strong>{{ emptyTeachersTitle() }}</strong>
                 <span>{{ emptyTeachersMessage() }}</span>
@@ -428,7 +441,7 @@
       <div class="modal-header">
         <div>
           <span>Alta manual</span>
-          <h3 id="manual-teacher-title">Nuevo docente</h3>
+          <h3 id="manual-teacher-title">{{ manualRetakeTeacher ? 'Docente de reingreso' : 'Nuevo docente' }}</h3>
         </div>
         <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeManualModal()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -438,6 +451,16 @@
       </div>
 
       <div class="teacher-form">
+        <button
+          type="button"
+          class="retake-teacher-action"
+          [class.active]="manualRetakeTeacher"
+          (click)="toggleManualRetakeTeacher()"
+        >
+          <strong>{{ manualRetakeTeacher ? 'Usuario nuevo' : 'Docente que reingresa' }}</strong>
+          <small>{{ manualRetakeTeacher ? 'Volver al consecutivo' : 'Usar usuario anterior' }}</small>
+        </button>
+
         <div class="name-fields">
           <label>
             <span>Nombres *</span>
@@ -515,15 +538,6 @@
             </select>
           </label>
         </div>
-        <button
-          type="button"
-          class="retake-teacher-action"
-          [class.active]="manualRetakeTeacher"
-          (click)="toggleManualRetakeTeacher()"
-        >
-          <strong>{{ manualRetakeTeacher ? 'Usuario nuevo' : 'Docente que retoma' }}</strong>
-          <small>{{ manualRetakeTeacher ? 'Volver al consecutivo' : 'Usar usuario anterior' }}</small>
-        </button>
         @if (isAcademicCoordination()) {
           <div class="static-form-field">
             <span>Coordinador asignado</span>

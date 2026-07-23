@@ -319,6 +319,43 @@
         <router-outlet />
       </div>
     </main>
+
+    @if (captureCloseAlertVisible()) {
+      <div class="capture-close-alert-backdrop">
+        <section
+          class="capture-close-alert"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="captureCloseAlertTitle"
+        >
+          <button
+            class="capture-close-alert-close"
+            type="button"
+            aria-label="Cerrar aviso de cierre de captura"
+            (click)="dismissCaptureCloseAlert()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+
+          <span class="capture-close-alert-kicker">Aviso institucional</span>
+          <h2 id="captureCloseAlertTitle">Cierre de Captura</h2>
+
+          <p>
+            <strong>Estimadas Coordinaciones</strong>, la captura de asignaciones esta por cerrar el dia
+            <strong>{{ captureCloseAlertDateLabel }}</strong>, por lo que te recordamos realizar tus modificaciones
+            y cargas antes de la fecha de cierre.
+          </p>
+
+          <p class="capture-close-alert-signature">Att: Coordinacion de Sistemas</p>
+
+          <div class="capture-close-alert-actions">
+            <button type="button" (click)="dismissCaptureCloseAlert()">Entendido</button>
+          </div>
+        </section>
+      </div>
+    }
   </div>
 }
 

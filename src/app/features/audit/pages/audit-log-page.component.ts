@@ -17,6 +17,7 @@ interface SummaryRow {
   selector: 'app-audit-log-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  providers: [AuditLogRepository],
   templateUrl: './audit-log-page.component.html',
   styleUrl: './audit-log-page.component.css',
 })

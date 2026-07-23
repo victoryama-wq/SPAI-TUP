@@ -10,9 +10,10 @@ import {
   where,
   doc,
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { AppUser, USERS_COLLECTION } from '../../features/users/data/users.repository';
 import { AuthService } from './auth.service';
-import { FIREBASE_DB } from '../firebase/firebase.tokens';
+import { FIREBASE_APP, FIREBASE_DB } from '../firebase/firebase.tokens';
 
 export interface UserSession {
   authUid: string;
@@ -24,7 +25,13 @@ export interface UserSession {
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {
   private readonly authService = inject(AuthService);
+  private readonly firebaseApp = inject(FIREBASE_APP);
   private readonly firestore = inject(FIREBASE_DB);
+  private readonly functions = getFunctions(this.firebaseApp, 'us-central1');
+  private readonly syncUserProfileByEmail = httpsCallable<Record<string, never>, { synced: boolean; reason?: string }>(
+    this.functions,
+    'syncUserProfileByEmail',
+  );
   private readonly sessionSignal = signal<UserSession | null>(null);
 
   readonly session = this.sessionSignal.asReadonly();
@@ -92,6 +99,12 @@ export class UserSessionService {
           return emailSnapshot.docs[0] ?? null;
         }
 
+        const exactUidUser = candidates.find((item) => item.id === authUser.uid);
+
+        if (exactUidUser) {
+          return exactUidUser;
+        }
+
         const withPrograms = candidates.find((item) => {
           const assignedPrograms = item.data()['assignedPrograms'];
 
@@ -156,28 +169,26 @@ export class UserSessionService {
           const emailUser = { id: emailUserSnapshot.id, ...emailUserSnapshot.data() } as AppUser;
           const { id: _id, ...emailUserData } = emailUser;
 
-          setSession(emailUserSnapshot);
-
           if (emailUserSnapshot.id === authUser.uid) {
+            setSession(emailUserSnapshot);
             return;
           }
 
           if (!needsUidSync(emailUserData, fallbackSnapshot)) {
+            if (fallbackSnapshot?.exists()) {
+              setSession(fallbackSnapshot);
+              return;
+            }
+
+            setUnauthenticatedAppSession();
             return;
           }
 
           try {
-            await setDoc(
-              userRef,
-              {
-                ...emailUserData,
-                authUid: authUser.uid,
-                updatedAt: new Date().toISOString(),
-              },
-              { merge: true },
-            );
+            await this.syncUserProfileByEmail({});
           } catch (error) {
-            console.warn('El usuario se reconocio por correo, pero no se pudo enlazar automaticamente por UID.', error);
+            console.warn('El usuario se reconocio por correo, pero no se pudo migrar al UID de Firebase.', error);
+            setUnauthenticatedAppSession();
           }
         }, (error) => {
           console.error('No se pudo buscar el usuario por correo institucional', error);

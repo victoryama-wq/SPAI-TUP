@@ -108,45 +108,27 @@
 
         <div class="filters">
           <div class="assignment-search" role="search">
-            <label class="search-type-field">
-              <span>Buscar por</span>
-              <select [value]="searchField()" (change)="selectSearchField($event)">
-                <option value="program">Programa</option>
-                <option value="group">Grupo</option>
-                <option value="teacher">Docente</option>
-                <option value="subject">Materia</option>
-              </select>
+            <label class="search-field">
+              <span>Busqueda</span>
+              <div class="search-box">
+                <input
+                  type="text"
+                  aria-label="Buscar asignaciones"
+                  [value]="searchQuery()"
+                  (input)="updateSearchQuery($event)"
+                  placeholder="ID Moodle, materia, docente, programa, grupo o estado"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                @if (searchQuery()) {
+                  <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M18 6 6 18M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
             </label>
-            <div class="search-box" [class.open]="shouldShowSearchSuggestions()">
-              <input
-                type="search"
-                [attr.aria-label]="'Buscar por ' + searchFieldLabel()"
-                [value]="searchQuery()"
-                (input)="updateSearchQuery($event)"
-                (focus)="openSearchSuggestions()"
-                (blur)="closeSearchSuggestions()"
-                (keydown.escape)="closeSearchSuggestions()"
-                [placeholder]="searchPlaceholder()"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              @if (searchQuery()) {
-                <button class="clear-search-action" type="button" aria-label="Limpiar busqueda" title="Limpiar busqueda" (click)="clearSearch()">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M18 6 6 18M6 6l12 12"></path>
-                  </svg>
-                </button>
-              }
-              @if (shouldShowSearchSuggestions()) {
-                <div class="combo-menu search-suggestion-menu" aria-label="Predicciones de busqueda">
-                  @for (option of visibleSearchSuggestions(); track option) {
-                    <button type="button" (mousedown)="$event.preventDefault(); selectPredictedSearch(option)">
-                      <strong>{{ option }}</strong>
-                    </button>
-                  }
-                </div>
-              }
-            </div>
           </div>
           <label class="status-filter">
             <span>Estado</span>
@@ -182,7 +164,7 @@
         </thead>
       }
       <tbody>
-        @for (assignment of visibleAssignments(); track assignment.id) {
+        @for (assignment of paginatedAssignments(); track assignment.id) {
           <tr>
             @if (!isEnglishTab()) {
               <td data-label="ID Moodle">
@@ -222,7 +204,7 @@
                     <small class="shared-base-alert">{{ sharedBaseWarning(assignment) }}</small>
                   }
                   @if (assignment.studentEnrollments) {
-                    <small class="detail-note">Matricula(s): {{ assignment.studentEnrollments }}</small>
+                    <small class="detail-note">{{ studentEnrollmentsTableLabel(assignment) }}: {{ assignment.studentEnrollments }}</small>
                   }
                 </div>
               }
@@ -307,6 +289,33 @@
       </tbody>
         </table>
       </div>
+
+      @if (visibleAssignments().length) {
+        <div class="pagination-bar" aria-label="Paginacion de asignaciones academicas">
+          <span>
+            Mostrando {{ paginationStart() }}-{{ paginationEnd() }} de {{ visibleAssignments().length }} asignaciones
+          </span>
+
+          <div class="pagination-controls">
+            <label>
+              <span>Por pagina</span>
+              <select [value]="pageSize()" (change)="selectPageSize($event)">
+                @for (option of pageSizeOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+
+            <button type="button" [disabled]="currentSafePage() === 1" (click)="goToPreviousPage()">
+              Anterior
+            </button>
+            <strong>{{ currentSafePage() }} / {{ totalAssignmentPages() }}</strong>
+            <button type="button" [disabled]="currentSafePage() === totalAssignmentPages()" (click)="goToNextPage()">
+              Siguiente
+            </button>
+          </div>
+        </div>
+      }
     </div>
 
     <aside class="assignments-side-panel" aria-label="Seguimiento de asignaciones">
@@ -356,7 +365,7 @@
 </section>
 
 @if (isAssignmentModalOpen) {
-  <div class="modal-backdrop" role="presentation" (click)="closeAssignmentModal()">
+  <div class="modal-backdrop" role="presentation" (click)="!isSavingAssignment && closeAssignmentModal()">
     <section
       class="modal-panel"
       role="dialog"
@@ -369,7 +378,14 @@
           <span>Captura operativa</span>
           <h3 id="assignment-title">{{ modalTitle }}</h3>
         </div>
-        <button class="close-action" type="button" aria-label="Cerrar" title="Cerrar" (click)="closeAssignmentModal()">
+        <button
+          class="close-action"
+          type="button"
+          aria-label="Cerrar"
+          title="Cerrar"
+          [disabled]="isSavingAssignment"
+          (click)="closeAssignmentModal()"
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M18 6 6 18M6 6l12 12"></path>
           </svg>
@@ -610,11 +626,11 @@
             </select>
           </label>
           <label class="special-enrollments-field">
-            <span>Matricula(s) *</span>
+            <span>{{ studentEnrollmentsFieldLabel() }}</span>
             <textarea
               [(ngModel)]="assignmentForm.studentEnrollments"
               rows="2"
-              placeholder="Una matricula por linea, o separadas por coma"
+              [placeholder]="studentEnrollmentsPlaceholder()"
             ></textarea>
           </label>
           <label class="fixed-status-field">
@@ -742,16 +758,7 @@
             </div>
           }
         }
-        @if (isEnglishForm()) {
-          <label class="english-name-detail-field wide-field">
-            <span>Adicionales al nombre</span>
-            <textarea
-              [(ngModel)]="assignmentForm.observations"
-              rows="2"
-              placeholder="Ej. EJE, sabatino, grupo 1"
-            ></textarea>
-          </label>
-        } @else {
+        @if (!isEnglishForm()) {
           <details class="assignment-details wide-field">
             <summary>Detalles operativos</summary>
             <div class="details-grid">
@@ -789,24 +796,24 @@
       }
 
       <div class="modal-actions">
-        <button class="secondary-action" type="button" (click)="closeAssignmentModal()">Cancelar</button>
+        <button class="secondary-action" type="button" [disabled]="isSavingAssignment" (click)="closeAssignmentModal()">Cancelar</button>
         @if (!editingAssignmentId) {
           <button
             class="secondary-action continue-action"
             type="button"
-            [disabled]="!canCaptureAssignments()"
+            [disabled]="!canCaptureAssignments() || isSavingAssignment"
             (click)="saveAssignment(true)"
           >
-            Guardar y continuar agregando
+            {{ isSavingAssignment ? 'Guardando...' : 'Guardar y continuar agregando' }}
           </button>
         }
         <button
           class="primary-action"
           type="button"
-          [disabled]="!canCaptureAssignments()"
+          [disabled]="!canCaptureAssignments() || isSavingAssignment"
           (click)="saveAssignment()"
         >
-          {{ submitLabel }}
+          {{ isSavingAssignment ? 'Guardando...' : submitLabel }}
         </button>
       </div>
     </section>

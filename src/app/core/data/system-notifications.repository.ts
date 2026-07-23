@@ -6,6 +6,7 @@ import {
   doc,
   limit,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -28,6 +29,7 @@ export interface SystemNotification {
   actorRole: string;
   readBy: string[];
   createdAt: string;
+  milestone?: number;
 }
 
 export interface CreateSystemNotificationPayload {
@@ -39,6 +41,7 @@ export interface CreateSystemNotificationPayload {
   actorId: string;
   actorName: string;
   actorRole: string;
+  milestone?: number;
 }
 
 export interface CreateAcademicNotificationPayload extends CreateSystemNotificationPayload {
@@ -79,6 +82,7 @@ export class SystemNotificationsRepository {
       const notificationsQuery = this.isSystemsUser(appUser.role)
         ? query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
+            orderBy('createdAt', 'desc'),
             limit(100),
           )
         : query(
@@ -175,6 +179,7 @@ export class SystemNotificationsRepository {
         actorId: payload.actorId,
         actorName: payload.actorName,
         actorRole: payload.actorRole,
+        ...(payload.milestone ? { milestone: payload.milestone } : {}),
         readBy: [],
         createdAt: new Date().toISOString(),
       },

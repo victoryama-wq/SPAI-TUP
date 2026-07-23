@@ -1,16 +1,14 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth/auth.service';
+import { InactivityLogoutService } from './core/auth/inactivity-logout.service';
 import {
   SystemNotification,
   SystemNotificationsRepository,
 } from './core/data/system-notifications.repository';
 import { UserSessionService } from './core/auth/user-session.service';
-import { AssignmentsRepository } from './features/assignments/data/assignments.repository';
 import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 import { CyclesRepository } from './features/cycles/data/cycles.repository';
-import { GroupsRepository } from './features/groups/data/groups.repository';
-import { MeetLinksRepository } from './features/meet-links/data/meet-links.repository';
 import { SystemRequestsRepository } from './features/system-requests/data/system-requests.repository';
 import { AppUser, ModuleAccess } from './features/users/data/users.repository';
 import { ConfirmationDialogComponent } from './shared/confirmation/confirmation-dialog.component';
@@ -50,11 +48,9 @@ const ACADEMIC_COORDINATION_NAV_MODULES: ReadonlyArray<keyof ModuleAccess> = [
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
-  private readonly groupsRepository = inject(GroupsRepository);
-  private readonly meetLinksRepository = inject(MeetLinksRepository);
   private readonly authService = inject(AuthService);
+  private readonly inactivityLogoutService = inject(InactivityLogoutService);
   private readonly router = inject(Router);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly systemRequestsRepository = inject(SystemRequestsRepository);
@@ -62,6 +58,8 @@ export class AppComponent {
   private readonly isHeaderCollapsedSignal = signal(false);
   private readonly isProfileMenuOpenSignal = signal(false);
   private readonly isNotificationsMenuOpenSignal = signal(false);
+  private readonly captureCloseAlertDismissedSignal = signal(false);
+  private readonly captureCloseAlertStoragePrefix = 'spai:capture-close-alert:';
 
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly hasActiveAccess = computed(
@@ -163,67 +161,40 @@ export class AppComponent {
     return role;
   });
   readonly activeCycle = this.cyclesRepository.activeCycle;
-  readonly meetRouteMetrics = computed<RouteMetric[]>(() => {
-    const activeCycle = this.activeCycle();
+  readonly captureCloseAlertVisible = computed(() => {
+    const session = this.userSessionService.session();
+    const appUser = session?.appUser;
+    const cycle = this.activeCycle();
+    this.captureCloseAlertDismissedSignal();
 
-    if (!activeCycle) {
-      return [
-        { value: 0, label: 'Clases virtuales' },
-        { value: 0, label: 'Compartidas' },
-        { value: 0, label: 'Ligas capturadas' },
-        { value: 0, label: 'Pendientes' },
-      ];
+    if (!appUser || appUser.status !== 'Activo' || !cycle?.tentativeCaptureCloseAt) {
+      return false;
     }
 
-    const groups = this.groupsRepository.groups();
-    const assignments = this.assignmentsRepository.assignments()
-      .filter((assignment) => assignment.cycle === activeCycle.code && !assignment.special);
-    const legacySharedAssignments = new Map<string, string[]>();
+    if (!this.isAcademicCoordinationUser(appUser)) {
+      return false;
+    }
 
-    assignments
-      .filter((assignment) => assignment.shared && assignment.sourceAssignmentId)
-      .forEach((assignment) => {
-        const currentGroups = legacySharedAssignments.get(assignment.sourceAssignmentId) ?? [];
-        legacySharedAssignments.set(assignment.sourceAssignmentId, [...currentGroups, assignment.group]);
-      });
+    const closeDate = this.parseCycleDate(cycle.tentativeCaptureCloseAt);
 
-    const rows = assignments
-      .filter((assignment) => !assignment.sourceAssignmentId)
-      .map((assignment) => {
-        const sharedGroups = Array.from(new Set([
-          ...(assignment.sharedGroups ?? []),
-          ...(legacySharedAssignments.get(assignment.id) ?? []),
-        ].map((group) => group.trim().toUpperCase()).filter(Boolean)));
-        const involvedGroups = [assignment.group, ...sharedGroups];
-        const hasVirtualGroup = involvedGroups.some((fullGroup) =>
-          groups.some((group) => group.fullGroup === fullGroup && group.modality === 'Virtual'),
-        );
+    if (!closeDate) {
+      return false;
+    }
 
-        if (!hasVirtualGroup) {
-          return null;
-        }
+    const daysUntilClose = this.daysUntilDate(closeDate);
 
-        return {
-          id: assignment.id,
-          sharedGroups,
-        };
-      })
-      .filter((row): row is { id: string; sharedGroups: string[] } => row !== null);
-    const captured = rows.filter((row) => {
-      const meetLink = this.meetLinksRepository.meetLinks().find((link) => link.assignmentId === row.id);
+    if (daysUntilClose < 0 || daysUntilClose > 4) {
+      return false;
+    }
 
-      return meetLink?.status === 'GENERADA' || meetLink?.status === 'REVISADA';
-    }).length;
+    const alertKey = this.captureCloseAlertKey(cycle.code, cycle.tentativeCaptureCloseAt);
 
-    return [
-      { value: rows.length, label: 'Clases virtuales' },
-      { value: rows.filter((row) => row.sharedGroups.length > 0).length, label: 'Compartidas' },
-      { value: captured, label: 'Ligas capturadas' },
-      { value: rows.length - captured, label: 'Pendientes' },
-    ];
+    return !this.isCaptureCloseAlertDismissed(alertKey);
   });
 
   constructor() {
+    void this.inactivityLogoutService;
+
     effect(() => {
       const appUser = this.userSessionService.session()?.appUser;
 
@@ -261,6 +232,12 @@ export class AppComponent {
     return captureCloseAt ? this.formatCycleDate(captureCloseAt).toUpperCase() : '';
   }
 
+  get captureCloseAlertDateLabel(): string {
+    const captureCloseAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return captureCloseAt ? this.formatCycleDate(captureCloseAt) : 'la fecha configurada';
+  }
+
   get compactRouteContext(): RouteContext | null {
     const path = this.router.url.split('?')[0].replace(/\/+$/, '') || '/';
 
@@ -277,23 +254,92 @@ export class AppComponent {
         kicker: 'Clases virtuales',
         title: 'Ligas Meet',
         description: 'Concentra clases virtuales y evita duplicar clases compartidas.',
-        metrics: this.meetRouteMetrics(),
       };
     }
 
     return null;
   }
 
-  private formatCycleDate(value: string): string {
+  dismissCaptureCloseAlert(): void {
+    const cycle = this.activeCycle();
+
+    if (!cycle?.tentativeCaptureCloseAt) {
+      this.captureCloseAlertDismissedSignal.set(true);
+      return;
+    }
+
+    this.rememberCaptureCloseAlertDismissed(
+      this.captureCloseAlertKey(cycle.code, cycle.tentativeCaptureCloseAt),
+    );
+    this.captureCloseAlertDismissedSignal.set(true);
+  }
+
+  private parseCycleDate(value: string): Date | null {
     const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
       ? new Date(`${value}T12:00:00`)
       : new Date(value);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private formatCycleDate(value: string): string {
+    const date = this.parseCycleDate(value) ?? new Date();
 
     return new Intl.DateTimeFormat('es-MX', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     }).format(date);
+  }
+
+  private daysUntilDate(date: Date): number {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const target = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+
+    return Math.ceil((target - today) / 86_400_000);
+  }
+
+  private isAcademicCoordinationUser(appUser: AppUser): boolean {
+    const role = appUser.role.toLowerCase();
+
+    return role.includes('acad') && !role.includes('sistemas');
+  }
+
+  private captureCloseAlertKey(cycleCode: string, closeAt: string): string {
+    return `${this.captureCloseAlertStoragePrefix}${cycleCode}:${closeAt}`;
+  }
+
+  private isCaptureCloseAlertDismissed(alertKey: string): boolean {
+    try {
+      return window.sessionStorage.getItem(alertKey) === 'dismissed';
+    } catch {
+      return false;
+    }
+  }
+
+  private rememberCaptureCloseAlertDismissed(alertKey: string): void {
+    try {
+      window.sessionStorage.setItem(alertKey, 'dismissed');
+    } catch {
+      return;
+    }
+  }
+
+  private clearCaptureCloseAlertSession(): void {
+    this.captureCloseAlertDismissedSignal.set(false);
+
+    try {
+      for (let index = window.sessionStorage.length - 1; index >= 0; index -= 1) {
+        const key = window.sessionStorage.key(index);
+
+        if (key?.startsWith(this.captureCloseAlertStoragePrefix)) {
+          window.sessionStorage.removeItem(key);
+        }
+      }
+    } catch {
+      return;
+    }
   }
 
   isAssignmentsRoute(): boolean {
@@ -315,6 +361,7 @@ export class AppComponent {
   async toggleSession(): Promise<void> {
     this.isProfileMenuOpenSignal.set(false);
     this.isNotificationsMenuOpenSignal.set(false);
+    this.clearCaptureCloseAlertSession();
     await this.authService.signOut();
     void this.router.navigate(['/']);
   }

@@ -120,19 +120,25 @@ Reglas:
 - El acceso debe restringirse a cuentas Google con correo institucional autorizado.
 - El proveedor Google debe enviar la sugerencia de dominio institucional mediante `hd: tecplayacar.edu.mx`.
 - Si el correo autenticado no termina en `@tecplayacar.edu.mx`, la aplicacion debe cerrar sesion y negar el acceso.
+- La sesion autenticada debe cerrarse automaticamente despues de 45 minutos de inactividad para forzar una carga limpia del sistema en el siguiente ingreso.
 
 ### Estado implementado de Firebase backend base
 
 - La base Angular ya inicializa Firebase desde `src/environments/environment.ts` y `src/environments/environment.prod.ts`.
 - La configuracion real del proyecto Firebase ya fue integrada para el proyecto `spai-tup-2f261`.
-- La aplicacion usa Firebase SDK modular directamente, sin backend Node propio.
+- La aplicacion usa Firebase SDK modular directamente y Cloud Functions puntuales para procesos que requieren privilegios de servidor.
 - `app.config.ts` registra providers para Firebase App, Firebase Authentication y Cloud Firestore.
 - `AuthService` gestiona inicio de sesion con Google mediante popup, persistencia local, sugerencia de dominio institucional y cierre de sesion.
 - `UserSessionService` observa la sesion autenticada y busca primero el documento exacto por UID; si no existe, busca por correo institucional y prioriza documentos activos.
+- Si un usuario activo fue creado con ID automatico antes de tener UID de Firebase Auth, SPAI debe migrarlo a `usuarios/{auth.uid}` mediante Cloud Functions, copiando `role`, `access`, `assignedPrograms`, `status` y datos institucionales desde el perfil activo.
+- La sincronizacion por correo no debe permitir que el cliente se autoasigne permisos desde el frontend; debe ejecutarse en servidor con validacion de dominio `@tecplayacar.edu.mx`.
 - Si una cuenta Google entra sin usuario activo, se crea un documento bootstrap inactivo en `usuarios`.
-- Si Sistemas creo antes el usuario por correo, el primer inicio de sesion con Google enlaza el documento existente con `authUid`.
+- Si Sistemas creo antes el usuario por correo, el primer inicio de sesion con Google migra el perfil existente al documento por UID que requieren las reglas de Firestore.
+- No deben conservarse perfiles espejo ni documentos duplicados para el mismo correo institucional. La fuente operativa debe ser un solo documento canonico en `usuarios/{auth.uid}`. Antes de eliminar duplicados historicos, SPAI debe actualizar referencias internas que apunten al ID anterior, por ejemplo `docentes.assignedCoordinatorIds`, sin modificar asignaciones academicas.
+- La interfaz puede deduplicar usuarios como defensa visual, pero no debe depender de duplicados persistidos para permisos ni escritura.
 - La sesion activa de producto depende del documento Firestore en `usuarios`, no solamente del `displayName` de Google.
 - Firebase Hosting queda preparado con `firebase.json`, salida `dist/spai-tup-angular/browser` y rewrite a `index.html`.
+- Cloud Functions for Firebase queda implementado para notificaciones por correo y sincronizacion segura de perfiles por UID.
 - Cloud Storage queda declarado para fase CSV, pero con reglas iniciales cerradas hasta implementar flujos de archivos.
 - Firestore indexes queda preparado con `firestore.indexes.json` inicialmente vacio.
 
@@ -796,8 +802,8 @@ CSV esperado:
 
 ```csv
 id_docente,nombre_completo,usuario_moodle,estatus,correo,tipo_pago,categoria,telefono,ubicacion,coordinador_responsable,observaciones
-DOC-0001,JUAN PEREZ LOPEZ,jperez,VALIDADO,juan.perez@tecplayacar.edu.mx,SANTANDER,V-35hrs,9841234567,LOCAL,Lizett Mendez Prueba,
-DOC-0002,MARIA TORRES GARCIA,mtorres,VALIDADO,maria.torres@tecplayacar.edu.mx,BANORTE,M-25hrs,9847654321,FORANEO,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
+DOC-0001,JUAN PEREZ LOPEZ,jperez,ACTIVO,juan.perez@tecplayacar.edu.mx,1,V,9841234567,LOCAL,coord1@tecplayacar.edu.mx,
+DOC-0002,MARIA TORRES GARCIA,mtorres,ACTIVO,maria.torres@tecplayacar.edu.mx,2,M,9847654321,FORANEO,"coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx",
 ```
 
 Reglas:
@@ -807,12 +813,13 @@ Reglas:
 - `usuario_moodle` no puede duplicarse.
 - Si `id_docente` viene vacio, el sistema lo genera.
 - Si `estatus` viene vacio, se guarda como `VALIDADO`.
+- `estatus` acepta `ACTIVO`/`ACTIVA` como sinonimo operativo de `VALIDADO`, ademas de `PENDIENTE`, `VALIDADO` e `INACTIVO`.
 - `correo` es opcional.
 - En alta manual, `correo` ya no se captura como dato independiente; se construye desde `usuario_moodle` y el dominio institucional.
-- `tipo_pago` es opcional y acepta `EFECTIVO`, `SANTANDER` o `BANORTE`.
-- `categoria` es opcional y acepta `V-35hrs`, `M-25hrs` o `N-15hrs`.
+- `tipo_pago` es opcional y acepta texto o codificacion administrativa: `1` Santander, `2` Banorte, `3` Efectivo.
+- `categoria` es opcional y acepta abreviatura o etiqueta completa: `V`/`V-35hrs`, `M`/`M-25hrs` o `N`/`N-15hrs`.
 - `telefono` es opcional; si se captura debe tener exactamente 10 digitos numericos.
-- `ubicacion` es opcional y acepta `FORANEO`, `LOCAL` o `VIRTUAL`.
+- `ubicacion` es opcional y acepta `FORANEO`/`FORÁNEO`, `LOCAL` o `VIRTUAL`.
 - `coordinador_responsable` es opcional.
 - Si `coordinador_responsable` viene lleno, el sistema intenta enlazarlo con usuarios activos de Coordinacion Academica.
 - El enlace puede hacerse por nombre, correo institucional, `authUid` o ID interno.
@@ -929,7 +936,9 @@ Reglas:
 - Para captura en Asignaciones, los programas permitidos de Coordinacion Academica se calculan con `usuarios.assignedPrograms` y tambien con los programas donde `programas.coordinator` coincida con el nombre o correo del usuario activo.
 - La validacion de programa permitido en Asignaciones debe usar equivalencias de Nomenclaturas entre `abbreviation` y `programCode`, para que un grupo no quede oculto cuando el usuario tenga asignado el codigo relacionado y no la abreviatura exacta del grupo.
 - Al guardar Asignaciones, `createdBy` debe guardar el UID real de Firebase Auth y el codigo de programa enviado a Firestore debe ser compatible con `usuarios.assignedPrograms` o con las equivalencias calculadas en `createdByPrograms`.
-- Las asignaciones nuevas usan ID automatico de Firestore; la prevencion de duplicados se hace por ciclo, ID Moodle y asignatura para evitar que documentos historicos o archivados bloqueen nuevas capturas.
+- Las asignaciones nuevas usan ID deterministico de Firestore calculado con ciclo, programa, grupo o matricula, asignatura, ID Moodle y tipo de asignacion. Si se reintenta el mismo guardado por doble clic, recarga o inestabilidad de red, SPAI debe actualizar el mismo documento y no crear duplicados.
+- Antes de mostrar exito o cerrar el modal, SPAI debe confirmar el documento guardado con lectura directa desde servidor. No se considera guardada una asignacion solo por cache local o escritura pendiente.
+- La recarga global de la tabla despues del guardado no debe bloquear el cierre del modal; la confirmacion critica se hace por documento individual y el refresco de la vista ocurre en segundo plano.
 - Las reglas de Firestore para Asignaciones deben permitir que Sistemas gestione todo y que Coordinacion Academica gestione registros cuyo `program` o `sharedPrograms` coincidan con sus `assignedPrograms`.
 - La accion eliminar en Asignaciones debe borrar fisicamente el documento de Firestore cuando las reglas lo permitan; no debe ocultarlo con `deletedAt` como respaldo silencioso.
 - La deteccion de Posgrados en Asignaciones debe usar programas, nomenclaturas, `programType`, nombre de programa, plan y notas para identificar maestrias, doctorados, posgrados o especializaciones de Campus TUP.
@@ -1054,7 +1063,8 @@ Catalogo global en Asignaciones:
 - El alcance global no concede permisos de captura, edicion o eliminacion sobre programas ajenos; esas acciones siguen sujetas al programa asignado, creador del registro y rol operativo.
 - Si una asignacion del ciclo activo no puede resolver su grupo contra el catalogo de Grupos, la interfaz debe clasificarla por los datos guardados de la asignacion para evitar que quede invisible en la vista global.
 - Si existen asignaciones del ciclo activo pero no aparecen por pestana, estado o busqueda, la tabla debe mostrar un mensaje de vacio explicando que la vista actual las esta filtrando.
-- El guardado de Asignaciones debe esperar confirmacion de Firestore antes de cerrar el modal o mostrar exito; si Firestore rechaza la escritura, el modal permanece abierto y muestra el error.
+- El guardado de Asignaciones debe esperar confirmacion de Firestore antes de cerrar el modal o mostrar exito; si Firestore rechaza la escritura, no responde a tiempo o no devuelve el documento confirmado desde servidor, el modal permanece abierto y muestra el error.
+- Si una lectura de catalogo o tabla falla por permisos, red o timeout, SPAI no debe vaciar silenciosamente los datos ya cargados en pantalla; debe conservar la ultima vista util y mostrar el error de lectura.
 
 Clases compartidas en tabla:
 
@@ -1245,6 +1255,7 @@ Reglas implementadas:
 - Sistemas puede marcar solicitudes como `EN_PROCESO`, `ATENDIDA` o `RECHAZADA`.
 - Al cambiar estado, se intenta notificar a la Coordinacion Academica solicitante.
 - Cuando Coordinacion Academica registra un docente nuevo, tambien se genera una solicitud `DOCENTE_NUEVO` para que Sistemas la vea en la bandeja y conserve registro operativo.
+- Si Sistemas marca como `ATENDIDA` una solicitud `DOCENTE_NUEVO`, SPAI busca el docente pendiente vinculado por usuario Moodle y coordinacion solicitante, lo valida automaticamente antes de cerrar la solicitud y notifica a la Coordinacion Academica relacionada. Si no se encuentra un docente vinculado, la solicitud no se cierra como atendida y Sistemas debe revisar el catalogo de Docentes.
 - Al activar el docente desde el modulo Docentes, Sistemas notifica a la Coordinacion Academica relacionada mediante campana.
 - Sistemas puede eliminar solicitudes de prueba o registros no necesarios desde la bandeja.
 - Si Firebase no permite `delete` directo por reglas publicadas, el sistema archiva la solicitud con `deletedAt` y deja de mostrarla en la bandeja.
@@ -1273,7 +1284,8 @@ grupos virtuales + asignaciones + clases compartidas
 
 Reglas:
 
-- Si el grupo es virtual, sus asignaciones aparecen en el modulo de Ligas Meet.
+- Si el grupo es virtual, sus asignaciones aparecen en la vista **Sesiones Virtuales** del modulo de Ligas Meet.
+- Si el grupo pertenece a posgrados Campus TUP, sus asignaciones aparecen en la vista **Sesiones de Posgrado** del mismo modulo porque tambien requieren liga Meet.
 - Una clase virtual no compartida tiene una liga Meet propia.
 - Una clase virtual compartida debe tener una sola liga Meet.
 - La liga se registra en la clase origen o anfitriona.
@@ -1308,7 +1320,9 @@ Datos visibles para Sistemas:
 
 Implementacion actual:
 
-- El modulo Ligas Meet lee las asignaciones del ciclo activo y solo muestra clases que incluyan grupos virtuales.
+- El modulo Ligas Meet lee las asignaciones del ciclo activo y permite alternar entre sesiones virtuales y sesiones de posgrado.
+- La vista **Sesiones Virtuales** muestra clases que incluyan grupos virtuales.
+- La vista **Sesiones de Posgrado** muestra clases de posgrado Campus TUP.
 - Si una clase virtual esta compartida, se muestra una sola fila asociada a la asignacion origen/anfitriona.
 - La liga se guarda en la coleccion `ligas_meet` usando como documento el ID de la asignacion origen.
 - Coordinacion de Sistemas puede capturar liga, estado Meet y horario de clase virtual mediante selector de fecha y hora.
@@ -1342,8 +1356,9 @@ Reglas:
 Reglas de `templatecourse`:
 
 - Virtual, Ejecutivo, Maestria o Especialidad: nombre de asignatura en mayusculas, sin acentos y con guiones bajos.
-- Licenciatura escolarizada ENF: `CURSO_DEMO_ENF`.
-- Licenciatura escolarizada NUT: `CURSO_DEMO_NUT`.
+- Licenciatura escolarizada ENF: si existe plantilla especifica por nombre de asignatura se usa esa plantilla; si no existe, se usa `CURSO_DEMO_ENF`.
+- Licenciatura escolarizada NUT: si existe plantilla especifica por nombre de asignatura se usa esa plantilla; si no existe, se usa `CURSO_DEMO_NUT`.
+- Casos especiales de Arquitectura (`ARQ` o `LARQ`): si no existe plantilla especifica por codigo o nombre de asignatura, se usa `CURSO_DEMO_ESCOLARIZADO`.
 - Resto de licenciaturas escolarizadas: `CURSO_DEMO_ESCOLARIZADO`.
 
 Estado operativo implementado:
@@ -1871,11 +1886,11 @@ Nota: la carpeta implementada usa nombres en ingles (`users`, `cycles`) dentro d
 - Asignaturas.
 - Estado actual: Asignaturas ya cuenta con catalogo Firestore, alta manual, edicion, activacion/inactivacion, consulta de activas para coordinadores y carga CSV con vista previa de validos, duplicados y errores.
 - Asignaciones.
-- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica con **Mis programas** por defecto y boton **Catalogo global** para consulta general, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestanas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/eliminar, relacion visual de clase compartida para base y destinos, permisos de borrado por rol/creador y bitacora.
+- Estado actual: Asignaciones ya cuenta con repositorio Firestore, ruta funcional, captura/edicion condicionada al ciclo activo en Captura, vista de Sistemas completa, vista de Coordinacion Academica con **Mis programas** por defecto y boton **Catalogo global** para consulta general, filtros por ciclo activo, programa, grupo/matricula, estado, docente y asignatura, pestanas por Escolarizado, Ejecutivo, Virtual, Salud, Posgrados y Especiales, captura especial por matriculas sin grupo, docente temporal, acciones de editar/eliminar, relacion visual de clase compartida para base y destinos, permisos de borrado por rol/creador, bitacora, guardado con ID deterministico y confirmacion directa de Firestore antes de mostrar exito.
 
 - Solicitudes.
 - Estado actual: Solicitudes ya cuenta con repositorio Firestore, ruta funcional, tipos `COMPARTIR_CLASE`, `REABRIR_CAPTURA`, `ALTA_GRUPO` y `ASIGNACION_ESPECIAL`, tabla con columna `Asunto`, filtros en modal por programa/grupo/estado/busqueda libre, chips de filtros activos, tabs Recibidas/Enviadas/Todas para Sistemas, respuesta por modal, acciones automaticas al aceptar y bitacora. El ciclo no aparece como filtro.
-- Estado actual: Solicitudes a Sistemas desde dashboard ya permite crear apoyos operativos para `REABRIR_CAPTURA`, `ALTA_GRUPO` y `CAMBIAR_ID_ASIGNATURA`; Sistemas las atiende en bandeja, recibe aviso en campanita, puede marcar leidas y puede eliminar/archivar solicitudes no necesarias.
+- Estado actual: Solicitudes a Sistemas desde dashboard ya permite crear apoyos operativos para `REABRIR_CAPTURA`, `ALTA_GRUPO`, `CAMBIAR_ID_ASIGNATURA` y `DOCENTE_NUEVO`; Sistemas las atiende en bandeja, recibe aviso en campanita, puede marcar leidas, puede eliminar/archivar solicitudes no necesarias y puede validar automaticamente docentes nuevos al marcar su solicitud como `ATENDIDA`.
 
 ### Fase 3 - Importaciones
 
@@ -2155,12 +2170,15 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - La fecha se muestra como **Cierre de Captura** y no como fecha tentativa.
 - En modulos operativos compactos como Moodle y Ligas Meet, el ciclo activo y el Cierre de Captura se presentan como panel institucional reducido para no consumir altura innecesaria.
 - En los demas modulos se conserva la presentacion original del ciclo cuando no se haya solicitado rediseño especifico.
+- Cuando falten 4 dias o menos para el Cierre de Captura, Coordinacion Academica debe ver al iniciar sesion un aviso modal institucional con boton de cierre `X` y accion `Entendido`; el aviso se puede descartar durante esa sesion y vuelve a mostrarse despues de cerrar sesion e ingresar nuevamente mientras siga dentro del periodo de alerta.
 - Los historicos deben permitir consultar informacion vinculada al ciclo anterior cuando el modulo lo soporte.
 
 ### 24.3 Usuarios, roles y sincronizacion Auth
 
 - Los usuarios pueden existir en Firestore antes de tener `authUid`.
 - Cuando una persona inicia sesion con Google por primera vez, el sistema debe permitir sincronizar su `authUid` con el usuario institucional ya creado.
+- Las reglas de Firestore toman los permisos efectivos desde `usuarios/{auth.uid}`; por eso todo usuario activo debe terminar con un documento por UID que contenga `role`, `access`, `assignedPrograms`, `status`, `email` y `authUid`.
+- Si existe un perfil activo por correo con ID automatico, `syncUserProfileByEmail` migra los permisos al documento UID desde Cloud Functions y elimina duplicados por correo despues de preservar referencias internas necesarias. La interfaz no debe usar el perfil por correo como sesion operativa si aun no existe el documento UID.
 - El estado `Activo` no es suficiente si `authUid` sigue pendiente; Sistemas debe poder detectar y sincronizar usuarios con OAuth pendiente.
 - Coordinacion Academica no ve Usuarios ni Ciclos.
 - Sistemas y auxiliares autorizados pueden administrar usuarios, accesos y programas asignados.
@@ -2224,11 +2242,13 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
   - Ubicacion: `Foraneo`, `Local` o `Virtual`.
 - La tabla actual del catalogo de Docentes muestra tipo de pago, categoria, telefono y ubicacion para facilitar revision operativa.
 - La plantilla CSV de Docentes incluye `tipo_pago`, `categoria`, `telefono` y `ubicacion` para completar o actualizar informacion pendiente de forma masiva.
+- La importacion CSV de Docentes acepta los codigos operativos usados en reportes: `tipo_pago` `1` Santander, `2` Banorte y `3` Efectivo; `categoria` `V`, `M` o `N`; `estatus` `ACTIVO` como equivalente de validado.
 - El reporte CSV de Docentes exporta `tipo_pago` con codificacion administrativa: `1` Santander, `2` Banorte y `3` Efectivo.
 - Coordinacion Academica puede agregar docentes; quedan pendientes hasta validacion de Sistemas.
 - Al registrar un docente pendiente, Sistemas recibe notificacion en campanita y correo institucional cuando el servicio de correo este configurado.
 - Al validar o activar un docente, la coordinacion relacionada recibe notificacion en campanita.
 - Sistemas puede descargar un CSV de docentes con su coordinacion asignada.
+- Sistemas puede descargar un CSV Moodle de docentes pendientes de validacion con columnas `username`, `password`, `email`, `firstname`, `lastname`, `cohort1` y `auth`; `password` siempre es `#Tecplayacar2019`, `cohort1` queda vacio y `auth` siempre es `oauth2`.
 - Al guardar un docente desde Coordinacion Academica, el modal debe limpiarse o cerrarse despues de confirmar escritura en Firestore.
 
 ### 24.7 Asignaturas
@@ -2352,11 +2372,11 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 
 ### 24.13 Ligas Meet
 
-- Ligas Meet ya no es solo pendiente; el modulo opera como vista de sesiones virtuales derivadas de Asignaciones.
-- El titulo operativo de la tabla es **Sesiones Virtuales**.
+- Ligas Meet ya no es solo pendiente; el modulo opera con vistas derivadas de Asignaciones.
+- El titulo operativo de la tabla cambia segun la vista seleccionada: **Sesiones Virtuales** o **Sesiones de Posgrado**.
 - El modulo usa el ciclo activo.
 - No debe mostrar ID interno SPAI de asignatura.
-- Debe mostrar ID Moodle, asignatura, grupo origen, grupos virtuales, grupos compartidos, docente, estado de asignacion, estado Meet, liga Meet y horario.
+- Debe mostrar ID Moodle, asignatura, grupo origen, grupos virtuales o grupos de posgrado segun la vista, grupos compartidos, docente, estado de asignacion, estado Meet, liga Meet y horario.
 - El campo anterior de Observaciones Meet se reemplaza por **Horario** con selector de fecha y hora.
 - Estados Meet:
   - Pendiente.
@@ -2449,9 +2469,10 @@ Reglas de deteccion de plantilla:
 - Si la asignatura inicia con codigo `AX####` y existe una plantilla con el mismo codigo, se asigna esa plantilla.
 - Esta regla aplica tambien para ENF y NUT cuando usen asignaturas axiologicas con codigo.
 - Escolarizado usa `CURSO_DEMO_ESCOLARIZADO` solo cuando no pertenece a nomenclaturas del plan 2027 ni a reglas especiales por codigo.
-- Salud ENF con grupos `ENF 11` o `ENF 12` usa `CURSO_DEMO_ENF`.
-- Salud NUT con grupos `NUT 11` o `NUT 12` usa `CURSO_DEMO_NUT`.
-- Ejecutivo, Virtual y Especiales deben buscar una plantilla cuyo nombre coincida con la asignatura, normalizando mayusculas, acentos, signos de puntuacion, espacios y guiones bajos.
+- Salud ENF con grupos `ENF 11` o `ENF 12` primero busca plantilla especifica por nombre de asignatura; si no hay coincidencia, usa `CURSO_DEMO_ENF`.
+- Salud NUT con grupos `NUT 11` o `NUT 12` primero busca plantilla especifica por nombre de asignatura; si no hay coincidencia, usa `CURSO_DEMO_NUT`.
+- Ejecutivo, Virtual, Posgrados, Especiales, especialidades `EECI`/`EEQX` y maestria `MADH` deben buscar una plantilla cuyo nombre coincida con la asignatura, normalizando mayusculas, acentos, signos de puntuacion, espacios y guiones bajos.
+- Para asignaciones de Posgrados, incluyendo la maestria `MADH`, tambien se permite detectar plantilla por codigo inicial de la asignatura o plantilla, por ejemplo `MAEH1`, antes de caer a la coincidencia por nombre.
 - Las asignaturas del plan 2027 deben llevar codigo al inicio; si no lo tienen, Sistemas debe ver una alerta para verificarlas.
 - Si el grupo es `PSIC`, la plantilla se detecta por codigo abreviado de Psicologia; por ejemplo `PSIC0102` puede coincidir con plantilla `PSIC02`.
 - La plantilla Demo no debe reemplazar una plantilla especifica detectada por codigo.

@@ -3,6 +3,7 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { logger } = require('firebase-functions');
 const { defineSecret } = require('firebase-functions/params');
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const { HttpsError, onCall } = require('firebase-functions/v2/https');
 const nodemailer = require('nodemailer');
 
 initializeApp();
@@ -32,6 +33,15 @@ exports.sendEmailForNotification = onDocumentCreated(
 
     const notification = snapshot.data();
     const notificationId = event.params.notificationId;
+
+    if (shouldSkipAssignmentMilestoneEmail(notification)) {
+      await markEmailStatus(notificationId, {
+        emailStatus: 'OMITIDO_HITO_NO_VALIDO',
+        emailUpdatedAt: FieldValue.serverTimestamp(),
+      });
+      return;
+    }
+
     const recipients = await recipientsForNotification(notification);
 
     if (!recipients.length) {
@@ -83,6 +93,134 @@ exports.sendEmailForNotification = onDocumentCreated(
     }
   },
 );
+
+exports.syncUserProfileByEmail = onCall(
+  {
+    region: 'us-central1',
+  },
+  async (request) => {
+    const auth = request.auth;
+
+    if (!auth?.uid || !auth.token?.email) {
+      throw new HttpsError('unauthenticated', 'Debes iniciar sesion para sincronizar el perfil.');
+    }
+
+    const email = String(auth.token.email).trim().toLowerCase();
+
+    if (!email.endsWith('@tecplayacar.edu.mx')) {
+      throw new HttpsError('permission-denied', 'Solo se permiten correos institucionales.');
+    }
+
+    const usersSnapshot = await db.collection('usuarios').get();
+    const matchingUsers = usersSnapshot.docs
+      .map((doc) => ({ ref: doc.ref, id: doc.id, data: doc.data() }))
+      .filter((user) => normalizeTarget(user.data.email) === normalizeTarget(email));
+
+    if (!matchingUsers.length) {
+      return { synced: false, reason: 'not-found' };
+    }
+
+    const activeUsers = matchingUsers.filter((user) => normalize(user.data.status) === 'activo');
+    const source = pickUserProfileSource(activeUsers.length ? activeUsers : matchingUsers, auth.uid);
+
+    if (!source) {
+      return { synced: false, reason: 'not-found' };
+    }
+
+    const sourceData = source.data;
+    const timestamp = new Date().toISOString();
+    const payload = userProfilePayloadForUid(sourceData, auth.uid, email, timestamp);
+
+    const batch = db.batch();
+    const uidRef = db.collection('usuarios').doc(auth.uid);
+    batch.set(uidRef, payload, { merge: true });
+
+    const duplicateUsers = matchingUsers.filter((user) => user.id !== auth.uid);
+
+    duplicateUsers.forEach((user) => {
+      batch.delete(user.ref);
+    });
+
+    await batch.commit();
+
+    return {
+      synced: true,
+      sourceUserId: source.id,
+      uid: auth.uid,
+      deletedDuplicates: duplicateUsers.length,
+    };
+  },
+);
+
+function pickUserProfileSource(users, authUid) {
+  const uidUser = users.find((user) => user.id === authUid && normalize(user.data.status) === 'activo');
+
+  if (uidUser && Array.isArray(uidUser.data.assignedPrograms) && uidUser.data.assignedPrograms.length > 0) {
+    return uidUser;
+  }
+
+  return users.find((user) => user.id !== authUid && Array.isArray(user.data.assignedPrograms) && user.data.assignedPrograms.length > 0)
+    || uidUser
+    || users.find((user) => user.id !== authUid)
+    || users[0]
+    || null;
+}
+
+function userProfilePayloadForUid(sourceData, authUid, email, timestamp) {
+  const fieldsToCopy = [
+    'name',
+    'role',
+    'greetingGender',
+    'assignedPrograms',
+    'access',
+    'status',
+    'createdAt',
+  ];
+  const payload = {};
+
+  fieldsToCopy.forEach((field) => {
+    if (sourceData[field] !== undefined) {
+      payload[field] = sourceData[field];
+    }
+  });
+
+  return {
+    ...payload,
+    email,
+    authUid,
+    syncedFromUserDoc: FieldValue.delete(),
+    updatedAt: timestamp,
+  };
+}
+
+function shouldSkipAssignmentMilestoneEmail(notification) {
+  if (notification.type !== 'ASIGNACIONES_HITO') {
+    return false;
+  }
+
+  const milestone = milestoneFromNotification(notification);
+
+  return !milestone || milestone % 15 !== 0;
+}
+
+function milestoneFromNotification(notification) {
+  const candidates = [
+    notification.milestone,
+    notification.title,
+    notification.message,
+    notification.entityId,
+  ];
+
+  for (const candidate of candidates) {
+    const match = String(candidate ?? '').match(/(?:hito\s+de\s+)?(\d+)\s+asignaciones/i);
+
+    if (match) {
+      return Number(match[1]);
+    }
+  }
+
+  return 0;
+}
 
 async function recipientsForNotification(notification) {
   const usersSnapshot = await db.collection('usuarios').get();

@@ -14,6 +14,7 @@ import {
   TeachersRepository,
   UpsertTeacherPayload,
 } from '../data/teachers.repository';
+import { ModulePermissionService } from '../../users/data/module-permission.service';
 import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import { SystemRequestsRepository } from '../../system-requests/data/system-requests.repository';
@@ -59,6 +60,11 @@ const TEACHER_LOCATION_OPTIONS: Array<{ value: TeacherLocation; label: string }>
 @Component({
   selector: 'spai-teachers-page',
   imports: [CommonModule, FormsModule],
+  providers: [
+    AuditLogRepository,
+    TeachersRepository,
+    UsersRepository,
+  ],
   templateUrl: './teachers-page.component.html',
   styleUrl: './teachers-page.component.css',
 })
@@ -67,6 +73,7 @@ export class TeachersPageComponent {
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly userSessionService = inject(UserSessionService);
+  private readonly modulePermissionService = inject(ModulePermissionService);
   private readonly usersRepository = inject(UsersRepository);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly cyclesRepository = inject(CyclesRepository);
@@ -135,9 +142,20 @@ export class TeachersPageComponent {
   readonly canManageTeachers = computed(() => {
     const appUser = this.session()?.appUser;
     return appUser?.status === 'Activo'
+      && this.modulePermissionService.canEditModule(appUser, 'docentes')
       && (appUser.role.includes('Sistemas')
         || (appUser.role === 'Auxiliar de Sistemas' && appUser.access?.docentes));
   });
+
+  readonly canDownloadTeacherReport = computed(() => {
+    const appUser = this.session()?.appUser;
+    return appUser?.status === 'Activo' && Boolean(appUser.access?.docentes || this.canManageTeachers());
+  });
+
+  readonly showTeacherActionsColumn = computed(() =>
+    this.canManageTeachers()
+    || this.visiblePanelTeachers().some((teacher) => this.canDeleteOwnPendingNewTeacher(teacher)),
+  );
 
   readonly isAcademicCoordination = computed(() => {
     const appUser = this.session()?.appUser;
@@ -505,6 +523,7 @@ export class TeachersPageComponent {
         fullName: teacherFullName,
         moodleUser: this.normalizeMoodleAccount(this.manualForm.moodleUser),
         status,
+        lifecycleStatus: this.manualRetakeTeacher ? 'RETOMO' : 'NUEVO',
         origin: 'MANUAL',
         email: this.buildInstitutionalEmail(this.manualForm.moodleUser),
         paymentType: this.manualForm.paymentType,
@@ -745,13 +764,16 @@ export class TeachersPageComponent {
   }
 
   async deleteTeacher(teacher: Teacher): Promise<void> {
-    if (!this.canManageTeachers() || teacher.status !== 'INACTIVO') {
+    if (!this.canDeleteTeacher(teacher)) {
       return;
     }
 
+    const releasesMoodleUser = this.canDeleteOwnPendingNewTeacher(teacher);
     const confirmed = await this.confirmationDialogService.confirm({
       title: 'Eliminar docente',
-      message: `Eliminar a ${teacher.fullName}? Esta accion quitara el registro del catalogo de docentes.`,
+      message: releasesMoodleUser
+        ? `Eliminar la solicitud de ${teacher.fullName}? El usuario Moodle ${teacher.moodleUser} quedara disponible para el siguiente docente nuevo.`
+        : `Eliminar a ${teacher.fullName}? Esta accion quitara el registro del catalogo de docentes.`,
       confirmLabel: 'Eliminar',
       tone: 'danger',
     });
@@ -763,7 +785,7 @@ export class TeachersPageComponent {
     const actor = this.actorData();
 
     try {
-      await this.teachersRepository.deleteTeacher(teacher.id);
+      const result = await this.teachersRepository.deleteTeacher(teacher, actor);
       this.auditLogRepository.register({
         module: 'Docentes',
         action: 'DOCENTE_ELIMINADO',
@@ -775,21 +797,55 @@ export class TeachersPageComponent {
         metadata: {
           moodleUser: teacher.moodleUser,
           previousStatus: teacher.status,
+          releasedMoodleUser: result.releasedMoodleUser,
+          releasedMoodleNumber: result.releasedMoodleNumber ?? '',
         },
       });
-      this.formMessage = `Docente ${teacher.fullName} eliminado correctamente.`;
+      this.formMessage = result.releasedMoodleUser
+        ? `Docente ${teacher.fullName} eliminado correctamente. El usuario Moodle ${teacher.moodleUser} queda disponible nuevamente.`
+        : `Docente ${teacher.fullName} eliminado correctamente.`;
       this.formErrors = [];
     } catch (error) {
       this.formErrors = [`No se pudo eliminar el docente. ${this.errorMessage(error)}`];
     }
   }
 
+  canDeleteTeacher(teacher: Teacher): boolean {
+    return (this.canManageTeachers() && teacher.status === 'INACTIVO')
+      || this.canDeleteOwnPendingNewTeacher(teacher);
+  }
+
+  private canDeleteOwnPendingNewTeacher(teacher: Teacher): boolean {
+    const session = this.session();
+    const appUser = session?.appUser;
+
+    if (!appUser || appUser.status !== 'Activo') {
+      return false;
+    }
+
+    if (!appUser.access?.docentes && !this.modulePermissionService.canEditModule(appUser, 'docentes')) {
+      return false;
+    }
+
+    if (teacher.status !== 'PENDIENTE' || teacher.origin !== 'MANUAL' || teacher.lifecycleStatus !== 'NUEVO') {
+      return false;
+    }
+
+    const actorIds = new Set(
+      [appUser.id, appUser.authUid, session?.authUid]
+        .map((id) => id?.trim())
+        .filter((id): id is string => Boolean(id)),
+    );
+
+    return actorIds.has(teacher.createdBy);
+  }
+
   downloadCsvTemplate(): void {
     const csvContent = [
       ['id_docente', 'nombre_completo', 'usuario_moodle', 'estatus', 'correo', 'tipo_pago', 'categoria', 'telefono', 'ubicacion', 'coordinador_responsable', 'observaciones'],
-      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'VALIDADO', 'juan.perez@tecplayacar.edu.mx', 'SANTANDER', 'V-35hrs', '9841234567', 'LOCAL', 'Nombre o correo de coordinacion academica', ''],
-      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'VALIDADO', 'maria.torres@tecplayacar.edu.mx', 'BANORTE', 'M-25hrs', '9847654321', 'FORANEO', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
-      ['', '', 'usuario.existente', 'INACTIVO', '', 'EFECTIVO', 'N-15hrs', '', 'VIRTUAL', '', 'Ejemplo para actualizar un docente existente'],
+      ['DOC-0001', 'JUAN PEREZ LOPEZ', 'jperez', 'ACTIVO', 'juan.perez@tecplayacar.edu.mx', '1', 'V', '9841234567', 'LOCAL', 'Nombre o correo de coordinacion academica', ''],
+      ['DOC-0002', 'MARIA TORRES GARCIA', 'mtorres', 'ACTIVO', 'maria.torres@tecplayacar.edu.mx', '2', 'M', '9847654321', 'FORANEO', 'coord1@tecplayacar.edu.mx; coord2@tecplayacar.edu.mx', ''],
+      ['', '', 'usuario.existente', 'INACTIVO', '', '3', 'N', '', 'VIRTUAL', '', 'Ejemplo para actualizar un docente existente'],
     ]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
@@ -804,7 +860,7 @@ export class TeachersPageComponent {
   }
 
   downloadTeachersCoordinationReport(): void {
-    if (!this.canManageTeachers()) {
+    if (!this.canDownloadTeacherReport()) {
       return;
     }
 
@@ -861,8 +917,68 @@ export class TeachersPageComponent {
     URL.revokeObjectURL(url);
   }
 
+  downloadPendingTeachersMoodleCsv(): void {
+    if (!this.canManageTeachers()) {
+      return;
+    }
+
+    const pendingTeachers = this.activeTeacherRecords()
+      .filter((teacher) => teacher.status === 'PENDIENTE')
+      .slice()
+      .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es'));
+
+    if (!pendingTeachers.length) {
+      this.formMessage = 'No hay docentes pendientes de validacion para exportar a Moodle.';
+      return;
+    }
+
+    const headers = ['username', 'password', 'email', 'firstname', 'lastname', 'cohort1', 'auth'];
+    const rows = pendingTeachers.map((teacher) => {
+      const username = this.normalizeMoodleAccount(teacher.moodleUser || teacher.normalizedMoodleUser);
+      const { firstname, lastname } = this.splitTeacherNameForMoodle(teacher.fullName);
+
+      return [
+        username,
+        '#Tecplayacar2019',
+        teacher.email?.trim() || this.buildInstitutionalEmail(username),
+        firstname,
+        lastname,
+        '',
+        'oauth2',
+      ];
+    });
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([`\uFEFF${csvContent}\n`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `docentes-pendientes-moodle-${dateStamp}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   statusClass(status: TeacherStatus): string {
     return status.toLowerCase();
+  }
+
+  teacherStatusClass(teacher: Teacher): string {
+    if (teacher.status === 'INACTIVO') {
+      return this.statusClass(teacher.status);
+    }
+
+    if (teacher.lifecycleStatus === 'NUEVO') {
+      return 'nuevo-activo';
+    }
+
+    if (teacher.lifecycleStatus === 'RETOMO') {
+      return 'retomo-activo';
+    }
+
+    return 'vigente-activo';
   }
 
   statusLabel(status: TeacherStatus): string {
@@ -875,6 +991,22 @@ export class TeachersPageComponent {
     }
 
     return 'Inactivo';
+  }
+
+  teacherStatusLabel(teacher: Teacher): string {
+    if (teacher.status === 'INACTIVO') {
+      return 'Inactivo';
+    }
+
+    if (teacher.lifecycleStatus === 'RETOMO') {
+      return 'Reingreso';
+    }
+
+    if (teacher.lifecycleStatus === 'NUEVO') {
+      return 'Nuevo';
+    }
+
+    return 'Vigente';
   }
 
   paymentTypeLabel(value?: TeacherPaymentType | ''): string {
@@ -1164,15 +1296,15 @@ export class TeachersPageComponent {
     }
 
     if (!status) {
-      observations.push('El estatus debe ser PENDIENTE, VALIDADO o INACTIVO.');
+      observations.push('El estatus debe ser ACTIVO, PENDIENTE, VALIDADO o INACTIVO.');
     }
 
     if (paymentType === null) {
-      observations.push('El tipo de pago debe ser EFECTIVO, SANTANDER o BANORTE.');
+      observations.push('El tipo de pago debe ser 1/SANTANDER, 2/BANORTE o 3/EFECTIVO.');
     }
 
     if (category === null) {
-      observations.push('La categoria debe ser V-35hrs, M-25hrs o N-15hrs.');
+      observations.push('La categoria debe ser V/V-35hrs, M/M-25hrs o N/N-15hrs.');
     }
 
     if (phoneError) {
@@ -1394,6 +1526,7 @@ export class TeachersPageComponent {
   private normalizeCsvHeader(header: string): string {
     return header
       .trim()
+      .replace(/^\uFEFF/, '')
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
@@ -1424,6 +1557,10 @@ export class TeachersPageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
 
+    if (normalizedValue === 'ACTIVO' || normalizedValue === 'ACTIVA') {
+      return 'VALIDADO';
+    }
+
     if (['PENDIENTE', 'VALIDADO', 'INACTIVO'].includes(normalizedValue)) {
       return normalizedValue as TeacherStatus;
     }
@@ -1438,15 +1575,15 @@ export class TeachersPageComponent {
       return '';
     }
 
-    if (normalizedValue === 'EFECTIVO') {
+    if (normalizedValue === '3' || normalizedValue === 'EFECTIVO') {
       return 'EFECTIVO';
     }
 
-    if (normalizedValue === 'SANTANDER') {
+    if (normalizedValue === '1' || normalizedValue === 'SANTANDER') {
       return 'SANTANDER';
     }
 
-    if (normalizedValue === 'BANORTE') {
+    if (normalizedValue === '2' || normalizedValue === 'BANORTE') {
       return 'BANORTE';
     }
 
@@ -1460,15 +1597,15 @@ export class TeachersPageComponent {
       return '';
     }
 
-    if (['V_35HRS', 'V_35_HRS', 'V35HRS', 'VIP_35HRS', 'VIP_35_HRS', 'VIP35HRS'].includes(normalizedValue)) {
+    if (['V', 'V_35HRS', 'V_35_HRS', 'V35HRS', 'VIP_35HRS', 'VIP_35_HRS', 'VIP35HRS'].includes(normalizedValue)) {
       return 'V_35HRS';
     }
 
-    if (['M_25HRS', 'M_25_HRS', 'M25HRS'].includes(normalizedValue)) {
+    if (['M', 'M_25HRS', 'M_25_HRS', 'M25HRS'].includes(normalizedValue)) {
       return 'M_25HRS';
     }
 
-    if (['N_15HRS', 'N_15_HRS', 'N15HRS'].includes(normalizedValue)) {
+    if (['N', 'N_15HRS', 'N_15_HRS', 'N15HRS'].includes(normalizedValue)) {
       return 'N_15HRS';
     }
 
@@ -1477,12 +1614,13 @@ export class TeachersPageComponent {
 
   private parseTeacherLocation(value: string): TeacherLocation | '' | null {
     const normalizedValue = this.normalizeCatalogValue(value);
+    const compactValue = normalizedValue.replace(/[^A-Z0-9_]/g, '');
 
     if (!normalizedValue) {
       return '';
     }
 
-    if (['FORANEO', 'FORANEA'].includes(normalizedValue)) {
+    if (['FORANEO', 'FORANEA', 'FORNEO', 'FORNEA'].includes(compactValue)) {
       return 'FORANEO';
     }
 
@@ -1613,6 +1751,33 @@ export class TeachersPageComponent {
       .replace(/@tecplayacar[.]edu[.]mx$/i, '')
       .replace(/@.*$/i, '')
       .trim();
+  }
+
+  private splitTeacherNameForMoodle(fullName: string): { firstname: string; lastname: string } {
+    const parts = fullName
+      .trim()
+      .replace(/\s+/g, ' ')
+      .split(' ')
+      .filter(Boolean);
+
+    if (parts.length >= 3) {
+      return {
+        firstname: parts.slice(0, -2).join(' '),
+        lastname: parts.slice(-2).join(' '),
+      };
+    }
+
+    if (parts.length === 2) {
+      return {
+        firstname: parts[0],
+        lastname: parts[1],
+      };
+    }
+
+    return {
+      firstname: parts[0] || 'DOCENTE',
+      lastname: 'SPAI',
+    };
   }
 
   private formatCsvDate(value: string): string {

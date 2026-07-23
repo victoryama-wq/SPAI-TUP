@@ -64,6 +64,15 @@ interface ActiveFilterChip {
 @Component({
   selector: 'spai-requests-page',
   imports: [CommonModule, FormsModule],
+  providers: [
+    AssignmentsRepository,
+    AuditLogRepository,
+    GroupsRepository,
+    ProgramsRepository,
+    SharedRequestsRepository,
+    SubjectsRepository,
+    TeachersRepository,
+  ],
   templateUrl: './requests-page.component.html',
   styleUrl: './requests-page.component.css',
 })
@@ -789,27 +798,40 @@ export class RequestsPageComponent {
     }
 
     try {
+      const actorId = appUser.id || session.authUid;
+      const teacherActivation = await this.activateTeacherWhenSystemRequestIsAttended(request, {
+        id: actorId,
+        name: appUser.name,
+        role: appUser.role,
+      });
+      const responseFromTeacherActivation = teacherActivation
+        ? teacherActivation.activated
+          ? `Docente ${teacherActivation.teacher.fullName} validado automaticamente desde Solicitudes.`
+          : `Docente ${teacherActivation.teacher.fullName} ya estaba validado.`
+        : '';
+      const systemResponse = this.systemResponseObservations.trim() || responseFromTeacherActivation;
+
       await this.systemRequestsRepository.updateRequestStatus(request.id, {
         status: this.systemResponseAction,
-        systemResponse: this.systemResponseObservations,
-        respondedBy: appUser.id || session.authUid,
+        systemResponse,
+        respondedBy: actorId,
         respondedByName: appUser.name,
         respondedByRole: appUser.role,
       });
 
-      let notificationWarning = '';
+      let notificationWarning = teacherActivation?.notificationWarning ?? '';
 
       try {
         await this.systemNotificationsRepository.createForAcademicCoordinatorOnce(
           this.systemRequestStatusNotificationId(request, this.systemResponseAction),
           {
             title: 'Actualizacion de solicitud',
-            message: this.academicSystemRequestNotificationMessage(request, this.systemResponseAction),
+            message: this.academicSystemRequestNotificationMessage(request, this.systemResponseAction, systemResponse),
             type: 'SOLICITUD_SISTEMAS',
             entity: 'solicitudes_sistemas',
             entityId: request.id,
             targetUserId: request.requestedBy,
-            actorId: appUser.id || session.authUid,
+            actorId,
             actorName: appUser.name,
             actorRole: appUser.role,
           },
@@ -831,10 +853,14 @@ export class RequestsPageComponent {
           cycle: request.cycle,
           status: this.systemResponseAction,
           requestedBy: request.requestedByName,
+          teacherId: teacherActivation?.teacher.id ?? '',
+          teacherValidatedFromRequest: teacherActivation?.activated ?? false,
         },
       });
 
-      this.formMessage = `Solicitud a Sistemas actualizada correctamente.${notificationWarning}`;
+      this.formMessage = teacherActivation?.activated
+        ? `Solicitud atendida y docente validado correctamente.${notificationWarning}`
+        : `Solicitud a Sistemas actualizada correctamente.${notificationWarning}`;
       this.closeSystemResponseModal();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -890,9 +916,10 @@ export class RequestsPageComponent {
   private academicSystemRequestNotificationMessage(
     request: SystemRequest,
     status: Exclude<SystemRequestStatus, 'PENDIENTE'>,
+    systemResponse = this.systemResponseObservations.trim(),
   ): string {
     const statusLabel = this.systemRequestStatusLabel(status).toLowerCase();
-    const response = this.systemResponseObservations.trim();
+    const response = systemResponse.trim();
 
     if (response) {
       return `Tu solicitud "${request.title}" fue marcada como ${statusLabel}. Respuesta de Sistemas: ${response}`;
@@ -909,6 +936,164 @@ export class RequestsPageComponent {
       .join('_')
       .toUpperCase()
       .replace(/[^A-Z0-9._-]+/g, '_');
+  }
+
+  private async activateTeacherWhenSystemRequestIsAttended(
+    request: SystemRequest,
+    actor: { id: string; name: string; role: string },
+  ): Promise<{ teacher: Teacher; activated: boolean; notificationWarning: string } | null> {
+    if (request.type !== 'DOCENTE_NUEVO' || this.systemResponseAction !== 'ATENDIDA') {
+      return null;
+    }
+
+    const teacher = this.findTeacherForSystemRequest(request);
+
+    if (!teacher) {
+      throw new Error(
+        'No se encontro un docente pendiente vinculado a esta solicitud. Revisa el usuario Moodle desde Docentes antes de marcarla como atendida.',
+      );
+    }
+
+    if (teacher.status === 'INACTIVO') {
+      throw new Error(`El docente ${teacher.fullName} esta inactivo. Reactivalo desde Docentes antes de atender la solicitud.`);
+    }
+
+    if (teacher.status === 'VALIDADO') {
+      return { teacher, activated: false, notificationWarning: '' };
+    }
+
+    await this.teachersRepository.updateStatus(teacher, 'VALIDADO', actor.id);
+
+    this.auditLogRepository.register({
+      module: 'Docentes',
+      action: 'DOCENTE_VALIDADO_DESDE_SOLICITUD',
+      description: `Se valido al docente ${teacher.fullName} desde la solicitud a Sistemas ${request.title}.`,
+      user: actor.name,
+      userRole: actor.role,
+      entity: 'docentes',
+      entityId: teacher.id,
+      metadata: {
+        requestId: request.id,
+        requestedBy: request.requestedByName,
+        moodleUser: teacher.moodleUser,
+      },
+    });
+
+    try {
+      await this.notifyAcademicTeacherValidatedFromSystemRequest(request, teacher, actor);
+      return { teacher, activated: true, notificationWarning: '' };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      return {
+        teacher,
+        activated: true,
+        notificationWarning: ` No se pudo enviar la notificacion de docente validado: ${message}`,
+      };
+    }
+  }
+
+  private findTeacherForSystemRequest(request: SystemRequest): Teacher | null {
+    const moodleUserFromRequest = this.extractMoodleUserFromSystemRequest(request);
+    const normalizedMoodleUser = this.normalizeMoodleUserValue(moodleUserFromRequest);
+    const requestText = this.normalizeSearch(`${request.title} ${request.detail}`);
+    const requestedBy = this.normalizeSearch(request.requestedBy);
+    const teachers = this.teachers()
+      .filter((teacher) => !teacher.deletedAt)
+      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+
+    if (normalizedMoodleUser) {
+      const directMatches = teachers.filter((teacher) => {
+        return [
+          teacher.id,
+          teacher.moodleUser,
+          teacher.normalizedMoodleUser,
+        ].some((value) => this.normalizeMoodleUserValue(value) === normalizedMoodleUser);
+      });
+      const directMatch = directMatches.find((teacher) => teacher.status === 'PENDIENTE') ?? directMatches[0];
+
+      if (directMatch) {
+        return directMatch;
+      }
+    }
+
+    const pendingTeachers = teachers.filter((teacher) => teacher.status === 'PENDIENTE');
+    const requestedByMatches = pendingTeachers.filter((teacher) => {
+      return this.normalizeSearch(teacher.createdBy) === requestedBy
+        || (teacher.assignedCoordinatorIds ?? []).some((targetId) => this.normalizeSearch(targetId) === requestedBy);
+    });
+
+    return requestedByMatches.find((teacher) => this.teacherMatchesSystemRequestText(teacher, requestText))
+      ?? pendingTeachers.find((teacher) => this.teacherMatchesSystemRequestText(teacher, requestText))
+      ?? null;
+  }
+
+  private extractMoodleUserFromSystemRequest(request: SystemRequest): string {
+    const match = `${request.title} ${request.detail}`.match(/usuario\s+moodle\s+([a-z0-9._-]+)/i);
+
+    return match?.[1]?.replace(/[.,;:]+$/g, '') ?? '';
+  }
+
+  private teacherMatchesSystemRequestText(teacher: Teacher, requestText: string): boolean {
+    return [
+      teacher.id,
+      teacher.fullName,
+      teacher.moodleUser,
+      teacher.normalizedMoodleUser,
+      teacher.email,
+    ].some((value) => {
+      const normalizedValue = this.normalizeSearch(value ?? '');
+      return !!normalizedValue && requestText.includes(normalizedValue);
+    });
+  }
+
+  private async notifyAcademicTeacherValidatedFromSystemRequest(
+    request: SystemRequest,
+    teacher: Teacher,
+    actor: { id: string; name: string; role: string },
+  ): Promise<void> {
+    const targetUserIds = Array.from(new Set([
+      request.requestedBy,
+      teacher.createdBy,
+      ...(teacher.assignedCoordinatorIds ?? []),
+    ].filter((targetId): targetId is string => !!targetId)));
+
+    await Promise.all(targetUserIds.map((targetUserId) =>
+      this.systemNotificationsRepository.createForAcademicCoordinatorOnce(
+        this.teacherValidatedNotificationId(teacher, targetUserId),
+        {
+          title: 'Docente validado',
+          message: `Sistemas valido al docente ${teacher.fullName} (${teacher.moodleUser}). Ya esta disponible en el catalogo.`,
+          type: 'DOCENTE_VALIDADO',
+          entity: 'docentes',
+          entityId: teacher.id,
+          targetUserId,
+          actorId: actor.id,
+          actorName: actor.name,
+          actorRole: actor.role,
+        },
+      ),
+    ));
+  }
+
+  private teacherValidatedNotificationId(teacher: Teacher, targetUserId: string): string {
+    return this.safeNotificationDocumentId([
+      'DOCENTE_VALIDADO',
+      teacher.id || teacher.normalizedMoodleUser || teacher.moodleUser,
+      targetUserId,
+    ].join('_'));
+  }
+
+  private safeNotificationDocumentId(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Za-z0-9._-]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 240);
+  }
+
+  private normalizeMoodleUserValue(value?: string): string {
+    return (value ?? '').trim().toLowerCase();
   }
 
   selectedRequest(): SharedClassRequest | null {

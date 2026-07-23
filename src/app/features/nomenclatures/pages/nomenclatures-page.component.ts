@@ -34,6 +34,11 @@ const NOMENCLATURES_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 @Component({
   selector: 'spai-nomenclatures-page',
   imports: [CommonModule, ReactiveFormsModule],
+  providers: [
+    NomenclaturesRepository,
+    ProgramsRepository,
+    UsersRepository,
+  ],
   templateUrl: './nomenclatures-page.component.html',
   styleUrl: './nomenclatures-page.component.css',
 })

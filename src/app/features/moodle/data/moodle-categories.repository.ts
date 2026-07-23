@@ -41,12 +41,18 @@ export class MoodleCategoriesRepository extends FirestoreRepository<MoodleCatego
 
   upsertCategory(payload: UpsertMoodleCategoryPayload, id?: string | null): Promise<void> {
     const timestamp = new Date().toISOString();
-    const documentId = id || this.normalizeCategoryId(payload.categoryNumber);
+    const categoryNumber = payload.categoryNumber.trim();
+    const programCode = payload.programCode.trim().toUpperCase();
+    const existingCategory = this.categories().find((category) =>
+      category.categoryNumber.trim() === categoryNumber
+      && category.programCode.trim().toUpperCase() === programCode
+    );
+    const documentId = id || existingCategory?.id || this.normalizeCategoryId(categoryNumber, programCode);
     const currentCategory = this.categories().find((category) => category.id === documentId);
 
     return this.setDocument(documentId, {
-      categoryNumber: payload.categoryNumber.trim(),
-      programCode: payload.programCode.trim().toUpperCase(),
+      categoryNumber,
+      programCode,
       programName: this.normalizeName(payload.programName),
       status: payload.status,
       createdBy: currentCategory?.createdBy ?? payload.createdBy,
@@ -65,8 +71,8 @@ export class MoodleCategoriesRepository extends FirestoreRepository<MoodleCatego
     return this.deleteDocument(id);
   }
 
-  normalizeCategoryId(value: string): string {
-    return value.trim().replace(/\s+/g, '-').toLowerCase();
+  normalizeCategoryId(categoryNumber: string, programCode: string): string {
+    return `${categoryNumber}-${programCode}`.trim().replace(/\s+/g, '-').toLowerCase();
   }
 
   private normalizeName(value: string): string {

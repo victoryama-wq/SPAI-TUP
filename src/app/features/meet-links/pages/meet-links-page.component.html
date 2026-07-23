@@ -12,11 +12,34 @@
   </aside>
 }
 
-<section class="table-panel" aria-label="Tabla de clases virtuales para ligas Meet">
+<section class="table-panel" [attr.aria-label]="sessionTitle() + ' para ligas Meet'">
   <div class="panel-title">
-    <div>
-      <span>Revision operativa</span>
-      <h3>Sesiones Virtuales</h3>
+    <div class="panel-heading">
+      <div>
+        <span>Revision operativa</span>
+        <h3>{{ sessionTitle() }}</h3>
+      </div>
+
+      <div class="session-switch" aria-label="Tipo de sesiones Meet">
+        <button
+          class="session-virtual"
+          type="button"
+          [class.active]="sessionView() === 'VIRTUAL'"
+          [attr.aria-pressed]="sessionView() === 'VIRTUAL'"
+          (click)="setSessionView('VIRTUAL')"
+        >
+          Sesiones virtuales
+        </button>
+        <button
+          class="session-postgraduate"
+          type="button"
+          [class.active]="sessionView() === 'POSGRADOS'"
+          [attr.aria-pressed]="sessionView() === 'POSGRADOS'"
+          (click)="setSessionView('POSGRADOS')"
+        >
+          Sesiones de Posgrado
+        </button>
+      </div>
     </div>
 
     <div class="filters">
@@ -77,7 +100,7 @@
           <th>ID Moodle</th>
           <th>Asignatura</th>
           <th>Grupo origen</th>
-          <th>Grupos virtuales</th>
+          <th>{{ sessionGroupsHeader() }}</th>
           <th>Grupos compartidos</th>
           <th>Docente</th>
           <th class="center-column">Estado asignacion</th>
@@ -95,9 +118,9 @@
               </div>
             </td>
             <td data-label="Grupo origen"><strong>{{ row.originGroup }}</strong></td>
-            <td data-label="Grupos virtuales">
+            <td [attr.data-label]="sessionGroupsHeader()">
               <div class="chip-list">
-                @for (group of row.virtualGroups; track group) {
+                @for (group of row.sessionGroups; track group) {
                   <span class="virtual-chip">{{ group }}</span>
                 }
               </div>
@@ -177,8 +200,8 @@
           <tr>
             <td colspan="9">
               <div class="empty-state">
-                <strong>Sin clases virtuales detectadas</strong>
-                <span>Cuando existan asignaciones de grupos virtuales en el ciclo activo apareceran aqui.</span>
+                <strong>{{ emptyTitle() }}</strong>
+                <span>{{ emptyDescription() }}</span>
               </div>
             </td>
           </tr>

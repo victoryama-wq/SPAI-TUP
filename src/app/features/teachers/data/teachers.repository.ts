@@ -8,6 +8,7 @@ export type TeacherOrigin = 'MANUAL' | 'CSV';
 export type TeacherPaymentType = 'EFECTIVO' | 'SANTANDER' | 'BANORTE';
 export type TeacherCategory = 'V_35HRS' | 'VIP_35HRS' | 'M_25HRS' | 'N_15HRS';
 export type TeacherLocation = 'FORANEO' | 'LOCAL' | 'VIRTUAL';
+export type TeacherLifecycleStatus = 'NUEVO' | 'RETOMO' | 'VIGENTE';
 
 export interface Teacher {
   id: string;
@@ -17,6 +18,7 @@ export interface Teacher {
   moodleUser: string;
   normalizedMoodleUser: string;
   status: TeacherStatus;
+  lifecycleStatus?: TeacherLifecycleStatus;
   origin: TeacherOrigin;
   email: string;
   paymentType?: TeacherPaymentType | '';
@@ -46,6 +48,7 @@ export interface UpsertTeacherPayload {
   fullName: string;
   moodleUser: string;
   status: TeacherStatus;
+  lifecycleStatus?: TeacherLifecycleStatus;
   origin: TeacherOrigin;
   email?: string;
   paymentType?: TeacherPaymentType | '';
@@ -60,6 +63,11 @@ export interface UpsertTeacherPayload {
   assignedCoordinatorIds?: string[];
   assignedCoordinatorNames?: string[];
   importId?: string;
+}
+
+export interface DeleteTeacherResult {
+  releasedMoodleUser: boolean;
+  releasedMoodleNumber?: number;
 }
 
 export const TEACHERS_COLLECTION = 'docentes';
@@ -114,8 +122,58 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
     });
   }
 
-  deleteTeacher(teacherId: string): Promise<void> {
-    return this.deleteDocument(teacherId);
+  deleteTeacher(
+    teacher: Teacher,
+    actor?: Pick<UpsertTeacherPayload, 'createdBy' | 'createdByName'>,
+  ): Promise<DeleteTeacherResult> {
+    const teacherId = this.normalizeMoodleUser(teacher.id || teacher.moodleUser || teacher.normalizedMoodleUser);
+    const teacherRef = doc(this.firestore, this.collectionPath, teacherId);
+    const configRef = doc(this.firestore, TEACHERS_CONFIG_COLLECTION, TEACHERS_CONFIG_DOCUMENT);
+    const timestamp = new Date().toISOString();
+
+    return runTransaction(this.firestore, async (transaction) => {
+      const teacherSnapshot = await transaction.get(teacherRef);
+
+      if (!teacherSnapshot.exists()) {
+        return { releasedMoodleUser: false };
+      }
+
+      const configSnapshot = await transaction.get(configRef);
+      const teacherData = teacherSnapshot.data() as Teacher;
+      const storedLastNumber = Number(configSnapshot.data()?.['lastMoodleTeacherNumber']);
+      const moodleUser = this.normalizeMoodleUser(
+        teacherData.moodleUser || teacherData.normalizedMoodleUser || teacherId,
+      );
+      const deletedNumber = this.moodleTeacherNumber(moodleUser);
+      const shouldReleaseMoodleUser = this.shouldReleaseReservedMoodleUser(
+        teacherData,
+        deletedNumber,
+        storedLastNumber,
+      );
+      let releasedMoodleUser = false;
+
+      transaction.delete(teacherRef);
+
+      if (shouldReleaseMoodleUser && deletedNumber !== null) {
+        const remainingMaxNumber = this.maxRegisteredMoodleNumber(teacherId);
+        const releasedLastNumber = Math.max(TEACHER_MOODLE_BASE_NUMBER, remainingMaxNumber, deletedNumber - 1);
+
+        if (releasedLastNumber < storedLastNumber) {
+          transaction.set(configRef, {
+            lastMoodleTeacherNumber: releasedLastNumber,
+            updatedAt: timestamp,
+            updatedBy: actor?.createdBy ?? teacherData.createdBy ?? '',
+            updatedByName: actor?.createdByName ?? teacherData.createdByName ?? '',
+          }, { merge: true });
+          releasedMoodleUser = true;
+        }
+      }
+
+      return {
+        releasedMoodleUser,
+        releasedMoodleNumber: releasedMoodleUser && deletedNumber !== null ? deletedNumber : undefined,
+      };
+    });
   }
 
   updateTeacherDetails(
@@ -200,10 +258,19 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       const safeLastNumber = Number.isFinite(storedLastNumber)
         ? Math.max(storedLastNumber, localMaxNumber, TEACHER_MOODLE_BASE_NUMBER)
         : Math.max(localMaxNumber, TEACHER_MOODLE_BASE_NUMBER);
-      const nextNumber = safeLastNumber + 1;
-      const generatedMoodleUser = `${TEACHER_MOODLE_PREFIX}${nextNumber}`;
-      const teacherRef = doc(this.firestore, this.collectionPath, generatedMoodleUser);
-      const teacherSnapshot = await transaction.get(teacherRef);
+      let nextNumber = safeLastNumber + 1;
+      let generatedMoodleUser = `${TEACHER_MOODLE_PREFIX}${nextNumber}`;
+      let teacherRef = doc(this.firestore, this.collectionPath, generatedMoodleUser);
+      let teacherSnapshot = await transaction.get(teacherRef);
+      let attempts = 0;
+
+      while (teacherSnapshot.exists() && attempts < 50) {
+        attempts += 1;
+        nextNumber += 1;
+        generatedMoodleUser = `${TEACHER_MOODLE_PREFIX}${nextNumber}`;
+        teacherRef = doc(this.firestore, this.collectionPath, generatedMoodleUser);
+        teacherSnapshot = await transaction.get(teacherRef);
+      }
 
       if (teacherSnapshot.exists()) {
         throw new Error(`El usuario Moodle ${generatedMoodleUser} ya existe. Intenta guardar nuevamente.`);
@@ -254,6 +321,9 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       moodleUser: normalizedMoodleUser,
       normalizedMoodleUser,
       status: payload.status,
+      lifecycleStatus: currentTeacher?.lifecycleStatus
+        ?? payload.lifecycleStatus
+        ?? (payload.origin === 'MANUAL' ? 'NUEVO' : 'VIGENTE'),
       origin: payload.origin,
       email: payload.email?.trim().toLowerCase() ?? currentTeacher?.email ?? '',
       paymentType: payload.paymentType ?? currentTeacher?.paymentType ?? '',
@@ -279,17 +349,48 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
     };
   }
 
-  private maxRegisteredMoodleNumber(): number {
+  private maxRegisteredMoodleNumber(excludedTeacherId = ''): number {
+    const normalizedExcludedId = this.normalizeMoodleUser(excludedTeacherId);
+
     return this.teachers().reduce((max, teacher) => {
       const value = this.normalizeMoodleUser(teacher.moodleUser || teacher.normalizedMoodleUser || teacher.id);
-      const match = value.match(/^tup-d(\d+)$/);
 
-      if (!match) {
+      if (normalizedExcludedId && (teacher.id === normalizedExcludedId || value === normalizedExcludedId)) {
         return max;
       }
 
-      return Math.max(max, Number(match[1]));
+      const teacherNumber = this.moodleTeacherNumber(value);
+
+      if (teacherNumber === null) {
+        return max;
+      }
+
+      return Math.max(max, teacherNumber);
     }, TEACHER_MOODLE_BASE_NUMBER);
+  }
+
+  private moodleTeacherNumber(value: string): number | null {
+    const match = this.normalizeMoodleUser(value).match(/^tup-d(\d+)$/);
+
+    if (!match) {
+      return null;
+    }
+
+    const teacherNumber = Number(match[1]);
+    return Number.isFinite(teacherNumber) ? teacherNumber : null;
+  }
+
+  private shouldReleaseReservedMoodleUser(
+    teacher: Partial<Teacher>,
+    deletedNumber: number | null,
+    storedLastNumber: number,
+  ): boolean {
+    return deletedNumber !== null
+      && Number.isFinite(storedLastNumber)
+      && deletedNumber === storedLastNumber
+      && teacher.status === 'PENDIENTE'
+      && teacher.origin === 'MANUAL'
+      && teacher.lifecycleStatus === 'NUEVO';
   }
 
   private async verifySavedTeacher(documentId: string, updatedAt: string): Promise<void> {

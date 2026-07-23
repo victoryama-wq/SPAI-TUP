@@ -50,6 +50,12 @@ interface RoleOption {
 @Component({
   selector: 'spai-users-page',
   imports: [CommonModule, ReactiveFormsModule, RoleManagerComponent],
+  providers: [
+    CustomRolesRepository,
+    NomenclaturesRepository,
+    ProgramsRepository,
+    UsersRepository,
+  ],
   templateUrl: './users-page.component.html',
   styleUrl: './users-page.component.css',
 })
@@ -636,8 +642,7 @@ export class UsersPageComponent {
   canManageAccess(): boolean {
     const appUser = this.userSessionService.session()?.appUser;
 
-    return appUser?.status === 'Activo'
-      && (this.isSystemsRole(appUser.role) || appUser.access?.usuarios === true);
+    return appUser?.status === 'Activo' && this.isSystemsRole(appUser.role);
   }
 
   accessSummary(user: AppUser): string {

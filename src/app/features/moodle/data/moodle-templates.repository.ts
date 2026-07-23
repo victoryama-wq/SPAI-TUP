@@ -62,7 +62,23 @@ export class MoodleTemplatesRepository extends FirestoreRepository<MoodleCourseT
   }
 
   importTemplates(templates: UpsertMoodleCourseTemplatePayload[]): Promise<void[]> {
-    return Promise.all(templates.map((template) => this.upsertTemplate(template)));
+    let nextNumber = this.nextTemplateNumber();
+    const usedIds = new Set(this.templates().map((template) => template.id));
+
+    return Promise.all(templates.map((template) => {
+      const existingTemplate = this.findTemplateByCourse(template.templateCourse);
+      let documentId = existingTemplate?.id;
+
+      if (!documentId) {
+        do {
+          documentId = `TPL${String(nextNumber).padStart(4, '0')}`;
+          nextNumber += 1;
+        } while (usedIds.has(documentId));
+      }
+
+      usedIds.add(documentId);
+      return this.upsertTemplate(template, documentId);
+    }));
   }
 
   deleteTemplate(id: string): Promise<void> {
@@ -74,14 +90,34 @@ export class MoodleTemplatesRepository extends FirestoreRepository<MoodleCourseT
   }
 
   private nextTemplateId(): string {
+    return `TPL${String(this.nextTemplateNumber()).padStart(4, '0')}`;
+  }
+
+  private nextTemplateNumber(): number {
     const usedNumbers = this.templates()
       .map((template) => template.internalId || template.id)
       .map((value) => /^TPL(\d+)$/i.exec(value)?.[1])
       .filter((value): value is string => Boolean(value))
       .map((value) => Number(value));
-    const nextNumber = (usedNumbers.length ? Math.max(...usedNumbers) : 0) + 1;
 
-    return `TPL${String(nextNumber).padStart(4, '0')}`;
+    return (usedNumbers.length ? Math.max(...usedNumbers) : 0) + 1;
+  }
+
+  private findTemplateByCourse(templateCourse: string): MoodleCourseTemplate | null {
+    const targetKey = this.normalizeTemplateKey(templateCourse);
+
+    return this.templates().find((template) =>
+      this.normalizeTemplateKey(template.templateCourse) === targetKey,
+    ) ?? null;
+  }
+
+  private normalizeTemplateKey(value: string): string {
+    return value
+      .trim()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\s-]+/g, '_');
   }
 
   private normalizeName(value: string): string {

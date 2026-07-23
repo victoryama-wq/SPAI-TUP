@@ -11,6 +11,7 @@ import { ProgramsRepository } from '../../nomenclatures/data/programs.repository
 import { Subject, SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { Teacher, TeachersRepository } from '../../teachers/data/teachers.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
+import { ModulePermissionService } from '../../users/data/module-permission.service';
 import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import {
   AcademicAssignment,
@@ -22,7 +23,6 @@ import {
 
 type AssignmentStatusFilter = AssignmentStatus | 'TODOS';
 type AssignmentModeTab = 'Escolarizado' | 'Ejecutivo' | 'Virtual' | 'Salud' | 'Posgrados' | 'Especiales' | 'Inglés';
-type AssignmentSearchField = 'program' | 'group' | 'teacher' | 'subject';
 type AssignmentComboField = 'subject' | 'teacher' | 'group';
 type AssignmentCatalogScope = 'OWN' | 'GLOBAL';
 type SpecialAssignmentOption = 'enrollments' | 'group' | 'propedeutic';
@@ -33,7 +33,16 @@ const PROPEDEUTIC_MOODLE_ID = 'propedeutico';
 const PROPEDEUTIC_MOODLE_LABEL = 'Propedeutico';
 const MAX_SHARED_GROUPS = 8;
 const MAX_COMBO_OPTIONS = 8;
-const MAX_SEARCH_SUGGESTIONS = 8;
+const ASSIGNMENTS_PAGE_SIZE_OPTIONS = [10, 25, 50];
+const ASSIGNMENT_MODE_TABS: AssignmentModeTab[] = [
+  'Escolarizado',
+  'Ejecutivo',
+  'Virtual',
+  'Salud',
+  'Posgrados',
+  'Especiales',
+  'Inglés',
+];
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
 const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS', 'INGLES', 'IDIOMAS', 'IDIOMA']);
 const HEALTH_TEXT_MARKERS = [
@@ -92,9 +101,25 @@ interface TeacherPickerOption {
   note: string;
 }
 
+interface AssignmentStatusSummary {
+  total: number;
+  capture: number;
+  review: number;
+  moodleLoaded: number;
+}
+
 @Component({
   selector: 'spai-assignments-page',
   imports: [CommonModule, FormsModule],
+  providers: [
+    AssignmentsRepository,
+    AuditLogRepository,
+    GroupsRepository,
+    NomenclaturesRepository,
+    ProgramsRepository,
+    TeachersRepository,
+    UsersRepository,
+  ],
   templateUrl: './assignments-page.component.html',
   styleUrl: './assignments-page.component.css',
 })
@@ -109,30 +134,118 @@ export class AssignmentsPageComponent implements OnDestroy {
   private readonly subjectsRepository = inject(SubjectsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly teachersRepository = inject(TeachersRepository);
+  private readonly modulePermissionService = inject(ModulePermissionService);
   private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
 
   readonly assignments = this.assignmentsRepository.assignments;
   readonly assignmentsReadError = this.assignmentsRepository.readError;
+  readonly assignmentsById = computed(() => {
+    const assignmentsById = new Map<string, AcademicAssignment>();
+
+    for (const assignment of this.assignments()) {
+      if (!this.isAssignmentDeleted(assignment)) {
+        assignmentsById.set(assignment.id, assignment);
+      }
+    }
+
+    return assignmentsById;
+  });
+  readonly sharedDestinationsBySourceId = computed(() => {
+    const sharedDestinationsBySourceId = new Map<string, AcademicAssignment[]>();
+
+    for (const assignment of this.assignments()) {
+      if (this.isAssignmentDeleted(assignment) || !assignment.shared || !assignment.sourceAssignmentId) {
+        continue;
+      }
+
+      const destinationAssignments = sharedDestinationsBySourceId.get(assignment.sourceAssignmentId) ?? [];
+      destinationAssignments.push(assignment);
+      sharedDestinationsBySourceId.set(assignment.sourceAssignmentId, destinationAssignments);
+    }
+
+    for (const destinationAssignments of sharedDestinationsBySourceId.values()) {
+      destinationAssignments.sort((a, b) => a.group.localeCompare(b.group, 'es'));
+    }
+
+    return sharedDestinationsBySourceId;
+  });
   readonly cycles = this.cyclesRepository.cycles;
   readonly groups = this.groupsRepository.groups;
+  readonly groupsByFullGroup = computed(() => {
+    const groupsByFullGroup = new Map<string, AcademicGroup>();
+
+    for (const group of this.groups()) {
+      groupsByFullGroup.set(group.fullGroup, group);
+    }
+
+    return groupsByFullGroup;
+  });
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly programs = this.programsRepository.programs;
+  readonly programAliasLookup = computed(() => {
+    const programAliasLookup = new Map<string, Set<string>>();
+    const codeKey = (value: string) => `code:${value.trim().toUpperCase()}`;
+    const nameKey = (value: string) => `name:${this.normalizeSearchText(value).trim()}`;
+    const addAliases = (key: string, aliases: string[]) => {
+      if (!key.endsWith(':')) {
+        const currentAliases = programAliasLookup.get(key) ?? new Set<string>();
+
+        aliases
+          .map((alias) => alias.trim().toUpperCase())
+          .filter(Boolean)
+          .forEach((alias) => currentAliases.add(alias));
+
+        programAliasLookup.set(key, currentAliases);
+      }
+    };
+
+    for (const nomenclature of this.nomenclatures()) {
+      const abbreviation = nomenclature.abbreviation.trim().toUpperCase();
+      const programCode = nomenclature.programCode.trim().toUpperCase();
+      const aliases = [abbreviation, programCode].filter(Boolean);
+
+      addAliases(codeKey(abbreviation), aliases);
+      addAliases(codeKey(programCode), aliases);
+      addAliases(nameKey(nomenclature.programName), aliases);
+    }
+
+    for (const catalogProgram of this.programs()) {
+      const programCode = catalogProgram.code.trim().toUpperCase();
+      const aliases = new Set<string>([programCode].filter(Boolean));
+
+      for (const nomenclature of this.nomenclatures()) {
+        if (nomenclature.programCode.trim().toUpperCase() === programCode) {
+          aliases.add(nomenclature.abbreviation.trim().toUpperCase());
+        }
+      }
+
+      const aliasList = Array.from(aliases).filter(Boolean);
+      addAliases(codeKey(programCode), aliasList);
+      addAliases(nameKey(catalogProgram.name), aliasList);
+    }
+
+    return programAliasLookup;
+  });
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
+  private readonly isRefreshingSubjects = signal(false);
+  readonly subjectsLoading = computed(() => this.subjectsRepository.loading() || this.isRefreshingSubjects());
   readonly teachers = this.teachersRepository.teachers;
   readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
   statusFilter = signal<AssignmentStatusFilter>('TODOS');
-  searchField = signal<AssignmentSearchField>('program');
   searchQuery = signal('');
+  readonly normalizedSearchQuery = computed(() => this.normalizeSearch(this.searchQuery()));
+  readonly normalizedSearchTokens = computed(() => this.normalizedSearchQuery().split(' ').filter(Boolean));
   catalogScope = signal<AssignmentCatalogScope>('OWN');
   shareGroupSearch = signal('');
   modeTab = signal<AssignmentModeTab>('Escolarizado');
   formMessage = '';
   formErrors: string[] = [];
   isAssignmentModalOpen = false;
+  isSavingAssignment = false;
   editingAssignmentId: string | null = null;
   isReadinessAlertVisible = signal(true);
   lockedShareGroups = signal<string[]>([]);
@@ -140,8 +253,11 @@ export class AssignmentsPageComponent implements OnDestroy {
   teacherPickerValue = '';
   groupPickerValue = '';
   activeComboField: AssignmentComboField | null = null;
-  isSearchMenuOpen = false;
+  currentPage = signal(1);
+  pageSize = signal(10);
+  readonly pageSizeOptions = ASSIGNMENTS_PAGE_SIZE_OPTIONS;
   private formMessageTimeout: ReturnType<typeof setTimeout> | null = null;
+  private subjectsRefreshPromise: Promise<void> | null = null;
 
   assignmentForm = this.emptyForm();
 
@@ -155,8 +271,10 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   readonly canSeeAllAssignments = computed(() => {
     const appUser = this.session()?.appUser;
+    const canEditAssignments = this.modulePermissionService.canEditModule(appUser, 'asignaciones');
 
     return appUser?.status === 'Activo'
+      && canEditAssignments
       && (
         this.isSystemsCoordinationRole(appUser.role)
         || (this.isSystemsAssistantRole(appUser.role) && appUser.access?.asignaciones === true)
@@ -170,6 +288,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       && (
         this.canSeeAllAssignments()
         || this.isAcademicCoordinationRole(appUser.role)
+        || appUser.access?.asignaciones === true
       );
   });
 
@@ -177,6 +296,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     const appUser = this.session()?.appUser;
 
     return appUser?.status === 'Activo'
+      && this.modulePermissionService.canEditModule(appUser, 'asignaciones')
       && (
         this.canSeeAllAssignments()
         || this.isAcademicCoordinationRole(appUser.role)
@@ -234,40 +354,13 @@ export class AssignmentsPageComponent implements OnDestroy {
   );
 
   readonly assignmentReadinessMessages = computed(() => {
-    const messages: string[] = [];
-
-    if (!this.canSeeAllAssignments()) {
-      return messages;
+    if (!this.canViewAssignments() || this.activeCycle()) {
+      return [];
     }
 
-    if (!this.canViewAssignments()) {
-      messages.push('No tienes permisos activos para consultar el modulo Asignaciones.');
-      return messages;
-    }
+    const message = this.captureBlockedMessage();
 
-    if (this.captureBlockedMessage()) {
-      messages.push(this.captureBlockedMessage());
-    }
-
-    if (this.canCaptureAssignments() && this.canManageAssignments()) {
-      if (!this.isEnrollmentCaptureTab() && !this.destinationGroupOptions().length) {
-        messages.push('No hay grupos activos disponibles para tus programas en el ciclo activo.');
-      }
-
-      if (this.isEnrollmentCaptureTab() && !this.destinationProgramOptions().length) {
-        messages.push('No hay programas disponibles para capturar asignaciones por matricula.');
-      }
-
-      if (!this.activeSubjects().length) {
-        messages.push('No hay asignaturas activas en el catalogo para seleccionar.');
-      }
-
-      if (!this.validatedTeachers().length) {
-        messages.push('No hay docentes validados; puedes usar Temporalmente sin Docente mientras se regulariza el catalogo.');
-      }
-    }
-
-    return messages;
+    return message ? [message] : [];
   });
 
   readonly visibleProgramCodes = computed(() => {
@@ -347,9 +440,9 @@ export class AssignmentsPageComponent implements OnDestroy {
       .filter((group) => {
         return this.isActiveGroup(group)
           && this.groupBelongsToCycle(group, activeCycle.code)
-          && this.groupMatchesModeTab(group, this.modeTab())
+          && this.groupCanBeSharedAcrossTabs(group)
           && this.canUseSharedGroupOption(group)
-          && !this.isSameOperationalGroup(group, baseGroup);
+          && !this.isSameGroup(group, baseGroup);
       })
       .sort((a, b) => a.fullGroup.localeCompare(b.fullGroup, 'es'));
   }
@@ -411,12 +504,57 @@ export class AssignmentsPageComponent implements OnDestroy {
       .filter((assignment) => this.assignmentMode(assignment) === this.modeTab()),
   );
 
-  readonly visibleAssignments = computed(() =>
-    this.assignmentsForCurrentTab().filter((assignment) => {
-      return this.assignmentStatusMatchesFilter(assignment)
-        && this.assignmentMatchesSearch(assignment);
-    }),
+  readonly assignmentSearchIndex = computed(() => {
+    const index = new Map<string, string>();
+
+    for (const assignment of this.catalogAssignmentsForActiveCycle()) {
+      index.set(assignment.id, this.normalizeSearch(this.assignmentSearchText(assignment)));
+    }
+
+    return index;
+  });
+
+  readonly visibleAssignments = computed(() => {
+    const normalizedQuery = this.normalizedSearchQuery();
+    const searchTokens = this.normalizedSearchTokens();
+    const searchIndex = this.assignmentSearchIndex();
+
+    return this.assignmentsForCurrentTab().filter((assignment) =>
+      this.assignmentStatusMatchesFilter(assignment)
+      && this.assignmentMatchesIndexedSearch(assignment, normalizedQuery, searchTokens, searchIndex),
+    );
+  });
+
+  readonly paginatedAssignments = computed(() => {
+    const assignments = this.visibleAssignments();
+    const safePage = this.currentSafePage();
+    const pageSize = this.pageSize();
+    const startIndex = (safePage - 1) * pageSize;
+
+    return assignments.slice(startIndex, startIndex + pageSize);
+  });
+
+  readonly totalAssignmentPages = computed(() =>
+    Math.max(1, Math.ceil(this.visibleAssignments().length / this.pageSize())),
   );
+
+  currentSafePage(): number {
+    return Math.min(this.currentPage(), this.totalAssignmentPages());
+  }
+
+  paginationStart(): number {
+    const total = this.visibleAssignments().length;
+
+    if (!total) {
+      return 0;
+    }
+
+    return (this.currentSafePage() - 1) * this.pageSize() + 1;
+  }
+
+  paginationEnd(): number {
+    return Math.min(this.currentSafePage() * this.pageSize(), this.visibleAssignments().length);
+  }
 
   readonly reportAssignments = computed(() => {
     const activeCycle = this.activeCycle();
@@ -452,13 +590,37 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly modeTabs = computed(() => {
-    const tabs: AssignmentModeTab[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
+    const counts = this.assignmentTabCounts();
 
-    return tabs.map((tab) => ({
+    return ASSIGNMENT_MODE_TABS.map((tab) => ({
       label: tab,
       value: tab,
-      count: this.countAssignmentsForTab(tab),
+      count: counts.get(tab) ?? 0,
     }));
+  });
+
+  readonly assignmentTabCounts = computed(() => {
+    const counts = new Map<AssignmentModeTab, number>();
+    const normalizedQuery = this.normalizedSearchQuery();
+    const searchTokens = this.normalizedSearchTokens();
+    const searchIndex = this.assignmentSearchIndex();
+
+    for (const tab of ASSIGNMENT_MODE_TABS) {
+      counts.set(tab, 0);
+    }
+
+    for (const assignment of this.catalogAssignmentsForActiveCycle()) {
+      if (!this.assignmentStatusMatchesFilter(assignment)
+        || !this.assignmentMatchesIndexedSearch(assignment, normalizedQuery, searchTokens, searchIndex)) {
+        continue;
+      }
+
+      for (const tab of this.assignmentModeTabs(assignment)) {
+        counts.set(tab, (counts.get(tab) ?? 0) + 1);
+      }
+    }
+
+    return counts;
   });
 
   readonly sourceAssignmentOptions = computed(() =>
@@ -475,15 +637,34 @@ export class AssignmentsPageComponent implements OnDestroy {
     }).sort((a, b) => a.group.localeCompare(b.group, 'es')),
   );
 
-  readonly captureCount = computed(
-    () => this.visibleAssignments().filter((assignment) => assignment.status === 'EN_CAPTURA').length,
-  );
-  readonly reviewCount = computed(
-    () => this.visibleAssignments().filter((assignment) => this.normalizedAssignmentStatus(assignment.status) === 'EN_REVISION').length,
-  );
-  readonly moodleLoadedCount = computed(
-    () => this.visibleAssignments().filter((assignment) => this.normalizedAssignmentStatus(assignment.status) === 'CARGADO_MOODLE').length,
-  );
+  readonly visibleAssignmentSummary = computed<AssignmentStatusSummary>(() => {
+    const summary: AssignmentStatusSummary = {
+      total: 0,
+      capture: 0,
+      review: 0,
+      moodleLoaded: 0,
+    };
+
+    for (const assignment of this.visibleAssignments()) {
+      summary.total += 1;
+
+      const status = this.normalizedAssignmentStatus(assignment.status);
+
+      if (status === 'EN_CAPTURA') {
+        summary.capture += 1;
+      } else if (status === 'EN_REVISION') {
+        summary.review += 1;
+      } else if (status === 'CARGADO_MOODLE') {
+        summary.moodleLoaded += 1;
+      }
+    }
+
+    return summary;
+  });
+
+  readonly captureCount = computed(() => this.visibleAssignmentSummary().capture);
+  readonly reviewCount = computed(() => this.visibleAssignmentSummary().review);
+  readonly moodleLoadedCount = computed(() => this.visibleAssignmentSummary().moodleLoaded);
 
   readonly nextAssignmentAction = computed(() => {
     if (this.reviewCount() > 0) {
@@ -569,6 +750,20 @@ export class AssignmentsPageComponent implements OnDestroy {
     return `${group.programAbbreviation} - ${group.programName}`;
   }
 
+  studentEnrollmentsFieldLabel(): string {
+    return this.assignmentForm.propedeutic ? 'Matricula(s) o grupo *' : 'Matricula(s) *';
+  }
+
+  studentEnrollmentsPlaceholder(): string {
+    return this.assignmentForm.propedeutic
+      ? 'Captura matriculas por linea, separadas por coma, o escribe el grupo'
+      : 'Una matricula por linea, o separadas por coma';
+  }
+
+  studentEnrollmentsTableLabel(assignment: AcademicAssignment): string {
+    return this.isPropedeuticAssignment(assignment) ? 'Matricula(s) o grupo' : 'Matricula(s)';
+  }
+
   openAssignmentModal(): void {
     const activeCycle = this.activeCycle();
     if (!this.canCaptureAssignments()) {
@@ -583,6 +778,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.lockedShareGroups.set([]);
     this.activeComboField = null;
     this.assignmentForm = this.emptyForm(activeCycle?.code ?? '', this.isEnrollmentCaptureTab());
+    this.preloadSubjectsIfEmpty();
     this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
@@ -631,6 +827,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       studentEnrollments: assignment.studentEnrollments ?? '',
     };
     this.applyPropedeuticMoodleId();
+    this.preloadSubjectsIfEmpty();
     this.syncPickerInputsFromForm();
     this.isAssignmentModalOpen = true;
   }
@@ -713,9 +910,21 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   async saveAssignment(continueAdding = false): Promise<void> {
+    if (this.isSavingAssignment) {
+      return;
+    }
+
     this.formMessage = '';
     this.applyPropedeuticMoodleId();
     this.assignmentForm.status = 'EN_CAPTURA';
+
+    try {
+      await this.ensureSubjectsReadyForSave();
+    } catch (error) {
+      this.formErrors = [this.readFirebaseMessage(error)];
+      return;
+    }
+
     this.formErrors = this.validateForm();
 
     if (this.formErrors.length) {
@@ -749,6 +958,9 @@ export class AssignmentsPageComponent implements OnDestroy {
       this.formErrors = ['Solo puedes guardar asignaciones en tus programas asignados.'];
       return;
     }
+
+    this.isSavingAssignment = true;
+    this.formMessage = 'Guardando asignacion en Firestore. Espera la confirmacion.';
 
     try {
       const wasEditing = this.editingAssignmentId !== null;
@@ -805,7 +1017,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
           if (!previousSharedGroups.has(shareGroup.fullGroup.trim().toUpperCase())) {
             sharedNotificationTasks.push(
-              this.notifySystemsAboutSharedClass(
+              this.firestoreSafeNotificationTask(this.notifySystemsAboutSharedClass(
                 actor,
                 assignmentId,
                 basePayload.cycle,
@@ -815,7 +1027,7 @@ export class AssignmentsPageComponent implements OnDestroy {
                 shareGroup.fullGroup,
                 this.selectedTeacherName(),
                 wasEditing,
-              ),
+              )),
             );
           }
 
@@ -865,18 +1077,17 @@ export class AssignmentsPageComponent implements OnDestroy {
         },
       });
 
-      const sharedNotificationResults = sharedNotificationTasks.length
-        ? await Promise.allSettled(sharedNotificationTasks)
-        : [];
-      const hasSharedNotificationError = sharedNotificationResults.some((result) => result.status === 'rejected');
-      const successMessage = this.editingAssignmentId
-        ? 'Asignacion actualizada correctamente.'
-        : 'Asignacion guardada correctamente.';
+      this.flushNotificationTasks(sharedNotificationTasks);
+      const successMessage = continueAdding && !wasEditing
+        ? 'Asignacion confirmada en Firestore. Puedes capturar la siguiente.'
+        : this.editingAssignmentId
+          ? 'Asignacion actualizada correctamente.'
+          : 'Asignacion guardada correctamente.';
 
-      this.showTemporaryFormMessage(hasSharedNotificationError
-        ? `${successMessage} No se pudo enviar una o mas notificaciones de clase compartida.`
-        : successMessage);
-      this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds);
+      this.showTemporaryFormMessage(successMessage);
+      void this.notifySystemsAboutAssignmentMilestones(actor, basePayload.cycle, createdAssignmentIds).catch((error) => {
+        console.warn('No se pudo procesar el hito de asignaciones despues del guardado.', error);
+      });
 
       if (continueAdding && !wasEditing) {
         this.prepareNextAssignmentForm();
@@ -887,7 +1098,9 @@ export class AssignmentsPageComponent implements OnDestroy {
     } catch (error) {
       console.error('No se pudo guardar la asignacion', error);
       this.formMessage = '';
-      this.formErrors = [`No se pudo guardar la asignacion. ${this.readFirebaseMessage(error)}`];
+      this.formErrors = [`No se pudo guardar la asignacion en Firestore. ${this.readFirebaseMessage(error)}`];
+    } finally {
+      this.isSavingAssignment = false;
     }
   }
 
@@ -936,6 +1149,9 @@ export class AssignmentsPageComponent implements OnDestroy {
         studentEnrollments: assignment.studentEnrollments,
         ...actor,
       });
+      void this.assignmentsRepository.refreshFromServer().catch((error) => {
+        console.warn('La clase compartida se actualizo, pero no se pudo refrescar la vista desde servidor.', error);
+      });
       this.showTemporaryFormMessage('Clase compartida retirada correctamente.');
       this.formErrors = [];
 
@@ -961,36 +1177,39 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
   }
 
-  selectSearchField(event: Event): void {
-    this.searchField.set((event.target as HTMLSelectElement).value as AssignmentSearchField);
-    this.searchQuery.set('');
-    this.isSearchMenuOpen = false;
-  }
-
   updateSearchQuery(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value);
-    this.isSearchMenuOpen = true;
+    this.resetPagination();
   }
 
   clearSearch(): void {
     this.searchQuery.set('');
-    this.isSearchMenuOpen = false;
-  }
-
-  selectPredictedSearch(value: string): void {
-    this.searchQuery.set(value);
-    this.isSearchMenuOpen = false;
+    this.resetPagination();
   }
 
   selectStatusFilter(event: Event): void {
     this.statusFilter.set((event.target as HTMLSelectElement).value as AssignmentStatusFilter);
+    this.resetPagination();
   }
 
   selectModeTab(tab: AssignmentModeTab): void {
     this.modeTab.set(tab);
     this.searchQuery.set('');
-    this.isSearchMenuOpen = false;
+    this.resetPagination();
     this.clearSubjectIfNotAllowedForCurrentForm();
+  }
+
+  selectPageSize(event: Event): void {
+    this.pageSize.set(Number((event.target as HTMLSelectElement).value) || 10);
+    this.resetPagination();
+  }
+
+  goToPreviousPage(): void {
+    this.currentPage.set(Math.max(1, this.currentSafePage() - 1));
+  }
+
+  goToNextPage(): void {
+    this.currentPage.set(Math.min(this.totalAssignmentPages(), this.currentSafePage() + 1));
   }
 
   canToggleGlobalCatalog(): boolean {
@@ -1009,7 +1228,6 @@ export class AssignmentsPageComponent implements OnDestroy {
   toggleCatalogScope(): void {
     this.catalogScope.update((scope) => scope === 'GLOBAL' ? 'OWN' : 'GLOBAL');
     this.searchQuery.set('');
-    this.isSearchMenuOpen = false;
   }
 
   downloadAssignmentsReport(): void {
@@ -1074,113 +1292,21 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.isReadinessAlertVisible.set(false);
   }
 
-  searchFieldLabel(): string {
-    const labels: Record<AssignmentSearchField, string> = {
-      program: 'Programa',
-      group: 'Grupo',
-      teacher: 'Docente',
-      subject: 'Materia',
-    };
-
-    return labels[this.searchField()];
-  }
-
-  searchPlaceholder(): string {
-    const placeholders: Record<AssignmentSearchField, string> = {
-      program: 'Escribe la carrera o programa',
-      group: 'Escribe el grupo',
-      teacher: 'Escribe nombre o usuario Moodle',
-      subject: 'Escribe clave o nombre de materia',
-    };
-
-    return placeholders[this.searchField()];
-  }
-
-  searchSuggestions(): string[] {
-    const query = this.searchQuery();
-    const options = new Map<string, string>();
-    const addOption = (value: string, searchableText = value): void => {
-      if (!value) {
-        return;
-      }
-
-      const currentSearchableText = options.get(value);
-      options.set(value, currentSearchableText ? `${currentSearchableText} ${searchableText}` : searchableText);
-    };
-    const scopedAssignments = this.assignments().filter((assignment) => {
-      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
-
-      return !this.isAssignmentDeleted(assignment)
-        && this.assignmentInCurrentScope(assignment)
-        && matchesStatus;
-    });
-
-    if (this.searchField() === 'program') {
-      this.visibleProgramCodes().forEach((program) => addOption(program));
-    }
-
-    if (this.searchField() === 'group') {
-      this.tableGroupOptions().forEach((group) => addOption(group.fullGroup, `${group.fullGroup} ${group.programName}`));
-      scopedAssignments
-        .filter((assignment) => assignment.group)
-        .forEach((assignment) => addOption(assignment.group, `${assignment.group} ${assignment.program}`));
-    }
-
-    if (this.searchField() === 'teacher') {
-      scopedAssignments
-        .forEach((assignment) => addOption(`${assignment.teacherName} - ${assignment.teacherMoodleUser}`));
-      this.validatedTeachers()
-        .forEach((teacher) => addOption(`${teacher.fullName} - ${teacher.moodleUser}`));
-      addOption('TEMPORALMENTE SIN DOCENTE - temporalmente_sin_docente');
-    }
-
-    if (this.searchField() === 'subject') {
-      scopedAssignments
-        .forEach((assignment) => addOption(
-          assignment.subjectName,
-          `${assignment.subjectId} ${assignment.subjectName}`,
-        ));
-      this.activeSubjects()
-        .forEach((subject) => addOption(subject.name, `${subject.subjectId} ${subject.name}`));
-    }
-
-    return Array.from(options.entries())
-      .filter(([, searchableText]) => this.matchesSearchText(searchableText, query))
-      .sort(([firstOption], [secondOption]) => firstOption.localeCompare(secondOption, 'es'))
-      .map(([option]) => option)
-      .slice(0, 30);
-  }
-
-  visibleSearchSuggestions(): string[] {
-    const query = this.normalizeSearch(this.searchQuery());
-
-    if (query.length < 2) {
-      return [];
-    }
-
-    return this.searchSuggestions()
-      .filter((option) => this.normalizeSearch(option) !== query)
-      .slice(0, MAX_SEARCH_SUGGESTIONS);
-  }
-
-  openSearchSuggestions(): void {
-    this.isSearchMenuOpen = true;
-  }
-
-  closeSearchSuggestions(): void {
-    this.isSearchMenuOpen = false;
-  }
-
-  shouldShowSearchSuggestions(): boolean {
-    return this.isSearchMenuOpen && this.visibleSearchSuggestions().length > 0;
-  }
-
   openCombo(field: AssignmentComboField): void {
     this.activeComboField = field;
+
+    if (field === 'subject') {
+      this.preloadSubjectsIfEmpty();
+    }
   }
 
   toggleCombo(field: AssignmentComboField): void {
-    this.activeComboField = this.activeComboField === field ? null : field;
+    const nextField = this.activeComboField === field ? null : field;
+    this.activeComboField = nextField;
+
+    if (nextField === 'subject') {
+      this.preloadSubjectsIfEmpty();
+    }
   }
 
   closeCombo(field: AssignmentComboField): void {
@@ -1280,18 +1406,18 @@ export class AssignmentsPageComponent implements OnDestroy {
           `${subject.name} ${subject.subjectId}`,
           query,
         ))
-      : [...selectableSubjects].sort((firstSubject, secondSubject) => {
-          const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
+      : [...selectableSubjects];
 
-          return dateComparison || firstSubject.name.localeCompare(secondSubject.name, 'es');
-        });
-
-    return subjects.slice(0, MAX_COMBO_OPTIONS);
+    return this.sortSubjectsForCurrentForm(subjects).slice(0, MAX_COMBO_OPTIONS);
   }
 
   subjectPickerEmptyMessage(): string {
+    if (this.subjectsLoading()) {
+      return 'Cargando asignaturas activas...';
+    }
+
     if (!this.activeSubjects().length) {
-      return 'Sin asignaturas activas';
+      return 'No se recibieron asignaturas activas. Recarga la vista o revisa la conexion.';
     }
 
     if (this.assignmentForm.propedeutic) {
@@ -1362,6 +1488,12 @@ export class AssignmentsPageComponent implements OnDestroy {
       return this.postgraduateGroupPickerEmptyMessage(activeGroupsInCycle);
     }
 
+    const modalityHint = this.groupPickerModalityHint(activeGroupsInCycle);
+
+    if (modalityHint) {
+      return modalityHint;
+    }
+
     if (this.modeTab() !== 'Salud') {
       return 'Sin coincidencias para la busqueda actual.';
     }
@@ -1381,6 +1513,39 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     return 'Sin coincidencias para la busqueda actual.';
+  }
+
+  private groupPickerModalityHint(activeGroupsInCycle: AcademicGroup[]): string {
+    const query = this.normalizeSearch(this.groupPickerValue);
+
+    if (query.length < 2) {
+      return '';
+    }
+
+    const matchingGroupsInOtherTabs = activeGroupsInCycle
+      .filter((group) => {
+        const allowedProgram = this.canSeeAllAssignments()
+          || this.isAssignedProgram(group.programAbbreviation);
+
+        return allowedProgram
+          && this.matchesSearchText(
+            `${group.fullGroup} ${group.programAbbreviation} ${group.programName}`,
+            query,
+          )
+          && this.groupMode(group) !== this.modeTab();
+      });
+
+    const matchingTabs = Array.from(new Set(
+      matchingGroupsInOtherTabs
+        .map((group) => this.groupMode(group))
+        .filter((tab): tab is AssignmentModeTab => Boolean(tab)),
+    ));
+
+    if (!matchingTabs.length) {
+      return '';
+    }
+
+    return `El grupo existe, pero corresponde a la pestana ${matchingTabs.join(', ')}. Cambia de pestana para asignarlo sin mezclar modalidades.`;
   }
 
   private postgraduateGroupPickerEmptyMessage(activeGroupsInCycle: AcademicGroup[]): string {
@@ -1416,6 +1581,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   updateSubjectPicker(value: string): void {
     this.subjectPickerValue = value;
     this.openCombo('subject');
+    this.preloadSubjectsIfEmpty();
     const subject = this.subjectFromPickerValue(value);
     this.assignmentForm.subjectId = subject?.subjectId ?? '';
   }
@@ -1652,6 +1818,11 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     this.assignmentForm.shareGroups = Array.from(selectedGroups);
+
+    if (checked && this.assignmentForm.shareGroups.length > this.assignmentForm.sharedGroupCount) {
+      this.assignmentForm.sharedGroupCount = this.normalizeSharedGroupCount(this.assignmentForm.shareGroups.length);
+    }
+
     this.syncSharedGroups();
   }
 
@@ -1660,10 +1831,12 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   isShareGroupDisabled(group: string): boolean {
+    const maxSelectableGroups = Math.min(this.sharedGroupOptions().length, MAX_SHARED_GROUPS);
+
     return this.isShareGroupLocked(group)
       || (
         !this.isShareGroupSelected(group)
-        && this.assignmentForm.shareGroups.length >= this.assignmentForm.sharedGroupCount
+        && this.assignmentForm.shareGroups.length >= maxSelectableGroups
       );
   }
 
@@ -1701,7 +1874,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   assignmentById(id: string): AcademicAssignment | null {
-    return this.assignments().find((assignment) => assignment.id === id && !this.isAssignmentDeleted(assignment)) ?? null;
+    return this.assignmentsById().get(id) ?? null;
   }
 
   isSharedInTable(assignment: AcademicAssignment): boolean {
@@ -1768,9 +1941,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   private sharedDestinationAssignments(assignment: AcademicAssignment): AcademicAssignment[] {
     const baseId = this.sharedBaseAssignmentId(assignment);
 
-    return this.assignments()
-      .filter((item) => !this.isAssignmentDeleted(item) && item.shared && item.sourceAssignmentId === baseId)
-      .sort((a, b) => a.group.localeCompare(b.group, 'es'));
+    return this.sharedDestinationsBySourceId().get(baseId) ?? [];
   }
 
   private assignmentSharedGroups(assignment: AcademicAssignment): string[] {
@@ -1792,9 +1963,11 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentSharedGroupsForCurrentUser(assignment: AcademicAssignment): string[] {
+    const groupsByFullGroup = this.groupsByFullGroup();
+
     return this.assignmentSharedGroups(assignment)
       .filter((fullGroup) => {
-        const group = this.groups().find((item) => item.fullGroup === fullGroup);
+        const group = groupsByFullGroup.get(fullGroup);
 
         return group ? this.isAssignedProgram(group.programAbbreviation) : false;
       });
@@ -1802,10 +1975,16 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private assignmentPrograms(assignment: AcademicAssignment): string[] {
     const programs = new Set<string>([assignment.program]);
+    const groupsByFullGroup = this.groupsByFullGroup();
+    const baseGroup = groupsByFullGroup.get(assignment.group);
+
+    if (baseGroup?.programAbbreviation) {
+      programs.add(baseGroup.programAbbreviation);
+    }
 
     (assignment.sharedPrograms ?? []).forEach((program) => programs.add(program));
     this.assignmentSharedGroups(assignment).forEach((fullGroup) => {
-      const group = this.groups().find((item) => item.fullGroup === fullGroup);
+      const group = groupsByFullGroup.get(fullGroup);
 
       if (group?.programAbbreviation) {
         programs.add(group.programAbbreviation);
@@ -1939,31 +2118,23 @@ export class AssignmentsPageComponent implements OnDestroy {
     return status;
   }
 
-  private countAssignmentsForTab(tab: AssignmentModeTab): number {
-    return this.assignments().filter((assignment) => {
-      const matchesStatus = this.assignmentStatusMatchesFilter(assignment);
-
-      return !this.isAssignmentDeleted(assignment)
-        && this.assignmentInCurrentScope(assignment, tab)
-        && matchesStatus
-        && this.assignmentMatchesSearch(assignment);
-    }).length;
+  private assignmentInCurrentScope(assignment: AcademicAssignment, tab = this.modeTab()): boolean {
+    return this.assignmentMatchesCycleAndCatalogScope(assignment)
+      && this.assignmentMatchesModeTab(assignment, tab);
   }
 
-  private assignmentInCurrentScope(assignment: AcademicAssignment, tab = this.modeTab()): boolean {
+  private assignmentMatchesCycleAndCatalogScope(assignment: AcademicAssignment): boolean {
     const activeCycle = this.activeCycle();
-    const matchesCycle = activeCycle ? assignment.cycle === activeCycle.code : false;
-    const matchesTab = this.assignmentMatchesModeTab(assignment, tab);
 
     return this.canViewAssignments()
-      && matchesCycle
-      && this.assignmentMatchesCatalogScope(assignment)
-      && matchesTab;
+      && Boolean(activeCycle)
+      && assignment.cycle === activeCycle?.code
+      && this.assignmentMatchesCatalogScope(assignment);
   }
 
   private assignmentMatchesCatalogScope(assignment: AcademicAssignment): boolean {
     return this.isGlobalCatalogVisible()
-      || this.wasAssignmentCreatedByCurrentUser(assignment)
+      || this.wasAssignmentLoadedByCurrentUser(assignment)
       || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
   }
 
@@ -1976,34 +2147,85 @@ export class AssignmentsPageComponent implements OnDestroy {
       .some((alias) => this.assignedProgramCodes().has(alias));
   }
 
-  private assignmentMatchesSearch(assignment: AcademicAssignment): boolean {
-    const query = this.searchQuery();
-
-    if (!this.normalizeSearch(query)) {
+  private assignmentMatchesSearch(assignment: AcademicAssignment, normalizedQuery = this.normalizedSearchQuery()): boolean {
+    if (!normalizedQuery) {
       return true;
     }
 
-    if (this.searchField() === 'program') {
-      return this.matchesSearchText(this.assignmentProgramSearchText(assignment), query);
+    return this.matchesNormalizedSearchText(this.assignmentSearchText(assignment), normalizedQuery);
+  }
+
+  private assignmentSearchText(assignment: AcademicAssignment): string {
+    return [
+      assignment.moodleId,
+      assignment.subjectId,
+      assignment.subjectName,
+      assignment.teacherName,
+      assignment.teacherMoodleUser,
+      assignment.program,
+      this.assignmentProgramSearchText(assignment),
+      assignment.group,
+      ...this.assignmentSharedGroups(assignment),
+      assignment.observations,
+      this.statusLabel(assignment.status),
+    ].join(' ');
+  }
+
+  private assignmentMatchesIndexedSearch(
+    assignment: AcademicAssignment,
+    normalizedQuery: string,
+    searchTokens: string[],
+    searchIndex: Map<string, string>,
+  ): boolean {
+    if (!normalizedQuery) {
+      return true;
     }
 
-    if (this.searchField() === 'group') {
-      return this.matchesSearchText([
-        assignment.group,
-        ...this.assignmentSharedGroups(assignment),
-      ].join(' '), query);
+    if (this.isGroupSearchQuery(normalizedQuery, searchTokens)) {
+      return this.assignmentMatchesGroupSearch(assignment, normalizedQuery, searchTokens);
     }
 
-    if (this.searchField() === 'teacher') {
-      return this.matchesSearchText(`${assignment.teacherName} ${assignment.teacherMoodleUser}`, query);
+    const indexedText = searchIndex.get(assignment.id)
+      ?? this.normalizeSearch(this.assignmentSearchText(assignment));
+
+    return indexedText.includes(normalizedQuery)
+      || searchTokens.every((token) => indexedText.includes(token));
+  }
+
+  private isGroupSearchQuery(normalizedQuery: string, searchTokens: string[]): boolean {
+    if (searchTokens.length < 2) {
+      return false;
     }
 
-    return this.matchesSearchText(`${assignment.subjectId} ${assignment.subjectName}`, query);
+    const hasGroupCode = searchTokens.some((token) => /^(11|12|23|24|53)$/.test(token));
+    const hasProgramToken = searchTokens.some((token) => /^[a-z][a-z0-9-]{1,}$/.test(token));
+    const hasCycleOrSection = /\b\d{2}\s+\d\b/.test(normalizedQuery)
+      || searchTokens.some((token) => /^\d{2}[a-z]+$/.test(token));
+
+    return hasGroupCode && hasProgramToken && hasCycleOrSection;
+  }
+
+  private assignmentMatchesGroupSearch(
+    assignment: AcademicAssignment,
+    normalizedQuery: string,
+    searchTokens: string[],
+  ): boolean {
+    const normalizedGroup = this.normalizeSearch(assignment.group);
+
+    if (!normalizedGroup) {
+      return false;
+    }
+
+    return normalizedGroup.includes(normalizedQuery)
+      || searchTokens.every((token) => normalizedGroup.includes(token));
   }
 
   private matchesSearchText(text: string, query: string): boolean {
+    return this.matchesNormalizedSearchText(text, this.normalizeSearch(query));
+  }
+
+  private matchesNormalizedSearchText(text: string, normalizedQuery: string): boolean {
     const normalizedText = this.normalizeSearch(text);
-    const normalizedQuery = this.normalizeSearch(query);
 
     if (!normalizedQuery) {
       return true;
@@ -2029,16 +2251,17 @@ export class AssignmentsPageComponent implements OnDestroy {
       return assignment.program;
     }
 
-    const group = this.groups().find((item) => item.fullGroup === assignment.group);
+    const group = this.groupsByFullGroup().get(assignment.group);
 
     return group?.programAbbreviation || this.programForAssignment(assignment)?.code || assignment.program;
   }
 
   private assignmentProgramSearchText(assignment: AcademicAssignment): string {
-    const group = this.groups().find((item) => item.fullGroup === assignment.group);
+    const groupsByFullGroup = this.groupsByFullGroup();
+    const group = groupsByFullGroup.get(assignment.group);
     const program = this.programForAssignment(assignment);
     const sharedGroups = this.assignmentSharedGroups(assignment)
-      .map((fullGroup) => this.groups().find((item) => item.fullGroup === fullGroup))
+      .map((fullGroup) => groupsByFullGroup.get(fullGroup))
       .filter((item): item is AcademicGroup => item !== undefined);
 
     return [
@@ -2056,15 +2279,23 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentMatchesModeTab(assignment: AcademicAssignment, tab: AssignmentModeTab): boolean {
-    if (this.assignmentMode(assignment) === tab) {
-      return true;
+    return this.assignmentModeTabs(assignment).includes(tab);
+  }
+
+  private assignmentModeTabs(assignment: AcademicAssignment): AssignmentModeTab[] {
+    const tabs = new Set<AssignmentModeTab>([this.assignmentMode(assignment)]);
+    const groupsByFullGroup = this.groupsByFullGroup();
+
+    for (const fullGroup of this.assignmentSharedGroups(assignment)) {
+      const group = groupsByFullGroup.get(fullGroup);
+      const tab = group ? this.groupMode(group) : null;
+
+      if (tab) {
+        tabs.add(tab);
+      }
     }
 
-    return this.assignmentSharedGroups(assignment).some((fullGroup) => {
-      const group = this.groups().find((item) => item.fullGroup === fullGroup);
-
-      return group ? this.groupMatchesModeTab(group, tab) : false;
-    });
+    return ASSIGNMENT_MODE_TABS.filter((tab) => tabs.has(tab));
   }
 
   private assignmentMode(assignment: AcademicAssignment): AssignmentModeTab {
@@ -2076,7 +2307,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return 'Especiales';
     }
 
-    const group = this.groups().find((item) => item.fullGroup === assignment.group);
+    const group = this.groupsByFullGroup().get(assignment.group);
 
     if (group) {
       return this.groupMode(group) ?? this.assignmentModeFromStoredData(assignment);
@@ -2509,11 +2740,11 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     const selectedGroup = this.selectedGroup();
-    const sharesBaseOperationalGroup = this.selectedShareGroups()
-      .some((shareGroup) => this.isSameOperationalGroup(shareGroup, selectedGroup));
+    const sharesBaseGroup = this.selectedShareGroups()
+      .some((shareGroup) => this.isSameGroup(shareGroup, selectedGroup));
 
-    if (this.assignmentForm.shared && !this.assignmentForm.special && sharesBaseOperationalGroup) {
-      errors.push('Los grupos compartidos no pueden tener el mismo codigo y seccion que el grupo base.');
+    if (this.assignmentForm.shared && !this.assignmentForm.special && sharesBaseGroup) {
+      errors.push('El grupo a compartir debe ser diferente al grupo base.');
     }
 
     const selectedProgram = this.assignmentForm.special
@@ -2535,7 +2766,9 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (this.assignmentForm.special && !this.isEnglishForm() && !this.normalizedStudentEnrollments()) {
-      errors.push('Captura al menos una matricula para el caso especial.');
+      errors.push(this.assignmentForm.propedeutic
+        ? 'Captura al menos una matricula o un grupo para el propedeutico.'
+        : 'Captura al menos una matricula para el caso especial.');
     }
 
     if (!this.canReviewAssignments() && this.assignmentForm.status !== 'EN_CAPTURA') {
@@ -2566,6 +2799,17 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('El docente es obligatorio.');
     }
 
+    if (this.assignmentForm.group
+      && this.assignmentForm.subjectId
+      && this.assignmentsRepository.hasGroupSubjectConflict(
+        this.assignmentForm.cycle,
+        this.assignmentForm.group,
+        this.assignmentForm.subjectId,
+        this.editingAssignmentId,
+      )) {
+      errors.push('Ya existe una asignacion para este grupo y esta materia en el ciclo activo. Revisa la tabla antes de volver a capturarla.');
+    }
+
     if (!this.assignmentForm.propedeutic
       && !this.isEnglishForm()
       && moodleId
@@ -2592,7 +2836,8 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private subjectPickerLabelFromId(subjectId: string): string {
-    const subject = this.subjects().find((item) => item.subjectId === subjectId);
+    const subject = this.subjects().find((item) => item.subjectId === subjectId)
+      ?? this.fallbackSubjectFromEditingAssignment(subjectId);
 
     return subject ? this.subjectPickerLabel(subject) : '';
   }
@@ -2630,8 +2875,149 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private selectableSubjectsForCurrentForm(): Subject[] {
-    return this.activeSubjects()
+    const subjects = this.activeSubjects()
       .filter((subject) => this.isSubjectAllowedForCurrentForm(subject));
+    const fallbackSubject = this.fallbackSubjectFromEditingAssignment();
+
+    if (
+      fallbackSubject
+      && this.isSubjectAllowedForCurrentForm(fallbackSubject)
+      && !subjects.some((subject) => subject.subjectId === fallbackSubject.subjectId)
+    ) {
+      return [fallbackSubject, ...subjects];
+    }
+
+    return subjects;
+  }
+
+  private fallbackSubjectFromEditingAssignment(subjectId = this.assignmentForm.subjectId): Subject | null {
+    const normalizedSubjectId = subjectId.trim().toUpperCase();
+
+    if (!normalizedSubjectId || !this.editingAssignmentId) {
+      return null;
+    }
+
+    const assignment = this.assignmentById(this.editingAssignmentId);
+
+    if (!assignment || assignment.subjectId.trim().toUpperCase() !== normalizedSubjectId) {
+      return null;
+    }
+
+    const subjectName = assignment.subjectName.trim().toUpperCase();
+
+    if (!subjectName) {
+      return null;
+    }
+
+    return {
+      id: normalizedSubjectId,
+      subjectId: normalizedSubjectId,
+      name: subjectName,
+      normalizedName: this.normalizeSearchText(subjectName),
+      status: 'Activo',
+      origin: 'MANUAL',
+      createdBy: assignment.createdBy,
+      createdByName: assignment.createdByName,
+      createdByRole: assignment.createdByRole,
+      createdAt: assignment.createdAt,
+      updatedAt: assignment.updatedAt,
+    };
+  }
+
+  private sortSubjectsForCurrentForm(subjects: Subject[]): Subject[] {
+    const subjectPriorityCodes = this.subjectPriorityCodesForCurrentForm();
+
+    return [...subjects].sort((firstSubject, secondSubject) => {
+      const firstPriority = this.subjectProgramPriority(firstSubject, subjectPriorityCodes);
+      const secondPriority = this.subjectProgramPriority(secondSubject, subjectPriorityCodes);
+
+      if (firstPriority !== secondPriority) {
+        return firstPriority - secondPriority;
+      }
+
+      if (firstPriority === 0) {
+        return firstSubject.name.localeCompare(secondSubject.name, 'es');
+      }
+
+      const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
+
+      return dateComparison || firstSubject.name.localeCompare(secondSubject.name, 'es');
+    });
+  }
+
+  private subjectPriorityCodesForCurrentForm(): Set<string> {
+    const priorityCodes = new Set<string>();
+    const selectedGroup = this.selectedGroup();
+
+    if (selectedGroup) {
+      this.subjectProgramAliases(selectedGroup.programAbbreviation)
+        .forEach((alias) => priorityCodes.add(alias));
+    }
+
+    if (this.assignmentForm.program) {
+      this.subjectProgramAliases(this.assignmentForm.program)
+        .forEach((alias) => priorityCodes.add(alias));
+    }
+
+    if (!this.canSeeAllAssignments()) {
+      this.assignedProgramCodes()
+        .forEach((program) => this.subjectProgramAliases(program).forEach((alias) => priorityCodes.add(alias)));
+    }
+
+    return priorityCodes;
+  }
+
+  private subjectProgramPriority(subject: Subject, priorityCodes: Set<string>): number {
+    if (!priorityCodes.size) {
+      return 1;
+    }
+
+    const subjectCodes = this.subjectProgramCodes(subject);
+
+    return subjectCodes.some((code) => priorityCodes.has(code)) ? 0 : 1;
+  }
+
+  private subjectProgramCodes(subject: Subject): string[] {
+    const codes = new Set<string>();
+    const subjectTokens = [
+      subject.name,
+      subject.subjectId,
+    ];
+
+    subjectTokens.forEach((token) => {
+      const normalizedToken = token.trim().toUpperCase();
+      const prefixMatch = normalizedToken.match(/^([A-Z]+)(?=\d)/);
+
+      if (prefixMatch?.[1]) {
+        this.subjectProgramAliases(prefixMatch[1]).forEach((alias) => codes.add(alias));
+      }
+    });
+
+    return [...codes];
+  }
+
+  private subjectProgramAliases(program: string): Set<string> {
+    const aliases = this.programAliases(program);
+    const equivalentGroups = [
+      ['CINTER', 'LCIA', 'LCIYA'],
+      ['ADEM', 'LAF'],
+      ['CONPUB', 'LCPF', 'CPF'],
+      ['SISCOM', 'ISC'],
+      ['DIGRAF', 'DGD'],
+      ['CRIMYCRI', 'LCRIMYCRI', 'LCC'],
+      ['DE', 'LDL'],
+      ['MERC', 'MMD'],
+      ['ADETUR', 'LAET'],
+      ['PED', 'LPIE', 'LPED'],
+      ['ARQ', 'LARQ'],
+      ['PSIC', 'LPSIC'],
+    ];
+
+    equivalentGroups
+      .filter((group) => group.some((alias) => aliases.has(alias)))
+      .forEach((group) => group.forEach((alias) => aliases.add(alias)));
+
+    return aliases;
   }
 
   private selectableTeachersForCurrentForm(): Teacher[] {
@@ -2775,6 +3161,43 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     this.assignmentForm.subjectId = '';
     this.subjectPickerValue = '';
+  }
+
+  private preloadSubjectsIfEmpty(): void {
+    void this.refreshSubjectsIfEmpty().catch((error) => {
+      console.warn('No se pudo precargar el catalogo de asignaturas.', error);
+    });
+  }
+
+  private async ensureSubjectsReadyForSave(): Promise<void> {
+    if (this.activeSubjects().length) {
+      return;
+    }
+
+    await this.refreshSubjectsIfEmpty();
+
+    if (!this.activeSubjects().length) {
+      throw new Error('No se recibieron asignaturas activas desde Firestore. Recarga la vista e intenta guardar de nuevo.');
+    }
+  }
+
+  private refreshSubjectsIfEmpty(): Promise<void> {
+    if (this.activeSubjects().length) {
+      return Promise.resolve();
+    }
+
+    if (this.subjectsRefreshPromise) {
+      return this.subjectsRefreshPromise;
+    }
+
+    this.isRefreshingSubjects.set(true);
+    this.subjectsRefreshPromise = this.subjectsRepository.refreshFromServer()
+      .finally(() => {
+        this.subjectsRefreshPromise = null;
+        this.isRefreshingSubjects.set(false);
+      });
+
+    return this.subjectsRefreshPromise;
   }
 
   private isActiveSubject(subject: Subject): boolean {
@@ -2958,6 +3381,14 @@ export class AssignmentsPageComponent implements OnDestroy {
     return this.groupMode(group) === tab;
   }
 
+  private groupCanBeSharedAcrossTabs(group: AcademicGroup): boolean {
+    const mode = this.groupMode(group);
+
+    return mode !== null
+      && mode !== 'Especiales'
+      && mode !== 'Inglés';
+  }
+
   private groupMode(group: AcademicGroup): AssignmentModeTab | null {
     if (this.isEnglishGroup(group)) {
       return 'Inglés';
@@ -3116,41 +3547,20 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private programAliases(program: string): Set<string> {
     const normalizedProgram = program.trim().toUpperCase();
-    const normalizedProgramName = this.normalizeSearchText(program);
+    const normalizedProgramName = this.normalizeSearchText(program).trim();
     const aliases = new Set<string>();
 
     if (normalizedProgram) {
       aliases.add(normalizedProgram);
     }
 
-    this.nomenclatures().forEach((nomenclature) => {
-      const abbreviation = nomenclature.abbreviation.trim().toUpperCase();
-      const programCode = nomenclature.programCode.trim().toUpperCase();
-      const nomenclatureName = this.normalizeSearchText(nomenclature.programName);
-      const knownAliases = [abbreviation, programCode].filter(Boolean);
-      const matchesCode = knownAliases.includes(normalizedProgram);
-      const matchesName = Boolean(normalizedProgramName) && nomenclatureName === normalizedProgramName;
+    const lookup = this.programAliasLookup();
+    const addLookupAliases = (key: string) => {
+      lookup.get(key)?.forEach((alias) => aliases.add(alias));
+    };
 
-      if (matchesCode || matchesName) {
-        knownAliases.forEach((alias) => aliases.add(alias));
-      }
-    });
-
-    this.programs().forEach((catalogProgram) => {
-      const programCode = catalogProgram.code.trim().toUpperCase();
-      const programName = this.normalizeSearchText(catalogProgram.name);
-      const matchesCode = programCode === normalizedProgram;
-      const matchesName = Boolean(normalizedProgramName) && programName === normalizedProgramName;
-
-      if (!matchesCode && !matchesName) {
-        return;
-      }
-
-      aliases.add(programCode);
-      this.nomenclatures()
-        .filter((nomenclature) => nomenclature.programCode.trim().toUpperCase() === programCode)
-        .forEach((nomenclature) => aliases.add(nomenclature.abbreviation.trim().toUpperCase()));
-    });
+    addLookupAliases(`code:${normalizedProgram}`);
+    addLookupAliases(`name:${normalizedProgramName}`);
 
     return aliases;
   }
@@ -3252,7 +3662,8 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private selectedSubject(): Subject | null {
-    return this.subjects().find((subject) => subject.subjectId === this.assignmentForm.subjectId) ?? null;
+    return this.subjects().find((subject) => subject.subjectId === this.assignmentForm.subjectId)
+      ?? this.fallbackSubjectFromEditingAssignment();
   }
 
   private selectedTeacher(): Teacher | null {
@@ -3370,25 +3781,15 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
   }
 
-  private isSameOperationalGroup(candidate: AcademicGroup, baseGroup: AcademicGroup | null): boolean {
+  private isSameGroup(candidate: AcademicGroup, baseGroup: AcademicGroup | null): boolean {
     if (!baseGroup) {
       return false;
     }
 
     const candidateFullGroup = candidate.fullGroup.trim().toUpperCase();
     const baseFullGroup = baseGroup.fullGroup.trim().toUpperCase();
-    const candidateGroupCode = candidate.groupCode.trim().toUpperCase();
-    const candidateSection = candidate.section.trim().toUpperCase();
-    const baseGroupCode = baseGroup.groupCode.trim().toUpperCase();
-    const baseSection = baseGroup.section.trim().toUpperCase();
-    const hasComparableSignature = !!candidateGroupCode && !!candidateSection && !!baseGroupCode && !!baseSection;
 
-    return candidateFullGroup === baseFullGroup
-      || (
-        hasComparableSignature
-        && candidateGroupCode === baseGroupCode
-        && candidateSection === baseSection
-      );
+    return candidateFullGroup === baseFullGroup;
   }
 
   private prepareNextAssignmentForm(): void {
@@ -3401,24 +3802,29 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.syncPickerInputsFromForm();
   }
 
-  private notifySystemsAboutAssignmentMilestones(
+  private async notifySystemsAboutAssignmentMilestones(
     actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
     cycle: string,
     createdAssignmentIds: string[],
-  ): void {
+  ): Promise<void> {
+    const milestoneStep = 15;
+
     if (!this.isAcademicCoordinationRole(actor.createdByRole) || !createdAssignmentIds.length) {
       return;
     }
 
-    const existingAssignmentsCount = this.assignments().filter((assignment) => {
-      return !this.isAssignmentDeleted(assignment)
-        && assignment.cycle === cycle
-        && assignment.createdBy === actor.createdBy;
-    }).length;
-    const previousCount = existingAssignmentsCount;
-    const currentCount = existingAssignmentsCount + createdAssignmentIds.length;
+    let currentCount = 0;
 
-    for (let milestone = 5; milestone <= currentCount; milestone += 5) {
+    try {
+      currentCount = await this.assignmentsRepository.countActiveAssignmentsByCreator(cycle, actor.createdBy);
+    } catch (error) {
+      console.warn('No se pudo calcular el hito de asignaciones desde Firestore.', error);
+      return;
+    }
+
+    const previousCount = Math.max(0, currentCount - createdAssignmentIds.length);
+
+    for (let milestone = milestoneStep; milestone <= currentCount; milestone += milestoneStep) {
       if (milestone <= previousCount) {
         continue;
       }
@@ -3433,16 +3839,21 @@ export class AssignmentsPageComponent implements OnDestroy {
         .toLowerCase()
         .replace(/[^a-z0-9-]+/g, '-');
 
-      void this.systemNotificationsRepository.createOnce(notificationId, {
-        title: `Hito de ${milestone} asignaciones`,
-        message: `La coordinacion academica correspondiente a ${actor.createdByName} ya lleva ${milestone} asignaciones en el ciclo ${cycle}.`,
-        type: 'ASIGNACIONES_HITO',
-        entity: 'asignaciones',
-        entityId: notificationId,
-        actorId: actor.createdBy,
-        actorName: actor.createdByName,
-        actorRole: actor.createdByRole,
-      });
+      try {
+        await this.systemNotificationsRepository.createOnce(notificationId, {
+          title: `Hito de ${milestone} asignaciones`,
+          message: `La coordinacion academica correspondiente a ${actor.createdByName} ya lleva ${milestone} asignaciones en el ciclo ${cycle}.`,
+          type: 'ASIGNACIONES_HITO',
+          entity: 'asignaciones',
+          entityId: notificationId,
+          actorId: actor.createdBy,
+          actorName: actor.createdByName,
+          actorRole: actor.createdByRole,
+          milestone,
+        });
+      } catch (error) {
+        console.warn('No se pudo crear la notificacion de hito de asignaciones.', error);
+      }
     }
   }
 
@@ -3525,11 +3936,41 @@ export class AssignmentsPageComponent implements OnDestroy {
       .replace(/^-+|-+$/g, '');
   }
 
+  private flushNotificationTasks(tasks: Promise<unknown>[]): void {
+    if (!tasks.length) {
+      return;
+    }
+
+    void Promise.allSettled(tasks);
+  }
+
   private firestoreSafeNotificationTask(task: Promise<unknown>): Promise<unknown> {
-    return task.catch((error) => {
+    return this.withNotificationTimeout(task, 8000).catch((error) => {
       console.warn('No se pudo crear una notificacion academica de clase compartida', error);
       return undefined;
     });
+  }
+
+  private withNotificationTimeout<T>(task: Promise<T>, timeoutMs: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('La notificacion tardo demasiado y se dejo en segundo plano.'));
+      }, timeoutMs);
+
+      task
+        .then((value) => {
+          clearTimeout(timeout);
+          resolve(value);
+        })
+        .catch((error) => {
+          clearTimeout(timeout);
+          reject(error);
+        });
+    });
+  }
+
+  private resetPagination(): void {
+    this.currentPage.set(1);
   }
 
   private emptyForm(cycle = '', special = false): AssignmentFormState {

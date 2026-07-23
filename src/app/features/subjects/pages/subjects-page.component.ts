@@ -33,6 +33,10 @@ const SUBJECTS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 @Component({
   selector: 'spai-subjects-page',
   imports: [CommonModule, FormsModule],
+  providers: [
+    AuditLogRepository,
+    SubjectsRepository,
+  ],
   templateUrl: './subjects-page.component.html',
   styleUrl: './subjects-page.component.css',
 })
@@ -79,7 +83,7 @@ export class SubjectsPageComponent {
     const subjectsByName = new Map<string, Subject[]>();
 
     this.subjects().forEach((subject) => {
-      const normalizedName = subject.normalizedName || this.normalizeSearchText(subject.name);
+      const normalizedName = this.normalizeSearchText(subject.normalizedName || subject.name);
 
       if (!normalizedName) {
         return;
@@ -137,9 +141,14 @@ export class SubjectsPageComponent {
     return this.subjects().filter((subject) => {
       const allowedByRole = this.canManageSubjects() || this.isActiveSubject(subject);
       const matchesStatus = statusFilter === 'TODOS' || this.subjectStatusMatches(subject, statusFilter);
+      const searchableName = this.normalizeSearchText([
+        subject.normalizedName,
+        subject.name,
+      ].filter(Boolean).join(' '));
+      const searchableSubjectId = this.normalizeSearchText(subject.subjectId);
       const matchesSearch = !query
-        || subject.normalizedName.includes(query)
-        || subject.subjectId.toLowerCase().includes(query);
+        || searchableName.includes(query)
+        || searchableSubjectId.includes(query);
 
       return allowedByRole && matchesStatus && matchesSearch;
     }).sort((firstSubject, secondSubject) => this.compareSubjectsByRecentUpdate(firstSubject, secondSubject));
@@ -600,7 +609,7 @@ export class SubjectsPageComponent {
   }
 
   duplicateSubjectIds(subject: Subject): string[] {
-    const normalizedName = subject.normalizedName || this.normalizeSearchText(subject.name);
+    const normalizedName = this.normalizeSearchText(subject.normalizedName || subject.name);
 
     return (this.duplicateSubjectNameMap().get(normalizedName) ?? [])
       .map((duplicateSubject) => duplicateSubject.subjectId)
@@ -710,7 +719,7 @@ export class SubjectsPageComponent {
     const existingNames = new Map<string, Subject[]>();
 
     this.subjects().forEach((subject) => {
-      const normalizedName = subject.normalizedName || this.normalizeSearchText(subject.name);
+      const normalizedName = this.normalizeSearchText(subject.normalizedName || subject.name);
       const subjectsWithName = existingNames.get(normalizedName) ?? [];
 
       subjectsWithName.push(subject);

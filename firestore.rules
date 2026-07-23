@@ -129,6 +129,23 @@ service cloud.firestore {
         && teacherId == request.resource.data.normalizedMoodleUser;
     }
 
+    function canDeleteOwnPendingTeacher(teacherId) {
+      return hasInstitutionalEmail()
+        && hasModuleAccess('docentes')
+        && resource.data.status == 'PENDIENTE'
+        && resource.data.origin == 'MANUAL'
+        && resource.data.lifecycleStatus == 'NUEVO'
+        && teacherId == resource.data.normalizedMoodleUser
+        && (
+          resource.data.createdBy == request.auth.uid
+          || (
+            resource.data.createdBy is string
+            && exists(/databases/$(database)/documents/usuarios/$(resource.data.createdBy))
+            && get(/databases/$(database)/documents/usuarios/$(resource.data.createdBy)).data.authUid == request.auth.uid
+          )
+        );
+    }
+
     function canEditSubjects() {
       return isSystemsMember()
         && (
@@ -417,8 +434,11 @@ service cloud.firestore {
       allow update: if canEditTeachers()
         || canUpdateOwnPendingTeacher(teacherId);
 
-      allow delete: if canEditTeachers()
-        && resource.data.status == 'INACTIVO';
+      allow delete: if (
+          canEditTeachers()
+          && resource.data.status == 'INACTIVO'
+        )
+        || canDeleteOwnPendingTeacher(teacherId);
     }
 
     match /asignaturas/{subjectId} {

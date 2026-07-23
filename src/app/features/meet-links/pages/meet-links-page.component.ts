@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AcademicAssignment, AssignmentsRepository } from '../../assignments/data/assignments.repository';
@@ -8,6 +8,10 @@ import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import { MeetLink, MeetLinksRepository, MeetLinkStatus } from '../data/meet-links.repository';
 
 type MeetSharedFilter = 'TODAS' | 'COMPARTIDAS' | 'SIN_COMPARTIR';
+type MeetSessionView = 'VIRTUAL' | 'POSGRADOS';
+
+const POSTGRADUATE_PROGRAM_CODES = new Set(['EDU', 'MBA', 'MEIT', 'RH']);
+const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'doctorado', 'posgrado', 'postgrado'];
 
 interface MeetLinkDraft {
   meetUrl: string;
@@ -25,7 +29,7 @@ interface MeetClassRow {
   teacherName: string;
   teacherMoodleUser: string;
   originGroup: string;
-  virtualGroups: string[];
+  sessionGroups: string[];
   sharedGroups: string[];
   assignmentStatus: string;
   observations: string;
@@ -51,6 +55,7 @@ export class MeetLinksPageComponent {
   readonly meetLinks = this.meetLinksRepository.meetLinks;
   readonly meetLinksReadError = this.meetLinksRepository.readError;
   readonly session = this.userSessionService.session;
+  readonly sessionView = signal<MeetSessionView>('VIRTUAL');
 
   searchTerm = '';
   sharedFilter: MeetSharedFilter = 'TODAS';
@@ -60,6 +65,26 @@ export class MeetLinksPageComponent {
   private readonly drafts = new Map<string, MeetLinkDraft>();
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
+
+  readonly sessionTitle = computed(() =>
+    this.sessionView() === 'POSGRADOS' ? 'Sesiones de Posgrado' : 'Sesiones Virtuales',
+  );
+
+  readonly sessionGroupsHeader = computed(() =>
+    this.sessionView() === 'POSGRADOS' ? 'Grupos de posgrado' : 'Grupos virtuales',
+  );
+
+  readonly emptyTitle = computed(() =>
+    this.sessionView() === 'POSGRADOS'
+      ? 'Sin sesiones de posgrado detectadas'
+      : 'Sin clases virtuales detectadas',
+  );
+
+  readonly emptyDescription = computed(() =>
+    this.sessionView() === 'POSGRADOS'
+      ? 'Cuando existan asignaciones de posgrado en el ciclo activo apareceran aqui.'
+      : 'Cuando existan asignaciones de grupos virtuales en el ciclo activo apareceran aqui.',
+  );
 
   readonly canViewMeetLinks = computed(() => {
     const currentSession = this.session();
@@ -80,6 +105,7 @@ export class MeetLinksPageComponent {
 
   readonly meetRows = computed(() => {
     const activeCycle = this.activeCycle();
+    const sessionView = this.sessionView();
 
     if (!activeCycle || !this.canViewMeetLinks()) {
       return [];
@@ -98,7 +124,7 @@ export class MeetLinksPageComponent {
 
     return assignments
       .filter((assignment) => !assignment.sourceAssignmentId)
-      .map((assignment) => this.createMeetRow(assignment, sharedBySource.get(assignment.id) ?? []))
+      .map((assignment) => this.createMeetRow(assignment, sharedBySource.get(assignment.id) ?? [], sessionView))
       .filter((row): row is MeetClassRow => row !== null)
       .sort((a, b) => a.originGroup.localeCompare(b.originGroup, 'es'));
   });
@@ -118,7 +144,7 @@ export class MeetLinksPageComponent {
           row.teacherName,
           row.teacherMoodleUser,
           row.originGroup,
-          row.virtualGroups.join(' '),
+          row.sessionGroups.join(' '),
           row.sharedGroups.join(' '),
         ].join(' ')).includes(search);
 
@@ -139,7 +165,7 @@ export class MeetLinksPageComponent {
   );
 
   readonly virtualGroupCount = computed(() =>
-    new Set(this.meetRows().flatMap((row) => row.virtualGroups)).size,
+    new Set(this.meetRows().flatMap((row) => row.sessionGroups)).size,
   );
 
   updateSearchTerm(event: Event): void {
@@ -152,6 +178,16 @@ export class MeetLinksPageComponent {
 
   setSharedFilter(filter: MeetSharedFilter): void {
     this.sharedFilter = filter;
+  }
+
+  setSessionView(view: MeetSessionView): void {
+    if (this.sessionView() === view) {
+      return;
+    }
+
+    this.sessionView.set(view);
+    this.sharedFilter = 'TODAS';
+    this.searchTerm = '';
   }
 
   statusLabel(status: string): string {
@@ -269,15 +305,19 @@ export class MeetLinksPageComponent {
     }
   }
 
-  private createMeetRow(baseAssignment: AcademicAssignment, sharedAssignments: AcademicAssignment[]): MeetClassRow | null {
+  private createMeetRow(
+    baseAssignment: AcademicAssignment,
+    sharedAssignments: AcademicAssignment[],
+    sessionView: MeetSessionView,
+  ): MeetClassRow | null {
     const sharedGroups = this.assignmentSharedGroups(baseAssignment, sharedAssignments);
     const involvedGroups = [baseAssignment.group, ...sharedGroups];
-    const virtualGroups = involvedGroups
+    const sessionGroups = involvedGroups
       .map((fullGroup) => this.groupByFullName(fullGroup))
-      .filter((group): group is AcademicGroup => group !== null && group.modality === 'Virtual')
+      .filter((group): group is AcademicGroup => group !== null && this.groupMatchesSessionView(group, sessionView))
       .map((group) => group.fullGroup);
 
-    if (!virtualGroups.length) {
+    if (!sessionGroups.length) {
       return null;
     }
 
@@ -290,7 +330,7 @@ export class MeetLinksPageComponent {
       teacherName: baseAssignment.teacherName,
       teacherMoodleUser: baseAssignment.teacherMoodleUser,
       originGroup: baseAssignment.group,
-      virtualGroups,
+      sessionGroups,
       sharedGroups,
       assignmentStatus: baseAssignment.status,
       observations: baseAssignment.observations,
@@ -310,6 +350,30 @@ export class MeetLinksPageComponent {
 
   private groupByFullName(fullGroup: string): AcademicGroup | null {
     return this.groups().find((group) => group.fullGroup === fullGroup) ?? null;
+  }
+
+  private groupMatchesSessionView(group: AcademicGroup, sessionView: MeetSessionView): boolean {
+    if (sessionView === 'VIRTUAL') {
+      return group.modality === 'Virtual';
+    }
+
+    return this.isPostgraduateGroup(group);
+  }
+
+  private isPostgraduateGroup(group: AcademicGroup): boolean {
+    const programCode = group.programAbbreviation.trim().toUpperCase();
+    const searchText = this.normalizeSearchText([
+      group.programAbbreviation,
+      group.programName,
+      group.academicArea,
+    ].join(' '));
+    const areaText = this.normalizeSearchText(group.academicArea);
+    const isHealthArea = areaText.includes('facultad de ciencias de la salud') || areaText.includes('salud');
+    const isCampusTupArea = areaText.includes('campus tup') || (!areaText && !isHealthArea);
+    const hasPostgraduateMarker = POSTGRADUATE_PROGRAM_CODES.has(programCode)
+      || POSTGRADUATE_TEXT_MARKERS.some((marker) => searchText.includes(marker));
+
+    return isCampusTupArea && hasPostgraduateMarker;
   }
 
   private normalizeSearchText(value: string): string {

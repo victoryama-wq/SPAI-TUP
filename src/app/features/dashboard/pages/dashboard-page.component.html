@@ -1,4 +1,4 @@
-<section class="dashboard-overview" [class.with-quick-request]="isAcademicCoordinator()">
+<section class="dashboard-overview" [class.with-quick-request]="canShowQuickRequests()">
   <section class="welcome-panel" aria-labelledby="dashboard-welcome-title">
     <div class="welcome-copy">
       <span>{{ currentUser().accessLabel }}</span>
@@ -18,7 +18,7 @@
     </div>
   </section>
 
-  @if (isAcademicCoordinator()) {
+  @if (canShowQuickRequests()) {
     <section class="dashboard-side-stack" aria-label="Resumen y acciones rapidas">
       <button class="quick-request-launch-card" type="button" (click)="openQuickRequestMenu()">
         <span class="quick-launch-icon" aria-hidden="true">
@@ -75,29 +75,31 @@
   }
 </section>
 
-<section class="work-panel" aria-labelledby="real-progress-title">
-  <div class="section-heading">
-    <span>Datos del sistema</span>
-    <h3 id="real-progress-title">Registros reales de SPAI TUP</h3>
-  </div>
+@if (showRealProgressPanel()) {
+  <section class="work-panel" aria-labelledby="real-progress-title">
+    <div class="section-heading">
+      <span>Datos del sistema</span>
+      <h3 id="real-progress-title">Registros reales de SPAI TUP</h3>
+    </div>
 
-  <div class="real-progress">
-    @for (item of realProgress(); track item.label) {
-      <article class="real-card" [class.success]="item.tone === 'success'" [class.warning]="item.tone === 'warning'">
-        <span class="real-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path [attr.d]="item.icon"></path>
-          </svg>
-        </span>
-        <div>
-          <strong>{{ item.label }}</strong>
-          <small>{{ item.hint }}</small>
-        </div>
-        <span class="real-value">{{ item.value }}</span>
-      </article>
-    }
-  </div>
-</section>
+    <div class="real-progress">
+      @for (item of realProgress(); track item.label) {
+        <article class="real-card" [class.success]="item.tone === 'success'" [class.warning]="item.tone === 'warning'">
+          <span class="real-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path [attr.d]="item.icon"></path>
+            </svg>
+          </span>
+          <div>
+            <strong>{{ item.label }}</strong>
+            <small>{{ item.hint }}</small>
+          </div>
+          <span class="real-value">{{ item.value }}</span>
+        </article>
+      }
+    </div>
+  </section>
+}
 
 @if (isQuickRequestMenuOpen()) {
   <div class="modal-backdrop" role="presentation">

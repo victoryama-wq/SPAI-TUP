@@ -9,7 +9,7 @@ import { SharedRequestsRepository } from '../../requests/data/shared-requests.re
 import { SubjectsRepository } from '../../subjects/data/subjects.repository';
 import { TeachersRepository } from '../../teachers/data/teachers.repository';
 import { CustomRolesRepository } from '../../users/data/custom-roles.repository';
-import { UsersRepository } from '../../users/data/users.repository';
+import { AppUser, ModuleAccess, UsersRepository } from '../../users/data/users.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import {
   SystemRequestsRepository,
@@ -55,8 +55,21 @@ interface RecentSystemRequest {
   createdLabel: string;
 }
 
+type ModuleKey = keyof ModuleAccess;
+
 @Component({
   selector: 'spai-dashboard-page',
+  providers: [
+    AssignmentsRepository,
+    CustomRolesRepository,
+    GroupsRepository,
+    NomenclaturesRepository,
+    ProgramsRepository,
+    SharedRequestsRepository,
+    SubjectsRepository,
+    TeachersRepository,
+    UsersRepository,
+  ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css',
 })
@@ -106,7 +119,50 @@ export class DashboardPageComponent {
     const users = this.usersRepository.users();
     const cycles = this.cyclesRepository.cycles();
     const teachers = this.teachersRepository.teachers();
+    const requests = this.sharedRequestsRepository.requests();
+    const assignments = this.assignmentsRepository.assignments();
     const activeCycle = this.activeCycle();
+    const activeCycleCode = activeCycle?.code ?? '';
+    const cycleAssignments = activeCycleCode
+      ? assignments.filter((assignment) => assignment.cycle === activeCycleCode)
+      : [];
+
+    if (this.isCustomConsultationRoleForUser(appUser)) {
+      const consultationMetrics: MetricCard[] = [
+        {
+          label: 'Ciclo activo',
+          value: activeCycle?.code ?? '--',
+          hint: this.activeCycleHint(activeCycle),
+          icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
+        },
+        {
+          label: 'Solicitudes',
+          value: String(requests.length),
+          hint: 'Seguimiento operativo',
+          icon: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+        },
+      ];
+
+      if (this.hasModuleAccess(appUser, 'docentes')) {
+        consultationMetrics.unshift({
+          label: 'Docentes registrados',
+          value: String(teachers.length),
+          hint: 'Consulta de docentes',
+          icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+        });
+      }
+
+      if (this.hasModuleAccess(appUser, 'asignaciones')) {
+        consultationMetrics.splice(1, 0, {
+          label: 'Asignaciones',
+          value: String(cycleAssignments.length),
+          hint: activeCycleCode ? `Ciclo ${activeCycleCode}` : 'Sin ciclo activo',
+          icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+        });
+      }
+
+      return consultationMetrics.slice(0, 4);
+    }
 
     if (isAcademicCoordinator) {
       const assignedPrograms = this.academicProgramCodesForCurrentUser();
@@ -174,6 +230,16 @@ export class DashboardPageComponent {
 
     return appUser?.status === 'Activo' && appUser.role.toLowerCase().includes('acad');
   });
+  readonly isCustomConsultationRole = computed(() =>
+    this.isCustomConsultationRoleForUser(this.userSessionService.session()?.appUser),
+  );
+  readonly canShowQuickRequests = computed(() => {
+    const appUser = this.userSessionService.session()?.appUser;
+
+    return this.isAcademicCoordinator()
+      || (this.isCustomConsultationRoleForUser(appUser) && this.hasModuleAccess(appUser, 'solicitudes'));
+  });
+  readonly showRealProgressPanel = computed(() => !this.isCustomConsultationRole());
   readonly quickRequestActions: QuickSystemRequestAction[] = [
     {
       type: 'REABRIR_CAPTURA',
@@ -473,6 +539,28 @@ export class DashboardPageComponent {
 
     return Array.from(new Set([...directPrograms, ...coordinatorPrograms]))
       .sort((a, b) => a.localeCompare(b, 'es'));
+  }
+
+  private isCustomConsultationRoleForUser(appUser: AppUser | null | undefined): boolean {
+    if (!appUser || appUser.status !== 'Activo') {
+      return false;
+    }
+
+    const customRole = this.customRolesRepository.roleTemplates()
+      .find((role) => this.normalizeIdentity(role.name) === this.normalizeIdentity(appUser.role));
+
+    if (!customRole) {
+      return false;
+    }
+
+    const permissions = Object.values(customRole.permissions);
+
+    return permissions.some((permission) => permission === 'view')
+      && !permissions.some((permission) => permission === 'edit');
+  }
+
+  private hasModuleAccess(appUser: AppUser | null | undefined, module: ModuleKey): boolean {
+    return appUser?.status === 'Activo' && appUser.access?.[module] === true;
   }
 
   private normalizeIdentity(value: string): string {

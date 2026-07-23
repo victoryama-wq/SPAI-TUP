@@ -34,6 +34,11 @@ const GROUPS_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 @Component({
   selector: 'spai-groups-page',
   imports: [CommonModule],
+  providers: [
+    GroupsRepository,
+    NomenclaturesRepository,
+    ProgramsRepository,
+  ],
   templateUrl: './groups-page.component.html',
   styleUrl: './groups-page.component.css',
 })

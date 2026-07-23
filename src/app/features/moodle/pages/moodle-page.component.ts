@@ -26,6 +26,9 @@ type MoodleBatchView = 'modalidad' | 'plantilla';
 const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
 const MOODLE_BATCH_MODES: MoodleBatchMode[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
+const TEMPLATE_BY_SUBJECT_NAME_PROGRAM_CODES = new Set(['EECI', 'EEQX', 'MADH']);
+const TEMPLATE_BY_INITIAL_CODE_PROGRAM_CODES = new Set(['MADH']);
+const SPECIAL_ARCHITECTURE_DEMO_PROGRAM_CODES = new Set(['ARQ', 'LARQ']);
 const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
 const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
 const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
@@ -86,6 +89,12 @@ const CATEGORY_PROGRAM_ALIASES: Record<string, string> = {
 @Component({
   selector: 'spai-moodle-page',
   imports: [CommonModule, FormsModule],
+  providers: [
+    AssignmentsRepository,
+    MoodleCategoriesRepository,
+    MoodleTemplatesRepository,
+    NomenclaturesRepository,
+  ],
   templateUrl: './moodle-page.component.html',
   styleUrl: './moodle-page.component.css',
 })
@@ -1183,12 +1192,35 @@ export class MoodlePageComponent {
 
     const batchMode = this.assignmentBatchMode(assignment);
 
-    if (batchMode === 'Ejecutivo' || batchMode === 'Virtual' || batchMode === 'Especiales') {
+    const shouldMatchTemplateByInitialCode = batchMode === 'Posgrados'
+      || this.requiresTemplateByInitialCodeProgramRule(assignment);
+
+    const templateByProgramSubjectCode = shouldMatchTemplateByInitialCode
+      ? this.findActiveTemplateByInitialSubjectCode(assignment.subjectName, { allowPrefix: true })
+      : null;
+
+    if (templateByProgramSubjectCode) {
+      return templateByProgramSubjectCode;
+    }
+
+    const shouldMatchTemplateBySubjectName = batchMode === 'Ejecutivo'
+      || batchMode === 'Virtual'
+      || batchMode === 'Posgrados'
+      || batchMode === 'Especiales'
+      || this.isNursingHealthBaseGroup(assignment)
+      || this.isNutritionHealthBaseGroup(assignment)
+      || this.requiresTemplateBySubjectNameProgramRule(assignment);
+
+    if (shouldMatchTemplateBySubjectName) {
       const templateBySubjectName = this.findActiveTemplateBySubjectName(assignment.subjectName);
 
       if (templateBySubjectName) {
         return templateBySubjectName;
       }
+    }
+
+    if (this.shouldUseSpecialArchitectureDemoTemplate(assignment, batchMode)) {
+      return this.findActiveTemplateByCourse('CURSO_DEMO_ESCOLARIZADO');
     }
 
     const templateCourse = this.isNursingHealthBaseGroup(assignment)
@@ -1344,6 +1376,39 @@ export class MoodlePageComponent {
 
   private isNutritionHealthBaseGroup(assignment: AcademicAssignment): boolean {
     return /\bNUT\s+(11|12)\b/i.test(assignment.group);
+  }
+
+  private requiresTemplateBySubjectNameProgramRule(assignment: AcademicAssignment): boolean {
+    return this.assignmentProgramCandidates(assignment).some((programCode) =>
+      TEMPLATE_BY_SUBJECT_NAME_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
+    );
+  }
+
+  private requiresTemplateByInitialCodeProgramRule(assignment: AcademicAssignment): boolean {
+    return this.assignmentProgramCandidates(assignment).some((programCode) =>
+      TEMPLATE_BY_INITIAL_CODE_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
+    );
+  }
+
+  private shouldUseSpecialArchitectureDemoTemplate(
+    assignment: AcademicAssignment,
+    batchMode: MoodleBatchMode,
+  ): boolean {
+    return batchMode === 'Especiales'
+      && this.assignmentProgramCandidates(assignment).some((programCode) =>
+        SPECIAL_ARCHITECTURE_DEMO_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
+      );
+  }
+
+  private assignmentProgramCandidates(assignment: AcademicAssignment): Array<string | undefined> {
+    const nomenclature = this.nomenclatureForAssignment(assignment);
+
+    return [
+      assignment.program,
+      this.assignmentGroupProgramCode(assignment.group),
+      nomenclature?.abbreviation,
+      nomenclature?.programCode,
+    ];
   }
 
   private isPsychologyAssignment(assignment: AcademicAssignment): boolean {
@@ -1787,7 +1852,10 @@ export class MoodlePageComponent {
   }
 
   private normalizeCourseComparableKey(value: string): string {
-    return this.normalizeForMoodle(value).replace(/[^A-Z0-9]+/g, '');
+    return this.normalizeForMoodle(value)
+      .replace(/^\d+\s*[-_ ]+\s*/, '')
+      .replace(/^(?:AX|PSIC|[A-Z]{2,12})\d{2,4}\s*[-_: ]+\s*/, '')
+      .replace(/[^A-Z0-9]+/g, '');
   }
 
   private extractAxiologicalCode(value: string): string {
@@ -1795,7 +1863,7 @@ export class MoodlePageComponent {
   }
 
   private extractInitialOperationalCode(value: string): string {
-    return /^([A-Z]{2,12}\d{2,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[1] ?? '';
+    return /^([A-Z]{2,12}\d{1,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[1] ?? '';
   }
 
   private extractPsychologyTemplateCode(value: string): string {
