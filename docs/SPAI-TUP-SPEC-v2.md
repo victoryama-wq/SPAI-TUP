@@ -2248,7 +2248,7 @@ Esta seccion documenta los cambios funcionales definidos e implementados despues
 - Al registrar un docente pendiente, Sistemas recibe notificacion en campanita y correo institucional cuando el servicio de correo este configurado.
 - Al validar o activar un docente, la coordinacion relacionada recibe notificacion en campanita.
 - Sistemas puede descargar un CSV de docentes con su coordinacion asignada.
-- Sistemas puede descargar un CSV Moodle de docentes pendientes de validacion con columnas `username`, `password`, `email`, `firstname`, `lastname`, `cohort1` y `auth`; `password` siempre es `#Tecplayacar2019`, `cohort1` queda vacio y `auth` siempre es `oauth2`.
+- Solo Sistemas puede descargar un CSV Moodle de docentes pendientes de validacion con columnas `username`, `password`, `email`, `firstname`, `lastname`, `cohort1` y `auth`; `password` siempre es `#Tecplayacar2019`, `cohort1` queda vacio y `auth` siempre es `oauth2`.
 - Al guardar un docente desde Coordinacion Academica, el modal debe limpiarse o cerrarse despues de confirmar escritura en Firestore.
 
 ### 24.7 Asignaturas

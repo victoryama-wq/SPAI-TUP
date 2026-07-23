@@ -152,6 +152,13 @@ export class TeachersPageComponent {
     return appUser?.status === 'Activo' && Boolean(appUser.access?.docentes || this.canManageTeachers());
   });
 
+  readonly canDownloadPendingTeachersMoodleCsv = computed(() => {
+    const appUser = this.session()?.appUser;
+    return appUser?.status === 'Activo'
+      && appUser.role.includes('Sistemas')
+      && this.modulePermissionService.canEditModule(appUser, 'docentes');
+  });
+
   readonly showTeacherActionsColumn = computed(() =>
     this.canManageTeachers()
     || this.visiblePanelTeachers().some((teacher) => this.canDeleteOwnPendingNewTeacher(teacher)),
@@ -918,7 +925,7 @@ export class TeachersPageComponent {
   }
 
   downloadPendingTeachersMoodleCsv(): void {
-    if (!this.canManageTeachers()) {
+    if (!this.canDownloadPendingTeachersMoodleCsv()) {
       return;
     }
 
