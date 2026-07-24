@@ -218,6 +218,15 @@ service cloud.firestore {
         || canCreateOwnNonEnglishAssignment();
     }
 
+    function canChangeAssignmentProgram() {
+      return request.resource.data.program == resource.data.program
+        || isSystemsMember()
+        || (
+          canWriteAssignmentProgram(resource.data.program)
+          && canWriteAssignmentProgram(request.resource.data.program)
+        );
+    }
+
     function canCreateOwnAssignment() {
       return hasInstitutionalEmail()
         && request.resource.data.createdBy == request.auth.uid;
@@ -473,7 +482,7 @@ service cloud.firestore {
           || canWriteOwnNonEnglishAssignment()
           || canWriteExistingSharedAssignmentFromSource()
         )
-        && request.resource.data.program == resource.data.program
+        && canChangeAssignmentProgram()
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt
