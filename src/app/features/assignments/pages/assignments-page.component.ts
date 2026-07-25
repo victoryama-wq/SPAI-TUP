@@ -1408,7 +1408,11 @@ export class AssignmentsPageComponent implements OnDestroy {
         ))
       : [...selectableSubjects];
 
-    return this.sortSubjectsForCurrentForm(subjects).slice(0, MAX_COMBO_OPTIONS);
+    if (!query) {
+      return this.sortSubjectsForCurrentForm(subjects).slice(0, MAX_COMBO_OPTIONS);
+    }
+
+    return this.sortSubjectsForPickerQuery(subjects, query).slice(0, MAX_COMBO_OPTIONS);
   }
 
   subjectPickerEmptyMessage(): string {
@@ -2942,6 +2946,88 @@ export class AssignmentsPageComponent implements OnDestroy {
       const dateComparison = this.subjectTimestamp(secondSubject).localeCompare(this.subjectTimestamp(firstSubject));
 
       return dateComparison || firstSubject.name.localeCompare(secondSubject.name, 'es');
+    });
+  }
+
+  private sortSubjectsForPickerQuery(subjects: Subject[], normalizedQuery: string): Subject[] {
+    const subjectPriorityCodes = this.subjectPriorityCodesForCurrentForm();
+
+    return [...subjects].sort((firstSubject, secondSubject) => {
+      const firstRank = this.subjectPickerQueryRank(firstSubject, normalizedQuery);
+      const secondRank = this.subjectPickerQueryRank(secondSubject, normalizedQuery);
+
+      if (firstRank !== secondRank) {
+        return firstRank - secondRank;
+      }
+
+      const firstPriority = this.subjectProgramPriority(firstSubject, subjectPriorityCodes);
+      const secondPriority = this.subjectProgramPriority(secondSubject, subjectPriorityCodes);
+
+      if (firstPriority !== secondPriority) {
+        return firstPriority - secondPriority;
+      }
+
+      const firstLength = this.normalizeSearch(firstSubject.name).length;
+      const secondLength = this.normalizeSearch(secondSubject.name).length;
+
+      return (firstLength - secondLength) || firstSubject.name.localeCompare(secondSubject.name, 'es');
+    });
+  }
+
+  private subjectPickerQueryRank(subject: Subject, normalizedQuery: string): number {
+    const searchableValues = this.normalizedSubjectSearchValues(subject);
+    const tokens = normalizedQuery.split(' ').filter(Boolean);
+
+    if (searchableValues.some((value) => value === normalizedQuery)) {
+      return 0;
+    }
+
+    if (searchableValues.some((value) => value.startsWith(normalizedQuery))) {
+      return 1;
+    }
+
+    if (searchableValues.some((value) => this.includesSearchPhrase(value, normalizedQuery))) {
+      return 2;
+    }
+
+    if (searchableValues.some((value) => this.includesTokensInOrder(value, tokens))) {
+      return 3;
+    }
+
+    return 4;
+  }
+
+  private normalizedSubjectSearchValues(subject: Subject): string[] {
+    const normalizedName = this.normalizeSearch(subject.name);
+    const normalizedSubjectId = this.normalizeSearch(subject.subjectId);
+    const nameWithoutCode = normalizedName.replace(/^[a-z]+[0-9]+\s+/, '').trim();
+
+    return Array.from(new Set([
+      normalizedName,
+      nameWithoutCode,
+      normalizedSubjectId,
+      `${normalizedName} ${normalizedSubjectId}`.trim(),
+    ].filter(Boolean)));
+  }
+
+  private includesSearchPhrase(normalizedText: string, normalizedQuery: string): boolean {
+    return ` ${normalizedText} `.includes(` ${normalizedQuery} `)
+      || normalizedText.includes(normalizedQuery);
+  }
+
+  private includesTokensInOrder(normalizedText: string, tokens: string[]): boolean {
+    let searchFrom = 0;
+
+    return tokens.every((token) => {
+      const tokenIndex = normalizedText.indexOf(token, searchFrom);
+
+      if (tokenIndex < 0) {
+        return false;
+      }
+
+      searchFrom = tokenIndex + token.length;
+
+      return true;
     });
   }
 
