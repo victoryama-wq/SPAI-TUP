@@ -9,10 +9,19 @@
     <div class="panel-tabs" aria-label="Subpaneles de docentes">
       @if (isAcademicCoordination()) {
         <button type="button" class="active" (click)="toggleAcademicTeacherView()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+            <circle cx="12" cy="12" r="2.5"></circle>
+          </svg>
           {{ academicShowsGlobalTeachers ? 'Mis docentes' : 'Ver Global de docentes' }}
         </button>
       }
       <button class="primary-tab-action" type="button" (click)="openManualModal()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <path d="M19 8v6M22 11h-6"></path>
+        </svg>
         Nuevo docente
       </button>
       @if (canManageTeachers()) {
@@ -22,6 +31,9 @@
           [class.active]="selectedPanel === 'csv'"
           (click)="openCsvPicker(headerTeacherCsvInput)"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 16V3m0 0L7 8m5-5 5 5M4 14v5h16v-5"></path>
+          </svg>
           Cargar CSV
         </button>
         <input
@@ -38,6 +50,9 @@
           title="Descargar plantilla CSV"
           (click)="downloadCsvTemplate()"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 3h10l4 4v14H5zM15 3v5h4M8 13h8M8 17h6"></path>
+          </svg>
           Plantilla CSV
         </button>
       }
@@ -49,6 +64,9 @@
           title="Descargar CSV Moodle de docentes pendientes"
           (click)="downloadPendingTeachersMoodleCsv()"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"></path>
+          </svg>
           Moodle pendientes
         </button>
         <button
@@ -58,6 +76,10 @@
           title="Exportar docentes nuevos y de reingreso por fecha"
           (click)="openLifecycleExportModal()"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="17" rx="2"></rect>
+            <path d="M16 2v4M8 2v4M3 9h18M8 13h3M8 17h6"></path>
+          </svg>
           Nuevos y reingresos
         </button>
       }
@@ -69,12 +91,11 @@
           title="Descargar reporte CSV de docentes por coordinacion"
           (click)="downloadTeachersCoordinationReport()"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <path d="M3 10h18M9 4v16M15 4v16"></path>
+          </svg>
           Reporte CSV
-        </button>
-      }
-      @if (canManageTeachers()) {
-        <button type="button" [class.active]="selectedPanel === 'pending'" (click)="selectPanel('pending')">
-          Pendientes
         </button>
       }
     </div>
@@ -455,11 +476,6 @@
           <h3 id="lifecycle-export-title">Nuevos y de reingreso</h3>
           <p>Selecciona el periodo que debe incluir el archivo CSV.</p>
         </div>
-        <button type="button" class="close-modal" aria-label="Cerrar" (click)="closeLifecycleExportModal()">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M18 6 6 18M6 6l12 12"></path>
-          </svg>
-        </button>
       </div>
 
       <div class="lifecycle-date-grid">
@@ -495,7 +511,7 @@
       <div class="lifecycle-modal-actions">
         <button type="button" class="secondary-button" (click)="closeLifecycleExportModal()">Cancelar</button>
         <button type="button" class="primary-button" (click)="downloadLifecycleTeachersCsv()">
-          Descargar CSV UTF-8
+          Descargar
         </button>
       </div>
     </section>
