@@ -2564,3 +2564,8 @@ CSV para matriculacion individual:
   - Ligas Meet.
   - Moodle.
   - Importaciones y exportaciones CSV.
+## Exportacion de docentes nuevos y de reingreso
+
+- El modulo Docentes permite a Sistemas exportar un archivo CSV UTF-8 con los docentes clasificados como `Nuevo` o `Reingreso`.
+- Antes de descargar, Sistemas selecciona un rango inclusivo de fechas y puede revisar el total de nuevos, reingresos y registros incluidos.
+- El reporte conserva los datos operativos del docente, su coordinacion, programas asignados, origen y usuario que realizo el alta.

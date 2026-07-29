@@ -51,6 +51,15 @@
         >
           Moodle pendientes
         </button>
+        <button
+          class="lifecycle-tab-action"
+          type="button"
+          aria-label="Exportar docentes nuevos y de reingreso por fecha"
+          title="Exportar docentes nuevos y de reingreso por fecha"
+          (click)="openLifecycleExportModal()"
+        >
+          Nuevos y reingresos
+        </button>
       }
       @if (canDownloadTeacherReport()) {
         <button
@@ -430,6 +439,68 @@
     </div>
   }
 </section>
+
+@if (isLifecycleExportModalOpen) {
+  <div class="modal-backdrop" role="presentation" (click)="closeLifecycleExportModal()">
+    <section
+      class="modal-panel lifecycle-export-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lifecycle-export-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div>
+          <span>Reporte de docentes</span>
+          <h3 id="lifecycle-export-title">Nuevos y de reingreso</h3>
+          <p>Selecciona el periodo que debe incluir el archivo CSV.</p>
+        </div>
+        <button type="button" class="close-modal" aria-label="Cerrar" (click)="closeLifecycleExportModal()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="lifecycle-date-grid">
+        <label>
+          <span>Desde</span>
+          <input type="date" [(ngModel)]="lifecycleExportFrom" (ngModelChange)="lifecycleExportError = ''" />
+        </label>
+        <label>
+          <span>Hasta</span>
+          <input type="date" [(ngModel)]="lifecycleExportTo" (ngModelChange)="lifecycleExportError = ''" />
+        </label>
+      </div>
+
+      <div class="lifecycle-summary-grid" aria-live="polite">
+        <article>
+          <strong>{{ lifecycleExportCount('NUEVO') }}</strong>
+          <span>Nuevos</span>
+        </article>
+        <article>
+          <strong>{{ lifecycleExportCount('RETOMO') }}</strong>
+          <span>Reingresos</span>
+        </article>
+        <article>
+          <strong>{{ lifecycleExportCount() }}</strong>
+          <span>Total</span>
+        </article>
+      </div>
+
+      @if (lifecycleExportError) {
+        <p class="lifecycle-export-error">{{ lifecycleExportError }}</p>
+      }
+
+      <div class="lifecycle-modal-actions">
+        <button type="button" class="secondary-button" (click)="closeLifecycleExportModal()">Cancelar</button>
+        <button type="button" class="primary-button" (click)="downloadLifecycleTeachersCsv()">
+          Descargar CSV UTF-8
+        </button>
+      </div>
+    </section>
+  </div>
+}
 
 @if (isManualModalOpen) {
   <div class="modal-backdrop" role="presentation" (click)="closeManualModal()">

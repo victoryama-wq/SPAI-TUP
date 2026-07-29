@@ -95,6 +95,10 @@ export class TeachersPageComponent {
   csvImportErrors: string[] = [];
   previewRows: TeacherPreviewRow[] = [];
   isManualModalOpen = false;
+  isLifecycleExportModalOpen = false;
+  lifecycleExportFrom = '';
+  lifecycleExportTo = '';
+  lifecycleExportError = '';
   editModalTeacher: Teacher | null = null;
   assignmentModalTeacher: Teacher | null = null;
   selectedTeacherCoordinatorIds: string[] = [];
@@ -966,6 +970,146 @@ export class TeachersPageComponent {
     link.download = `docentes-pendientes-moodle-${dateStamp}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  openLifecycleExportModal(): void {
+    if (!this.canDownloadPendingTeachersMoodleCsv()) {
+      return;
+    }
+
+    const today = new Date();
+    this.lifecycleExportFrom = this.toDateInputValue(
+      new Date(today.getFullYear(), today.getMonth(), 1),
+    );
+    this.lifecycleExportTo = this.toDateInputValue(today);
+    this.lifecycleExportError = '';
+    this.isLifecycleExportModalOpen = true;
+  }
+
+  closeLifecycleExportModal(): void {
+    this.isLifecycleExportModalOpen = false;
+    this.lifecycleExportError = '';
+  }
+
+  lifecycleExportCount(status?: 'NUEVO' | 'RETOMO'): number {
+    return this.filteredLifecycleTeachers(status).length;
+  }
+
+  downloadLifecycleTeachersCsv(): void {
+    if (!this.canDownloadPendingTeachersMoodleCsv()) {
+      return;
+    }
+
+    if (!this.lifecycleExportFrom || !this.lifecycleExportTo) {
+      this.lifecycleExportError = 'Selecciona la fecha inicial y la fecha final.';
+      return;
+    }
+
+    const start = new Date(`${this.lifecycleExportFrom}T00:00:00`).getTime();
+    const end = new Date(`${this.lifecycleExportTo}T23:59:59.999`).getTime();
+
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) {
+      this.lifecycleExportError = 'El rango de fechas no es valido.';
+      return;
+    }
+
+    const teachers = this.filteredLifecycleTeachers();
+
+    if (!teachers.length) {
+      this.lifecycleExportError = 'No hay docentes nuevos o de reingreso en ese rango.';
+      return;
+    }
+
+    const headers = [
+      'fecha_movimiento',
+      'tipo_movimiento',
+      'docente',
+      'usuario_moodle',
+      'correo',
+      'tipo_pago',
+      'categoria',
+      'telefono',
+      'ubicacion',
+      'estatus',
+      'coordinacion_asignada',
+      'programas_asignados',
+      'origen',
+      'alta_por',
+      'rol_alta',
+    ];
+    const rows = teachers.map((teacher) => [
+      this.formatCsvDate(this.lifecycleTeacherDateValue(teacher)),
+      teacher.lifecycleStatus === 'RETOMO' ? 'Reingreso' : 'Nuevo',
+      teacher.fullName,
+      teacher.moodleUser,
+      teacher.email || '',
+      this.paymentTypeReportCode(teacher.paymentType),
+      this.teacherCategoryLabel(teacher.category),
+      teacher.phone || '',
+      this.teacherLocationLabel(teacher.location),
+      this.statusLabel(teacher.status),
+      this.teacherCoordinatorNames(teacher),
+      teacher.createdByPrograms.length ? teacher.createdByPrograms.join('; ') : 'Sin programas asignados',
+      teacher.origin,
+      teacher.createdByName,
+      teacher.createdByRole,
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+    const blob = new Blob([`\uFEFF${csvContent}\n`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `docentes-nuevos-reingresos-${this.lifecycleExportFrom}-a-${this.lifecycleExportTo}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    this.closeLifecycleExportModal();
+  }
+
+  private filteredLifecycleTeachers(status?: 'NUEVO' | 'RETOMO'): Teacher[] {
+    if (!this.lifecycleExportFrom || !this.lifecycleExportTo) {
+      return [];
+    }
+
+    const start = new Date(`${this.lifecycleExportFrom}T00:00:00`).getTime();
+    const end = new Date(`${this.lifecycleExportTo}T23:59:59.999`).getTime();
+
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) {
+      return [];
+    }
+
+    return this.activeTeacherRecords()
+      .filter((teacher) => {
+        if (teacher.lifecycleStatus !== 'NUEVO' && teacher.lifecycleStatus !== 'RETOMO') {
+          return false;
+        }
+
+        if (status && teacher.lifecycleStatus !== status) {
+          return false;
+        }
+
+        const movementTime = new Date(this.lifecycleTeacherDateValue(teacher)).getTime();
+        return Number.isFinite(movementTime) && movementTime >= start && movementTime <= end;
+      })
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(this.lifecycleTeacherDateValue(b)).getTime()
+          - new Date(this.lifecycleTeacherDateValue(a)).getTime(),
+      );
+  }
+
+  private lifecycleTeacherDateValue(teacher: Teacher): string {
+    return teacher.lifecycleStatus === 'RETOMO'
+      ? teacher.updatedAt || teacher.createdAt
+      : teacher.createdAt;
+  }
+
+  private toDateInputValue(date: Date): string {
+    const adjustedDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+    return adjustedDate.toISOString().slice(0, 10);
   }
 
   statusClass(status: TeacherStatus): string {

@@ -1365,3 +1365,128 @@ th {
     width: 100%;
   }
 }
+
+.lifecycle-tab-action {
+  background: #eef6ff;
+  border-color: #9fc7f5;
+  color: #174c8f;
+}
+
+.lifecycle-export-modal {
+  max-width: 660px;
+  width: min(660px, 100%);
+}
+
+.lifecycle-export-modal .modal-header p {
+  color: #4d6283;
+  margin: 6px 0 0;
+}
+
+.lifecycle-date-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.lifecycle-date-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.lifecycle-date-grid label > span {
+  color: #1554c5;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lifecycle-date-grid input {
+  background: #f8fbff;
+  border: 1px solid #bdd4f2;
+  border-radius: 7px;
+  color: #102347;
+  font: inherit;
+  min-height: 48px;
+  padding: 0 13px;
+}
+
+.lifecycle-summary-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.lifecycle-summary-grid article {
+  align-items: center;
+  background: #f4f8fd;
+  border: 1px solid #d2e1f4;
+  border-radius: 7px;
+  display: flex;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 10px 14px;
+}
+
+.lifecycle-summary-grid strong {
+  color: #0a2f72;
+  font-size: 1.35rem;
+}
+
+.lifecycle-summary-grid span {
+  color: #385171;
+  font-weight: 700;
+}
+
+.lifecycle-export-error {
+  background: #fff1f1;
+  border: 1px solid #ffc1c1;
+  border-radius: 7px;
+  color: #bd1e2d;
+  margin: 14px 0 0;
+  padding: 11px 13px;
+}
+
+.lifecycle-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.lifecycle-modal-actions button {
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  min-height: 46px;
+  padding: 0 18px;
+}
+
+.lifecycle-modal-actions .secondary-button {
+  background: #eef4fd;
+  border: 1px solid transparent;
+  color: #1554c5;
+}
+
+.lifecycle-modal-actions .primary-button {
+  background: #203f91;
+  border: 1px solid #203f91;
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .lifecycle-date-grid,
+  .lifecycle-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lifecycle-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .lifecycle-modal-actions button {
+    width: 100%;
+  }
+}
