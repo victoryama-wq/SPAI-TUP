@@ -419,6 +419,11 @@ export class AppComponent {
       void this.router.navigate(['/solicitudes'], {
         queryParams: { solicitud: notification.entityId },
       });
+      return;
+    }
+
+    if (notification.type === 'AGENDA_EQUIPO' || notification.entity === 'agenda_operativa_equipo') {
+      void this.router.navigate(['/']);
     }
   }
 

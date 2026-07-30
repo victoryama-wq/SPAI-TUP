@@ -21,7 +21,7 @@ export interface SystemNotification {
   message: string;
   target: 'SISTEMAS' | 'COORDINACION_ACADEMICA';
   targetUserId?: string;
-  type: 'DOCENTE_NUEVO' | 'DOCENTE_VALIDADO' | 'ASIGNACIONES_HITO' | 'CLASE_COMPARTIDA' | 'SOLICITUD_SISTEMAS';
+  type: 'DOCENTE_NUEVO' | 'DOCENTE_VALIDADO' | 'ASIGNACIONES_HITO' | 'CLASE_COMPARTIDA' | 'SOLICITUD_SISTEMAS' | 'AGENDA_EQUIPO';
   entity: string;
   entityId: string;
   actorId: string;

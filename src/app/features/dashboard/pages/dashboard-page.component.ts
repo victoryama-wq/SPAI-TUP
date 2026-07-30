@@ -12,6 +12,13 @@ import { CustomRolesRepository } from '../../users/data/custom-roles.repository'
 import { AppUser, ModuleAccess, UsersRepository } from '../../users/data/users.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import {
+  AgendaColumn,
+  AgendaPriority,
+  AgendaScope,
+  OperationalAgendaItem,
+  OperationalAgendaRepository,
+} from '../data/operational-agenda.repository';
+import {
   SystemRequestsRepository,
   SystemRequestStatus,
   SystemRequestType,
@@ -55,6 +62,15 @@ interface RecentSystemRequest {
   createdLabel: string;
 }
 
+interface AgendaForm {
+  scope: AgendaScope;
+  title: string;
+  detail: string;
+  column: AgendaColumn;
+  priority: AgendaPriority;
+  dueDate: string;
+}
+
 type ModuleKey = keyof ModuleAccess;
 
 @Component({
@@ -87,11 +103,29 @@ export class DashboardPageComponent {
   private readonly sharedRequestsRepository = inject(SharedRequestsRepository);
   private readonly systemRequestsRepository = inject(SystemRequestsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
+  private readonly operationalAgendaRepository = inject(OperationalAgendaRepository);
+  readonly isWelcomeModalOpen = signal(true);
   readonly isQuickRequestMenuOpen = signal(false);
   readonly selectedQuickRequest = signal<QuickSystemRequestAction | null>(null);
   readonly quickRequestDetail = signal('');
   readonly quickRequestError = signal('');
   readonly isSavingQuickRequest = signal(false);
+  readonly agendaScope = signal<AgendaScope>('EQUIPO');
+  readonly agendaEditorItem = signal<OperationalAgendaItem | null>(null);
+  readonly isAgendaEditorOpen = signal(false);
+  readonly isSavingAgendaItem = signal(false);
+  readonly agendaActionItemId = signal('');
+  readonly agendaForm = signal<AgendaForm>(this.emptyAgendaForm('EQUIPO'));
+  readonly agendaError = signal('');
+  readonly agendaFeedback = signal('');
+  readonly agendaItems = this.operationalAgendaRepository.items;
+  readonly agendaReadError = this.operationalAgendaRepository.readError;
+  readonly agendaColumns: ReadonlyArray<{ key: AgendaColumn; label: string; tone: string }> = [
+    { key: 'PENDIENTE', label: 'Pendiente', tone: 'pending' },
+    { key: 'EN_PROCESO', label: 'En proceso', tone: 'progress' },
+    { key: 'PARA_REVISAR', label: 'Para revisar', tone: 'review' },
+    { key: 'LISTO', label: 'Listo', tone: 'done' },
+  ];
 
   readonly currentUser = computed<DashboardUser>(() => {
     const session = this.userSessionService.session();
@@ -232,6 +266,15 @@ export class DashboardPageComponent {
   });
   readonly isCustomConsultationRole = computed(() =>
     this.isCustomConsultationRoleForUser(this.userSessionService.session()?.appUser),
+  );
+  readonly canShowOperationalAgenda = computed(() => {
+    const appUser = this.userSessionService.session()?.appUser;
+
+    return appUser?.status === 'Activo'
+      && (appUser.role === 'Coordinación de Sistemas' || appUser.role === 'Auxiliar de Sistemas');
+  });
+  readonly visibleAgendaItems = computed(() =>
+    this.agendaItems().filter((item) => item.scope === this.agendaScope()),
   );
   readonly canShowQuickRequests = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
@@ -481,6 +524,196 @@ export class DashboardPageComponent {
     this.closeQuickRequest();
   }
 
+  closeWelcomeModal(): void {
+    this.isWelcomeModalOpen.set(false);
+  }
+
+  setAgendaScope(scope: AgendaScope): void {
+    this.agendaScope.set(scope);
+    this.agendaFeedback.set('');
+    this.agendaError.set('');
+  }
+
+  agendaItemsForColumn(column: AgendaColumn): OperationalAgendaItem[] {
+    return this.visibleAgendaItems().filter((item) => item.column === column);
+  }
+
+  openNewAgendaItem(): void {
+    const scope = this.agendaScope();
+
+    this.agendaEditorItem.set(null);
+    this.agendaForm.set(this.emptyAgendaForm(scope));
+    this.agendaError.set('');
+    this.isAgendaEditorOpen.set(true);
+  }
+
+  openAgendaEditor(item: OperationalAgendaItem): void {
+    this.agendaEditorItem.set(item);
+    this.agendaForm.set({
+      scope: item.scope,
+      title: item.title,
+      detail: item.detail,
+      column: item.column,
+      priority: item.priority,
+      dueDate: item.dueDate ?? '',
+    });
+    this.agendaError.set('');
+    this.isAgendaEditorOpen.set(true);
+  }
+
+  closeAgendaEditor(): void {
+    if (this.isSavingAgendaItem()) {
+      return;
+    }
+
+    this.isAgendaEditorOpen.set(false);
+    this.agendaEditorItem.set(null);
+    this.agendaError.set('');
+  }
+
+  updateAgendaTitle(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, title: (event.target as HTMLInputElement).value }));
+    this.agendaError.set('');
+  }
+
+  updateAgendaDetail(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, detail: (event.target as HTMLTextAreaElement).value }));
+  }
+
+  updateAgendaScope(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, scope: (event.target as HTMLSelectElement).value as AgendaScope }));
+  }
+
+  updateAgendaColumn(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, column: (event.target as HTMLSelectElement).value as AgendaColumn }));
+  }
+
+  updateAgendaPriority(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, priority: (event.target as HTMLSelectElement).value as AgendaPriority }));
+  }
+
+  updateAgendaDueDate(event: Event): void {
+    this.agendaForm.update((form) => ({ ...form, dueDate: (event.target as HTMLInputElement).value }));
+  }
+
+  async saveAgendaItem(): Promise<void> {
+    const form = this.agendaForm();
+    const editingItem = this.agendaEditorItem();
+    const title = form.title.trim();
+
+    if (title.length < 3) {
+      this.agendaError.set('Escribe un pendiente claro de al menos 3 caracteres.');
+      return;
+    }
+
+    this.isSavingAgendaItem.set(true);
+    this.agendaError.set('');
+    this.agendaFeedback.set('');
+
+    try {
+      const payload = {
+        ...form,
+        scope: editingItem?.scope ?? form.scope,
+        title,
+        dueDate: form.dueDate || null,
+      };
+
+      if (editingItem) {
+        await this.operationalAgendaRepository.update(editingItem, payload);
+        this.agendaFeedback.set('Actividad actualizada correctamente.');
+      } else {
+        const activityId = await this.operationalAgendaRepository.create(payload);
+
+        if (payload.scope === 'EQUIPO') {
+          const session = this.userSessionService.session();
+          const appUser = session?.appUser;
+
+          if (session && appUser) {
+            try {
+              await this.systemNotificationsRepository.create({
+                title: 'Nueva actividad de equipo',
+                message: `${appUser.name} agregó: ${title}.`,
+                type: 'AGENDA_EQUIPO',
+                entity: 'agenda_operativa_equipo',
+                entityId: activityId,
+                actorId: session.authUid,
+                actorName: appUser.name,
+                actorRole: appUser.role,
+              });
+              this.agendaFeedback.set('Actividad creada y notificación enviada al equipo de Sistemas.');
+            } catch (notificationError) {
+              console.warn('La actividad se guardó, pero no se pudo crear la notificación.', notificationError);
+              this.agendaFeedback.set('Actividad creada. La notificación al equipo no pudo enviarse.');
+            }
+          }
+        } else {
+          this.agendaFeedback.set('Actividad privada creada correctamente.');
+        }
+      }
+
+      this.closeAgendaEditor();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      this.agendaError.set(`No se pudo guardar la actividad. ${message}`);
+    } finally {
+      this.isSavingAgendaItem.set(false);
+    }
+  }
+
+  async moveAgendaItem(item: OperationalAgendaItem): Promise<void> {
+    this.agendaActionItemId.set(item.id);
+    this.agendaError.set('');
+
+    try {
+      await this.operationalAgendaRepository.move(item, this.nextAgendaColumn(item.column));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      this.agendaError.set(`No se pudo mover la actividad. ${message}`);
+    } finally {
+      this.agendaActionItemId.set('');
+    }
+  }
+
+  async deleteAgendaItem(item: OperationalAgendaItem): Promise<void> {
+    if (!window.confirm(`¿Eliminar la actividad “${item.title}”? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    this.agendaActionItemId.set(item.id);
+    this.agendaError.set('');
+
+    try {
+      await this.operationalAgendaRepository.delete(item);
+      this.agendaFeedback.set('Actividad eliminada correctamente.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      this.agendaError.set(`No se pudo eliminar la actividad. ${message}`);
+    } finally {
+      this.agendaActionItemId.set('');
+    }
+  }
+
+  agendaDueDateLabel(item: OperationalAgendaItem): string {
+    return item.dueDate ? `Fecha límite: ${this.formatDisplayDate(item.dueDate)}` : 'Sin fecha límite';
+  }
+
+  private emptyAgendaForm(scope: AgendaScope): AgendaForm {
+    return {
+      scope,
+      title: '',
+      detail: '',
+      column: 'PENDIENTE',
+      priority: 'MEDIA',
+      dueDate: '',
+    };
+  }
+
+  private nextAgendaColumn(column: AgendaColumn): AgendaColumn {
+    const currentIndex = this.agendaColumns.findIndex((item) => item.key === column);
+
+    return this.agendaColumns[(currentIndex + 1) % this.agendaColumns.length].key;
+  }
+
   private requestStatusLabel(status: SystemRequestStatus): string {
     const labels: Record<SystemRequestStatus, string> = {
       PENDIENTE: 'Pendiente',
@@ -504,7 +737,7 @@ export class DashboardPageComponent {
     return `${activeCycle.status} - Cierre de Captura ${this.formatDisplayDate(activeCycle.tentativeCaptureCloseAt)}`;
   }
 
-  private formatDisplayDate(value: string): string {
+  formatDisplayDate(value: string): string {
     const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
       ? new Date(`${value}T12:00:00`)
       : new Date(value);

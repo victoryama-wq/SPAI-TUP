@@ -75,6 +75,74 @@
   }
 </section>
 
+@if (canShowOperationalAgenda()) {
+  <section class="operational-agenda" aria-labelledby="operational-agenda-title">
+    <header class="agenda-heading">
+      <div>
+        <span>Agenda operativa</span>
+        <h3 id="operational-agenda-title">Pendientes de Sistemas</h3>
+        <p>Organiza el seguimiento del equipo o concentra tus actividades privadas.</p>
+      </div>
+      <div class="agenda-cycle-summary">
+        <span>Ciclo activo</span>
+        <strong>{{ activeCycle()?.code ?? 'Sin ciclo activo' }}</strong>
+        <small>Cierre: {{ activeCycle()?.tentativeCaptureCloseAt ? formatDisplayDate(activeCycle()!.tentativeCaptureCloseAt!) : 'Sin fecha definida' }}</small>
+      </div>
+    </header>
+
+    <div class="agenda-toolbar">
+      <div class="agenda-tabs" role="tablist" aria-label="Vista de agenda">
+        <button type="button" role="tab" [attr.aria-selected]="agendaScope() === 'EQUIPO'" [class.active]="agendaScope() === 'EQUIPO'" (click)="setAgendaScope('EQUIPO')">Equipo</button>
+        <button type="button" role="tab" [attr.aria-selected]="agendaScope() === 'PRIVADA'" [class.active]="agendaScope() === 'PRIVADA'" (click)="setAgendaScope('PRIVADA')">Privada</button>
+      </div>
+      <button class="agenda-create-button" type="button" (click)="openNewAgendaItem()">+ Nueva actividad</button>
+    </div>
+
+    @if (agendaFeedback()) {
+      <p class="agenda-feedback success">{{ agendaFeedback() }}</p>
+    }
+    @if (agendaError() || agendaReadError()) {
+      <p class="agenda-feedback error">{{ agendaError() || agendaReadError() }}</p>
+    }
+
+    <div class="cork-board" [class.private-board]="agendaScope() === 'PRIVADA'" aria-label="Tablero de pendientes">
+      @for (column of agendaColumns; track column.key) {
+        <section class="agenda-column" [class]="column.tone" [attr.aria-label]="column.label">
+          <header>
+            <span>{{ column.label }}</span>
+            <strong>{{ agendaItemsForColumn(column.key).length }}</strong>
+          </header>
+
+          <div class="agenda-notes">
+            @for (item of agendaItemsForColumn(column.key); track item.id) {
+              <article class="agenda-note" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
+                <div class="agenda-note-topline">
+                  <span>{{ item.priority }}</span>
+                  @if (item.scope === 'EQUIPO') {
+                    <small>{{ item.createdByName }}</small>
+                  }
+                </div>
+                <h4>{{ item.title }}</h4>
+                @if (item.detail) {
+                  <p>{{ item.detail }}</p>
+                }
+                <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
+                <div class="agenda-note-actions">
+                  <button type="button" (click)="openAgendaEditor(item)">Editar</button>
+                  <button type="button" (click)="moveAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
+                  <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Eliminar</button>
+                </div>
+              </article>
+            } @empty {
+              <p class="agenda-empty">Sin actividades en esta etapa.</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </section>
+}
+
 @if (showRealProgressPanel()) {
   <section class="work-panel" aria-labelledby="real-progress-title">
     <div class="section-heading">
@@ -99,6 +167,86 @@
       }
     </div>
   </section>
+}
+
+@if (isWelcomeModalOpen()) {
+  <div class="modal-backdrop welcome-backdrop" role="presentation">
+    <section class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+      <span>SPAI TUP · Panel operativo</span>
+      <h2 id="welcome-modal-title">{{ welcomeMessage }}</h2>
+      <p>Este es tu espacio de trabajo para revisar el avance de planeación académica del ciclo activo.</p>
+      @if (activeCycle(); as cycle) {
+        <div class="welcome-cycle-detail">
+          <strong>{{ cycle.code }}</strong>
+          <span>Cierre de captura: {{ cycle.tentativeCaptureCloseAt ? formatDisplayDate(cycle.tentativeCaptureCloseAt) : 'Sin fecha definida' }}</span>
+        </div>
+      }
+      <button class="primary-action" type="button" (click)="closeWelcomeModal()">Entrar al dashboard</button>
+    </section>
+  </div>
+}
+
+@if (isAgendaEditorOpen()) {
+  <div class="modal-backdrop" role="presentation">
+    <section class="quick-request-modal agenda-editor-modal" role="dialog" aria-modal="true" aria-labelledby="agenda-editor-title">
+      <div class="modal-heading">
+        <span>{{ agendaEditorItem() ? 'Editar actividad' : 'Nueva actividad' }}</span>
+        <h3 id="agenda-editor-title">{{ agendaEditorItem() ? 'Actualiza el pendiente' : 'Agrega un pendiente operativo' }}</h3>
+        <p>Los cambios se confirman en Firestore antes de reflejarse en el tablero.</p>
+      </div>
+
+      <label class="request-detail-field">
+        <span>Actividad</span>
+        <input type="text" maxlength="120" placeholder="Ej. Revisar cargas del ciclo" [value]="agendaForm().title" (input)="updateAgendaTitle($event)">
+      </label>
+      <label class="request-detail-field">
+        <span>Detalle opcional</span>
+        <textarea rows="3" placeholder="Agrega contexto o el siguiente paso." [value]="agendaForm().detail" (input)="updateAgendaDetail($event)"></textarea>
+      </label>
+      <div class="agenda-form-grid">
+        @if (!agendaEditorItem()) {
+          <label class="request-detail-field">
+            <span>Vista</span>
+            <select [value]="agendaForm().scope" (change)="updateAgendaScope($event)">
+              <option value="EQUIPO">Equipo</option>
+              <option value="PRIVADA">Privada</option>
+            </select>
+          </label>
+        }
+        <label class="request-detail-field">
+          <span>Columna</span>
+          <select [value]="agendaForm().column" (change)="updateAgendaColumn($event)">
+            @for (column of agendaColumns; track column.key) {
+              <option [value]="column.key">{{ column.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="request-detail-field">
+          <span>Prioridad</span>
+          <select [value]="agendaForm().priority" (change)="updateAgendaPriority($event)">
+            <option value="ALTA">Alta</option>
+            <option value="MEDIA">Media</option>
+            <option value="BAJA">Baja</option>
+          </select>
+        </label>
+        <label class="request-detail-field">
+          <span>Fecha límite</span>
+          <input type="date" [value]="agendaForm().dueDate" (input)="updateAgendaDueDate($event)">
+        </label>
+      </div>
+
+      @if (agendaError()) {
+        <p class="form-error">{{ agendaError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button class="ghost-action" type="button" (click)="closeAgendaEditor()">Cancelar</button>
+        <button class="primary-action" type="button" (click)="saveAgendaItem()" [disabled]="isSavingAgendaItem()">
+          {{ isSavingAgendaItem() ? 'Guardando...' : 'Guardar actividad' }}
+        </button>
+      </div>
+    </section>
+  </div>
 }
 
 @if (isQuickRequestMenuOpen()) {

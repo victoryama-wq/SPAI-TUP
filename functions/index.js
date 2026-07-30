@@ -330,6 +330,10 @@ function htmlBody(notification) {
 
 function audienceMessage(notification) {
   if (notification.target === 'SISTEMAS') {
+    if (notification.type === 'AGENDA_EQUIPO') {
+      return 'Equipo de Sistemas, se agregó una nueva actividad a la agenda operativa.';
+    }
+
     return 'Equipo de Sistemas, ha llegado una nueva solicitud.';
   }
 
@@ -344,6 +348,13 @@ function notificationMessageLines(notification) {
   if (notification.type === 'DOCENTE_NUEVO') {
     return [
       `La Coordinacion Academica correspondiente a ${actorName} agrego un nuevo docente.`,
+      message,
+    ].filter((line, index) => index === 0 || Boolean(line));
+  }
+
+  if (notification.type === 'AGENDA_EQUIPO') {
+    return [
+      `${actorName} registró una nueva actividad de equipo: ${title}.`,
       message,
     ].filter((line, index) => index === 0 || Boolean(line));
   }
@@ -363,6 +374,13 @@ function notificationHtmlMessageLines(notification) {
   if (notification.type === 'DOCENTE_NUEVO') {
     return [
       `La Coordinacion Academica correspondiente a <strong>${escapedActor}</strong> agrego un nuevo docente.`,
+      message ? escapeHtml(message) : '',
+    ].filter((line, index) => index === 0 || Boolean(line));
+  }
+
+  if (notification.type === 'AGENDA_EQUIPO') {
+    return [
+      `<strong>${escapedActor}</strong> registró una nueva actividad de equipo: ${escapeHtml(title)}.`,
       message ? escapeHtml(message) : '',
     ].filter((line, index) => index === 0 || Boolean(line));
   }

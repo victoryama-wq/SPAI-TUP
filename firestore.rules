@@ -146,6 +146,11 @@ service cloud.firestore {
         );
     }
 
+    function isBaseSystemsUser() {
+      return isActiveUser()
+        && userRole() in ['Coordinación de Sistemas', 'Auxiliar de Sistemas'];
+    }
+
     function canEditSubjects() {
       return isSystemsMember()
         && (
@@ -597,8 +602,13 @@ service cloud.firestore {
           'DOCENTE_VALIDADO',
           'ASIGNACIONES_HITO',
           'CLASE_COMPARTIDA',
-          'SOLICITUD_SISTEMAS'
+          'SOLICITUD_SISTEMAS',
+          'AGENDA_EQUIPO'
         ]
+        && (
+          request.resource.data.type != 'AGENDA_EQUIPO'
+          || isBaseSystemsUser()
+        )
         && (
           request.resource.data.target == 'SISTEMAS'
           || (
@@ -622,6 +632,51 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).changedKeys().hasOnly(['readBy']);
 
       allow delete: if false;
+    }
+
+    match /agenda_operativa_equipo/{activityId} {
+      allow read: if isBaseSystemsUser();
+
+      allow create: if isBaseSystemsUser()
+        && request.resource.data.scope == 'EQUIPO'
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.column is string
+        && request.resource.data.priority is string;
+
+      allow update: if isBaseSystemsUser()
+        && request.resource.data.scope == 'EQUIPO'
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdByName == resource.data.createdByName
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isBaseSystemsUser();
+    }
+
+    match /agenda_operativa_privada/{ownerId}/actividades/{activityId} {
+      allow read: if isBaseSystemsUser() && ownerId == request.auth.uid;
+
+      allow create: if isBaseSystemsUser()
+        && ownerId == request.auth.uid
+        && request.resource.data.scope == 'PRIVADA'
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.column is string
+        && request.resource.data.priority is string;
+
+      allow update: if isBaseSystemsUser()
+        && ownerId == request.auth.uid
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.scope == 'PRIVADA'
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdByName == resource.data.createdByName
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isBaseSystemsUser()
+        && ownerId == request.auth.uid
+        && resource.data.ownerId == request.auth.uid;
     }
 
     match /{document=**} {
