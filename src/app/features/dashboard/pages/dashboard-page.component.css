@@ -1040,8 +1040,14 @@
 .agenda-note-actions button { font-size: 10px; padding: 0; }
 .agenda-note-actions button.follow-up { color: #1765d8; }
 .agenda-note-actions button.follow-up:disabled { color: #7a8aa2; cursor: default; }
+.agenda-note-actions button.move.active { color: #9b531b; font-weight: 900; }
 .agenda-note-actions button.delete { color: #a93d30; }
 .agenda-note-actions button:disabled { cursor: wait; opacity: 0.55; }
+.agenda-move-hint { background: rgba(255, 253, 247, 0.72); border: 1px dashed rgba(91, 56, 22, 0.42); color: #614219; font-size: 10px; font-weight: 800; margin: 0 0 10px; padding: 8px; text-align: center; }
+.agenda-note.is-draggable { cursor: grab; outline: 2px dashed rgba(89, 53, 17, 0.35); outline-offset: 2px; }
+.agenda-note.is-draggable:active { cursor: grabbing; }
+.agenda-note.is-dragging { opacity: 0.45; }
+.agenda-note.is-drop-target { box-shadow: 0 0 0 3px #1a67d6, 2px 4px 7px rgba(72, 35, 6, 0.38); transform: translateY(2px); }
 .agenda-empty { background: rgba(255, 255, 255, 0.24); border: 1px dashed rgba(255, 255, 255, 0.58); color: #fff8dc; font-size: 11px; font-weight: 700; margin: 0; padding: 14px 9px; text-align: center; }
 .welcome-backdrop { z-index: 800; }
 

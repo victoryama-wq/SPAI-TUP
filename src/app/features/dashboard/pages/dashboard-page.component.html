@@ -178,16 +178,39 @@
         @for (column of agendaColumns; track column.key) {
           <section class="agenda-column" [class]="column.tone" [attr.aria-label]="column.label">
             <header><span>{{ column.label }}</span><strong>{{ agendaItemsForColumn(column.key).length }}</strong></header>
+            @if (isAgendaMoveMode(column.key)) {
+              <p class="agenda-move-hint">Arrastra las notas con la manita y suéltalas donde quieras.</p>
+            }
             <div class="agenda-notes">
               @for (item of agendaItemsForColumn(column.key); track item.id) {
-                <article class="agenda-note" [class]="agendaNoteColorClass(item.noteColor)" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
+                <article
+                  class="agenda-note"
+                  [class]="agendaNoteColorClass(item.noteColor)"
+                  [class.priority-high]="item.priority === 'ALTA'"
+                  [class.priority-low]="item.priority === 'BAJA'"
+                  [class.is-draggable]="isAgendaMoveMode(column.key)"
+                  [class.is-dragging]="agendaDraggingItemId() === item.id"
+                  [class.is-drop-target]="agendaDropTargetId() === item.id"
+                  [draggable]="isAgendaMoveMode(column.key)"
+                  (dragstart)="startAgendaDrag($event, item)"
+                  (dragover)="previewAgendaDrop($event, item)"
+                  (dragleave)="clearAgendaDropPreview()"
+                  (drop)="dropAgendaItem($event, item)"
+                  (dragend)="endAgendaDrag()">
                   <div class="agenda-note-topline"><span>{{ item.priority }}</span>@if (item.scope === 'EQUIPO') { <small>{{ item.createdByName }}</small> }</div>
                   <h4>{{ item.title }}</h4>
                   @if (item.detail) { <p>{{ item.detail }}</p> }
                   <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
                   <div class="agenda-note-actions">
                     <button type="button" (click)="openAgendaEditor(item)">Editar</button>
-                    <button type="button" (click)="openAgendaOrderEditor(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
+                    <button
+                      type="button"
+                      class="move"
+                      [class.active]="isAgendaMoveMode(item.column)"
+                      [disabled]="agendaActionItemId() === item.id"
+                      (click)="toggleAgendaMoveMode(item.column)">
+                      {{ isAgendaMoveMode(item.column) ? 'Terminar' : 'Mover' }}
+                    </button>
                     <button
                       type="button"
                       class="follow-up"
@@ -327,39 +350,6 @@
         <button class="primary-action" type="button" (click)="saveAgendaItem()" [disabled]="isSavingAgendaItem()">
           {{ isSavingAgendaItem() ? 'Guardando...' : 'Guardar actividad' }}
         </button>
-      </div>
-    </section>
-  </div>
-}
-
-@if (isAgendaOrderEditorOpen() && agendaOrderItem(); as item) {
-  <div class="modal-backdrop" role="presentation">
-    <section class="quick-request-modal agenda-order-modal" role="dialog" aria-modal="true" aria-labelledby="agenda-order-title">
-      <div class="modal-heading">
-        <span>Orden de actividades</span>
-        <h3 id="agenda-order-title">Mover “{{ item.title }}”</h3>
-        <p>Elige dónde debe aparecer dentro de la columna {{ agendaColumnLabel(item.column) }}.</p>
-      </div>
-
-      <div class="agenda-order-actions">
-        <button
-          class="ghost-action"
-          type="button"
-          [disabled]="!canReorderAgendaItem(item, 'UP') || agendaActionItemId() === item.id"
-          (click)="reorderAgendaItem('UP')">
-          ↑ Subir
-        </button>
-        <button
-          class="ghost-action"
-          type="button"
-          [disabled]="!canReorderAgendaItem(item, 'DOWN') || agendaActionItemId() === item.id"
-          (click)="reorderAgendaItem('DOWN')">
-          ↓ Bajar
-        </button>
-      </div>
-
-      <div class="modal-actions">
-        <button class="primary-action" type="button" (click)="closeAgendaOrderEditor()" [disabled]="agendaActionItemId() === item.id">Cerrar</button>
       </div>
     </section>
   </div>

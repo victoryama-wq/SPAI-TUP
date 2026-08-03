@@ -121,8 +121,9 @@ export class DashboardPageComponent implements OnDestroy {
   readonly agendaScope = signal<AgendaScope>('EQUIPO');
   readonly agendaEditorItem = signal<OperationalAgendaItem | null>(null);
   readonly isAgendaEditorOpen = signal(false);
-  readonly agendaOrderItem = signal<OperationalAgendaItem | null>(null);
-  readonly isAgendaOrderEditorOpen = signal(false);
+  readonly agendaMoveColumn = signal<AgendaColumn | null>(null);
+  readonly agendaDraggingItemId = signal('');
+  readonly agendaDropTargetId = signal('');
   readonly isSavingAgendaItem = signal(false);
   readonly agendaActionItemId = signal('');
   readonly isAgendaCalendarVisible = signal(false);
@@ -786,58 +787,89 @@ export class DashboardPageComponent implements OnDestroy {
     }
   }
 
-  openAgendaOrderEditor(item: OperationalAgendaItem): void {
-    this.agendaOrderItem.set(item);
-    this.agendaError.set('');
-    this.isAgendaOrderEditorOpen.set(true);
-  }
-
-  closeAgendaOrderEditor(): void {
+  toggleAgendaMoveMode(column: AgendaColumn): void {
     if (this.agendaActionItemId()) {
       return;
     }
 
-    this.isAgendaOrderEditorOpen.set(false);
-    this.agendaOrderItem.set(null);
+    this.agendaMoveColumn.update((activeColumn) => activeColumn === column ? null : column);
+    this.agendaDraggingItemId.set('');
+    this.agendaDropTargetId.set('');
   }
 
-  canReorderAgendaItem(item: OperationalAgendaItem, direction: 'UP' | 'DOWN'): boolean {
-    const currentIndex = this.agendaItemsForColumn(item.column).findIndex((candidate) => candidate.id === item.id);
-
-    return direction === 'UP'
-      ? currentIndex > 0
-      : currentIndex >= 0 && currentIndex < this.agendaItemsForColumn(item.column).length - 1;
+  isAgendaMoveMode(column: AgendaColumn): boolean {
+    return this.agendaMoveColumn() === column;
   }
 
-  async reorderAgendaItem(direction: 'UP' | 'DOWN'): Promise<void> {
-    const item = this.agendaOrderItem();
-
-    if (!item) {
+  startAgendaDrag(event: DragEvent, item: OperationalAgendaItem): void {
+    if (!this.isAgendaMoveMode(item.column) || this.agendaActionItemId()) {
+      event.preventDefault();
       return;
     }
 
-    this.agendaActionItemId.set(item.id);
+    event.dataTransfer?.setData('text/plain', item.id);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+    }
+    this.agendaDraggingItemId.set(item.id);
+  }
+
+  previewAgendaDrop(event: DragEvent, target: OperationalAgendaItem): void {
+    if (!this.isAgendaMoveMode(target.column) || this.agendaDraggingItemId() === target.id) {
+      return;
+    }
+
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.agendaDropTargetId.set(target.id);
+  }
+
+  clearAgendaDropPreview(): void {
+    this.agendaDropTargetId.set('');
+  }
+
+  async dropAgendaItem(event: DragEvent, target: OperationalAgendaItem): Promise<void> {
+    event.preventDefault();
+    const draggedItemId = this.agendaDraggingItemId();
+    const orderedItems = this.agendaItemsForColumn(target.column);
+    const draggedItem = orderedItems.find((item) => item.id === draggedItemId);
+
+    this.clearAgendaDropPreview();
+
+    if (!draggedItem || draggedItem.id === target.id || !this.isAgendaMoveMode(target.column)) {
+      return;
+    }
+
+    const targetElement = event.currentTarget as HTMLElement;
+    const targetBounds = targetElement.getBoundingClientRect();
+    const insertAfter = event.clientY > targetBounds.top + targetBounds.height / 2;
+    const reorderedItems = orderedItems.filter((item) => item.id !== draggedItem.id);
+    const targetIndex = reorderedItems.findIndex((item) => item.id === target.id);
+
+    reorderedItems.splice(targetIndex + (insertAfter ? 1 : 0), 0, draggedItem);
+    this.agendaActionItemId.set(draggedItem.id);
     this.agendaError.set('');
 
     try {
-      const changed = await this.operationalAgendaRepository.reorder(
-        item,
-        direction,
-        this.agendaItemsForColumn(item.column),
-      );
+      const changed = await this.operationalAgendaRepository.reorder(draggedItem, reorderedItems);
 
       if (changed) {
         this.showAgendaFeedback('Orden de actividades actualizado correctamente.');
       }
-
-      this.isAgendaOrderEditorOpen.set(false);
-      this.agendaOrderItem.set(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       this.agendaError.set(`No se pudo actualizar el orden de la actividad. ${message}`);
     } finally {
       this.agendaActionItemId.set('');
+      this.agendaDraggingItemId.set('');
     }
+  }
+
+  endAgendaDrag(): void {
+    this.agendaDraggingItemId.set('');
+    this.clearAgendaDropPreview();
   }
 
   async advanceAgendaItem(item: OperationalAgendaItem): Promise<void> {

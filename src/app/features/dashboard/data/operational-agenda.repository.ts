@@ -146,25 +146,28 @@ export class OperationalAgendaRepository {
 
   async reorder(
     item: OperationalAgendaItem,
-    direction: 'UP' | 'DOWN',
     orderedItems: ReadonlyArray<OperationalAgendaItem>,
   ): Promise<boolean> {
     const context = this.currentContext();
     const currentIndex = orderedItems.findIndex((candidate) => candidate.id === item.id);
-    const targetIndex = currentIndex + (direction === 'UP' ? -1 : 1);
 
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedItems.length) {
+    if (currentIndex < 0) {
       return false;
     }
 
-    const reorderedItems = [...orderedItems];
-    const [movedItem] = reorderedItems.splice(currentIndex, 1);
-    reorderedItems.splice(targetIndex, 0, movedItem);
+    const currentOrder = this.itemsForScopeAndColumn(item.scope, item.column)
+      .sort((first, second) => (first.sortOrder ?? 0) - (second.sortOrder ?? 0));
+    const hasChangedOrder = currentOrder.length !== orderedItems.length
+      || currentOrder.some((candidate, index) => candidate.id !== orderedItems[index]?.id);
+
+    if (!hasChangedOrder) {
+      return false;
+    }
 
     const batch = writeBatch(this.firestore);
     const timestamp = new Date().toISOString();
 
-    reorderedItems.forEach((candidate, index) => {
+    orderedItems.forEach((candidate, index) => {
       const sortOrder = (index + 1) * 1000;
 
       if (candidate.sortOrder !== sortOrder) {
@@ -211,12 +214,17 @@ export class OperationalAgendaRepository {
   }
 
   private nextSortOrder(scope: AgendaScope, column: AgendaColumn, excludeId = ''): number {
-    const sourceItems = scope === 'EQUIPO' ? this.teamItemsSignal() : this.privateItemsSignal();
-    const highestOrder = sourceItems
+    const highestOrder = this.itemsForScopeAndColumn(scope, column)
       .filter((item) => item.column === column && item.id !== excludeId)
       .reduce((highest, item) => Math.max(highest, Number.isFinite(item.sortOrder) ? item.sortOrder! : 0), 0);
 
     return highestOrder + 1000;
+  }
+
+  private itemsForScopeAndColumn(scope: AgendaScope, column: AgendaColumn): OperationalAgendaItem[] {
+    const sourceItems = scope === 'EQUIPO' ? this.teamItemsSignal() : this.privateItemsSignal();
+
+    return sourceItems.filter((item) => item.column === column);
   }
 
   private documentReference(item: OperationalAgendaItem, authUid: string) {
