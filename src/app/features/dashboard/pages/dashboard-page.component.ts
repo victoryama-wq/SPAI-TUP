@@ -763,6 +763,9 @@ export class DashboardPageComponent implements OnDestroy {
         }
       }
 
+      // El cierre ocurre solo después de que Firestore confirmó la operación.
+      // Se libera primero el estado de guardado para no activar el bloqueo de cierre.
+      this.isSavingAgendaItem.set(false);
       this.closeAgendaEditor();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
