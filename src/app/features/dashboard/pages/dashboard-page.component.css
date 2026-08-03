@@ -1329,6 +1329,21 @@
   transform: none;
 }
 
+.agenda-note::before {
+  background: radial-gradient(circle at 34% 28%, #ffdfd5 0 15%, #dc5548 18% 57%, #9e3028 60% 100%);
+  border: 2px solid #fff4e9;
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(64, 25, 13, 0.38);
+  content: '';
+  height: 9px;
+  left: 50%;
+  position: absolute;
+  top: -6px;
+  transform: translateX(-50%);
+  width: 9px;
+  z-index: 1;
+}
+
 .agenda-note:nth-child(2n),
 .agenda-note:nth-child(3n) { transform: none; }
 .agenda-note.note-yellow { background: #fff4a6; }
