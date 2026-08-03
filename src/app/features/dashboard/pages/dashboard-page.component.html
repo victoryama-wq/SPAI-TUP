@@ -180,7 +180,7 @@
             <header><span>{{ column.label }}</span><strong>{{ agendaItemsForColumn(column.key).length }}</strong></header>
             <div class="agenda-notes">
               @for (item of agendaItemsForColumn(column.key); track item.id) {
-                <article class="agenda-note" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
+                <article class="agenda-note" [class]="agendaNoteColorClass(item.noteColor)" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
                   <div class="agenda-note-topline"><span>{{ item.priority }}</span>@if (item.scope === 'EQUIPO') { <small>{{ item.createdByName }}</small> }</div>
                   <h4>{{ item.title }}</h4>
                   @if (item.detail) { <p>{{ item.detail }}</p> }
@@ -289,6 +289,21 @@
             <option value="BAJA">Baja</option>
           </select>
         </label>
+        <fieldset class="agenda-note-color-picker">
+          <legend>Color de nota</legend>
+          <div>
+            @for (color of agendaNoteColors; track color.key) {
+              <button
+                type="button"
+                [class]="'agenda-note-color-option ' + color.cssClass"
+                [class.selected]="agendaForm().noteColor === color.key"
+                [attr.aria-pressed]="agendaForm().noteColor === color.key"
+                (click)="updateAgendaNoteColor(color.key)">
+                <span aria-hidden="true"></span>{{ color.label }}
+              </button>
+            }
+          </div>
+        </fieldset>
         <label class="request-detail-field">
           <span>Fecha límite</span>
           <input type="date" [value]="agendaForm().dueDate" (input)="updateAgendaDueDate($event)">

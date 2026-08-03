@@ -13,6 +13,7 @@ import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 export type AgendaScope = 'EQUIPO' | 'PRIVADA';
 export type AgendaColumn = 'PENDIENTE' | 'EN_PROCESO' | 'PARA_REVISAR' | 'LISTO';
 export type AgendaPriority = 'ALTA' | 'MEDIA' | 'BAJA';
+export type AgendaNoteColor = 'AMARILLO' | 'AZUL' | 'VERDE' | 'ROSA' | 'LILA';
 
 export interface OperationalAgendaItem {
   id: string;
@@ -21,6 +22,7 @@ export interface OperationalAgendaItem {
   detail: string;
   column: AgendaColumn;
   priority: AgendaPriority;
+  noteColor: AgendaNoteColor;
   dueDate: string | null;
   ownerId: string;
   ownerName: string;
@@ -36,6 +38,7 @@ export interface SaveOperationalAgendaItem {
   detail: string;
   column: AgendaColumn;
   priority: AgendaPriority;
+  noteColor: AgendaNoteColor;
   dueDate: string | null;
 }
 
@@ -76,7 +79,7 @@ export class OperationalAgendaRepository {
         collection(this.firestore, TEAM_AGENDA_COLLECTION),
         (snapshot) => {
           this.errorSignal.set('');
-          this.teamItemsSignal.set(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as OperationalAgendaItem));
+          this.teamItemsSignal.set(snapshot.docs.map((item) => this.mapAgendaItem(item.id, item.data())));
         },
         handleError,
       );
@@ -84,7 +87,7 @@ export class OperationalAgendaRepository {
         collection(this.firestore, PRIVATE_AGENDA_COLLECTION, session.authUid, 'actividades'),
         (snapshot) => {
           this.errorSignal.set('');
-          this.privateItemsSignal.set(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as OperationalAgendaItem));
+          this.privateItemsSignal.set(snapshot.docs.map((item) => this.mapAgendaItem(item.id, item.data())));
         },
         handleError,
       );
@@ -146,8 +149,23 @@ export class OperationalAgendaRepository {
       detail: payload.detail.trim(),
       column: payload.column,
       priority: payload.priority,
+      noteColor: this.normalizeNoteColor(payload.noteColor),
       dueDate: payload.dueDate || null,
     };
+  }
+
+  private mapAgendaItem(id: string, data: Record<string, unknown>): OperationalAgendaItem {
+    return {
+      ...data,
+      id,
+      noteColor: this.normalizeNoteColor(data['noteColor']),
+    } as OperationalAgendaItem;
+  }
+
+  private normalizeNoteColor(value: unknown): AgendaNoteColor {
+    return value === 'AZUL' || value === 'VERDE' || value === 'ROSA' || value === 'LILA'
+      ? value
+      : 'AMARILLO';
   }
 
   private documentReference(item: OperationalAgendaItem, authUid: string) {

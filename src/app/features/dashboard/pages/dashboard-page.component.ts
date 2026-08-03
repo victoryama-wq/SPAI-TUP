@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AssignmentsRepository } from '../../assignments/data/assignments.repository';
 import { AcademicCycle, CyclesRepository } from '../../cycles/data/cycles.repository';
@@ -13,6 +13,7 @@ import { AppUser, ModuleAccess, UsersRepository } from '../../users/data/users.r
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import {
   AgendaColumn,
+  AgendaNoteColor,
   AgendaPriority,
   AgendaScope,
   OperationalAgendaItem,
@@ -68,6 +69,7 @@ interface AgendaForm {
   detail: string;
   column: AgendaColumn;
   priority: AgendaPriority;
+  noteColor: AgendaNoteColor;
   dueDate: string;
 }
 
@@ -96,7 +98,7 @@ type ModuleKey = keyof ModuleAccess;
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css',
 })
-export class DashboardPageComponent {
+export class DashboardPageComponent implements OnDestroy {
   private readonly userSessionService = inject(UserSessionService);
   private readonly usersRepository = inject(UsersRepository);
   private readonly customRolesRepository = inject(CustomRolesRepository);
@@ -126,6 +128,7 @@ export class DashboardPageComponent {
   readonly agendaForm = signal<AgendaForm>(this.emptyAgendaForm('EQUIPO'));
   readonly agendaError = signal('');
   readonly agendaFeedback = signal('');
+  private agendaFeedbackTimeout: ReturnType<typeof setTimeout> | null = null;
   readonly agendaItems = this.operationalAgendaRepository.items;
   readonly agendaReadError = this.operationalAgendaRepository.readError;
   readonly agendaColumns: ReadonlyArray<{ key: AgendaColumn; label: string; tone: string }> = [
@@ -133,6 +136,13 @@ export class DashboardPageComponent {
     { key: 'EN_PROCESO', label: 'En proceso', tone: 'progress' },
     { key: 'PARA_REVISAR', label: 'Para revisar', tone: 'review' },
     { key: 'LISTO', label: 'Listo', tone: 'done' },
+  ];
+  readonly agendaNoteColors: ReadonlyArray<{ key: AgendaNoteColor; label: string; cssClass: string }> = [
+    { key: 'AMARILLO', label: 'Amarillo', cssClass: 'note-yellow' },
+    { key: 'AZUL', label: 'Azul', cssClass: 'note-blue' },
+    { key: 'VERDE', label: 'Verde', cssClass: 'note-green' },
+    { key: 'ROSA', label: 'Rosa', cssClass: 'note-rose' },
+    { key: 'LILA', label: 'Lila', cssClass: 'note-lilac' },
   ];
 
   readonly currentUser = computed<DashboardUser>(() => {
@@ -652,6 +662,7 @@ export class DashboardPageComponent {
       detail: item.detail,
       column: item.column,
       priority: item.priority,
+      noteColor: item.noteColor ?? 'AMARILLO',
       dueDate: item.dueDate ?? '',
     });
     this.agendaError.set('');
@@ -689,6 +700,10 @@ export class DashboardPageComponent {
     this.agendaForm.update((form) => ({ ...form, priority: (event.target as HTMLSelectElement).value as AgendaPriority }));
   }
 
+  updateAgendaNoteColor(noteColor: AgendaNoteColor): void {
+    this.agendaForm.update((form) => ({ ...form, noteColor }));
+  }
+
   updateAgendaDueDate(event: Event): void {
     this.agendaForm.update((form) => ({ ...form, dueDate: (event.target as HTMLInputElement).value }));
   }
@@ -705,7 +720,7 @@ export class DashboardPageComponent {
 
     this.isSavingAgendaItem.set(true);
     this.agendaError.set('');
-    this.agendaFeedback.set('');
+    this.clearAgendaFeedback();
 
     try {
       const payload = {
@@ -717,7 +732,7 @@ export class DashboardPageComponent {
 
       if (editingItem) {
         await this.operationalAgendaRepository.update(editingItem, payload);
-        this.agendaFeedback.set('Actividad actualizada correctamente.');
+        this.showAgendaFeedback('Actividad actualizada correctamente.');
       } else {
         const activityId = await this.operationalAgendaRepository.create(payload);
 
@@ -737,14 +752,14 @@ export class DashboardPageComponent {
                 actorName: appUser.name,
                 actorRole: appUser.role,
               });
-              this.agendaFeedback.set('Actividad creada y notificación enviada al equipo de Sistemas.');
+              this.showAgendaFeedback('Actividad creada y notificación enviada al equipo de Sistemas.');
             } catch (notificationError) {
               console.warn('La actividad se guardó, pero no se pudo crear la notificación.', notificationError);
-              this.agendaFeedback.set('Actividad creada. La notificación al equipo no pudo enviarse.');
+              this.showAgendaFeedback('Actividad creada. La notificación al equipo no pudo enviarse.');
             }
           }
         } else {
-          this.agendaFeedback.set('Actividad privada creada correctamente.');
+          this.showAgendaFeedback('Actividad privada creada correctamente.');
         }
       }
 
@@ -781,7 +796,7 @@ export class DashboardPageComponent {
 
     try {
       await this.operationalAgendaRepository.delete(item);
-      this.agendaFeedback.set('Actividad eliminada correctamente.');
+      this.showAgendaFeedback('Actividad eliminada correctamente.');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       this.agendaError.set(`No se pudo eliminar la actividad. ${message}`);
@@ -798,6 +813,14 @@ export class DashboardPageComponent {
     return this.agendaColumns.find((item) => item.key === column)?.label ?? 'Actividad';
   }
 
+  agendaNoteColorClass(noteColor: AgendaNoteColor | undefined): string {
+    return this.agendaNoteColors.find((color) => color.key === noteColor)?.cssClass ?? 'note-yellow';
+  }
+
+  ngOnDestroy(): void {
+    this.clearAgendaFeedback();
+  }
+
   private emptyAgendaForm(scope: AgendaScope): AgendaForm {
     return {
       scope,
@@ -805,8 +828,26 @@ export class DashboardPageComponent {
       detail: '',
       column: 'PENDIENTE',
       priority: 'MEDIA',
+      noteColor: 'AMARILLO',
       dueDate: '',
     };
+  }
+
+  private showAgendaFeedback(message: string): void {
+    this.clearAgendaFeedback();
+    this.agendaFeedback.set(message);
+    this.agendaFeedbackTimeout = setTimeout(() => {
+      this.agendaFeedback.set('');
+      this.agendaFeedbackTimeout = null;
+    }, 5000);
+  }
+
+  private clearAgendaFeedback(): void {
+    if (this.agendaFeedbackTimeout !== null) {
+      clearTimeout(this.agendaFeedbackTimeout);
+      this.agendaFeedbackTimeout = null;
+    }
+    this.agendaFeedback.set('');
   }
 
   private currentMonthCursor(): string {
