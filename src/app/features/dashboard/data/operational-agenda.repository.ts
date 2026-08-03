@@ -6,6 +6,7 @@ import {
   doc,
   onSnapshot,
   updateDoc,
+  writeBatch,
 } from 'firebase/firestore';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
@@ -30,6 +31,7 @@ export interface OperationalAgendaItem {
   createdByName: string;
   createdAt: string;
   updatedAt: string;
+  sortOrder?: number;
 }
 
 export interface SaveOperationalAgendaItem {
@@ -113,6 +115,7 @@ export class OperationalAgendaRepository {
       createdByName: context.name,
       createdAt: timestamp,
       updatedAt: timestamp,
+      sortOrder: this.nextSortOrder(payload.scope, payload.column),
     });
 
     return result.id;
@@ -124,17 +127,56 @@ export class OperationalAgendaRepository {
 
     await updateDoc(reference, {
       ...this.normalizedPayload(payload),
+      sortOrder: payload.column === item.column
+        ? item.sortOrder ?? this.nextSortOrder(payload.scope, payload.column, item.id)
+        : this.nextSortOrder(payload.scope, payload.column, item.id),
       updatedAt: new Date().toISOString(),
     });
   }
 
-  async move(item: OperationalAgendaItem, column: AgendaColumn): Promise<void> {
+  async advance(item: OperationalAgendaItem, column: AgendaColumn): Promise<void> {
     const context = this.currentContext();
 
     await updateDoc(this.documentReference(item, context.authUid), {
       column,
+      sortOrder: this.nextSortOrder(item.scope, column, item.id),
       updatedAt: new Date().toISOString(),
     });
+  }
+
+  async reorder(
+    item: OperationalAgendaItem,
+    direction: 'UP' | 'DOWN',
+    orderedItems: ReadonlyArray<OperationalAgendaItem>,
+  ): Promise<boolean> {
+    const context = this.currentContext();
+    const currentIndex = orderedItems.findIndex((candidate) => candidate.id === item.id);
+    const targetIndex = currentIndex + (direction === 'UP' ? -1 : 1);
+
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= orderedItems.length) {
+      return false;
+    }
+
+    const reorderedItems = [...orderedItems];
+    const [movedItem] = reorderedItems.splice(currentIndex, 1);
+    reorderedItems.splice(targetIndex, 0, movedItem);
+
+    const batch = writeBatch(this.firestore);
+    const timestamp = new Date().toISOString();
+
+    reorderedItems.forEach((candidate, index) => {
+      const sortOrder = (index + 1) * 1000;
+
+      if (candidate.sortOrder !== sortOrder) {
+        batch.update(this.documentReference(candidate, context.authUid), {
+          sortOrder,
+          ...(candidate.id === item.id ? { updatedAt: timestamp } : {}),
+        });
+      }
+    });
+
+    await batch.commit();
+    return true;
   }
 
   async delete(item: OperationalAgendaItem): Promise<void> {
@@ -166,6 +208,15 @@ export class OperationalAgendaRepository {
     return value === 'AZUL' || value === 'VERDE' || value === 'ROSA' || value === 'LILA'
       ? value
       : 'AMARILLO';
+  }
+
+  private nextSortOrder(scope: AgendaScope, column: AgendaColumn, excludeId = ''): number {
+    const sourceItems = scope === 'EQUIPO' ? this.teamItemsSignal() : this.privateItemsSignal();
+    const highestOrder = sourceItems
+      .filter((item) => item.column === column && item.id !== excludeId)
+      .reduce((highest, item) => Math.max(highest, Number.isFinite(item.sortOrder) ? item.sortOrder! : 0), 0);
+
+    return highestOrder + 1000;
   }
 
   private documentReference(item: OperationalAgendaItem, authUid: string) {

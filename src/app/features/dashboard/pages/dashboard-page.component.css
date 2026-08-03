@@ -1038,6 +1038,8 @@
 .agenda-note p { color: #564b3d; font-size: 11px; line-height: 1.35; margin: 0 0 8px; white-space: pre-line; }
 .agenda-note-actions { border-top: 1px dashed rgba(82, 60, 36, 0.34); gap: 8px; margin-top: 9px; padding-top: 7px; }
 .agenda-note-actions button { font-size: 10px; padding: 0; }
+.agenda-note-actions button.follow-up { color: #1765d8; }
+.agenda-note-actions button.follow-up:disabled { color: #7a8aa2; cursor: default; }
 .agenda-note-actions button.delete { color: #a93d30; }
 .agenda-note-actions button:disabled { cursor: wait; opacity: 0.55; }
 .agenda-empty { background: rgba(255, 255, 255, 0.24); border: 1px dashed rgba(255, 255, 255, 0.58); color: #fff8dc; font-size: 11px; font-weight: 700; margin: 0; padding: 14px 9px; text-align: center; }
@@ -1060,6 +1062,9 @@
 .welcome-cycle-detail strong { color: #092d70; }
 .welcome-cycle-detail span { color: #64748b; font-size: 12px; font-weight: 700; }
 .agenda-editor-modal { max-width: 590px; }
+.agenda-order-modal { max-width: 440px; }
+.agenda-order-actions { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.agenda-order-actions .ghost-action { justify-content: center; min-height: 42px; }
 
 .request-detail-field input,
 .request-detail-field select {

@@ -187,7 +187,15 @@
                   <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
                   <div class="agenda-note-actions">
                     <button type="button" (click)="openAgendaEditor(item)">Editar</button>
-                    <button type="button" (click)="moveAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
+                    <button type="button" (click)="openAgendaOrderEditor(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
+                    <button
+                      type="button"
+                      class="follow-up"
+                      [disabled]="agendaActionItemId() === item.id || item.column === 'LISTO'"
+                      [attr.title]="item.column === 'LISTO' ? 'Actividad concluida' : 'Pasar a ' + nextAgendaColumnLabel(item)"
+                      (click)="advanceAgendaItem(item)">
+                      Seguimiento
+                    </button>
                     <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Eliminar</button>
                   </div>
                 </article>
@@ -319,6 +327,39 @@
         <button class="primary-action" type="button" (click)="saveAgendaItem()" [disabled]="isSavingAgendaItem()">
           {{ isSavingAgendaItem() ? 'Guardando...' : 'Guardar actividad' }}
         </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isAgendaOrderEditorOpen() && agendaOrderItem(); as item) {
+  <div class="modal-backdrop" role="presentation">
+    <section class="quick-request-modal agenda-order-modal" role="dialog" aria-modal="true" aria-labelledby="agenda-order-title">
+      <div class="modal-heading">
+        <span>Orden de actividades</span>
+        <h3 id="agenda-order-title">Mover “{{ item.title }}”</h3>
+        <p>Elige dónde debe aparecer dentro de la columna {{ agendaColumnLabel(item.column) }}.</p>
+      </div>
+
+      <div class="agenda-order-actions">
+        <button
+          class="ghost-action"
+          type="button"
+          [disabled]="!canReorderAgendaItem(item, 'UP') || agendaActionItemId() === item.id"
+          (click)="reorderAgendaItem('UP')">
+          ↑ Subir
+        </button>
+        <button
+          class="ghost-action"
+          type="button"
+          [disabled]="!canReorderAgendaItem(item, 'DOWN') || agendaActionItemId() === item.id"
+          (click)="reorderAgendaItem('DOWN')">
+          ↓ Bajar
+        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="primary-action" type="button" (click)="closeAgendaOrderEditor()" [disabled]="agendaActionItemId() === item.id">Cerrar</button>
       </div>
     </section>
   </div>

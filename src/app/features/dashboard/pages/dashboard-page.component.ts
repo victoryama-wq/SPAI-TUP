@@ -121,6 +121,8 @@ export class DashboardPageComponent implements OnDestroy {
   readonly agendaScope = signal<AgendaScope>('EQUIPO');
   readonly agendaEditorItem = signal<OperationalAgendaItem | null>(null);
   readonly isAgendaEditorOpen = signal(false);
+  readonly agendaOrderItem = signal<OperationalAgendaItem | null>(null);
+  readonly isAgendaOrderEditorOpen = signal(false);
   readonly isSavingAgendaItem = signal(false);
   readonly agendaActionItemId = signal('');
   readonly isAgendaCalendarVisible = signal(false);
@@ -642,7 +644,16 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   agendaItemsForColumn(column: AgendaColumn): OperationalAgendaItem[] {
-    return this.visibleAgendaItems().filter((item) => item.column === column);
+    const columnItems = this.visibleAgendaItems().filter((item) => item.column === column);
+    const hasSavedOrderForEveryItem = columnItems.every((item) => Number.isFinite(item.sortOrder));
+
+    return [...columnItems].sort((first, second) => {
+      if (hasSavedOrderForEveryItem) {
+        return (first.sortOrder ?? 0) - (second.sortOrder ?? 0);
+      }
+
+      return second.updatedAt.localeCompare(first.updatedAt);
+    });
   }
 
   openNewAgendaItem(): void {
@@ -775,15 +786,76 @@ export class DashboardPageComponent implements OnDestroy {
     }
   }
 
-  async moveAgendaItem(item: OperationalAgendaItem): Promise<void> {
+  openAgendaOrderEditor(item: OperationalAgendaItem): void {
+    this.agendaOrderItem.set(item);
+    this.agendaError.set('');
+    this.isAgendaOrderEditorOpen.set(true);
+  }
+
+  closeAgendaOrderEditor(): void {
+    if (this.agendaActionItemId()) {
+      return;
+    }
+
+    this.isAgendaOrderEditorOpen.set(false);
+    this.agendaOrderItem.set(null);
+  }
+
+  canReorderAgendaItem(item: OperationalAgendaItem, direction: 'UP' | 'DOWN'): boolean {
+    const currentIndex = this.agendaItemsForColumn(item.column).findIndex((candidate) => candidate.id === item.id);
+
+    return direction === 'UP'
+      ? currentIndex > 0
+      : currentIndex >= 0 && currentIndex < this.agendaItemsForColumn(item.column).length - 1;
+  }
+
+  async reorderAgendaItem(direction: 'UP' | 'DOWN'): Promise<void> {
+    const item = this.agendaOrderItem();
+
+    if (!item) {
+      return;
+    }
+
     this.agendaActionItemId.set(item.id);
     this.agendaError.set('');
 
     try {
-      await this.operationalAgendaRepository.move(item, this.nextAgendaColumn(item.column));
+      const changed = await this.operationalAgendaRepository.reorder(
+        item,
+        direction,
+        this.agendaItemsForColumn(item.column),
+      );
+
+      if (changed) {
+        this.showAgendaFeedback('Orden de actividades actualizado correctamente.');
+      }
+
+      this.isAgendaOrderEditorOpen.set(false);
+      this.agendaOrderItem.set(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
-      this.agendaError.set(`No se pudo mover la actividad. ${message}`);
+      this.agendaError.set(`No se pudo actualizar el orden de la actividad. ${message}`);
+    } finally {
+      this.agendaActionItemId.set('');
+    }
+  }
+
+  async advanceAgendaItem(item: OperationalAgendaItem): Promise<void> {
+    const nextColumn = this.nextAgendaColumn(item.column);
+
+    if (!nextColumn) {
+      return;
+    }
+
+    this.agendaActionItemId.set(item.id);
+    this.agendaError.set('');
+
+    try {
+      await this.operationalAgendaRepository.advance(item, nextColumn);
+      this.showAgendaFeedback(`Actividad enviada a ${this.agendaColumnLabel(nextColumn)}.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      this.agendaError.set(`No se pudo actualizar el seguimiento. ${message}`);
     } finally {
       this.agendaActionItemId.set('');
     }
@@ -867,10 +939,16 @@ export class DashboardPageComponent implements OnDestroy {
     return this.dateKey(new Date());
   }
 
-  private nextAgendaColumn(column: AgendaColumn): AgendaColumn {
+  nextAgendaColumnLabel(item: OperationalAgendaItem): string {
+    const nextColumn = this.nextAgendaColumn(item.column);
+
+    return nextColumn ? this.agendaColumnLabel(nextColumn) : 'Lista';
+  }
+
+  private nextAgendaColumn(column: AgendaColumn): AgendaColumn | null {
     const currentIndex = this.agendaColumns.findIndex((item) => item.key === column);
 
-    return this.agendaColumns[(currentIndex + 1) % this.agendaColumns.length].key;
+    return this.agendaColumns[currentIndex + 1]?.key ?? null;
   }
 
   private requestStatusLabel(status: SystemRequestStatus): string {
