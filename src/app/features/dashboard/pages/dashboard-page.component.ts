@@ -755,8 +755,8 @@ export class DashboardPageComponent implements OnDestroy {
           if (session && appUser) {
             try {
               await this.systemNotificationsRepository.create({
-                title: 'Nueva actividad de equipo',
-                message: `${appUser.name} agregó: ${title}.`,
+                title,
+                message: 'La actividad ya está disponible en la agenda operativa.',
                 type: 'AGENDA_EQUIPO',
                 entity: 'agenda_operativa_equipo',
                 entityId: activityId,

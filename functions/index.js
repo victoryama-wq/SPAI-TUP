@@ -364,7 +364,7 @@ function notificationMessageLines(notification) {
 
   if (notification.type === 'AGENDA_EQUIPO') {
     return [
-      `${actorName} registró una nueva actividad de equipo: ${title}.`,
+      `${actorName} agregó una actividad de equipo: ${title}.`,
       message,
     ].filter((line, index) => index === 0 || Boolean(line));
   }
@@ -390,7 +390,7 @@ function notificationHtmlMessageLines(notification) {
 
   if (notification.type === 'AGENDA_EQUIPO') {
     return [
-      `<strong>${escapedActor}</strong> registró una nueva actividad de equipo: ${escapeHtml(title)}.`,
+      `<strong>${escapedActor}</strong> agregó una actividad de equipo: ${escapeHtml(title)}.`,
       message ? escapeHtml(message) : '',
     ].filter((line, index) => index === 0 || Boolean(line));
   }
