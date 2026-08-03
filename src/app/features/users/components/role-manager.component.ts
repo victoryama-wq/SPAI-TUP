@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   CustomRolesRepository,
@@ -35,6 +35,8 @@ const MODULE_OPTIONS: ModulePermissionOption[] = [
   styleUrl: './role-manager.component.css',
 })
 export class RoleManagerComponent {
+  @Input() compact = false;
+
   private readonly formBuilder = new FormBuilder();
   private readonly customRolesRepository = inject(CustomRolesRepository);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);

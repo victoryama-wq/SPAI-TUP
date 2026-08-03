@@ -15,35 +15,21 @@
   </section>
 
   <div class="cycle-summary">
-    <article class="active-card">
-      <span>Ciclo activo</span>
-      @if (activeCycle(); as cycle) {
-        <strong>{{ cycle.code }}</strong>
-        <p>{{ cycle.label }}</p>
-        <small>Captura: {{ formatDate(cycle.captureStartedAt) }}</small>
-        <small>Cierre de Captura: {{ formatDate(cycle.tentativeCaptureCloseAt) }}</small>
-      } @else {
-        <strong class="empty-active">Sin ciclo</strong>
-        <p>Activa un ciclo para iniciar la planeación.</p>
-        <small>Pendiente de configuración</small>
-      }
-    </article>
-
     <article>
-      <strong>{{ cycles().length }}</strong>
-      <span>Ciclos registrados</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg></span>
+      <div><strong>{{ cycles().length }}</strong><span>Ciclos registrados</span></div>
     </article>
     <article>
-      <strong>{{ planningCycles().length }}</strong>
-      <span>En preparación</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ planningCycles().length }}</strong><span>En preparación</span></div>
     </article>
     <article>
-      <strong>{{ captureCycles().length }}</strong>
-      <span>En captura</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ captureCycles().length }}</strong><span>En captura</span></div>
     </article>
     <article>
-      <strong>{{ closedCycles().length }}</strong>
-      <span>Históricos</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15v-4M12 15V7M16 15v-6"></path></svg></span>
+      <div><strong>{{ closedCycles().length }}</strong><span>Históricos</span></div>
     </article>
   </div>
 </section>
@@ -135,6 +121,20 @@
       <span>Control operativo</span>
       <h3>Ciclos académicos</h3>
     </div>
+    @if (activeCycle(); as cycle) {
+      <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+        <div class="directory-cycle-main">
+          <span class="directory-cycle-kicker">Ciclo activo</span>
+          <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+        </div>
+        <span class="directory-cycle-divider" aria-hidden="true"></span>
+        <div class="directory-cycle-date">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ formatDate(cycle.tentativeCaptureCloseAt) }}</strong>
+        </div>
+      </aside>
+    }
   </div>
 
   <div class="table-wrap">

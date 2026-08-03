@@ -854,6 +854,10 @@
   width: 100%;
 }
 
+.content-inner.dashboard-content {
+  max-width: none;
+}
+
 .context-row {
   align-items: stretch;
   display: flex;

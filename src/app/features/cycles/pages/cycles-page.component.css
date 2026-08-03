@@ -114,6 +114,109 @@ th {
   }
 }
 
+/* Ciclos adopta la misma jerarquía visual de Usuarios y del Dashboard. */
+.cycles-overview {
+  align-items: stretch;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.cycles-overview::before { display: none; }
+
+.cycles-overview .cycles-header {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, 0.16);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 22px 24px;
+}
+
+.cycles-overview .cycles-header::after {
+  background: #42b6e8;
+  content: '';
+  height: calc(100% - 32px);
+  left: 0;
+  position: absolute;
+  top: 16px;
+  width: 4px;
+}
+
+.cycles-overview .cycles-header span { color: #a9d8ff; font-size: 12px; }
+.cycles-overview .cycles-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.cycles-overview .cycles-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; }
+.cycles-overview .cycles-header .primary-action { background: #ffffff; color: #0b3f8d; min-height: 40px; padding: 0 15px; }
+.cycles-overview .cycles-header .primary-action span { color: #0b3f8d; }
+
+.cycles-overview .cycle-summary {
+  align-content: stretch;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cycles-overview .cycle-summary article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07);
+  display: flex;
+  gap: 10px;
+  justify-items: initial;
+  min-height: 0;
+  padding: 12px;
+  text-align: left;
+}
+
+.cycles-overview .cycle-summary article > div { display: grid; gap: 3px; }
+.cycles-overview .cycle-summary article > div > strong { color: #092d70; font-size: 25px; }
+.cycles-overview .cycle-summary article > div > span { color: #173c76; font-size: 13px; }
+.summary-icon { align-items: center; background: #edf4ff; border-radius: 999px; color: #1d5bd8; display: grid; flex: 0 0 auto; height: 42px; justify-items: center; width: 42px; }
+.summary-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 21px; }
+
+.table-panel > .panel-title {
+  align-items: center;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  margin: -26px -30px 22px;
+  padding: 18px 30px;
+}
+
+.table-panel > .panel-title > div > span { color: #a9d8ff; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+
+.directory-cycle-status { align-items: center; background: #ffffff; border: 1px solid #cfe0f6; border-radius: 9px; box-shadow: 0 5px 14px rgba(20, 57, 112, 0.06); display: inline-flex; gap: 10px; padding: 8px 10px; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker, .directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border: 1px solid #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 16px; stroke: #1765d8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 16px; }
+.directory-cycle-date strong { color: #1457d6; font-size: 15px; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .cycles-overview { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .table-panel > .panel-title { align-items: stretch; margin: -24px -24px 20px; padding: 18px 24px; }
+  .directory-cycle-status { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (max-width: 560px) {
+  .cycles-overview .cycle-summary { grid-template-columns: 1fr; }
+}
+
 .cycles-overview {
   align-items: stretch;
   display: grid;

@@ -35,28 +35,7 @@
 }
 
 <section class="table-panel" aria-label="Tabla de asignaciones">
-  <div class="mode-tabs" aria-label="Asignaciones por modalidad">
-    @for (tab of modeTabs(); track tab.value) {
-      <button
-        type="button"
-        [class.active]="modeTab() === tab.value"
-        [class.tab-escolarizado]="tab.value === 'Escolarizado'"
-        [class.tab-ejecutivo]="tab.value === 'Ejecutivo'"
-        [class.tab-virtual]="tab.value === 'Virtual'"
-        [class.tab-salud]="tab.value === 'Salud'"
-        [class.tab-posgrados]="tab.value === 'Posgrados'"
-        [class.tab-especiales]="tab.value === 'Especiales'"
-        [class.tab-ingles]="tab.value === 'Inglés'"
-        (click)="selectModeTab(tab.value)"
-      >
-        <span>{{ tab.label }}</span>
-      </button>
-    }
-  </div>
-
-  <div class="assignments-workspace">
-    <div class="assignments-main-column">
-      <div class="panel-title">
+  <div class="panel-title">
         <div class="panel-heading-row">
           <div class="panel-heading-copy">
             <span>Planeacion academica</span>
@@ -101,7 +80,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 5v14M5 12h14"></path>
               </svg>
-              <span>Nueva asignacion</span>
+              <span>Asignacion</span>
             </button>
           </div>
         </div>
@@ -140,6 +119,60 @@
             </select>
           </label>
         </div>
+
+        <aside class="assignments-side-panel" aria-label="Seguimiento de asignaciones">
+          <section class="assignment-side-card tracking-card">
+            <span>Seguimiento</span>
+            <h3>Estado de captura</h3>
+            <p>{{ nextAssignmentAction() }}</p>
+            <div class="status-summary-list">
+              <div>
+                <strong>{{ captureCount() }}</strong>
+                <span>En captura</span>
+              </div>
+              <div>
+                <strong>{{ reviewCount() }}</strong>
+                <span>En revision</span>
+              </div>
+              <div>
+                <strong>{{ moodleLoadedCount() }}</strong>
+                <span>Cargado en Moodle</span>
+              </div>
+            </div>
+            <button
+              class="scope-toggle-action report-download-action"
+              type="button"
+              [disabled]="!reportAssignments().length"
+              [title]="reportAssignments().length ? 'Descargar reporte de asignaciones en Excel' : 'No hay asignaciones para descargar'"
+              (click)="downloadAssignmentsReport()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"></path>
+              </svg>
+              <span>Reporte Excel</span>
+            </button>
+          </section>
+        </aside>
+
+      </div>
+
+      <div class="mode-tabs" aria-label="Asignaciones por modalidad">
+        @for (tab of modeTabs(); track tab.value) {
+          <button
+            type="button"
+            [class.active]="modeTab() === tab.value"
+            [class.tab-escolarizado]="tab.value === 'Escolarizado'"
+            [class.tab-ejecutivo]="tab.value === 'Ejecutivo'"
+            [class.tab-virtual]="tab.value === 'Virtual'"
+            [class.tab-salud]="tab.value === 'Salud'"
+            [class.tab-posgrados]="tab.value === 'Posgrados'"
+            [class.tab-especiales]="tab.value === 'Especiales'"
+            [class.tab-ingles]="tab.value === 'Inglés'"
+            (click)="selectModeTab(tab.value)"
+          >
+            <span>{{ tab.label }}</span>
+          </button>
+        }
       </div>
 
       <div class="table-wrap">
@@ -288,7 +321,10 @@
         }
       </tbody>
         </table>
-      </div>
+  </div>
+
+  <div class="assignments-workspace">
+    <div class="assignments-main-column">
 
       @if (visibleAssignments().length) {
         <div class="pagination-bar" aria-label="Paginacion de asignaciones academicas">
@@ -318,49 +354,6 @@
       }
     </div>
 
-    <aside class="assignments-side-panel" aria-label="Seguimiento de asignaciones">
-      <section class="assignment-side-card tracking-card">
-        <span>Seguimiento</span>
-        <h3>Estado de captura</h3>
-        <p>{{ nextAssignmentAction() }}</p>
-        <button
-          class="scope-toggle-action report-download-action"
-          type="button"
-          [disabled]="!reportAssignments().length"
-          [title]="reportAssignments().length ? 'Descargar reporte de asignaciones en Excel' : 'No hay asignaciones para descargar'"
-          (click)="downloadAssignmentsReport()"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"></path>
-          </svg>
-          <span>Reporte Excel</span>
-        </button>
-      </section>
-
-      <section class="assignment-side-card">
-        <span>Por estado</span>
-        <div class="status-summary-list">
-          <div>
-            <strong>{{ captureCount() }}</strong>
-            <span>En captura</span>
-          </div>
-          <div>
-            <strong>{{ reviewCount() }}</strong>
-            <span>En revision</span>
-          </div>
-          <div>
-            <strong>{{ moodleLoadedCount() }}</strong>
-            <span>Cargado en Moodle</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="assignment-side-card muted-side-card">
-        <span>Vista actual</span>
-        <strong>{{ visibleAssignments().length }}</strong>
-        <p>asignaciones visibles con los filtros aplicados.</p>
-      </section>
-    </aside>
   </div>
 </section>
 

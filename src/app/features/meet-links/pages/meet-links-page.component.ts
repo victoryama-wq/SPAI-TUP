@@ -66,6 +66,16 @@ export class MeetLinksPageComponent {
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
 
+  get activeCycleCodeLabel(): string {
+    return this.activeCycle()?.code ?? 'Pendiente';
+  }
+
+  get activeCycleCaptureCloseLabel(): string {
+    const closeAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return closeAt ? this.formatCycleDate(closeAt).toUpperCase() : 'PENDIENTE';
+  }
+
   readonly sessionTitle = computed(() =>
     this.sessionView() === 'POSGRADOS' ? 'Sesiones de Posgrado' : 'Sesiones Virtuales',
   );
@@ -374,6 +384,18 @@ export class MeetLinksPageComponent {
       || POSTGRADUATE_TEXT_MARKERS.some((marker) => searchText.includes(marker));
 
     return isCampusTupArea && hasPostgraduateMarker;
+  }
+
+  private formatCycleDate(value: string): string {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T12:00:00`)
+      : new Date(value);
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
   }
 
   private normalizeSearchText(value: string): string {

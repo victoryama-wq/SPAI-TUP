@@ -526,3 +526,328 @@ dd {
     grid-template-columns: 1fr;
   }
 }
+
+/* Bitacora: misma jerarquia visual operativa que los catalogos institucionales. */
+.audit-shell {
+  gap: 20px;
+}
+
+.audit-overview {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  gap: 18px;
+  grid-template-columns: minmax(310px, 0.62fr) minmax(0, 1fr);
+  overflow: visible;
+  padding: 0;
+}
+
+.audit-overview::before {
+  display: none;
+}
+
+.audit-title-card {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border: 0;
+  border-radius: 11px;
+  box-shadow: 0 12px 25px rgb(7 29 79 / 0.15);
+  color: #ffffff;
+  min-height: 196px;
+  padding: 25px 29px;
+  position: relative;
+}
+
+.audit-title-card::after {
+  background: #42b6e8;
+  border-radius: 11px 0 0 11px;
+  content: '';
+  inset: 0 auto 0 0;
+  position: absolute;
+  width: 5px;
+}
+
+.audit-title-card span {
+  color: #a9d8ff;
+  font-size: 12px;
+}
+
+.audit-title-card h2 {
+  color: #ffffff;
+  font-size: clamp(25px, 2.3vw, 32px);
+  margin: 2px 0 5px;
+}
+
+.audit-title-card p {
+  color: #d5e8ff;
+  font-size: 14px;
+  max-width: 520px;
+}
+
+.audit-summary-grid {
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.audit-summary-grid article {
+  align-items: center;
+  background: #ffffff;
+  border-color: #d7e4f8;
+  display: flex;
+  gap: 13px;
+  justify-content: flex-start;
+  justify-items: unset;
+  min-height: 92px;
+  padding: 16px 20px;
+  text-align: left;
+}
+
+.audit-summary-grid article > div {
+  display: grid;
+  gap: 4px;
+}
+
+.audit-summary-grid strong {
+  color: #092d70;
+  font-size: 27px;
+}
+
+.audit-summary-grid article > div > span {
+  color: #173c76;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.audit-summary-icon {
+  align-items: center;
+  background: #edf4ff;
+  border-radius: 999px;
+  color: #1d5bd8;
+  display: grid;
+  flex: 0 0 auto;
+  height: 42px;
+  justify-items: center;
+  width: 42px;
+}
+
+.audit-summary-icon svg {
+  fill: none;
+  height: 21px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 21px;
+}
+
+.audit-workspace {
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 250px);
+}
+
+.audit-main-panel {
+  background: #ffffff;
+  display: grid;
+  gap: 0;
+  padding: 0;
+}
+
+.audit-main-panel::before {
+  display: none;
+}
+
+.audit-control-panel {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  display: grid;
+  gap: 17px 22px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 24px 28px;
+}
+
+.audit-control-panel .panel-title-row {
+  align-items: start;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.audit-control-panel .panel-title-row span,
+.audit-control-panel .filters-grid span {
+  color: #a9d8ff;
+}
+
+.audit-control-panel .panel-title-row h3 {
+  color: #ffffff;
+  font-size: clamp(25px, 2.2vw, 31px);
+  margin-top: 4px;
+}
+
+.audit-control-panel .ghost-action {
+  background: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.42);
+  color: #ffffff;
+}
+
+.audit-control-panel .ghost-action:hover {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.audit-control-panel .directory-cycle-status {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cfe0f6;
+  border-radius: 9px;
+  box-shadow: 0 5px 14px rgb(20 57 112 / 0.12);
+  display: inline-flex;
+  gap: 10px;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  padding: 8px 10px;
+}
+
+.directory-cycle-main {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.directory-cycle-kicker,
+.directory-cycle-date > span {
+  color: #1457d6;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.directory-cycle-code {
+  align-items: center;
+  background: #1e3a8a;
+  border-radius: 8px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 20px;
+  font-weight: 900;
+  min-height: 34px;
+  padding: 0 13px;
+}
+
+.directory-cycle-divider {
+  background: #bfd4f2;
+  height: 30px;
+  width: 1px;
+}
+
+.directory-cycle-date {
+  align-items: center;
+  background: #f5f9ff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  color: #06174a;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 11px;
+}
+
+.directory-cycle-date svg {
+  fill: none;
+  height: 16px;
+  stroke: #1765d8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 16px;
+}
+
+.directory-cycle-date strong {
+  color: #1457d6;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.audit-control-panel .filters-grid {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.audit-control-panel .filters-grid input,
+.audit-control-panel .filters-grid select {
+  background: #ffffff;
+  border-color: #d7e4f8;
+}
+
+.audit-main-panel .audit-list {
+  margin: 20px 20px 0;
+}
+
+.audit-main-panel .empty-state {
+  margin: 20px 20px 0;
+}
+
+.audit-main-panel .pagination-bar {
+  margin: 16px 20px 20px;
+}
+
+.audit-side-panel {
+  align-content: start;
+  border-left: 1px solid #cfe0f6;
+  padding-left: 18px;
+}
+
+.audit-side-panel .side-card:first-child {
+  border-top: 3px solid #1d5bd8;
+}
+
+@media (max-width: 1120px) {
+  .audit-overview,
+  .audit-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-side-panel {
+    border-left: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .audit-title-card,
+  .audit-control-panel {
+    padding: 20px;
+  }
+
+  .audit-control-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-control-panel .panel-title-row,
+  .audit-control-panel .directory-cycle-status,
+  .audit-control-panel .filters-grid {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: stretch;
+  }
+
+  .audit-control-panel .directory-cycle-status {
+    justify-content: center;
+  }
+
+  .audit-side-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .audit-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .directory-cycle-status {
+    flex-wrap: wrap;
+  }
+
+  .directory-cycle-divider {
+    display: none;
+  }
+}

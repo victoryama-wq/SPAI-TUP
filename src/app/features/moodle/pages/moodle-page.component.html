@@ -18,6 +18,56 @@
     </aside>
   }
 
+  <section class="moodle-overview" aria-label="Resumen de operación Moodle">
+    <article class="moodle-overview-hero">
+      <div class="moodle-overview-actions">
+        <div class="moodle-cycle-chip" aria-label="Ciclo activo">
+          <span>Ciclo activo</span>
+          <strong>{{ activeCycleCode() }}</strong>
+          <i aria-hidden="true"></i>
+          <span class="cycle-close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+            Cierre de captura <b>{{ activeCycleCloseLabel() }}</b>
+          </span>
+        </div>
+        <nav class="moodle-section-tabs" aria-label="Secciones Moodle">
+          <button type="button" [class.active]="activeTab() === 'catalogos'" (click)="selectMoodleTab('catalogos')">Catálogos Moodle</button>
+          <button type="button" [class.active]="activeTab() === 'lotes'" (click)="selectMoodleTab('lotes')">Lotes Moodle</button>
+        </nav>
+      </div>
+      <span>Operación Moodle</span>
+      <h2>Panel Moodle</h2>
+      <p>Configura categorías, plantillas y lotes para crear cursos.</p>
+    </article>
+
+    <div class="moodle-overview-metrics">
+      <article>
+        <span class="overview-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11l2 2h4.5A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-11Z"></path></svg>
+        </span>
+        <div><strong>{{ categories().length }}</strong><span>Categorías</span></div>
+      </article>
+      <article>
+        <span class="overview-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path><path d="M14 3v5h5M8 13h8M8 17h6"></path></svg>
+        </span>
+        <div><strong>{{ activeTemplatesCount() }}</strong><span>Plantillas</span></div>
+      </article>
+      <article>
+        <span class="overview-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 8h18v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8Z"></path><path d="M7 8V4h10v4M8 13h8M10 17h4"></path></svg>
+        </span>
+        <div><strong>{{ selectedAssignments().length }}</strong><span>Lotes listos</span></div>
+      </article>
+      <article>
+        <span class="overview-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        </span>
+        <div><strong>{{ pendingBatchCount() }}</strong><span>Pendientes</span></div>
+      </article>
+    </div>
+  </section>
+
   @if (activeTab() === 'catalogos') {
     <div class="catalog-panels">
     <section class="workspace-panel category-side-panel">
@@ -28,13 +78,30 @@
           <p>Relaciona la categoria Moodle con el programa correspondiente.</p>
         </div>
 
-        <div class="toolbar-actions">
-          <label class="secondary-action">
-            Cargar CSV
+        <div class="toolbar-actions category-actions">
+          <label class="secondary-action moodle-csv-action moodle-upload-action" title="Cargar archivo CSV" aria-label="Cargar archivo CSV">
+            <svg class="csv-upload-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <path class="document" d="M7 4h23l10 10v27H7z"></path>
+              <path class="fold" d="M30 4v10h10"></path>
+              <text x="19" y="27" text-anchor="middle">CSV</text>
+              <path class="upload-arrow" d="M34 45V35h-5l9-9 9 9h-5v10z"></path>
+            </svg>
+            <span class="icon-action-label">Cargar archivo</span>
             <input type="file" accept=".csv,text/csv" (change)="importCategoriesCsv($event)" />
           </label>
-          <button class="secondary-action button-action" type="button" (click)="downloadCategoriesTemplate()">Plantilla CSV</button>
-          <button class="primary-action" type="button" (click)="openCategoryModal()">Nueva categoria</button>
+          <button class="secondary-action button-action moodle-csv-action moodle-template-action" type="button" title="Descargar plantilla CSV" (click)="downloadCategoriesTemplate()">
+            <svg class="csv-download-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <path class="document" d="M7 4h23l10 10v27H7z"></path>
+              <path class="fold" d="M30 4v10h10"></path>
+              <text x="19" y="27" text-anchor="middle">CSV</text>
+              <path class="download-arrow" d="M34 23v10h-5l9 9 9-9h-5V23z"></path>
+            </svg>
+            <span class="icon-action-label">Plantilla</span>
+          </button>
+          <button class="primary-action moodle-new-category-action" type="button" (click)="openCategoryModal()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            <span>Categoria</span>
+          </button>
         </div>
       </div>
 
@@ -149,13 +216,20 @@
         </div>
 
         <div class="template-header-tools">
-          <div class="toolbar-actions">
-            <label class="secondary-action">
-              Cargar CSV
-              <input type="file" accept=".csv,text/csv" (change)="importTemplatesCsv($event)" />
-            </label>
-            <button class="secondary-action button-action" type="button" (click)="downloadTemplatesTemplate()">Plantilla CSV</button>
-            <button class="primary-action" type="button" (click)="openTemplateModal()">Nueva plantilla</button>
+          <div class="moodle-template-context">
+            <div class="moodle-cycle-chip" aria-label="Ciclo activo">
+              <span>Ciclo activo</span>
+              <strong>{{ activeCycleCode() }}</strong>
+              <i aria-hidden="true"></i>
+              <span class="cycle-close">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+                Cierre de captura <b>{{ activeCycleCloseLabel() }}</b>
+              </span>
+            </div>
+            <nav class="moodle-section-tabs" aria-label="Secciones Moodle">
+              <button type="button" [class.active]="activeTab() === 'catalogos'" (click)="selectMoodleTab('catalogos')">Catálogos Moodle</button>
+              <button type="button" [class.active]="activeTab() === 'lotes'" (click)="selectMoodleTab('lotes')">Lotes Moodle</button>
+            </nav>
           </div>
 
           <div class="template-search-row">
@@ -179,6 +253,45 @@
                 }
               </div>
             </label>
+          </div>
+
+          <div class="toolbar-actions template-actions-under-search">
+            <details #templateTypePicker class="template-type-picker">
+              <summary aria-label="Filtrar plantillas por tipo">
+                <span>Tipo</span>
+                <strong class="template-type-pill" [ngClass]="templateTypeClass(resolvedTemplateType())">
+                  {{ resolvedTemplateType() }}
+                </strong>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5"></path></svg>
+              </summary>
+              <div class="template-type-picker-options">
+                @for (tab of templateTypeTabs(); track tab.label) {
+                  <button
+                    type="button"
+                    class="template-type-pill"
+                    [class.active]="resolvedTemplateType() === tab.label"
+                    [ngClass]="templateTypeClass(tab.label)"
+                    (click)="selectTemplateTypeFromPicker(tab.label, templateTypePicker)"
+                  >
+                    <span>{{ tab.label }}</span>
+                    <strong>{{ tab.count }}</strong>
+                  </button>
+                }
+              </div>
+            </details>
+            <label class="secondary-action">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"></path></svg>
+              <span>Cargar CSV</span>
+              <input type="file" accept=".csv,text/csv" (change)="importTemplatesCsv($event)" />
+            </label>
+            <button class="secondary-action button-action" type="button" (click)="downloadTemplatesTemplate()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13m0 0 5-5m-5 5-5-5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"></path></svg>
+              <span>Plantilla CSV</span>
+            </button>
+            <button class="primary-action" type="button" (click)="openTemplateModal()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+              <span>Plantilla</span>
+            </button>
           </div>
       </div>
       </div>
@@ -235,20 +348,6 @@
           }
         </section>
       }
-
-      <div class="template-type-tabs" aria-label="Clasificacion de plantillas por tipo">
-        @for (tab of templateTypeTabs(); track tab.label) {
-            <button
-              type="button"
-              [class.active]="resolvedTemplateType() === tab.label"
-              [ngClass]="templateTypeClass(tab.label)"
-              (click)="selectTemplateType(tab.label)"
-            >
-              <span>{{ tab.label }}</span>
-              <strong>{{ tab.count }}</strong>
-            </button>
-        }
-      </div>
 
       <div class="table-wrap">
         <table>

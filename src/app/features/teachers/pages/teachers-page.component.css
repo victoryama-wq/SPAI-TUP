@@ -1510,3 +1510,167 @@ th {
     width: 100%;
   }
 }
+
+/* Directorio de Docentes con la misma jerarquía institucional de Grupos. */
+.teachers-overview { align-items: stretch; background: transparent !important; border: 0 !important; box-shadow: none !important; display: grid; gap: 12px; grid-template-columns: minmax(330px, 0.9fr) minmax(0, 1.1fr); overflow: visible; padding: 0 !important; }
+.teachers-overview::before { display: none; }
+.teachers-overview .teachers-header { align-items: flex-start; background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%); border: 0; border-radius: 10px; box-shadow: 0 10px 24px rgba(8, 36, 87, 0.16); display: flex; flex-direction: column; gap: 16px; min-height: 0; padding: 22px 24px; }
+.teachers-overview .teachers-header::after { background: #42b6e8; content: ''; height: calc(100% - 32px); left: 0; position: absolute; top: 16px; width: 4px; }
+.teachers-overview .teachers-header > div:first-child > span { color: #a9d8ff; font-size: 12px; }
+.teachers-overview .teachers-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.teachers-overview .teachers-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; }
+.teachers-overview .panel-tabs { display: grid; gap: 9px; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+.teachers-overview .panel-tabs button { background: #ffffff; border: 0; color: #0b3f8d; min-height: 40px; padding-inline: 10px; width: 100%; }
+.teachers-overview .panel-tabs.academic-coordination-tabs {
+  grid-template-columns: minmax(210px, 1.55fr) repeat(2, minmax(0, 1fr));
+}
+.teachers-overview .panel-tabs .academic-global-teachers-action {
+  font-size: 14px;
+  padding-inline: 16px;
+}
+.teachers-overview .panel-tabs button.active, .teachers-overview .panel-tabs .primary-tab-action, .teachers-overview .panel-tabs .upload-tab-action.active { background: #ffffff; border-color: #ffffff; color: #0b3f8d; }
+.teachers-overview .panel-tabs .moodle-tab-action, .teachers-overview .panel-tabs .report-tab-action, .teachers-overview .panel-tabs .template-tab-action, .teachers-overview .panel-tabs .upload-tab-action { background: #ffffff; border-color: #ffffff; color: #0b3f8d; }
+
+.teachers-overview .summary-grid { align-content: stretch; display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.teachers-overview .summary-grid article { align-items: center; background: #ffffff; border: 1px solid #dbe7f5; border-radius: 8px; box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07); display: flex; gap: 10px; justify-items: initial; min-height: 0; padding: 12px; text-align: left; }
+.teachers-overview .summary-grid article > div { display: grid; gap: 3px; }
+.teachers-overview .summary-grid article > div > strong { color: #092d70; font-size: 25px; }
+.teachers-overview .summary-grid article > div > span { color: #173c76; font-size: 13px; }
+.summary-icon { align-items: center; background: #edf4ff; border-radius: 999px; color: #1d5bd8; display: grid; flex: 0 0 auto; height: 42px; justify-items: center; width: 42px; }
+.summary-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 21px; }
+
+.table-panel > .panel-title { align-items: center; background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%); display: grid; gap: 18px; grid-template-columns: minmax(170px, 0.55fr) minmax(430px, 1fr) auto; margin: -26px -30px 22px; padding: 18px 30px; }
+.table-panel > .panel-title > div:first-child > span { color: #a9d8ff; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+.table-panel > .panel-title .filters { align-items: end; justify-content: stretch; width: 100%; }
+.table-panel > .panel-title .filters > label > span { color: #d5e8ff; }
+.table-panel > .panel-title .filters input, .table-panel > .panel-title .filters select { background: #ffffff; }
+.table-panel > .panel-title .search-action, .table-panel > .panel-title .compact-action { background: #ffffff; border-color: #ffffff; color: #0b3f8d; }
+
+.directory-cycle-status { align-items: center; background: #ffffff; border: 1px solid #cfe0f6; border-radius: 9px; box-shadow: 0 5px 14px rgba(20, 57, 112, 0.06); display: inline-flex; gap: 10px; padding: 8px 10px; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker, .directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border: 1px solid #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 16px; stroke: #1765d8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 16px; }
+.directory-cycle-date strong { color: #1457d6; font-size: 15px; white-space: nowrap; }
+
+@media (max-width: 1180px) { .teachers-overview { grid-template-columns: 1fr; } .table-panel > .panel-title { grid-template-columns: 1fr; } }
+@media (max-width: 1500px) { .table-panel > .panel-title { grid-template-columns: minmax(180px, 1fr) auto; } .table-panel > .panel-title .filters { grid-column: 1 / -1; } }
+@media (max-width: 1180px) { .table-panel > .panel-title { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .teachers-overview .panel-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .teachers-overview .panel-tabs.academic-coordination-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .teachers-overview .panel-tabs .academic-global-teachers-action { grid-column: 1 / -1; } .table-panel > .panel-title { align-items: stretch; margin: -24px -24px 20px; padding: 18px 24px; } .directory-cycle-status { flex-wrap: wrap; justify-content: center; } }
+@media (max-width: 460px) { .teachers-overview .panel-tabs { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .teachers-overview .summary-grid { grid-template-columns: 1fr; } }
+
+/* Acciones compactas y encabezado de catálogo adaptable. */
+.teachers-overview .panel-tabs button {
+  font-size: 13px;
+  gap: 6px;
+}
+
+@media (min-width: 1600px) {
+  .table-panel > .panel-title {
+    grid-template-columns: minmax(245px, .7fr) minmax(430px, 1fr) auto;
+  }
+
+  .table-panel > .panel-title > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    align-self: center;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: stretch;
+  }
+}
+
+@media (min-width: 1350px) and (max-width: 1599px) {
+  .table-panel > .panel-title {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .table-panel > .panel-title > div:first-child {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: stretch;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    align-self: end;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1349px) {
+  .table-panel > .panel-title {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: stretch;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: start;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1180px) {
+  .table-panel > .panel-title > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 180px);
+    justify-content: stretch;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .teachers-overview .panel-tabs button {
+    font-size: 12px;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    justify-self: stretch;
+  }
+}

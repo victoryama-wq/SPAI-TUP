@@ -11,7 +11,7 @@ export interface ParsedGroupCode {
   observations: string[];
 }
 
-const GROUP_PATTERN = /^(\d{2}-\d)\s+([A-Z]+)\s+(\d{2})\s+([A-Z0-9. ]+)$/;
+const GROUP_PATTERN = /^(\d{2}-\d)\s+([A-Z]+)\s+([A-Z0-9]+)\s+([A-Z0-9. ]+)$/;
 
 export function parseAcademicGroup(rawGroup: string): ParsedGroupCode {
   const fullGroup = normalizeFullGroup(rawGroup);
@@ -31,15 +31,18 @@ export function parseAcademicGroup(rawGroup: string): ParsedGroupCode {
   }
 
   const [, cycleCode, programAbbreviation, groupCode, section] = match;
-  const modality = detectModality(groupCode.charAt(0));
-  const shift = detectShift(groupCode.charAt(1));
+  // Los grupos EJE C.A. son cursos especiales: no llevan el código numérico habitual,
+  // pero deben poder registrarse para que aparezcan en la pestaña Especiales.
+  const isSpecialEjeGroup = groupCode === 'EJE' && section.trim().endsWith('C.A');
+  const modality = isSpecialEjeGroup ? 'Escolarizado' : detectModality(groupCode.charAt(0));
+  const shift = isSpecialEjeGroup ? 'No identificado' : detectShift(groupCode.charAt(1));
   const observations: string[] = [];
 
-  if (modality === 'No identificada') {
+  if (!isSpecialEjeGroup && modality === 'No identificada') {
     observations.push(`No se reconoce la modalidad para el primer digito ${groupCode.charAt(0)}.`);
   }
 
-  if (shift === 'No identificado') {
+  if (!isSpecialEjeGroup && shift === 'No identificado') {
     observations.push(`No se reconoce el turno para el segundo digito ${groupCode.charAt(1)}.`);
   }
 

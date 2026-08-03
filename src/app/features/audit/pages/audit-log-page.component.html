@@ -8,20 +8,20 @@
 
     <div class="audit-summary-grid" aria-label="Resumen de bitacora">
       <article>
-        <strong>{{ sortedEntries().length }}</strong>
-        <span>Eventos registrados</span>
+        <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"></path></svg></span>
+        <div><strong>{{ sortedEntries().length }}</strong><span>Eventos registrados</span></div>
       </article>
       <article>
-        <strong>{{ todayCount() }}</strong>
-        <span>Eventos de hoy</span>
+        <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+        <div><strong>{{ todayCount() }}</strong><span>Eventos de hoy</span></div>
       </article>
       <article>
-        <strong>{{ moduleOptions().length }}</strong>
-        <span>Modulos con actividad</span>
+        <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z"></path></svg></span>
+        <div><strong>{{ moduleOptions().length }}</strong><span>Modulos con actividad</span></div>
       </article>
       <article>
-        <strong>{{ activeUsersCount() }}</strong>
-        <span>Usuarios con actividad</span>
+        <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M5 20c.8-4 3.1-6 7-6s6.2 2 7 6"></path></svg></span>
+        <div><strong>{{ activeUsersCount() }}</strong><span>Usuarios con actividad</span></div>
       </article>
     </div>
   </header>
@@ -32,68 +32,69 @@
 
   <section class="audit-workspace">
     <main class="audit-main-panel">
-      <div class="panel-title-row">
-        <div>
-          <span>Registro institucional</span>
-          <h3>Movimientos recientes</h3>
+      <section class="audit-control-panel">
+        <div class="panel-title-row">
+          <div>
+            <span>Registro institucional</span>
+            <h3>Movimientos recientes</h3>
+          </div>
+          <button type="button" class="ghost-action" (click)="resetFilters()">Limpiar filtros</button>
         </div>
-        <button type="button" class="ghost-action" (click)="resetFilters()">Limpiar filtros</button>
-      </div>
 
-      <form class="filters-grid">
-        <label class="search-field">
-          <span>Buscar</span>
-          <input
-            type="search"
-            placeholder="Modulo, accion, usuario, descripcion o folio"
-            [ngModel]="searchTerm()"
-            (ngModelChange)="setSearchTerm($event)"
-            name="searchTerm"
-          />
-        </label>
+        @if (activeCycle(); as cycle) {
+          <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+            <div class="directory-cycle-main">
+              <span class="directory-cycle-kicker">Ciclo activo</span>
+              <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+            </div>
+            <span class="directory-cycle-divider" aria-hidden="true"></span>
+            <div class="directory-cycle-date">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+              <span>Cierre de captura</span>
+              <strong>{{ formatCycleDate(cycle.tentativeCaptureCloseAt) }}</strong>
+            </div>
+          </aside>
+        }
 
-        <label>
-          <span>Modulo</span>
-          <select
-            [ngModel]="selectedModule()"
-            (ngModelChange)="setModule($event)"
-            name="selectedModule"
-          >
-            <option value="Todos">Todos</option>
-            <option *ngFor="let module of moduleOptions()" [value]="module">
-              {{ moduleLabel(module) }}
-            </option>
-          </select>
-        </label>
+        <form class="filters-grid">
+          <label class="search-field">
+            <span>Buscar</span>
+            <input
+              type="search"
+              placeholder="Modulo, accion, usuario, descripcion o folio"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="setSearchTerm($event)"
+              name="searchTerm"
+            />
+          </label>
 
-        <label>
-          <span>Accion</span>
-          <select
-            [ngModel]="selectedAction()"
-            (ngModelChange)="setAction($event)"
-            name="selectedAction"
-          >
-            <option value="Todas">Todas</option>
-            <option *ngFor="let action of actionOptions()" [value]="action">
-              {{ actionLabel(action) }}
-            </option>
-          </select>
-        </label>
+          <label>
+            <span>Modulo</span>
+            <select [ngModel]="selectedModule()" (ngModelChange)="setModule($event)" name="selectedModule">
+              <option value="Todos">Todos</option>
+              <option *ngFor="let module of moduleOptions()" [value]="module">{{ moduleLabel(module) }}</option>
+            </select>
+          </label>
 
-        <label>
-          <span>Periodo</span>
-          <select
-            [ngModel]="selectedPeriod()"
-            (ngModelChange)="setPeriod($event)"
-            name="selectedPeriod"
-          >
-            <option value="Todos">Todos</option>
-            <option value="Hoy">Hoy</option>
-            <option value="7 dias">Ultimos 7 dias</option>
-            <option value="30 dias">Ultimos 30 dias</option>
-          </select>
-        </label>
-      </form>
+          <label>
+            <span>Accion</span>
+            <select [ngModel]="selectedAction()" (ngModelChange)="setAction($event)" name="selectedAction">
+              <option value="Todas">Todas</option>
+              <option *ngFor="let action of actionOptions()" [value]="action">{{ actionLabel(action) }}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Periodo</span>
+            <select [ngModel]="selectedPeriod()" (ngModelChange)="setPeriod($event)" name="selectedPeriod">
+              <option value="Todos">Todos</option>
+              <option value="Hoy">Hoy</option>
+              <option value="7 dias">Ultimos 7 dias</option>
+              <option value="30 dias">Ultimos 30 dias</option>
+            </select>
+          </label>
+        </form>
+      </section>
 
       <div class="audit-list" *ngIf="visibleEntries().length; else emptyLog">
         <article

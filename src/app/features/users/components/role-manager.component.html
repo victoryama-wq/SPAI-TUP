@@ -1,4 +1,11 @@
-<section class="role-panel" aria-label="Administrador de roles">
+<section class="role-panel" [class.compact]="compact" aria-label="Administrador de roles">
+  @if (compact) {
+    <button class="role-launch" type="button" (click)="openModal()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V7zM9 12l2 2 4-4"></path></svg>
+      <span>Roles personalizados</span>
+      @if (roleTemplates().length) { <small>{{ roleTemplates().length }}</small> }
+    </button>
+  } @else {
   <div class="panel-title">
     <div>
       <span>Configuracion de accesos</span>
@@ -32,6 +39,7 @@
       }
     </div>
   }
+  }
 
   @if (isModalOpen) {
     <div class="modal-backdrop" role="presentation" (click)="closeModal()">
@@ -49,6 +57,23 @@
           </div>
           <button class="icon-action" type="button" aria-label="Cerrar modal" (click)="closeModal()">×</button>
         </div>
+
+        @if (compact && roleTemplates().length) {
+          <div class="compact-modal-roles" aria-label="Roles personalizados registrados">
+            @for (role of roleTemplates(); track role.id) {
+              <article class="role-item">
+                <div>
+                  <strong>{{ role.name }}</strong>
+                  <span>{{ rolePermissionSummary(role) }}</span>
+                </div>
+                <div class="role-actions">
+                  <button class="secondary-action compact-action" type="button" (click)="editRole(role)">Editar</button>
+                  <button class="danger-action compact-action" type="button" (click)="deleteRole(role)">Eliminar rol</button>
+                </div>
+              </article>
+            }
+          </div>
+        }
 
         <form [formGroup]="roleForm" (ngSubmit)="saveRole()" class="role-form">
           <label class="role-name-field">

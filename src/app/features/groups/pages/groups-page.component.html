@@ -20,8 +20,14 @@
           </svg>
           <span>Nuevo grupo</span>
         </button>
-        <label class="secondary-action import-action">
-          <span>Cargar CSV</span>
+        <label class="secondary-action import-action" title="Cargar CSV" aria-label="Cargar CSV">
+          <svg class="csv-upload-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <path class="document" d="M7 4h23l10 10v27H7z"></path>
+            <path class="fold" d="M30 4v10h10"></path>
+            <text x="19" y="27" text-anchor="middle">CSV</text>
+            <path class="upload-arrow" d="M34 45V35h-5l9-9 9 9h-5v10z"></path>
+          </svg>
+          <span class="icon-action-label">Cargar archivo</span>
           <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
         </label>
         <button
@@ -31,10 +37,13 @@
           title="Descargar plantilla CSV"
           (click)="downloadCsvTemplate()"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+          <svg class="csv-download-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <path class="document" d="M7 4h23l10 10v27H7z"></path>
+            <path class="fold" d="M30 4v10h10"></path>
+            <text x="19" y="27" text-anchor="middle">CSV</text>
+            <path class="download-arrow" d="M34 23v10h-5l9 9 9-9h-5V23z"></path>
           </svg>
-          <span>Plantilla</span>
+          <span class="icon-action-label">Plantilla</span>
         </button>
       </div>
     } @else {
@@ -59,20 +68,20 @@
 
   <div class="summary-grid">
     <article>
-      <strong>{{ groups().length }}</strong>
-      <span>Grupos registrados</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6"></path></svg></span>
+      <div><strong>{{ groups().length }}</strong><span>Grupos registrados</span></div>
     </article>
     <article>
-      <strong>{{ activeGroupsCount() }}</strong>
-      <span>Activos</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ activeGroupsCount() }}</strong><span>Activos</span></div>
     </article>
     <article>
-      <strong>{{ cycleOptions().length }}</strong>
-      <span>Ciclos disponibles</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg></span>
+      <div><strong>{{ cycleOptions().length }}</strong><span>Ciclos disponibles</span></div>
     </article>
     <article>
-      <strong>{{ nomenclatures().length }}</strong>
-      <span>Nomenclaturas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"></path></svg></span>
+      <div><strong>{{ nomenclatures().length }}</strong><span>Nomenclaturas</span></div>
     </article>
   </div>
 </section>
@@ -336,18 +345,35 @@
         </select>
       </label>
 
-      @if (canManageGroups()) {
-        <button
-          class="danger-action compact-danger-action"
-          type="button"
-          [disabled]="!canDeleteSelectedCycleGroups()"
-          [title]="deleteCycleGroupsActionTitle()"
-          (click)="askDeleteCycleGroups()"
-        >
-          Eliminar grupos de ciclo
-        </button>
+      @if (canManageGroups() && selectedCycleCode) {
+        <span class="cycle-delete-tooltip" [attr.data-tooltip]="deleteCycleGroupsActionTitle()">
+          <button
+            class="danger-action compact-danger-action"
+            type="button"
+            [disabled]="!canDeleteSelectedCycleGroups()"
+            [attr.aria-label]="deleteCycleGroupsActionTitle()"
+            (click)="askDeleteCycleGroups()"
+          >
+            Eliminar
+          </button>
+        </span>
       }
     </div>
+
+    @if (activeCycle(); as cycle) {
+      <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+        <div class="directory-cycle-main">
+          <span class="directory-cycle-kicker">Ciclo activo</span>
+          <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+        </div>
+        <span class="directory-cycle-divider" aria-hidden="true"></span>
+        <div class="directory-cycle-date">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ formatCycleDate(cycle.tentativeCaptureCloseAt) }}</strong>
+        </div>
+      </aside>
+    }
   </div>
 
   <div class="table-wrap">

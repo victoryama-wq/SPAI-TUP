@@ -1,4 +1,75 @@
 <section class="system-requests-panel main-system-requests" aria-labelledby="system-requests-title">
+  <section class="system-control-panel">
+        <div class="panel-title system-hero">
+          <div>
+            <span>Bandeja de Sistemas</span>
+            <h2 id="system-requests-title">Solicitudes a Sistemas</h2>
+            <p>Revisa y atiende las solicitudes enviadas por las coordinaciones academicas.</p>
+          </div>
+
+          <div class="system-hero-actions">
+            <aside class="requests-cycle-status" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
+              <div class="requests-cycle-main">
+                <span class="requests-cycle-kicker">Ciclo activo</span>
+                <strong class="requests-cycle-code">{{ activeCycleCodeLabel }}</strong>
+              </div>
+              <span class="requests-cycle-divider" aria-hidden="true"></span>
+              <span class="requests-cycle-date" [class.pending]="!activeCycle()?.tentativeCaptureCloseAt">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+                <span>Cierre de captura</span>
+                <strong>{{ activeCycleCaptureCloseLabel }}</strong>
+              </span>
+            </aside>
+
+          </div>
+        </div>
+
+        <div class="system-inline-filters">
+          <label>
+            <span>Buscar</span>
+            <input
+              type="search"
+              [value]="systemSearchTerm()"
+              (input)="setSystemSearchTerm($any($event.target).value)"
+              placeholder="Solicitante, ciclo o detalle"
+            />
+          </label>
+
+          <label>
+            <span>Tipo</span>
+            <select [value]="systemTypeFilter()" (change)="selectSystemTypeFilter($event)">
+              <option value="TODOS">Todos</option>
+              @for (type of quickSystemRequestTypes(); track type) {
+                <option [value]="type">{{ systemRequestTypeLabel(type) }}</option>
+              }
+            </select>
+          </label>
+
+        </div>
+
+        <aside class="system-embedded-tracking" aria-label="Seguimiento de solicitudes">
+          <section class="side-card tracking-card">
+            <span>Seguimiento</span>
+            <h3>Estado de atencion</h3>
+            <p>{{ nextSystemAction() }}</p>
+            <div class="request-tracking-counts" aria-label="Resumen de solicitudes">
+              <div>
+                <strong>{{ pendingSystemRequestsCount() }}</strong>
+                <span>Pendientes</span>
+              </div>
+              <div>
+                <strong>{{ inProgressSystemRequestsCount() }}</strong>
+                <span>En proceso</span>
+              </div>
+              <div>
+                <strong>{{ closedSystemRequestsCount() }}</strong>
+                <span>Cerradas</span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
+
   <div class="request-status-tabs" aria-label="Estados de solicitudes">
     <button class="tab-pendiente" type="button" [class.active]="systemStatusFilter() === 'PENDIENTE'" (click)="systemStatusFilter.set('PENDIENTE')">
       <span>Pendientes</span>
@@ -19,43 +90,6 @@
 
   <div class="system-workspace">
     <div class="system-main-column">
-    <div class="panel-title system-hero">
-      <div>
-        <span>Bandeja de Sistemas</span>
-        <h2 id="system-requests-title">Solicitudes a Sistemas</h2>
-        <p>Revisa y atiende las solicitudes enviadas por las coordinaciones academicas.</p>
-      </div>
-
-      <div class="system-summary">
-        <span><strong>{{ pendingSystemRequestsCount() }}</strong> Pendientes</span>
-        <span><strong>{{ inProgressSystemRequestsCount() }}</strong> En proceso</span>
-        <span><strong>{{ closedSystemRequestsCount() }}</strong> Cerradas</span>
-      </div>
-    </div>
-
-    <div class="system-inline-filters">
-      <label>
-        <span>Buscar</span>
-        <input
-          type="search"
-          [value]="systemSearchTerm()"
-          (input)="setSystemSearchTerm($any($event.target).value)"
-          placeholder="Solicitante, ciclo o detalle"
-        />
-      </label>
-
-      <label>
-        <span>Tipo</span>
-        <select [value]="systemTypeFilter()" (change)="selectSystemTypeFilter($event)">
-          <option value="TODOS">Todos</option>
-          @for (type of quickSystemRequestTypes(); track type) {
-            <option [value]="type">{{ systemRequestTypeLabel(type) }}</option>
-          }
-        </select>
-      </label>
-
-      <button class="filter-reset-action" type="button" (click)="clearSystemFilters()">Limpiar</button>
-    </div>
 
   @if (formMessage && !isSystemResponseModalOpen) {
     <div class="feedback compact-feedback">
@@ -149,31 +183,6 @@
     </section>
     </div>
 
-    <aside class="system-side-panel" aria-label="Herramientas de seguimiento de solicitudes">
-      <section class="side-card tracking-card">
-        <span>Seguimiento</span>
-        <h3>Estado de atencion</h3>
-        <p>{{ nextSystemAction() }}</p>
-      </section>
-
-      <section class="side-card">
-        <span>Por tipo</span>
-        <div class="type-summary-list">
-          @for (item of requestTypeSummary(); track item.label) {
-            <div>
-              <strong>{{ item.value }}</strong>
-              <span>{{ item.label }}</span>
-            </div>
-          }
-        </div>
-      </section>
-
-      <section class="side-card muted-side-card">
-        <span>Vista actual</span>
-        <strong>{{ visibleSystemRequests().length }}</strong>
-        <p>solicitudes visibles con los filtros aplicados.</p>
-      </section>
-    </aside>
   </div>
 </section>
 

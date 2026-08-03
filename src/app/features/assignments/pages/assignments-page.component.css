@@ -7,6 +7,21 @@
   box-shadow: 0 16px 35px rgb(15 35 83 / 0.12);
 }
 
+/* Margen de lectura: la tabla no queda pegada a los bordes del módulo. */
+@media (min-width: 900px) {
+  .table-panel > .table-wrap {
+    background: #ffffff;
+    border: 1px solid #d7e4f8;
+    border-radius: 10px 10px 0 0;
+    margin-inline: 18px;
+  }
+
+  .table-panel .assignments-main-column {
+    margin-inline: 18px;
+    padding-bottom: 24px;
+  }
+}
+
 :host {
   display: block;
   margin-left: calc((min(1500px, calc(100vw - 64px)) - (100vw - 64px)) / 2);
@@ -2159,5 +2174,983 @@ td[colspan] {
 @media (max-width: 1180px) {
   .assignments-overview {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Encabezado de Asignaciones: conserva las modalidades y el seguimiento propio del módulo. */
+.table-panel {
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 10px;
+  padding: 0 30px 30px;
+}
+
+.table-panel > .panel-title {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border-radius: 10px 10px 0 0;
+  box-shadow: none;
+  gap: 12px;
+  margin: 0 -30px 0;
+  padding: 16px 30px 14px;
+}
+
+.table-panel > .panel-title::before {
+  background: #42b6e8;
+  content: '';
+  height: calc(100% - 36px);
+  left: 0;
+  position: absolute;
+  top: 18px;
+  width: 4px;
+}
+
+.table-panel > .panel-title .panel-heading-row {
+  align-items: center;
+  gap: 16px;
+}
+
+.table-panel > .panel-title .panel-heading-copy > span {
+  color: #a9d8ff;
+}
+
+.table-panel > .panel-title h3 {
+  color: #ffffff;
+  font-size: clamp(25px, 2.2vw, 30px);
+  margin: 2px 0 4px;
+}
+
+.table-panel > .panel-title p {
+  color: #d5e8ff;
+  font-size: 13px;
+  line-height: 1.32;
+  max-width: 620px;
+}
+
+.table-panel > .panel-title .panel-heading-copy small {
+  color: #a9d8ff;
+  font-size: 12px;
+}
+
+.table-panel > .panel-title .panel-heading-copy {
+  gap: 3px;
+}
+
+.table-panel > .panel-title .panel-heading-actions {
+  gap: 8px;
+}
+
+.table-panel > .panel-title .scope-toggle-action,
+.table-panel > .panel-title .cycle-chip,
+.table-panel > .panel-title .primary-action {
+  min-height: 38px;
+}
+
+.table-panel > .panel-title .scope-toggle-action {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .56);
+  color: #ffffff;
+}
+
+.table-panel > .panel-title .scope-toggle-action.active,
+.table-panel > .panel-title .scope-status-action {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .36);
+}
+
+.table-panel > .panel-title .cycle-chip {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #1457d6;
+}
+
+.table-panel > .panel-title .primary-action {
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  color: #1457d6;
+}
+
+.table-panel > .panel-title .primary-action span {
+  color: #1457d6;
+}
+
+.table-panel > .panel-title .primary-action:disabled,
+.table-panel > .panel-title .primary-action:disabled span {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #7b8ba5;
+}
+
+.table-panel > .panel-title .filters {
+  gap: 12px;
+  grid-template-columns: minmax(300px, 1fr) minmax(160px, 190px);
+  max-width: 1060px;
+}
+
+.table-panel > .panel-title .filters label > span {
+  color: #d5e8ff;
+}
+
+.table-panel > .panel-title .search-box,
+.table-panel > .panel-title .status-filter select {
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, .72);
+}
+
+.table-panel > .panel-title .search-box {
+  min-height: 40px;
+}
+
+.table-panel > .mode-tabs {
+  background: #f8fbff;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+  padding-top: 12px;
+}
+
+.assignments-workspace {
+  gap: 16px;
+}
+
+.assignments-side-panel {
+  gap: 12px;
+}
+
+.assignment-side-card {
+  background: #ffffff;
+  border-color: #d7e4f8;
+  box-shadow: 0 8px 18px rgba(17, 55, 113, .06);
+  padding: 14px;
+}
+
+.tracking-card {
+  border-top: 3px solid #1d5bd8;
+}
+
+.report-download-action {
+  border-color: #9fc2f8;
+  color: #1457d6;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .table-panel > .panel-title .panel-heading-row {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title .panel-heading-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-panel {
+    padding: 0 14px 18px;
+  }
+
+  .table-panel > .panel-title {
+    margin-inline: -14px;
+    padding: 22px 18px 18px;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title .panel-heading-actions > * {
+    width: 100%;
+  }
+
+  .table-panel > .mode-tabs {
+    margin-inline: -14px;
+    padding-inline: 14px;
+  }
+}
+
+/* Orden visual del catálogo: encabezado, modalidades, tabla y seguimiento. */
+.table-panel {
+  align-items: start;
+  column-gap: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 260px);
+  grid-template-rows: auto auto auto auto;
+}
+
+.table-panel > .panel-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: auto;
+}
+
+.table-panel > .mode-tabs {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: auto;
+}
+
+.table-panel > .table-wrap {
+  grid-column: 1;
+  grid-row: 3;
+  min-width: 0;
+}
+
+.table-panel > .assignments-workspace {
+  display: contents;
+}
+
+.table-panel .assignments-main-column {
+  grid-column: 1;
+  grid-row: 4;
+  min-width: 0;
+}
+
+.table-panel .assignments-side-panel {
+  grid-column: 2;
+  grid-row: 3 / span 2;
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .table-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title,
+  .table-panel > .mode-tabs,
+  .table-panel > .table-wrap,
+  .table-panel .assignments-main-column,
+  .table-panel .assignments-side-panel {
+    grid-column: 1;
+  }
+
+  .table-panel .assignments-side-panel {
+    grid-row: 5;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .table-panel .assignments-side-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* El seguimiento acompaña el encabezado; los indicadores quedan con la tabla. */
+@media (min-width: 900px) {
+  .table-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 260px);
+  }
+
+  .table-panel > .panel-title {
+    border-radius: 10px 10px 0 0;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(255px, 290px);
+    grid-template-rows: auto auto;
+    margin: 0 -30px;
+  }
+
+  .table-panel > .panel-title .panel-heading-row {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .table-panel > .panel-title .assignment-top-side-panel {
+    align-self: stretch;
+    display: grid;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-width: 0;
+  }
+
+  .table-panel > .panel-title .assignment-top-side-panel .tracking-card {
+    height: 100%;
+    margin: 0;
+  }
+
+  .table-panel > .mode-tabs {
+    padding-right: 308px;
+  }
+
+  .table-panel > .assignments-side-panel {
+    display: contents;
+  }
+
+  .table-panel .assignments-side-panel .tracking-card {
+    align-self: stretch;
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0 0 8px;
+  }
+
+  .table-panel .assignments-side-panel .assignment-side-card:not(.tracking-card):nth-child(2) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .table-panel .assignments-side-panel .assignment-side-card:not(.tracking-card):nth-child(3) {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .table-panel .assignments-side-panel .assignment-side-card:nth-child(1) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .table-panel .assignments-side-panel .assignment-side-card:nth-child(2) {
+    grid-column: 2;
+    grid-row: 4;
+  }
+}
+
+/* Modalidades en franja clara: separan la navegación del encabezado operativo. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .table-panel > .mode-tabs {
+    align-items: end;
+    background: #ffffff;
+    border-bottom: 10px solid #f3f7fc;
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    margin: 0;
+    min-height: 54px;
+    padding: 8px 24px 0;
+  }
+
+  .table-panel > .mode-tabs button {
+    min-height: 46px;
+  }
+
+  .table-panel > .table-wrap {
+    background: #ffffff;
+    border: 1px solid #d7e4f8;
+    border-radius: 10px 10px 0 0;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-inline: 18px;
+  }
+
+  .table-panel .assignments-main-column {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-inline: 18px;
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 899px) {
+  .table-panel > .panel-title .assignment-top-side-panel {
+    width: 100%;
+  }
+
+  .table-panel > .mode-tabs {
+    grid-row: 2;
+  }
+
+  .table-panel > .table-wrap {
+    grid-row: 3;
+  }
+
+  .table-panel .assignments-main-column {
+    grid-row: 4;
+  }
+
+  .table-panel .assignments-side-panel {
+    grid-row: 5;
+  }
+}
+
+/* Composición integrada: superficie clara con acentos institucionales azules. */
+@media (min-width: 900px) {
+  .table-panel {
+    background: #ffffff;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 280px);
+    padding: 0 30px 30px;
+  }
+
+  .table-panel > .mode-tabs {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    padding-right: 30px;
+  }
+
+  .table-panel > .panel-title {
+    background: #ffffff;
+    border-left: 4px solid #1d5bd8;
+    border-radius: 8px;
+    box-shadow: none;
+    color: #07163c;
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    margin: 0;
+    padding: 24px 28px;
+  }
+
+  .table-panel > .panel-title::before {
+    display: none;
+  }
+
+  .table-panel > .panel-title .panel-heading-row,
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+  }
+
+  .table-panel > .panel-title .panel-heading-row {
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-row: 2;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy > span,
+  .table-panel > .panel-title .filters label > span {
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title h3 {
+    color: #07163c;
+  }
+
+  .table-panel > .panel-title p {
+    color: #40577a;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy small {
+    color: #64748b;
+  }
+
+  .table-panel > .panel-title .scope-toggle-action {
+    background: #edf4ff;
+    border-color: #b9d2f5;
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .scope-toggle-action.active,
+  .table-panel > .panel-title .scope-status-action {
+    background: #dbeafe;
+    border-color: #93c5fd;
+  }
+
+  .table-panel > .panel-title .cycle-chip {
+    background: #f5f9ff;
+    border-color: #c9dcf6;
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .primary-action,
+  .table-panel > .panel-title .primary-action:disabled {
+    background: #ffffff;
+    border-color: #1457d6;
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .primary-action span,
+  .table-panel > .panel-title .primary-action:disabled span {
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .search-box,
+  .table-panel > .panel-title .status-filter select {
+    background: #f9fbff;
+    border-color: #c9d9ef;
+  }
+
+  .table-panel > .table-wrap {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .table-panel > .assignments-workspace {
+    display: contents;
+  }
+
+  .table-panel .assignments-main-column {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .table-panel .assignments-side-panel {
+    align-content: start;
+    display: grid !important;
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel .assignments-side-panel .assignment-side-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+}
+
+/* Identidad compartida con los demás módulos, conservando pestañas y seguimiento. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+    border-left-color: #42b6e8;
+    box-shadow: 0 10px 24px rgba(8, 36, 87, .13);
+  }
+
+  .table-panel > .panel-title .panel-heading-copy > span,
+  .table-panel > .panel-title .filters label > span {
+    color: #a9d8ff;
+  }
+
+  .table-panel > .panel-title h3 {
+    color: #ffffff;
+  }
+
+  .table-panel > .panel-title p {
+    color: #d5e8ff;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy small {
+    color: #a9d8ff;
+  }
+
+  .table-panel > .panel-title .scope-toggle-action {
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .5);
+    color: #ffffff;
+  }
+
+  .table-panel > .panel-title .scope-toggle-action.active,
+  .table-panel > .panel-title .scope-status-action {
+    background: rgba(255, 255, 255, .18);
+    border-color: rgba(255, 255, 255, .62);
+  }
+
+  .table-panel > .panel-title .cycle-chip {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .primary-action,
+  .table-panel > .panel-title .primary-action:disabled {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .primary-action span,
+  .table-panel > .panel-title .primary-action:disabled span {
+    color: #1457d6;
+  }
+
+  .table-panel > .panel-title .search-box,
+  .table-panel > .panel-title .status-filter select {
+    background: #ffffff;
+    border-color: rgba(255, 255, 255, .72);
+  }
+}
+
+/* En escritorio el encabezado usa dos columnas, evitando una segunda franja azul completa. */
+@media (min-width: 1200px) {
+  .table-panel > .panel-title {
+    column-gap: 22px;
+    grid-template-columns: minmax(340px, .68fr) minmax(620px, 1.32fr);
+    grid-template-rows: auto auto;
+    row-gap: 6px;
+  }
+
+  .table-panel > .panel-title .panel-heading-row {
+    display: contents;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy {
+    align-self: center;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .table-panel > .panel-title .panel-heading-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .table-panel > .panel-title .filters {
+    align-self: end;
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: minmax(360px, 1fr) minmax(150px, 190px);
+    width: 100%;
+  }
+}
+
+/* La tabla es el foco de trabajo; el seguimiento permanece visible y compacto. */
+@media (min-width: 1181px) {
+  .table-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(205px, 225px);
+  }
+
+  .assignment-side-card {
+    padding: 12px;
+  }
+
+  .assignment-side-card h3 {
+    font-size: 15px;
+  }
+
+  .assignment-side-card p {
+    font-size: 12px;
+  }
+
+  .report-download-action {
+    font-size: 12px;
+    padding-inline: 10px;
+  }
+}
+
+/* Un solo marco para Asignaciones: el encabezado, tabla y seguimiento forman una misma superficie. */
+@media (min-width: 900px) {
+  .table-panel {
+    column-gap: 0;
+    padding: 0;
+  }
+
+  .table-panel > .mode-tabs {
+    margin: 0 0 16px;
+    padding: 12px 30px 0;
+  }
+
+  .table-panel > .panel-title {
+    border-radius: 0;
+    margin: 0;
+    padding: 18px 30px;
+  }
+
+  .table-panel > .table-wrap {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .table-panel .assignments-main-column {
+    padding: 0 30px 30px;
+  }
+
+  .table-panel .assignments-side-panel {
+    align-self: stretch;
+    border-left: 1px solid #d7e4f8;
+    padding: 0 30px 30px 18px;
+  }
+}
+
+/* Composición del referente: encabezado azul, seguimiento único y tabla continua. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    align-self: stretch;
+    box-sizing: border-box;
+    gap: 16px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: 238px;
+    padding: 22px 36px;
+    height: auto;
+  }
+
+  .table-panel > .panel-title .panel-heading-row {
+    align-items: center;
+    display: grid;
+    gap: 24px;
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy {
+    gap: 6px;
+  }
+
+  .table-panel > .panel-title h3 {
+    font-size: clamp(27px, 2.1vw, 33px);
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .table-panel > .panel-title p {
+    font-size: 13px;
+    line-height: 1.35;
+    margin: 0;
+    max-width: 680px;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy small {
+    display: block;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .table-panel > .panel-title .panel-heading-actions {
+    gap: 10px;
+  }
+
+  .table-panel > .panel-title .scope-toggle-action,
+  .table-panel > .panel-title .primary-action,
+  .table-panel > .panel-title .cycle-chip {
+    min-height: 38px;
+  }
+
+  .table-panel > .panel-title .filters {
+    gap: 12px;
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: minmax(360px, 1fr) minmax(150px, 190px);
+  }
+
+  .table-panel > .panel-title .search-box,
+  .table-panel > .panel-title .status-filter select {
+    min-height: 42px;
+  }
+
+  .table-panel .assignments-side-panel {
+    align-self: stretch;
+    grid-column: 2;
+    grid-row: 2 !important;
+    padding: 0 18px;
+  }
+
+  .table-panel .assignments-side-panel .tracking-card {
+    align-content: start;
+    gap: 8px;
+    height: 100%;
+    margin: 0;
+    padding: 18px;
+  }
+
+  .table-panel .assignments-side-panel .tracking-card p {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .table-panel .assignments-side-panel .status-summary-list {
+    gap: 6px;
+  }
+
+  .table-panel .assignments-side-panel .status-summary-list div {
+    min-height: 31px;
+    padding-inline: 9px;
+  }
+}
+
+/* Seguimiento integrado dentro del encabezado de Asignaciones. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    align-content: start;
+    align-items: stretch;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 330px);
+    grid-template-rows: auto auto auto auto;
+    min-height: 210px;
+  }
+
+  .table-panel > .panel-title .panel-heading-row {
+    display: contents;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .filters {
+    grid-column: 1;
+    grid-row: 3;
+    transform: translateY(-96px);
+  }
+
+  .table-panel > .panel-title .panel-heading-actions {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: end;
+    margin-top: 2px;
+    transform: translateY(-113px);
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel {
+    align-self: start;
+    border: 0;
+    display: block !important;
+    grid-column: 2;
+    grid-row: 1 / span 3 !important;
+    min-width: 0;
+    padding: 0 0 0 20px;
+  }
+
+  .table-panel > .panel-title > .mode-tabs {
+    background: transparent;
+    border-bottom: 0;
+    grid-column: 1 / -1;
+    grid-row: 4;
+    justify-content: flex-start;
+    margin: 0 -36px -18px -25px;
+    padding: 4px 0 0;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .tracking-card {
+    align-content: start;
+    box-sizing: border-box;
+    gap: 5px;
+    height: auto;
+    margin: 0;
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .tracking-card h3 {
+    color: #07163c;
+    font-size: 16px;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .tracking-card p {
+    color: #40577a;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .status-summary-list {
+    gap: 4px;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .status-summary-list div {
+    min-height: 28px;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .report-download-action {
+    min-height: 36px;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel .report-download-action {
+    background: #ffffff;
+    border-color: #9fc2f8;
+    color: #1457d6;
+  }
+
+  .table-panel > .table-wrap {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .table-panel .assignments-main-column {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 899px) {
+  .table-panel > .panel-title > .mode-tabs {
+    margin: 0;
+    padding: 12px 0 0;
+  }
+}
+
+/* Encabezado compacto: filtros y modalidades acompañan el seguimiento. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    display: block;
+    height: 280px;
+    min-height: 280px;
+    padding: 22px 36px 0;
+    position: relative;
+  }
+
+  .table-panel > .panel-title .panel-heading-copy {
+    left: 36px;
+    max-width: 600px;
+    position: absolute;
+    top: 28px;
+  }
+
+  .table-panel > .panel-title .panel-heading-actions {
+    position: absolute;
+    right: 420px;
+    top: 42px;
+    transform: none;
+  }
+
+  .table-panel > .panel-title .filters {
+    left: 36px;
+    position: absolute;
+    right: 600px;
+    top: 148px;
+    transform: none;
+    width: auto;
+  }
+
+  .table-panel > .panel-title > .assignments-side-panel {
+    position: absolute;
+    right: 36px;
+    top: 22px;
+    width: 330px;
+  }
+
+  .table-panel > .panel-title > .mode-tabs {
+    left: 25px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 36px;
+    top: auto;
+    bottom: 0;
+  }
+}
+
+/* Resultado final: pestañas fuera del azul, en una franja clara antes de la tabla. */
+@media (min-width: 900px) {
+  .table-panel > .panel-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .table-panel > .mode-tabs {
+    align-items: end;
+    background: #ffffff;
+    border-bottom: 1px solid #d7e4f8;
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    margin: 0;
+    min-height: 54px;
+    padding: 8px 24px 0;
+  }
+
+  .table-panel > .mode-tabs button {
+    min-height: 46px;
+  }
+
+  .table-panel > .table-wrap {
+    background: #ffffff;
+    border: 1px solid #d7e4f8;
+    border-radius: 10px 10px 0 0;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-inline: 18px;
+  }
+
+  .table-panel .assignments-main-column {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-inline: 18px;
+    padding-bottom: 24px;
   }
 }

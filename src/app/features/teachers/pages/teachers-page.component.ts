@@ -80,6 +80,7 @@ export class TeachersPageComponent {
   private readonly systemRequestsRepository = inject(SystemRequestsRepository);
 
   readonly teachers = this.teachersRepository.teachers;
+  readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly teachersReadError = this.teachersRepository.teachersReadError;
   readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
@@ -464,6 +465,22 @@ export class TeachersPageComponent {
   applySearch(): void {
     this.searchTerm = this.searchDraft;
     this.resetPagination();
+  }
+
+  formatCycleDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'PENDIENTE';
+    }
+
+    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+
+    return Number.isNaN(date.getTime())
+      ? 'PENDIENTE'
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '').toUpperCase();
   }
 
   updateManualMoodleUser(value: string): void {
@@ -860,7 +877,7 @@ export class TeachersPageComponent {
     ]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
-    const blob = new Blob([`${csvContent}\n`], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([`\uFEFF${csvContent}\n`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
 
@@ -891,7 +908,10 @@ export class TeachersPageComponent {
       'rol_alta',
       'actualizacion',
     ];
-    const rows = this.activeTeacherRecords()
+    const reportTeachers = this.isAcademicCoordination()
+      ? this.myTeachers()
+      : this.activeTeacherRecords();
+    const rows = reportTeachers
       .slice()
       .sort((a, b) => {
         const coordinatorCompare = this.teacherCoordinatorNames(a).localeCompare(this.teacherCoordinatorNames(b), 'es');
@@ -923,7 +943,9 @@ export class TeachersPageComponent {
     const link = document.createElement('a');
 
     link.href = url;
-    link.download = `docentes-por-coordinacion-${dateStamp}.csv`;
+    link.download = this.isAcademicCoordination()
+      ? `docentes-de-mi-coordinacion-${dateStamp}.csv`
+      : `docentes-por-coordinacion-${dateStamp}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -1021,39 +1043,59 @@ export class TeachersPageComponent {
     }
 
     const headers = [
-      'fecha_movimiento',
-      'tipo_movimiento',
-      'docente',
-      'usuario_moodle',
-      'correo',
-      'tipo_pago',
-      'categoria',
-      'telefono',
-      'ubicacion',
-      'estatus',
-      'coordinacion_asignada',
-      'programas_asignados',
-      'origen',
-      'alta_por',
-      'rol_alta',
+      'Docente',
+      'Nombres',
+      'Apellido paterno',
+      'Apellido materno',
+      'Grado',
+      'Tipo de pago',
+      'Categoría',
+      'Ubicacion',
+      'Comentario',
+      'Observacion',
+      'Coordinación',
+      'Telefono',
+      'Correo',
+      'RFC',
+      'Identificador',
+      'Banco detalle',
+      'Estatus',
+      'Constancia',
+      'Fecha creacion',
+      'Fecha actualizacion',
+      'Creado por',
+      'Actualizado por',
     ];
-    const rows = teachers.map((teacher) => [
-      this.formatCsvDate(this.lifecycleTeacherDateValue(teacher)),
-      teacher.lifecycleStatus === 'RETOMO' ? 'Reingreso' : 'Nuevo',
-      teacher.fullName,
-      teacher.moodleUser,
-      teacher.email || '',
-      this.paymentTypeReportCode(teacher.paymentType),
-      this.teacherCategoryLabel(teacher.category),
-      teacher.phone || '',
-      this.teacherLocationLabel(teacher.location),
-      this.statusLabel(teacher.status),
-      this.teacherCoordinatorNames(teacher),
-      teacher.createdByPrograms.length ? teacher.createdByPrograms.join('; ') : 'Sin programas asignados',
-      teacher.origin,
-      teacher.createdByName,
-      teacher.createdByRole,
-    ]);
+    const rows = teachers.map((teacher) => {
+      const [names, paternalSurname, maternalSurname] = this.splitTeacherName(teacher.fullName);
+      const creationDate = this.lifecycleTeacherDateValue(teacher);
+      const updatedDate = this.teacherOptionalCsvValue(teacher, ['updatedAt', 'updated_at']) || creationDate;
+
+      return [
+        teacher.fullName,
+        names,
+        paternalSurname,
+        maternalSurname,
+        this.teacherOptionalCsvValue(teacher, ['degree', 'grado']),
+        this.paymentTypeReportCode(teacher.paymentType),
+        this.teacherCategoryReportCode(teacher.category),
+        this.teacherLocationLabel(teacher.location),
+        this.teacherOptionalCsvValue(teacher, ['notes', 'comment']) || (teacher.lifecycleStatus === 'RETOMO' ? 'Docente de reingreso' : 'Docente nuevo'),
+        this.teacherOptionalCsvValue(teacher, ['observation', 'observaciones']),
+        this.teacherCoordinatorNames(teacher),
+        teacher.phone || '',
+        teacher.email || '',
+        this.teacherOptionalCsvValue(teacher, ['rfc']),
+        this.teacherOptionalCsvValue(teacher, ['identifier', 'identificador']),
+        this.teacherOptionalCsvValue(teacher, ['bankDetail', 'bancoDetalle']),
+        this.statusLabel(teacher.status).toUpperCase(),
+        this.teacherOptionalCsvValue(teacher, ['constancy', 'constancia']),
+        this.formatCsvDate(creationDate),
+        this.formatCsvDate(updatedDate),
+        teacher.createdByName,
+        this.teacherOptionalCsvValue(teacher, ['updatedByName', 'updatedBy', 'actualizadoPor']) || teacher.createdByName,
+      ];
+    });
     const csvContent = [headers, ...rows]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
@@ -1176,6 +1218,48 @@ export class TeachersPageComponent {
       default:
         return '';
     }
+  }
+
+  private splitTeacherName(fullName: string): [string, string, string] {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+
+    if (parts.length <= 1) {
+      return [parts[0] ?? '', '', ''];
+    }
+
+    if (parts.length === 2) {
+      return [parts[0], parts[1], ''];
+    }
+
+    return [parts.slice(0, -2).join(' '), parts[parts.length - 2], parts[parts.length - 1]];
+  }
+
+  private teacherCategoryReportCode(value?: string): string {
+    switch (value) {
+      case 'V_35HRS':
+      case 'VIP_35HRS':
+        return 'V';
+      case 'M_25HRS':
+        return 'M';
+      case 'N_15HRS':
+        return 'N';
+      default:
+        return '';
+    }
+  }
+
+  private teacherOptionalCsvValue(teacher: Teacher, keys: string[]): string {
+    const record = teacher as unknown as Record<string, unknown>;
+
+    for (const key of keys) {
+      const value = record[key];
+
+      if (value !== undefined && value !== null && String(value).trim()) {
+        return String(value);
+      }
+    }
+
+    return '';
   }
 
   teacherCategoryLabel(value?: TeacherCategory | ''): string {

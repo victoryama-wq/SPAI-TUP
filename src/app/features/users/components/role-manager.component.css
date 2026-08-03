@@ -24,12 +24,71 @@
   width: 4px;
 }
 
+.role-panel.compact {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  display: block;
+  height: auto;
+  overflow: visible;
+  padding: 0;
+}
+
+.role-panel.compact::before { display: none; }
+
+.role-launch {
+  align-items: center;
+  background: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  color: #0b3f8d;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.role-launch svg {
+  fill: none;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 18px;
+}
+
+.role-launch small {
+  align-items: center;
+  background: #eaf2ff;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 10px;
+  justify-content: center;
+  min-height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+}
+
 .panel-title {
-  display: grid;
-  gap: 14px;
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
   margin-bottom: 0;
   position: relative;
   z-index: 1;
+}
+
+.panel-title .primary-action {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 15px;
 }
 
 .panel-title span {
@@ -70,6 +129,16 @@
   gap: 10px;
   position: relative;
   z-index: 1;
+}
+
+.compact-modal-roles {
+  border-bottom: 1px solid #dbe7f8;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+  max-height: 180px;
+  overflow: auto;
+  padding-bottom: 18px;
 }
 
 .role-item {

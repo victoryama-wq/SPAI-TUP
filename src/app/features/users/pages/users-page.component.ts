@@ -29,6 +29,7 @@ import { UserSessionService } from '../../../core/auth/user-session.service';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
 import { NomenclaturesRepository } from '../../nomenclatures/data/nomenclatures.repository';
 import { ProgramsRepository } from '../../nomenclatures/data/programs.repository';
+import { CyclesRepository } from '../../cycles/data/cycles.repository';
 
 interface ProgramOption {
   label: string;
@@ -67,6 +68,7 @@ export class UsersPageComponent {
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly nomenclaturesRepository = inject(NomenclaturesRepository);
   private readonly programsRepository = inject(ProgramsRepository);
+  private readonly cyclesRepository = inject(CyclesRepository);
   private readonly isSavingSignal = signal(false);
   private readonly saveErrorSignal = signal('');
   private readonly programOptionsRefreshSignal = signal(0);
@@ -82,10 +84,21 @@ export class UsersPageComponent {
   readonly customRoles = this.customRolesRepository.roleTemplates;
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly programs = this.programsRepository.programs;
+  readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly usersReadError = this.usersRepository.usersReadError;
   readonly isSaving = this.isSavingSignal.asReadonly();
   readonly saveError = this.saveErrorSignal.asReadonly();
   readonly currentUserRole = computed(() => this.userSessionService.session()?.appUser?.role ?? null);
+
+  get activeCycleCodeLabel(): string {
+    return this.activeCycle()?.code ?? 'Pendiente';
+  }
+
+  get activeCycleCaptureCloseLabel(): string {
+    const closeAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return closeAt ? this.formatCycleDate(closeAt).toUpperCase() : 'PENDIENTE';
+  }
   readonly roleOptions = computed<RoleOption[]>(() => {
     const baseRoles = this.roles.map((role) => ({
       label: role,
@@ -690,5 +703,17 @@ export class UsersPageComponent {
       .map((part) => part.charAt(0))
       .join('')
       .toUpperCase();
+  }
+
+  private formatCycleDate(value: string): string {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T12:00:00`)
+      : new Date(value);
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
   }
 }

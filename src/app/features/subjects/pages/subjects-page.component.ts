@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
+import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import {
   Subject,
   SubjectStatus,
@@ -45,10 +46,12 @@ export class SubjectsPageComponent {
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly userSessionService = inject(UserSessionService);
+  private readonly cyclesRepository = inject(CyclesRepository);
 
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly session = this.userSessionService.session;
+  readonly activeCycle = this.cyclesRepository.activeCycle;
 
   searchInput = signal('');
   appliedSearchTerm = signal('');
@@ -78,6 +81,22 @@ export class SubjectsPageComponent {
   readonly inactiveSubjectsCount = computed(
     () => this.subjects().filter((subject) => this.subjectStatusMatches(subject, 'Inactivo')).length,
   );
+
+  formatCycleDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'PENDIENTE';
+    }
+
+    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+
+    return Number.isNaN(date.getTime())
+      ? 'PENDIENTE'
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '').toUpperCase();
+  }
   readonly suggestedSubjectId = computed(() => this.nextSuggestedSubjectId());
   readonly duplicateSubjectNameMap = computed(() => {
     const subjectsByName = new Map<string, Subject[]>();
@@ -1001,12 +1020,22 @@ export class SubjectsPageComponent {
 
   private actorData(): Pick<UpsertSubjectPayload, 'createdBy' | 'createdByName' | 'createdByRole'> {
     const appUser = this.session()?.appUser;
+    const createdByRole = appUser?.role ?? 'Sin rol';
+    const isSystemsUser = createdByRole.toLowerCase().includes('sistemas');
 
     return {
       createdBy: appUser?.id ?? this.session()?.authUid ?? 'sin-usuario',
-      createdByName: appUser?.name ?? this.session()?.displayName ?? 'Usuario SPAI',
-      createdByRole: appUser?.role ?? 'Sin rol',
+      createdByName: isSystemsUser
+        ? 'Sistemas'
+        : appUser?.name ?? this.session()?.displayName ?? 'Usuario SPAI',
+      createdByRole,
     };
+  }
+
+  subjectRegisteredByLabel(subject: Subject): string {
+    return subject.createdByRole.toLowerCase().includes('sistemas')
+      ? 'Sistemas'
+      : subject.createdByName || 'Usuario SPAI';
   }
 
   private normalizeSearchText(value: string): string {

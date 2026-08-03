@@ -1205,3 +1205,352 @@ td.center-column {
     grid-template-columns: 1fr;
   }
 }
+
+/* La bandeja conserva el foco; el seguimiento acompaña sin restar espacio a las solicitudes. */
+@media (min-width: 1201px) {
+  .system-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(205px, 225px);
+  }
+
+  .system-side-panel {
+    gap: 10px;
+  }
+
+  .system-side-panel .side-card {
+    padding: 12px;
+  }
+
+  .system-side-panel .side-card h3 {
+    font-size: 16px;
+  }
+
+  .system-side-panel .side-card p {
+    font-size: 12px;
+  }
+
+  .system-side-panel .type-summary-list div {
+    padding-inline: 10px;
+  }
+}
+
+/* Identidad azul institucional compartida con Asignaciones; las pestañas conservan su código por estado. */
+.system-control-panel {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border-left: 4px solid #42b6e8;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, .13);
+  display: grid;
+  gap: 16px;
+  padding: 22px 24px;
+}
+
+.system-control-panel .system-hero {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  min-height: 0;
+}
+
+.system-control-panel .system-hero > div > span,
+.system-control-panel .system-inline-filters span {
+  color: #a9d8ff;
+}
+
+.system-control-panel .system-hero h2 {
+  color: #ffffff;
+}
+
+.system-control-panel .system-hero p {
+  color: #d5e8ff;
+}
+
+.system-control-panel .system-summary span {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .4);
+  color: #ffffff;
+}
+
+.system-control-panel .system-summary strong {
+  color: #ffffff;
+}
+
+.system-control-panel .system-inline-filters input,
+.system-control-panel .system-inline-filters select {
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, .72);
+}
+
+.system-control-panel .filter-reset-action {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .52);
+  color: #ffffff;
+}
+
+.system-control-panel .filter-reset-action:hover {
+  background: rgba(255, 255, 255, .22);
+}
+
+@media (max-width: 760px) {
+  .system-control-panel {
+    padding: 18px;
+  }
+}
+
+/* El ciclo se integra al control de Solicitudes como contexto operativo, no como franja externa. */
+.system-control-panel .system-hero {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.system-hero-actions {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.requests-cycle-status {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  color: #07163c;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 46px;
+  padding: 6px 9px 6px 12px;
+}
+
+.requests-cycle-main {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.requests-cycle-kicker,
+.requests-cycle-date > span {
+  color: #1457d6;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.requests-cycle-code {
+  align-items: center;
+  background: #1e3a8a;
+  border-radius: 8px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 19px;
+  font-weight: 900;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.requests-cycle-divider {
+  background: #bfd4f2;
+  height: 28px;
+  width: 1px;
+}
+
+.requests-cycle-date {
+  align-items: center;
+  background: #f5f9ff;
+  border: 1px solid #dbe7f5;
+  border-radius: 7px;
+  display: inline-flex;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.requests-cycle-date svg {
+  fill: none;
+  height: 16px;
+  stroke: #1d4ed8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 16px;
+}
+
+.requests-cycle-date strong {
+  color: #1d4ed8;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.requests-cycle-status.pending .requests-cycle-code {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.requests-cycle-date.pending,
+.requests-cycle-status.pending {
+  background: #f8fafc;
+}
+
+.requests-cycle-date.pending svg,
+.requests-cycle-date.pending > span,
+.requests-cycle-date.pending strong {
+  color: #64748b;
+  stroke: #64748b;
+}
+
+@media (max-width: 960px) {
+  .system-control-panel .system-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .system-hero-actions {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .requests-cycle-status {
+    align-items: flex-start;
+    display: grid;
+    justify-items: start;
+  }
+
+  .requests-cycle-divider {
+    display: none;
+  }
+}
+
+/* Solicitudes adopta el mismo bloque operativo integrado de Asignaciones. */
+@media (min-width: 961px) {
+  .system-requests-panel {
+    padding: 0 0 30px;
+  }
+
+  .system-control-panel {
+    box-sizing: border-box;
+    margin: 0;
+    min-height: 264px;
+    padding: 26px 36px;
+    position: relative;
+  }
+
+  .system-control-panel .system-hero {
+    display: block;
+    min-height: 98px;
+    position: relative;
+  }
+
+  .system-control-panel .system-hero > div:first-child {
+    max-width: 470px;
+  }
+
+  .system-hero-actions {
+    position: absolute;
+    right: 360px;
+    top: 0;
+  }
+
+  .system-inline-filters {
+    grid-template-columns: minmax(280px, 560px) minmax(190px, 260px);
+    max-width: 840px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .system-embedded-tracking {
+    display: block;
+    position: absolute;
+    right: 36px;
+    top: 26px;
+    width: 300px;
+  }
+
+  .system-embedded-tracking .tracking-card {
+    background: #ffffff;
+    border: 1px solid #9fc2f8;
+    border-top: 3px solid #1d4ed8;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(8, 36, 87, .12);
+    box-sizing: border-box;
+    gap: 5px;
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .system-embedded-tracking .tracking-card h3 {
+    color: #07163c;
+    font-size: 18px;
+    margin: 2px 0;
+  }
+
+  .system-embedded-tracking .tracking-card p {
+    color: #40577a;
+    font-size: 13px;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .request-tracking-counts {
+    border-top: 1px solid #d7e4f8;
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .request-tracking-counts div {
+    align-items: center;
+    background: #f8fbff;
+    border: 1px solid #d7e4f8;
+    border-radius: 7px;
+    display: flex;
+    justify-content: space-between;
+    min-height: 24px;
+    padding: 0 9px;
+  }
+
+  .request-tracking-counts strong {
+    color: #07163c;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .request-tracking-counts span {
+    color: #40577a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .request-status-tabs {
+    justify-content: flex-start;
+    margin: 0 18px 14px;
+    padding: 10px 24px 0;
+  }
+
+  .system-workspace {
+    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    padding: 0 18px;
+  }
+
+  .system-main-column {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .system-embedded-tracking {
+    margin-top: 14px;
+  }
+}
+
+/* La bandeja usa todo el ancho disponible sin resumen lateral. */
+@media (min-width: 961px) {
+  .system-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

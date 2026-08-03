@@ -1,9 +1,17 @@
-<section class="dashboard-overview" [class.with-quick-request]="canShowQuickRequests()">
-  <section class="welcome-panel" aria-labelledby="dashboard-welcome-title">
+<section
+  class="dashboard-overview"
+  [class.coordination-dashboard]="isAcademicCoordinator()"
+>
+  <section
+    class="welcome-panel"
+    [class.systems-welcome]="canShowOperationalAgenda()"
+    [class.coordination-welcome]="isAcademicCoordinator()"
+    aria-labelledby="dashboard-welcome-title"
+  >
     <div class="welcome-copy">
-      <span>{{ currentUser().accessLabel }}</span>
-      <h2 id="dashboard-welcome-title">{{ welcomeMessage }}</h2>
-      <p>Este es tu espacio de trabajo para revisar el avance de planeacion academica del ciclo activo.</p>
+      <span>Panel operativo</span>
+      <h2 id="dashboard-welcome-title">{{ compactWelcomeMessage }}</h2>
+      <p>Este es tu espacio de trabajo para revisar el avance de planeación académica del ciclo activo.</p>
     </div>
 
     <div class="welcome-meta" aria-label="Resumen de sesion">
@@ -16,11 +24,28 @@
         <strong>{{ currentUser().lastAccess }}</strong>
       </div>
     </div>
+
   </section>
 
-  @if (canShowQuickRequests()) {
-    <section class="dashboard-side-stack" aria-label="Resumen y acciones rapidas">
-      <button class="quick-request-launch-card" type="button" (click)="openQuickRequestMenu()">
+  <section class="dashboard-metrics-stack" aria-label="Tarjetas de resumen">
+    <section class="metric-grid">
+      @for (metric of dashboardMetrics(); track metric.label) {
+        <article class="metric-card">
+          <div class="metric-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path [attr.d]="metric.icon"></path>
+            </svg>
+          </div>
+          <div class="metric-copy">
+            <strong>{{ metric.value }}</strong>
+            <span>{{ metric.label }}</span>
+            <small>{{ metric.hint }}</small>
+          </div>
+        </article>
+      }
+    </section>
+    @if (canShowQuickRequests()) {
+      <button class="quick-request-launch-card coordinator-request-launch-card" type="button" (click)="openQuickRequestMenu()">
         <span class="quick-launch-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
@@ -37,57 +62,73 @@
           <span class="quick-launch-count">{{ activeSystemRequestsCount() }}</span>
         }
       </button>
-
-      <section class="metric-grid" aria-label="Tarjetas de resumen">
-        @for (metric of metrics(); track metric.label) {
-          <article class="metric-card">
-            <div class="metric-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path [attr.d]="metric.icon"></path>
-              </svg>
-            </div>
-            <div class="metric-copy">
-              <strong>{{ metric.value }}</strong>
-              <span>{{ metric.label }}</span>
-              <small>{{ metric.hint }}</small>
-            </div>
+    }
+    @if (canShowOperationalAgenda()) {
+      <section class="operational-summary-cards" aria-label="Resumen de actividades">
+          <article>
+            <span class="operational-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 3h6v4H9zM6 7h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zM8 12h8M8 16h5"></path></svg></span>
+            <div><strong>{{ agendaSummary().pending }}</strong><span>Pendientes</span></div>
           </article>
-        }
+          <article>
+            <span class="operational-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"></path></svg></span>
+            <div><strong>{{ agendaSummary().dueToday }}</strong><span>Vencen hoy</span></div>
+          </article>
+          <article>
+            <span class="operational-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h4l2-5 4 10 2-5h4"></path></svg></span>
+            <div><strong>{{ agendaSummary().review }}</strong><span>Para revisar</span></div>
+          </article>
       </section>
-    </section>
-  } @else {
-    <section class="metric-grid" aria-label="Tarjetas de resumen">
-      @for (metric of metrics(); track metric.label) {
-        <article class="metric-card">
-          <div class="metric-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path [attr.d]="metric.icon"></path>
-            </svg>
-          </div>
-          <div class="metric-copy">
-            <strong>{{ metric.value }}</strong>
-            <span>{{ metric.label }}</span>
-            <small>{{ metric.hint }}</small>
+    }
+  </section>
+</section>
+
+@if (isAcademicCoordinator() && showRealProgressPanel()) {
+  <section class="coordination-progress-panel" aria-labelledby="coordination-progress-title">
+    <header class="coordination-progress-heading">
+      <div>
+        <span>Resumen de coordinacion</span>
+        <h3 id="coordination-progress-title">Actividad academica</h3>
+        <p>Consulta los registros vinculados con tus programas y el ciclo activo.</p>
+      </div>
+    </header>
+
+    <div class="coordination-progress-grid">
+      @for (card of realProgress(); track card.label) {
+        <article class="coordination-progress-card" [class.success]="card.tone === 'success'" [class.warning]="card.tone === 'warning'">
+          <span class="coordination-progress-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path [attr.d]="card.icon"></path></svg>
+          </span>
+          <div>
+            <strong>{{ card.value }}</strong>
+            <span>{{ card.label }}</span>
+            <small>{{ card.hint }}</small>
           </div>
         </article>
       }
-    </section>
-  }
-</section>
+    </div>
+  </section>
+}
 
 @if (canShowOperationalAgenda()) {
   <section class="operational-agenda" aria-labelledby="operational-agenda-title">
     <header class="agenda-heading">
       <div>
-        <span>Agenda operativa</span>
-        <h3 id="operational-agenda-title">Pendientes de Sistemas</h3>
+        <span>Seguimiento operativo</span>
+        <h3 id="operational-agenda-title">Actividades</h3>
         <p>Organiza el seguimiento del equipo o concentra tus actividades privadas.</p>
       </div>
-      <div class="agenda-cycle-summary">
-        <span>Ciclo activo</span>
-        <strong>{{ activeCycle()?.code ?? 'Sin ciclo activo' }}</strong>
-        <small>Cierre: {{ activeCycle()?.tentativeCaptureCloseAt ? formatDisplayDate(activeCycle()!.tentativeCaptureCloseAt!) : 'Sin fecha definida' }}</small>
-      </div>
+      <aside class="agenda-cycle-status" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
+        <div class="agenda-cycle-main">
+          <span class="agenda-cycle-kicker">Ciclo activo</span>
+          <strong class="agenda-cycle-code">{{ agendaActiveCycleCodeLabel }}</strong>
+        </div>
+        <span class="agenda-cycle-divider" aria-hidden="true"></span>
+        <span class="agenda-cycle-date" [class.pending]="!activeCycle()?.tentativeCaptureCloseAt">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ agendaCaptureCloseLabel }}</strong>
+        </span>
+      </aside>
     </header>
 
     <div class="agenda-toolbar">
@@ -95,7 +136,13 @@
         <button type="button" role="tab" [attr.aria-selected]="agendaScope() === 'EQUIPO'" [class.active]="agendaScope() === 'EQUIPO'" (click)="setAgendaScope('EQUIPO')">Equipo</button>
         <button type="button" role="tab" [attr.aria-selected]="agendaScope() === 'PRIVADA'" [class.active]="agendaScope() === 'PRIVADA'" (click)="setAgendaScope('PRIVADA')">Privada</button>
       </div>
-      <button class="agenda-create-button" type="button" (click)="openNewAgendaItem()">+ Nueva actividad</button>
+      <div class="agenda-toolbar-actions">
+        <button class="agenda-calendar-button" type="button" [class.active]="isAgendaCalendarVisible()" [attr.aria-pressed]="isAgendaCalendarVisible()" (click)="toggleAgendaCalendar()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+          {{ isAgendaCalendarVisible() ? 'Ver tablero' : 'Calendario' }}
+        </button>
+        <button class="agenda-create-button" type="button" (click)="openNewAgendaItem()">+ Nueva actividad</button>
+      </div>
     </div>
 
     @if (agendaFeedback()) {
@@ -105,85 +152,98 @@
       <p class="agenda-feedback error">{{ agendaError() || agendaReadError() }}</p>
     }
 
-    <div class="cork-board" [class.private-board]="agendaScope() === 'PRIVADA'" aria-label="Tablero de pendientes">
-      @for (column of agendaColumns; track column.key) {
-        <section class="agenda-column" [class]="column.tone" [attr.aria-label]="column.label">
-          <header>
-            <span>{{ column.label }}</span>
-            <strong>{{ agendaItemsForColumn(column.key).length }}</strong>
-          </header>
+    <div class="activities-layout">
+      <div class="activities-main">
+    @if (isAgendaCalendarVisible()) {
+      <section class="agenda-calendar" aria-label="Calendario de actividades">
+        <header class="agenda-calendar-header">
+          <button type="button" aria-label="Mes anterior" (click)="changeAgendaCalendarMonth(-1)">‹</button>
+          <strong>{{ agendaCalendarTitle() }}</strong>
+          <button type="button" aria-label="Mes siguiente" (click)="changeAgendaCalendarMonth(1)">›</button>
+        </header>
+        <div class="agenda-calendar-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+        <div class="agenda-calendar-grid">
+          @for (day of agendaCalendarDays(); track day.key) {
+            <article class="agenda-calendar-day" [class.outside-month]="!day.isCurrentMonth">
+              <span>{{ day.dayNumber }}</span>
+              @for (item of day.activities; track item.id) {
+                <button type="button" (click)="openAgendaEditor(item)">{{ item.title }}</button>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    } @else {
+      <div class="cork-board" [class.private-board]="agendaScope() === 'PRIVADA'" aria-label="Tablero de actividades">
+        @for (column of agendaColumns; track column.key) {
+          <section class="agenda-column" [class]="column.tone" [attr.aria-label]="column.label">
+            <header><span>{{ column.label }}</span><strong>{{ agendaItemsForColumn(column.key).length }}</strong></header>
+            <div class="agenda-notes">
+              @for (item of agendaItemsForColumn(column.key); track item.id) {
+                <article class="agenda-note" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
+                  <div class="agenda-note-topline"><span>{{ item.priority }}</span>@if (item.scope === 'EQUIPO') { <small>{{ item.createdByName }}</small> }</div>
+                  <h4>{{ item.title }}</h4>
+                  @if (item.detail) { <p>{{ item.detail }}</p> }
+                  <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
+                  <div class="agenda-note-actions">
+                    <button type="button" (click)="openAgendaEditor(item)">Editar</button>
+                    <button type="button" (click)="moveAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
+                    <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Eliminar</button>
+                  </div>
+                </article>
+              } @empty { <p class="agenda-empty">Sin actividades en esta etapa.</p> }
+            </div>
+          </section>
+        }
+      </div>
+    }
+      </div>
 
-          <div class="agenda-notes">
-            @for (item of agendaItemsForColumn(column.key); track item.id) {
-              <article class="agenda-note" [class.priority-high]="item.priority === 'ALTA'" [class.priority-low]="item.priority === 'BAJA'">
-                <div class="agenda-note-topline">
-                  <span>{{ item.priority }}</span>
-                  @if (item.scope === 'EQUIPO') {
-                    <small>{{ item.createdByName }}</small>
-                  }
-                </div>
-                <h4>{{ item.title }}</h4>
-                @if (item.detail) {
-                  <p>{{ item.detail }}</p>
-                }
-                <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
-                <div class="agenda-note-actions">
-                  <button type="button" (click)="openAgendaEditor(item)">Editar</button>
-                  <button type="button" (click)="moveAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Mover</button>
-                  <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Eliminar</button>
-                </div>
-              </article>
+      <aside class="activities-sidebar" aria-label="Resumen de actividades">
+        <section class="activities-side-card">
+          <header>
+            <span>Actividad reciente</span>
+          </header>
+          <div class="side-activity-list">
+            @for (item of recentAgendaItems(); track item.id) {
+              <button type="button" class="side-activity" (click)="openAgendaEditor(item)">
+                <span class="side-activity-status">{{ agendaColumnLabel(item.column) }}</span>
+                <strong>{{ item.title }}</strong>
+                <small>{{ agendaDueDateLabel(item) }}</small>
+              </button>
             } @empty {
-              <p class="agenda-empty">Sin actividades en esta etapa.</p>
+              <p>Aún no hay actividad reciente.</p>
             }
           </div>
         </section>
-      }
-    </div>
-  </section>
-}
 
-@if (showRealProgressPanel()) {
-  <section class="work-panel" aria-labelledby="real-progress-title">
-    <div class="section-heading">
-      <span>Datos del sistema</span>
-      <h3 id="real-progress-title">Registros reales de SPAI TUP</h3>
-    </div>
-
-    <div class="real-progress">
-      @for (item of realProgress(); track item.label) {
-        <article class="real-card" [class.success]="item.tone === 'success'" [class.warning]="item.tone === 'warning'">
-          <span class="real-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path [attr.d]="item.icon"></path>
-            </svg>
-          </span>
-          <div>
-            <strong>{{ item.label }}</strong>
-            <small>{{ item.hint }}</small>
+        <section class="activities-side-card">
+          <header>
+            <span>Próximos vencimientos</span>
+          </header>
+          <div class="side-activity-list">
+            @for (item of upcomingAgendaItems(); track item.id) {
+              <button type="button" class="side-activity deadline" (click)="openAgendaEditor(item)">
+                <span class="side-activity-status">{{ agendaDueDateLabel(item) }}</span>
+                <strong>{{ item.title }}</strong>
+                <small>{{ agendaColumnLabel(item.column) }}</small>
+              </button>
+            } @empty {
+              <p>No hay vencimientos próximos.</p>
+            }
           </div>
-          <span class="real-value">{{ item.value }}</span>
-        </article>
-      }
+        </section>
+      </aside>
     </div>
-  </section>
-}
 
-@if (isWelcomeModalOpen()) {
-  <div class="modal-backdrop welcome-backdrop" role="presentation">
-    <section class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
-      <span>SPAI TUP · Panel operativo</span>
-      <h2 id="welcome-modal-title">{{ welcomeMessage }}</h2>
-      <p>Este es tu espacio de trabajo para revisar el avance de planeación académica del ciclo activo.</p>
-      @if (activeCycle(); as cycle) {
-        <div class="welcome-cycle-detail">
-          <strong>{{ cycle.code }}</strong>
-          <span>Cierre de captura: {{ cycle.tentativeCaptureCloseAt ? formatDisplayDate(cycle.tentativeCaptureCloseAt) : 'Sin fecha definida' }}</span>
-        </div>
-      }
-      <button class="primary-action" type="button" (click)="closeWelcomeModal()">Entrar al dashboard</button>
-    </section>
-  </div>
+    <footer class="activities-summary" aria-label="Resumen de avance">
+      <article><strong>{{ agendaSummary().pending }}</strong><span>Pendientes</span></article>
+      <article><strong>{{ agendaSummary().dueToday }}</strong><span>Vencen hoy</span></article>
+      <article><strong>{{ agendaSummary().inProgress }}</strong><span>En proceso</span></article>
+      <article><strong>{{ agendaSummary().review }}</strong><span>Para revisar</span></article>
+      <article><strong>{{ agendaSummary().completed }}</strong><span>Concluidos</span></article>
+    </footer>
+  </section>
 }
 
 @if (isAgendaEditorOpen()) {

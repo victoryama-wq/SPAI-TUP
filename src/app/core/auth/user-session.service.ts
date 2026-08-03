@@ -1,4 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   collection,
   DocumentData,
@@ -22,9 +23,13 @@ export interface UserSession {
   appUser: AppUser | null;
 }
 
+const SESSION_RELEASE_KEY = 'spai.session.release';
+const SESSION_RELEASE_VERSION = '2026-08-03-operational-dashboard';
+
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly firebaseApp = inject(FIREBASE_APP);
   private readonly firestore = inject(FIREBASE_DB);
   private readonly functions = getFunctions(this.firebaseApp, 'us-central1');
@@ -42,6 +47,12 @@ export class UserSessionService {
 
       if (!authUser?.email) {
         this.sessionSignal.set(null);
+        return;
+      }
+
+      if (this.requiresReleaseSignOut()) {
+        this.sessionSignal.set(null);
+        void this.authService.signOut().finally(() => void this.router.navigate(['/']));
         return;
       }
 
@@ -222,5 +233,22 @@ export class UserSessionService {
         unsubscribe();
       });
     });
+  }
+
+  private requiresReleaseSignOut(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    try {
+      if (window.localStorage.getItem(SESSION_RELEASE_KEY) === SESSION_RELEASE_VERSION) {
+        return false;
+      }
+
+      window.localStorage.setItem(SESSION_RELEASE_KEY, SESSION_RELEASE_VERSION);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

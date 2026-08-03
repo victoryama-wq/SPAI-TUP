@@ -236,6 +236,46 @@ spai-role-manager {
   margin: 6px 0 0;
 }
 
+/* Ciclo integrado al Directorio operativo, con la misma estructura del Dashboard. */
+.directory-cycle-status {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07);
+  color: #07163c;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 50px;
+  padding: 8px 10px 8px 14px;
+}
+
+.directory-cycle-status.pending { background: #ffffff; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker,
+.directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border: 1px solid #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-status.pending .directory-cycle-code { background: #e2e8f0; border-color: #cbd5e1; color: #475569; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 17px; stroke: #1d4ed8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 17px; }
+.directory-cycle-date strong { color: #1d4ed8; font-size: 16px; font-weight: 900; }
+.directory-cycle-date.pending { background: #f8fafc; border-color: #dbe4ef; }
+.directory-cycle-date.pending svg,
+.directory-cycle-date.pending > span,
+.directory-cycle-date.pending strong { color: #64748b; stroke: #64748b; }
+
+.table-panel > .panel-title {
+  align-items: center;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  margin: -26px -30px 22px;
+  padding: 18px 30px;
+}
+
+.table-panel > .panel-title > div > span { color: #a9d8ff; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+
 .icon-action {
   background: #edf4ff;
   border-radius: 999px;
@@ -622,6 +662,8 @@ th {
     padding: 24px;
   }
 
+  .table-panel > .panel-title { align-items: stretch; margin: -24px -24px 20px; padding: 18px 24px; }
+
   .quick-panels,
   .summary-grid,
   .user-form,
@@ -629,4 +671,105 @@ th {
   .access-options {
     grid-template-columns: 1fr;
   }
+}
+
+/* Resumen de Usuarios con la misma jerarquía visual del Dashboard. */
+.users-overview {
+  align-items: stretch;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(330px, 0.9fr) minmax(0, 1.1fr);
+  margin-bottom: 18px;
+}
+
+.users-access-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.users-overview .users-header {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border: 0;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, 0.16);
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  margin: 0;
+  min-height: 0;
+  padding: 20px 24px;
+}
+
+.users-overview .users-header::after {
+  background: #42b6e8;
+  height: calc(100% - 32px);
+  left: 0;
+  top: 16px;
+}
+
+.users-overview .users-header > div { padding-left: 0; }
+.users-overview .users-header > div > span { color: #a9d8ff; }
+.users-overview .users-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.users-overview .users-header p { color: #d5e8ff; font-size: 13px; }
+.users-header-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 9px; }
+.users-overview .users-header .primary-action { background: #ffffff; color: #0b3f8d; min-height: 40px; padding: 0 15px; }
+.users-overview .users-header .primary-action span { color: #0b3f8d; }
+.users-overview .users-header spai-role-manager { display: block; min-height: 0; }
+
+.users-overview .summary-grid {
+  align-content: stretch;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.users-overview .summary-grid article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-left: 1px solid #dbe7f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07);
+  display: flex;
+  gap: 12px;
+  min-height: 86px;
+  padding: 12px;
+}
+
+.users-overview .summary-grid article > div { display: grid; gap: 3px; }
+.users-overview .summary-grid article > div > strong { color: #092d70; font-size: 25px; }
+.users-overview .summary-grid article > div > span { color: #173c76; font-size: 13px; }
+
+.summary-icon {
+  align-items: center;
+  background: #edf4ff;
+  border-radius: 999px;
+  color: #1d5bd8;
+  display: grid;
+  flex: 0 0 auto;
+  height: 42px;
+  justify-items: center;
+  width: 42px;
+}
+
+.summary-icon svg {
+  fill: none;
+  height: 21px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 21px;
+}
+
+.quick-panels {
+  display: block;
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .users-overview { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .users-overview .summary-grid { grid-template-columns: 1fr; }
 }

@@ -71,6 +71,13 @@ interface AgendaForm {
   dueDate: string;
 }
 
+interface AgendaCalendarDay {
+  key: string;
+  dayNumber: number;
+  isCurrentMonth: boolean;
+  activities: OperationalAgendaItem[];
+}
+
 type ModuleKey = keyof ModuleAccess;
 
 @Component({
@@ -104,7 +111,6 @@ export class DashboardPageComponent {
   private readonly systemRequestsRepository = inject(SystemRequestsRepository);
   private readonly systemNotificationsRepository = inject(SystemNotificationsRepository);
   private readonly operationalAgendaRepository = inject(OperationalAgendaRepository);
-  readonly isWelcomeModalOpen = signal(true);
   readonly isQuickRequestMenuOpen = signal(false);
   readonly selectedQuickRequest = signal<QuickSystemRequestAction | null>(null);
   readonly quickRequestDetail = signal('');
@@ -115,6 +121,8 @@ export class DashboardPageComponent {
   readonly isAgendaEditorOpen = signal(false);
   readonly isSavingAgendaItem = signal(false);
   readonly agendaActionItemId = signal('');
+  readonly isAgendaCalendarVisible = signal(false);
+  readonly agendaCalendarCursor = signal(this.currentMonthCursor());
   readonly agendaForm = signal<AgendaForm>(this.emptyAgendaForm('EQUIPO'));
   readonly agendaError = signal('');
   readonly agendaFeedback = signal('');
@@ -146,6 +154,29 @@ export class DashboardPageComponent {
 
     return [user.greeting, user.roleTitle, user.name].filter(Boolean).join(' ');
   }
+
+  get compactWelcomeMessage(): string {
+    const user = this.currentUser();
+    const name = user.name.trim();
+
+    return name ? `${user.greeting}, ${name}` : user.greeting;
+  }
+
+  get agendaActiveCycleCodeLabel(): string {
+    return this.activeCycle()?.code ?? 'Pendiente';
+  }
+
+  get agendaCaptureCloseLabel(): string {
+    const closeAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return closeAt ? this.formatDisplayDate(closeAt).toUpperCase() : 'PENDIENTE';
+  }
+
+  readonly dashboardMetrics = computed(() =>
+    this.canShowOperationalAgenda()
+      ? this.metrics().filter((metric) => metric.label !== 'Ciclo activo')
+      : this.metrics(),
+  );
 
   readonly metrics = computed<MetricCard[]>(() => {
     const appUser = this.userSessionService.session()?.appUser;
@@ -275,6 +306,65 @@ export class DashboardPageComponent {
   });
   readonly visibleAgendaItems = computed(() =>
     this.agendaItems().filter((item) => item.scope === this.agendaScope()),
+  );
+  readonly agendaCalendarTitle = computed(() => {
+    const [year, month] = this.agendaCalendarCursor().split('-').map(Number);
+
+    return new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric' })
+      .format(new Date(year, month - 1, 1));
+  });
+  readonly agendaCalendarDays = computed<AgendaCalendarDay[]>(() => {
+    const [year, month] = this.agendaCalendarCursor().split('-').map(Number);
+    const firstDay = new Date(year, month - 1, 1);
+    const firstWeekday = (firstDay.getDay() + 6) % 7;
+    const activitiesByDate = new Map<string, OperationalAgendaItem[]>();
+
+    this.visibleAgendaItems().forEach((item) => {
+      if (item.dueDate) {
+        activitiesByDate.set(item.dueDate, [...(activitiesByDate.get(item.dueDate) ?? []), item]);
+      }
+    });
+
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = new Date(year, month - 1, index - firstWeekday + 1);
+      const key = this.dateKey(date);
+
+      return {
+        key,
+        dayNumber: date.getDate(),
+        isCurrentMonth: date.getMonth() === month - 1,
+        activities: activitiesByDate.get(key) ?? [],
+      };
+    });
+  });
+  readonly agendaSummary = computed(() => {
+    const items = this.visibleAgendaItems();
+    const today = this.currentDateKey();
+    const closeDate = this.activeCycle()?.tentativeCaptureCloseAt;
+    const closeTime = closeDate ? new Date(`${closeDate}T12:00:00`).getTime() : Number.NaN;
+    const daysUntilClose = Number.isNaN(closeTime)
+      ? null
+      : Math.max(0, Math.ceil((closeTime - new Date().setHours(0, 0, 0, 0)) / 86_400_000));
+
+    return {
+      pending: items.filter((item) => item.column !== 'LISTO').length,
+      dueToday: items.filter((item) => item.dueDate === today).length,
+      completed: items.filter((item) => item.column === 'LISTO').length,
+      inProgress: items.filter((item) => item.column === 'EN_PROCESO').length,
+      review: items.filter((item) => item.column === 'PARA_REVISAR').length,
+      daysUntilClose,
+    };
+  });
+  readonly recentAgendaItems = computed(() =>
+    [...this.visibleAgendaItems()]
+      .sort((first, second) => second.updatedAt.localeCompare(first.updatedAt))
+      .slice(0, 3),
+  );
+  readonly upcomingAgendaItems = computed(() =>
+    [...this.visibleAgendaItems()]
+      .filter((item) => !!item.dueDate && item.column !== 'LISTO')
+      .sort((first, second) => (first.dueDate ?? '').localeCompare(second.dueDate ?? ''))
+      .slice(0, 3),
   );
   readonly canShowQuickRequests = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
@@ -524,14 +614,21 @@ export class DashboardPageComponent {
     this.closeQuickRequest();
   }
 
-  closeWelcomeModal(): void {
-    this.isWelcomeModalOpen.set(false);
-  }
-
   setAgendaScope(scope: AgendaScope): void {
     this.agendaScope.set(scope);
     this.agendaFeedback.set('');
     this.agendaError.set('');
+  }
+
+  toggleAgendaCalendar(): void {
+    this.isAgendaCalendarVisible.update((visible) => !visible);
+  }
+
+  changeAgendaCalendarMonth(offset: number): void {
+    const [year, month] = this.agendaCalendarCursor().split('-').map(Number);
+    const nextDate = new Date(year, month - 1 + offset, 1);
+
+    this.agendaCalendarCursor.set(`${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}`);
   }
 
   agendaItemsForColumn(column: AgendaColumn): OperationalAgendaItem[] {
@@ -697,6 +794,10 @@ export class DashboardPageComponent {
     return item.dueDate ? `Fecha límite: ${this.formatDisplayDate(item.dueDate)}` : 'Sin fecha límite';
   }
 
+  agendaColumnLabel(column: AgendaColumn): string {
+    return this.agendaColumns.find((item) => item.key === column)?.label ?? 'Actividad';
+  }
+
   private emptyAgendaForm(scope: AgendaScope): AgendaForm {
     return {
       scope,
@@ -706,6 +807,20 @@ export class DashboardPageComponent {
       priority: 'MEDIA',
       dueDate: '',
     };
+  }
+
+  private currentMonthCursor(): string {
+    const today = new Date();
+
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  private dateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  private currentDateKey(): string {
+    return this.dateKey(new Date());
   }
 
   private nextAgendaColumn(column: AgendaColumn): AgendaColumn {

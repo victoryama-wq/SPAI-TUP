@@ -620,3 +620,115 @@ td:nth-child(9) {
     padding-inline: 14px;
   }
 }
+
+/* Jerarquía institucional compartida con Ciclos, conservando los controles propios de Meet. */
+.meet-overview {
+  align-items: stretch;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(320px, .72fr) minmax(0, 1.45fr);
+  margin-bottom: 18px;
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.meet-overview::before { display: none; }
+
+.meet-header {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, .16);
+  display: grid;
+  min-height: 0;
+  padding: 22px 24px;
+  position: relative;
+}
+
+.meet-header::before {
+  background: #42b6e8;
+  content: '';
+  height: calc(100% - 32px);
+  left: 0;
+  position: absolute;
+  top: 16px;
+  width: 4px;
+}
+
+.meet-header > div { align-self: center; }
+.meet-header span { color: #a9d8ff; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.meet-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.meet-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; margin: 0; }
+
+.meet-summary {
+  align-content: stretch;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meet-summary article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(21, 61, 122, .07);
+  display: flex;
+  gap: 10px;
+  min-height: 0;
+  padding: 12px;
+}
+
+.meet-summary article > div { display: grid; gap: 3px; }
+.meet-summary article strong { color: #092d70; font-size: 25px; }
+.meet-summary article span:not(.summary-icon) { color: #173c76; font-size: 13px; font-weight: 800; }
+.summary-icon { align-items: center; background: #edf4ff; border-radius: 999px; color: #1d5bd8; display: grid; flex: 0 0 auto; height: 42px; justify-items: center; width: 42px; }
+.summary-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 21px; }
+
+.table-panel > .panel-title {
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  margin: -30px -30px 22px;
+  padding: 18px 30px;
+}
+
+.table-panel > .panel-title > .panel-heading > div:first-child > span,
+.table-panel > .panel-title .filters label > span,
+.table-panel > .panel-title .shared-tabs legend { color: #a9d8ff; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+.table-panel > .panel-title .filters input,
+.table-panel > .panel-title .filters select { background: #ffffff; border-color: rgba(255, 255, 255, .72); }
+
+.meet-panel-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+
+.directory-cycle-status { align-items: center; background: #ffffff; border: 1px solid #cfe0f6; border-radius: 9px; box-shadow: 0 5px 14px rgba(20, 57, 112, .06); display: inline-flex; gap: 10px; padding: 8px 10px; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker, .directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 16px; stroke: #1765d8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 16px; }
+.directory-cycle-date strong { color: #1457d6; font-size: 15px; white-space: nowrap; }
+.directory-cycle-status.pending .directory-cycle-code { background: #e2e8f0; color: #475569; }
+
+.table-panel > .panel-title .session-switch button { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .48); color: #ffffff; }
+.table-panel > .panel-title .session-switch button.session-postgraduate { color: #ffd5e6; }
+.table-panel > .panel-title .session-switch button.active { background: #ffffff; border-color: #ffffff; box-shadow: none; color: #1457d6; }
+.table-panel > .panel-title .session-switch button.session-postgraduate.active { color: #be185d; }
+
+@media (max-width: 1050px) {
+  .meet-overview { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 850px) {
+  .table-panel > .panel-title { margin: -30px -30px 20px; }
+  .panel-heading { align-items: start; flex-direction: column; }
+  .meet-panel-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .meet-summary { grid-template-columns: 1fr; }
+  .table-panel > .panel-title { margin: -24px -14px 18px; padding: 18px 14px; }
+  .directory-cycle-status { flex-wrap: wrap; }
+}

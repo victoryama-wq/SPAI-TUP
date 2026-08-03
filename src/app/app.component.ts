@@ -346,6 +346,68 @@ export class AppComponent {
     return this.router.url.split('?')[0].replace(/\/+$/, '') === '/asignaciones';
   }
 
+  isDashboardRoute(): boolean {
+    return (this.router.url.split('?')[0].replace(/\/+$/, '') || '/') === '/';
+  }
+
+  isWideModuleRoute(): boolean {
+    const path = this.router.url.split('?')[0].replace(/\/+$/, '') || '/';
+
+    return [
+      '/usuarios',
+      '/ciclos',
+      '/nomenclaturas',
+      '/grupos',
+      '/asignaturas',
+      '/solicitudes',
+      '/ligas-meet',
+      '/moodle',
+      '/bitacora',
+    ].includes(path);
+  }
+
+  isUsersRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/usuarios';
+  }
+
+  isCyclesRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/ciclos';
+  }
+
+  isNomenclaturesRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/nomenclaturas';
+  }
+
+  isGroupsRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/grupos';
+  }
+
+  isTeachersRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/docentes';
+  }
+
+  isSubjectsRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/asignaturas';
+  }
+
+  isRequestsRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/solicitudes';
+  }
+
+  isMeetLinksRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/ligas-meet';
+  }
+
+  isAuditRoute(): boolean {
+    return this.router.url.split('?')[0].replace(/\/+$/, '') === '/bitacora';
+  }
+
+  isSystemsDashboardRoute(): boolean {
+    const role = this.userSessionService.session()?.appUser?.role.toLowerCase() ?? '';
+
+    return this.isDashboardRoute() && role.includes('sistemas');
+  }
+
   isMoodleRoute(): boolean {
     return this.router.url.split('?')[0].replace(/\/+$/, '') === '/moodle';
   }

@@ -103,6 +103,287 @@ th {
   }
 }
 
+/* Asignaturas adopta la jerarquía operativa de Ciclos. */
+.subjects-overview {
+  align-items: stretch;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.subjects-overview::before { display: none; }
+
+.subjects-overview .subjects-header {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 22px 24px;
+}
+
+.subjects-overview .subjects-header::after {
+  background: #42b6e8;
+  content: '';
+  height: calc(100% - 32px);
+  left: 0;
+  position: absolute;
+  top: 16px;
+  width: 4px;
+}
+
+.subjects-overview .subjects-header .header-copy > span { color: #a9d8ff; font-size: 12px; }
+.subjects-overview .subjects-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.subjects-overview .subjects-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; }
+.subjects-overview .header-bottom { align-self: auto; width: 100%; }
+.subjects-overview .header-actions { gap: 8px; }
+.subjects-overview .header-actions .primary-action,
+.subjects-overview .header-actions .secondary-action,
+.subjects-overview .header-actions .icon-template-action {
+  background: #ffffff;
+  border: 0;
+  color: #0b3f8d;
+  min-height: 40px;
+  padding: 0 12px;
+}
+.subjects-overview .header-actions .primary-action span,
+.subjects-overview .header-actions .secondary-action span,
+.subjects-overview .header-actions .icon-template-action span { color: #0b3f8d; }
+
+.subjects-overview .summary-grid {
+  align-content: stretch;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.subjects-overview .summary-grid article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07);
+  display: flex;
+  gap: 10px;
+  min-height: 0;
+  padding: 12px;
+  text-align: left;
+}
+
+.subjects-overview .summary-grid article > div { display: grid; gap: 3px; }
+.subjects-overview .summary-grid article > div > strong { color: #092d70; font-size: 25px; }
+.subjects-overview .summary-grid article > div > span { color: #173c76; font-size: 13px; }
+.summary-icon { align-items: center; background: #edf4ff; border-radius: 999px; color: #1d5bd8; display: grid; flex: 0 0 auto; height: 42px; justify-items: center; width: 42px; }
+.summary-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 21px; }
+
+.table-panel > .panel-title {
+  align-items: center;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: -26px -30px 22px;
+  padding: 18px 30px;
+}
+
+.table-panel > .panel-title > div:first-child { grid-column: 1; grid-row: 1; }
+.table-panel > .panel-title > div:first-child > span { color: #a9d8ff; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+.table-panel > .panel-title .table-tools { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+.table-panel > .panel-title .filters { align-items: end; grid-column: 2; grid-row: 2; justify-content: flex-end; }
+.table-panel > .panel-title .filters label > span { color: #d5e8ff; }
+.table-panel > .panel-title .directory-cycle-status { align-self: center; grid-column: 2; grid-row: 1; justify-self: end; }
+
+.directory-cycle-status { align-items: center; background: #ffffff; border: 1px solid #cfe0f6; border-radius: 9px; box-shadow: 0 5px 14px rgba(20, 57, 112, 0.06); display: inline-flex; gap: 10px; padding: 8px 10px; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker, .directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border: 1px solid #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 16px; stroke: #1765d8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 16px; }
+.directory-cycle-date strong { color: #1457d6; font-size: 15px; white-space: nowrap; }
+
+@media (max-width: 1180px) {
+  .subjects-overview { grid-template-columns: 1fr; }
+  .table-panel > .panel-title { grid-template-columns: 1fr; }
+  .table-panel > .panel-title .table-tools { grid-column: 1; grid-row: 2; }
+  .table-panel > .panel-title .filters { grid-column: 1; grid-row: 3; justify-content: flex-start; }
+  .table-panel > .panel-title .directory-cycle-status { grid-column: 1; grid-row: 4; justify-self: start; }
+}
+
+@media (max-width: 720px) {
+  .subjects-overview .summary-grid { grid-template-columns: 1fr; }
+  .subjects-overview .header-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .subjects-overview .header-actions > * { min-width: 0; }
+  .table-panel > .panel-title { align-items: stretch; margin: -24px -24px 20px; padding: 18px 24px; }
+  .directory-cycle-status { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (max-width: 460px) {
+  .subjects-overview .header-actions { grid-template-columns: 1fr; }
+  .table-panel > .panel-title .directory-cycle-status { justify-self: stretch; }
+}
+
+/* Accesos CSV alineados con Nomenclaturas y Grupos. */
+.subjects-overview .header-actions .import-action,
+.subjects-overview .header-actions .icon-template-action {
+  background: #244a9b !important;
+  border: 1px solid rgba(255, 255, 255, .34) !important;
+  color: #ffffff !important;
+  flex-direction: column;
+  gap: 2px;
+  height: 58px;
+  min-width: 94px;
+  padding: 4px 6px;
+  width: 94px;
+}
+
+.subjects-overview .header-actions .import-action:hover,
+.subjects-overview .header-actions .icon-template-action:hover { background: #1e3a8a !important; }
+.subjects-overview .header-actions .import-action .icon-action-label,
+.subjects-overview .header-actions .icon-template-action .icon-action-label { color: #ffffff !important; font-size: 8px; font-weight: 900; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+.subjects-overview .import-action .csv-upload-icon,
+.subjects-overview .icon-template-action .csv-download-icon { filter: drop-shadow(1px 2px 0 rgba(38, 47, 90, .22)); overflow: visible; }
+.subjects-overview .import-action .csv-upload-icon { height: 31px; width: 31px; }
+.subjects-overview .icon-template-action .csv-download-icon { height: 30px; width: 30px; }
+.subjects-overview .csv-upload-icon .document,
+.subjects-overview .csv-upload-icon .fold,
+.subjects-overview .csv-download-icon .document,
+.subjects-overview .csv-download-icon .fold { fill: #ffffff; stroke: #ffffff; stroke-linejoin: round; stroke-width: 3; }
+.subjects-overview .csv-upload-icon text,
+.subjects-overview .csv-download-icon text { fill: #0b3f8d; font-family: Arial, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .3px; stroke: none; }
+.subjects-overview .csv-upload-icon .upload-arrow,
+.subjects-overview .csv-download-icon .download-arrow { fill: #43a8f5; stroke: #ffffff; stroke-linejoin: round; stroke-width: 2.5; }
+
+/* Los filtros se mantienen como un bloque antes de pasar a formato apilado. */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .table-panel > .panel-title {
+    grid-template-columns: minmax(0, 780px) auto;
+  }
+
+  .table-panel > .panel-title > div:first-child { grid-column: 1; grid-row: 1; }
+  .table-panel > .panel-title .directory-cycle-status { grid-column: 2; grid-row: 1; justify-self: end; }
+  .table-panel > .panel-title .table-tools { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+  .table-panel > .panel-title .filters { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+}
+
+@media (min-width: 1600px) {
+  .table-panel > .panel-title {
+    grid-template-columns: minmax(0, 780px) minmax(160px, 190px) 1fr;
+  }
+
+  .table-panel > .panel-title > div:first-child { grid-column: 1; grid-row: 1; }
+  .table-panel > .panel-title .directory-cycle-status { grid-column: 2 / -1; grid-row: 1; justify-self: end; }
+  .table-panel > .panel-title .table-tools { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+  .table-panel > .panel-title .filters { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+}
+
+/* Buscar y estatus se comportan como una sola franja de controles. */
+.table-panel > .panel-title {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.table-panel > .panel-title .subject-filter-controls {
+  align-items: end;
+  display: grid;
+  gap: 16px;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  grid-column: 1;
+  grid-template-columns: minmax(360px, 480px) minmax(150px, 160px);
+  max-width: 656px;
+  width: 100%;
+}
+
+.table-panel > .panel-title .subject-filter-controls .table-tools,
+.table-panel > .panel-title .subject-filter-controls .filters {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  justify-content: flex-start;
+}
+
+.table-panel > .panel-title .subject-filter-controls .table-tools,
+.table-panel > .panel-title .subject-filter-controls .table-search {
+  max-width: none;
+  width: 100%;
+}
+
+.table-panel > .panel-title .subject-filter-controls .table-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.table-panel > .panel-title .directory-cycle-status {
+  grid-column: 2 !important;
+  /* Mantener el resumen del ciclo alineado con el título del catálogo. */
+  grid-row: 1 !important;
+  justify-self: end;
+}
+
+@media (max-width: 1180px) {
+  .table-panel > .panel-title .subject-filter-controls {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 180px);
+    max-width: 816px;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 680px) {
+  .table-panel > .panel-title .subject-filter-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel > .panel-title .subject-filter-controls .table-tools,
+  .table-panel > .panel-title .subject-filter-controls .filters {
+    width: 100%;
+  }
+
+  .table-panel > .panel-title .subject-filter-controls .filters label,
+  .table-panel > .panel-title .subject-filter-controls select {
+    width: 100%;
+  }
+}
+
+/* En escritorio, los filtros anteceden al estado del ciclo en la franja del título. */
+@media (min-width: 1400px) {
+  .table-panel > .panel-title {
+    grid-template-columns: minmax(260px, .55fr) minmax(440px, .9fr) auto !important;
+  }
+
+  .table-panel > .panel-title > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-panel > .panel-title .subject-filter-controls {
+    align-items: end;
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: minmax(300px, 1fr) minmax(130px, 150px);
+    max-width: none;
+  }
+
+  .table-panel > .panel-title .directory-cycle-status {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+}
+
 .subjects-overview {
   display: grid;
   gap: 14px;

@@ -1,8 +1,8 @@
 <section class="subjects-overview">
   <section class="subjects-header">
     <div class="header-copy">
-      <span>Catalogo global</span>
-      <h2>Asignaturas</h2>
+      <span>Administración de asignaturas</span>
+      <h2>Catálogo de asignaturas</h2>
       <p>Administra IDs unicos de asignatura y conserva nombres repetibles para distintas reticulas o contenidos.</p>
     </div>
 
@@ -13,10 +13,16 @@
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 5v14M5 12h14"></path>
             </svg>
-            <span>Agregar asignatura</span>
+            <span>Agregar</span>
           </button>
-          <label class="secondary-action import-action">
-            <span>Importar CSV</span>
+          <label class="secondary-action import-action" title="Importar CSV" aria-label="Importar CSV">
+            <svg class="csv-upload-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <path class="document" d="M7 4h23l10 10v27H7z"></path>
+              <path class="fold" d="M30 4v10h10"></path>
+              <text x="19" y="27" text-anchor="middle">CSV</text>
+              <path class="upload-arrow" d="M34 45V35h-5l9-9 9 9h-5v10z"></path>
+            </svg>
+            <span class="icon-action-label">Importar CSV</span>
             <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
           </label>
           <button
@@ -26,25 +32,23 @@
             title="Descargar plantilla CSV"
             (click)="downloadCsvTemplate()"
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+            <svg class="csv-download-icon" viewBox="0 0 48 48" aria-hidden="true">
+              <path class="document" d="M7 4h23l10 10v27H7z"></path>
+              <path class="fold" d="M30 4v10h10"></path>
+              <text x="19" y="27" text-anchor="middle">CSV</text>
+              <path class="download-arrow" d="M34 23v10h-5l9 9 9-9h-5V23z"></path>
             </svg>
-            <span>Plantilla</span>
+            <span class="icon-action-label">Plantilla</span>
           </button>
-          <button
-            class="secondary-action cleanup-action"
-            type="button"
-            [disabled]="duplicateSubjectGroups().length === 0"
-            (click)="openDuplicateCleaner()"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
-            </svg>
-            <span>{{ duplicateSubjectGroups().length ? 'Depurar duplicados' : 'Sin duplicados' }}</span>
-            @if (duplicateSubjectGroups().length) {
+          @if (duplicateSubjectGroups().length) {
+            <button class="secondary-action cleanup-action" type="button" (click)="openDuplicateCleaner()">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
+              </svg>
+              <span>Depurar duplicados</span>
               <strong>{{ duplicateSubjectsToReviewCount() }}</strong>
-            }
-          </button>
+            </button>
+          }
         </div>
       }
     </div>
@@ -52,20 +56,20 @@
 
   <div class="summary-grid">
     <article>
-      <strong>{{ subjects().length }}</strong>
-      <span>Registradas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"></path></svg></span>
+      <div><strong>{{ subjects().length }}</strong><span>Registradas</span></div>
     </article>
     <article>
-      <strong>{{ activeSubjectsCount() }}</strong>
-      <span>Activas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ activeSubjectsCount() }}</strong><span>Activas</span></div>
     </article>
     <article>
-      <strong>{{ inactiveSubjectsCount() }}</strong>
-      <span>Inactivas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ inactiveSubjectsCount() }}</strong><span>Inactivas</span></div>
     </article>
     <article>
-      <strong>{{ visibleSubjects().length }}</strong>
-      <span>En vista actual</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3-5 9-5 9 5 9 5-3 5-9 5-9-5-9-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></span>
+      <div><strong>{{ visibleSubjects().length }}</strong><span>En vista actual</span></div>
     </article>
   </div>
 </section>
@@ -191,33 +195,48 @@
       <h3>{{ canManageSubjects() ? 'Catalogo de asignaturas' : 'Asignaturas activas' }}</h3>
     </div>
 
-    <div class="table-tools">
-      <div class="search-field table-search">
-        <input
-          type="search"
-          [value]="searchInput()"
-          (input)="updateSearch($event)"
-          (keyup.enter)="searchSubjects()"
-          placeholder="ID o nombre"
-        />
-        <button class="search-action" type="button" (click)="searchSubjects()">Buscar</button>
-        @if (appliedSearchTerm()) {
-          <button class="clear-action" type="button" (click)="clearSearch()">Limpiar</button>
-        }
+    <div class="subject-filter-controls">
+      <div class="table-tools">
+        <div class="search-field table-search">
+          <input
+            type="search"
+            [value]="searchInput()"
+            (input)="updateSearch($event)"
+            placeholder="ID o nombre"
+          />
+          @if (appliedSearchTerm()) {
+            <button class="clear-action" type="button" (click)="clearSearch()">Limpiar</button>
+          }
+        </div>
       </div>
+
+      @if (canManageSubjects()) {
+        <div class="filters">
+          <label>
+            <span>Estatus</span>
+            <select [value]="statusFilter()" (change)="selectStatus($event)">
+              <option value="TODOS">Todos</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </label>
+        </div>
+      }
     </div>
 
-    @if (canManageSubjects()) {
-      <div class="filters">
-        <label>
-          <span>Estatus</span>
-          <select [value]="statusFilter()" (change)="selectStatus($event)">
-            <option value="TODOS">Todos</option>
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
-        </label>
-      </div>
+    @if (activeCycle(); as cycle) {
+      <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+        <div class="directory-cycle-main">
+          <span class="directory-cycle-kicker">Ciclo activo</span>
+          <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+        </div>
+        <span class="directory-cycle-divider" aria-hidden="true"></span>
+        <div class="directory-cycle-date">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ formatCycleDate(cycle.tentativeCaptureCloseAt) }}</strong>
+        </div>
+      </aside>
     }
   </div>
 
@@ -260,7 +279,7 @@
             </td>
             <td>
               <div class="stacked-cell">
-                <strong>{{ subject.createdByName }}</strong>
+                <strong>{{ subjectRegisteredByLabel(subject) }}</strong>
                 <small>{{ subject.createdByRole }}</small>
               </div>
             </td>

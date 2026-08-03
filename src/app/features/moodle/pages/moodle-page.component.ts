@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AcademicAssignment, AssignmentStatus, AssignmentsRepository } from '../../assignments/data/assignments.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
@@ -104,6 +104,7 @@ export class MoodlePageComponent {
   private readonly cyclesRepository = inject(CyclesRepository);
   private readonly nomenclaturesRepository = inject(NomenclaturesRepository);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly templatesRepository = inject(MoodleTemplatesRepository);
   private readonly userSessionService = inject(UserSessionService);
 
@@ -154,6 +155,31 @@ export class MoodlePageComponent {
   templateForm: TemplateFormState = this.emptyTemplateForm();
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente');
+  readonly activeTemplatesCount = computed(() => this.activeTemplates().length);
+  readonly pendingBatchCount = computed(() =>
+    this.moodleAssignments().filter((assignment) => assignment.status === 'EN_CAPTURA').length,
+  );
+
+  activeCycleCloseLabel(): string {
+    const closeAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    if (!closeAt) {
+      return 'Pendiente';
+    }
+
+    const date = new Date(`${closeAt}T00:00:00`);
+    return Number.isNaN(date.getTime())
+      ? closeAt
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '');
+  }
+
+  selectMoodleTab(tab: MoodleTab): void {
+    void this.router.navigate(['/moodle'], { queryParams: { tab } });
+  }
 
   readonly canManageMoodle = computed(() => {
     const appUser = this.session()?.appUser;
@@ -417,6 +443,15 @@ export class MoodlePageComponent {
   selectTemplateType(type: string): void {
     this.activeTemplateType.set(type);
     this.templateCurrentPage.set(1);
+  }
+
+  selectTemplateTypeFromEvent(event: Event): void {
+    this.selectTemplateType((event.target as HTMLSelectElement).value);
+  }
+
+  selectTemplateTypeFromPicker(type: string, picker: HTMLDetailsElement): void {
+    this.selectTemplateType(type);
+    picker.open = false;
   }
 
   updateTemplateSearch(value: string): void {

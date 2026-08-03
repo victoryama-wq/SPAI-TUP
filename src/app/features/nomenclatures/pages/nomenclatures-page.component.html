@@ -14,8 +14,14 @@
 
     @if (canManageNomenclatures()) {
       <div class="header-actions">
-        <label class="secondary-action import-action">
-          <span>Cargar CSV</span>
+        <label class="secondary-action import-action" title="Cargar CSV" aria-label="Cargar CSV">
+          <svg class="csv-upload-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <path class="document" d="M7 4h23l10 10v27H7z"></path>
+            <path class="fold" d="M30 4v10h10"></path>
+            <text x="19" y="27" text-anchor="middle">CSV</text>
+            <path class="upload-arrow" d="M34 45V35h-5l9-9 9 9h-5v10z"></path>
+          </svg>
+          <span class="icon-action-label">Cargar archivo</span>
           <input type="file" accept=".csv,text/csv" (change)="importCsv($event)" />
         </label>
         <button
@@ -25,16 +31,19 @@
           title="Descargar plantilla CSV"
           (click)="downloadCsvTemplate()"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 6h9M8 10h9M8 14h5M4 6h.01M4 10h.01M4 14h.01M12 19h8M16 15l4 4-4 4"></path>
+          <svg class="csv-download-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <path class="document" d="M7 4h23l10 10v27H7z"></path>
+            <path class="fold" d="M30 4v10h10"></path>
+            <text x="19" y="27" text-anchor="middle">CSV</text>
+            <path class="download-arrow" d="M34 23v10h-5l9 9 9-9h-5V23z"></path>
           </svg>
-          <span>Plantilla</span>
+          <span class="icon-action-label">Plantilla</span>
         </button>
         <button class="primary-action" type="button" (click)="openForm()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 5v14M5 12h14"></path>
           </svg>
-          <span>Nueva nomenclatura</span>
+          <span>Nomenclatura</span>
         </button>
       </div>
     } @else {
@@ -60,24 +69,20 @@
 
   <div class="summary-grid">
     <article>
-      <strong>{{ nomenclatures().length }}</strong>
-      <span>Nomenclaturas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"></path></svg></span>
+      <div><strong>{{ nomenclatures().length }}</strong><span>Nomenclaturas</span></div>
     </article>
     <article>
-      <strong>{{ activeNomenclaturesCount() }}</strong>
-      <span>Activas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ activeNomenclaturesCount() }}</strong><span>Activas</span></div>
     </article>
     <article>
-      <strong>{{ inactiveNomenclaturesCount() }}</strong>
-      <span>Inactivas</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ inactiveNomenclaturesCount() }}</strong><span>Inactivas</span></div>
     </article>
     <article>
-      <strong>{{ registeredProgramsCount() }}</strong>
-      <span>Programas</span>
-    </article>
-    <article>
-      <strong>{{ usedNomenclaturesCount() }}</strong>
-      <span>Con uso historico</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ usedNomenclaturesCount() }}</strong><span>Con uso histórico</span></div>
     </article>
   </div>
 </section>
@@ -188,7 +193,7 @@
       <h3>Abreviaturas registradas</h3>
     </div>
 
-    <form class="table-filter" role="search" (submit)="$event.preventDefault(); applySearch()">
+    <form class="table-filter" role="search" (submit)="$event.preventDefault()">
       <label>
         <span>Buscar nomenclatura</span>
         <input
@@ -200,17 +205,25 @@
         />
       </label>
 
-      <button class="primary-action search-action" type="submit">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"></path>
-        </svg>
-        <span>Buscar</span>
-      </button>
-
       @if (searchText()) {
         <button class="secondary-action" type="button" (click)="clearSearch()">Limpiar</button>
       }
     </form>
+
+    @if (activeCycle(); as cycle) {
+      <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+        <div class="directory-cycle-main">
+          <span class="directory-cycle-kicker">Ciclo activo</span>
+          <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+        </div>
+        <span class="directory-cycle-divider" aria-hidden="true"></span>
+        <div class="directory-cycle-date">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ formatCycleDate(cycle.tentativeCaptureCloseAt) }}</strong>
+        </div>
+      </aside>
+    }
   </div>
 
   <div class="table-wrap">

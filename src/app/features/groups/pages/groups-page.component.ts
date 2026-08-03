@@ -496,6 +496,22 @@ export class GroupsPageComponent implements OnDestroy {
     return cycle ? `${cycle.code} - ${cycle.label}` : cycleCode;
   }
 
+  formatCycleDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'PENDIENTE';
+    }
+
+    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+
+    return Number.isNaN(date.getTime())
+      ? 'PENDIENTE'
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '').toUpperCase();
+  }
+
   groupCycleCode(group: AcademicGroup): string {
     const storedCycle = this.normalizeCycleCode(group.cycleCode);
 

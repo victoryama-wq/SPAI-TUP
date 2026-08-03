@@ -101,6 +101,88 @@ th {
   }
 }
 
+/* Catálogo con la misma composición institucional aplicada en Ciclos. */
+.nomenclatures-overview {
+  align-items: stretch;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(330px, 0.9fr) minmax(0, 1.1fr);
+  overflow: visible;
+  padding: 0 !important;
+}
+
+.nomenclatures-overview::before { display: none; }
+
+.nomenclatures-overview .nomenclatures-header {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(8, 36, 87, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 22px 24px;
+}
+
+.nomenclatures-overview .nomenclatures-header::after { background: #42b6e8; content: ''; height: calc(100% - 32px); left: 0; position: absolute; top: 16px; width: 4px; }
+.nomenclatures-overview .nomenclatures-header > div:first-child > span { color: #a9d8ff; font-size: 12px; }
+.nomenclatures-overview .nomenclatures-header h2 { color: #ffffff; font-size: clamp(23px, 2vw, 29px); margin: 5px 0 7px; }
+.nomenclatures-overview .nomenclatures-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; }
+.nomenclatures-overview .header-actions { gap: 9px; }
+.nomenclatures-overview .primary-action,
+.nomenclatures-overview .secondary-action,
+.nomenclatures-overview .icon-template-action { background: #ffffff; border: 0; color: #0b3f8d; min-height: 40px; padding: 0 14px; }
+.nomenclatures-overview .primary-action span,
+.nomenclatures-overview .secondary-action span,
+.nomenclatures-overview .icon-template-action span { color: #0b3f8d; }
+.nomenclatures-overview .import-feedback { width: 100%; }
+
+.nomenclatures-overview .summary-grid { align-content: stretch; display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.nomenclatures-overview .summary-grid article { align-items: center; background: #ffffff; border: 1px solid #dbe7f5; border-radius: 8px; box-shadow: 0 8px 20px rgba(21, 61, 122, 0.07); display: flex; gap: 10px; justify-items: initial; min-height: 0; padding: 12px; text-align: left; }
+.nomenclatures-overview .summary-grid article > div { display: grid; gap: 3px; }
+.nomenclatures-overview .summary-grid article > div > strong { color: #092d70; font-size: 25px; }
+.nomenclatures-overview .summary-grid article > div > span { color: #173c76; font-size: 13px; }
+.summary-icon { align-items: center; background: #edf4ff; border-radius: 999px; color: #1d5bd8; display: grid; flex: 0 0 auto; height: 42px; justify-items: center; width: 42px; }
+.summary-icon svg { fill: none; height: 21px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 21px; }
+
+.table-panel > .panel-title { align-items: center; background: linear-gradient(135deg, #071d4f 0%, #0b357f 100%); display: grid; gap: 18px; grid-template-columns: minmax(190px, 0.65fr) minmax(360px, 1fr) auto; margin: -26px -30px 22px; padding: 18px 30px; }
+.table-panel > .panel-title h3 { color: #ffffff; }
+.table-panel > .panel-title .table-filter { align-items: end; background: transparent; border: 0; border-radius: 0; margin: 0; padding: 0; width: 100%; }
+.table-panel > .panel-title .table-filter label span { color: #d5e8ff; }
+.table-panel > .panel-title .table-filter input { background: #ffffff; }
+.table-panel > .panel-title .table-filter .search-action { background: #ffffff; color: #0b3f8d; }
+.table-panel > .panel-title .table-filter .search-action span { color: #0b3f8d; }
+.table-panel > .panel-title .table-filter > .secondary-action { background: #edf4ff; color: #0b3f8d; }
+
+.directory-cycle-status { align-items: center; background: #ffffff; border: 1px solid #cfe0f6; border-radius: 9px; box-shadow: 0 5px 14px rgba(20, 57, 112, 0.06); display: inline-flex; gap: 10px; padding: 8px 10px; }
+.directory-cycle-main { align-items: center; display: inline-flex; gap: 8px; justify-content: center; }
+.directory-cycle-kicker, .directory-cycle-date > span { color: #1457d6; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.directory-cycle-code { align-items: center; background: #1e3a8a; border: 1px solid #1e3a8a; border-radius: 8px; color: #ffffff; display: inline-flex; font-size: 20px; font-weight: 900; min-height: 34px; padding: 0 13px; }
+.directory-cycle-divider { background: #bfd4f2; height: 30px; width: 1px; }
+.directory-cycle-date { align-items: center; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 8px; color: #06174a; display: inline-flex; gap: 8px; min-height: 34px; padding: 0 11px; }
+.directory-cycle-date svg { fill: none; height: 16px; stroke: #1765d8; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; width: 16px; }
+.directory-cycle-date strong { color: #1457d6; font-size: 15px; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .nomenclatures-overview { grid-template-columns: 1fr; }
+  .table-panel > .panel-title { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .nomenclatures-overview .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .table-panel > .panel-title { align-items: stretch; margin: -24px -24px 20px; padding: 18px 24px; }
+  .directory-cycle-status { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (max-width: 520px) {
+  .nomenclatures-overview .summary-grid { grid-template-columns: 1fr; }
+}
+
 .nomenclatures-overview {
   display: grid;
   gap: 14px;
@@ -238,6 +320,52 @@ th {
 .primary-action svg {
   height: 22px;
   width: 22px;
+}
+
+.import-action .csv-upload-icon {
+  filter: drop-shadow(1px 2px 0 rgba(38, 47, 90, .22));
+  height: 45px;
+  overflow: visible;
+  width: 45px;
+}
+
+.import-action .csv-upload-icon .document {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.import-action .csv-upload-icon .fold {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.import-action .csv-upload-icon text {
+  fill: #0b3f8d;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  stroke: none;
+}
+
+.import-action .csv-upload-icon .upload-arrow {
+  fill: #43a8f5;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.nomenclatures-overview .import-action {
+  background: #244a9b;
+  border: 1px solid rgba(255, 255, 255, .34);
+}
+
+.nomenclatures-overview .import-action:hover {
+  background: #1e3a8a;
 }
 
 .form-panel,
@@ -418,6 +546,84 @@ th {
   stroke-linejoin: round;
   stroke-width: 2;
   width: 18px;
+}
+
+.nomenclatures-overview .icon-template-action {
+  background: #244a9b;
+  border-color: rgba(255, 255, 255, .34);
+  color: #ffffff;
+}
+
+.nomenclatures-overview .icon-template-action span {
+  color: #ffffff;
+}
+
+.nomenclatures-overview .icon-template-action:hover {
+  background: #1e3a8a;
+}
+
+.icon-template-action .csv-download-icon {
+  filter: drop-shadow(1px 2px 0 rgba(38, 47, 90, .22));
+  height: 35px;
+  overflow: visible;
+  width: 35px;
+}
+
+.icon-template-action .csv-download-icon .document,
+.icon-template-action .csv-download-icon .fold {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.icon-template-action .csv-download-icon text {
+  fill: #0b3f8d;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  stroke: none;
+}
+
+.icon-template-action .csv-download-icon .download-arrow {
+  fill: #43a8f5;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.nomenclatures-overview .header-actions .import-action,
+.nomenclatures-overview .header-actions .icon-template-action {
+  flex-direction: column;
+  gap: 2px;
+  height: 58px;
+  min-width: 94px;
+  padding: 4px 6px;
+  width: 94px;
+}
+
+.nomenclatures-overview .import-action .csv-upload-icon {
+  height: 31px;
+  width: 31px;
+}
+
+.nomenclatures-overview .icon-template-action .csv-download-icon {
+  height: 30px;
+  width: 30px;
+}
+
+.nomenclatures-overview .icon-action-label {
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nomenclatures-overview .import-action .icon-action-label {
+  color: #ffffff;
 }
 
 .import-feedback {

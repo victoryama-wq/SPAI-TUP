@@ -5,6 +5,7 @@ import {
   AuditLogEntry,
   AuditLogRepository,
 } from '../../../core/data/audit-log.repository';
+import { CyclesRepository } from '../../cycles/data/cycles.repository';
 
 type PeriodFilter = 'Todos' | 'Hoy' | '7 dias' | '30 dias';
 
@@ -23,6 +24,7 @@ interface SummaryRow {
 })
 export class AuditLogPageComponent {
   private readonly auditLogRepository = inject(AuditLogRepository);
+  private readonly cyclesRepository = inject(CyclesRepository);
   private readonly metadataKeysToHide = new Set([
     'action',
     'createdAt',
@@ -36,6 +38,7 @@ export class AuditLogPageComponent {
 
   readonly entries = this.auditLogRepository.entries;
   readonly readError = this.auditLogRepository.entriesReadError;
+  readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly searchTerm = signal('');
   readonly selectedModule = signal('Todos');
   readonly selectedAction = signal('Todas');
@@ -133,6 +136,22 @@ export class AuditLogPageComponent {
     this.selectedAction.set('Todas');
     this.selectedPeriod.set('Todos');
     this.resetPage();
+  }
+
+  formatCycleDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'PENDIENTE';
+    }
+
+    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+
+    return Number.isNaN(date.getTime())
+      ? 'PENDIENTE'
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '').toUpperCase();
   }
 
   safeCurrentPage(): number {

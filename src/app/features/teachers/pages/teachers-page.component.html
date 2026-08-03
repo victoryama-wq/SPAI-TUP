@@ -6,9 +6,17 @@
       <p>Alta manual, validacion por Sistemas y vista de base de Docentes.</p>
     </div>
 
-    <div class="panel-tabs" aria-label="Subpaneles de docentes">
+    <div
+      class="panel-tabs"
+      [class.academic-coordination-tabs]="isAcademicCoordination()"
+      aria-label="Subpaneles de docentes"
+    >
       @if (isAcademicCoordination()) {
-        <button type="button" class="active" (click)="toggleAcademicTeacherView()">
+        <button
+          type="button"
+          class="active academic-global-teachers-action"
+          (click)="toggleAcademicTeacherView()"
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
             <circle cx="12" cy="12" r="2.5"></circle>
@@ -103,20 +111,20 @@
 
   <div class="summary-grid">
     <article>
-      <strong>{{ activeTeacherRecords().length }}</strong>
-      <span>Registrados</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M21 21v-2a4 4 0 0 0-3-3.87"></path></svg></span>
+      <div><strong>{{ activeTeacherRecords().length }}</strong><span>Registrados</span></div>
     </article>
     <article>
-      <strong>{{ activeTeachersCount() }}</strong>
-      <span>Activos</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ activeTeachersCount() }}</strong><span>Activos</span></div>
     </article>
     <article>
-      <strong>{{ pendingTeachersCount() }}</strong>
-      <span>Pendientes</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ pendingTeachersCount() }}</strong><span>Pendientes</span></div>
     </article>
     <article>
-      <strong>{{ inactiveTeachersCount() }}</strong>
-      <span>Inactivos</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
+      <div><strong>{{ inactiveTeachersCount() }}</strong><span>Inactivos</span></div>
     </article>
   </div>
 </section>
@@ -259,10 +267,8 @@
             type="search"
             [value]="searchDraft"
             (input)="updateSearchDraft($event)"
-            (keydown.enter)="applySearch()"
             placeholder="Nombre completo o usuario Moodle"
           />
-          <button class="search-action" type="button" (click)="applySearch()">Buscar</button>
         </div>
       </label>
       <label>
@@ -275,6 +281,21 @@
         </select>
       </label>
     </div>
+
+    @if (activeCycle(); as cycle) {
+      <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
+        <div class="directory-cycle-main">
+          <span class="directory-cycle-kicker">Ciclo activo</span>
+          <strong class="directory-cycle-code">{{ cycle.code }}</strong>
+        </div>
+        <span class="directory-cycle-divider" aria-hidden="true"></span>
+        <div class="directory-cycle-date">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+          <span>Cierre de captura</span>
+          <strong>{{ formatCycleDate(cycle.tentativeCaptureCloseAt) }}</strong>
+        </div>
+      </aside>
+    }
   </div>
 
   <div class="table-wrap">

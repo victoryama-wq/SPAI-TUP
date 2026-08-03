@@ -303,6 +303,116 @@
   justify-content: start;
 }
 
+.category-side-panel .category-actions {
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 7px;
+  justify-content: center;
+  width: 100%;
+}
+
+.category-side-panel .moodle-csv-action {
+  align-items: center;
+  background: #2850a5;
+  border-color: #426fc4;
+  color: #ffffff;
+  flex-direction: column;
+  gap: 3px;
+  justify-content: center;
+  min-height: 72px;
+  padding: 7px 10px;
+  width: 100px;
+}
+
+.category-side-panel .moodle-csv-action:hover {
+  background: #173b87;
+  border-color: #7ab7ff;
+}
+
+.category-side-panel .moodle-csv-action input[type="file"] {
+  cursor: pointer;
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.category-side-panel .moodle-csv-action .csv-upload-icon,
+.category-side-panel .moodle-csv-action .csv-download-icon {
+  filter: drop-shadow(1px 2px 0 rgb(6 30 77 / 0.25));
+  height: 39px;
+  overflow: visible;
+  width: 39px;
+}
+
+.category-side-panel .moodle-csv-action .document,
+.category-side-panel .moodle-csv-action .fold {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.category-side-panel .moodle-csv-action text {
+  fill: #123b87;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  stroke: none;
+}
+
+.category-side-panel .moodle-csv-action .upload-arrow,
+.category-side-panel .moodle-csv-action .download-arrow {
+  fill: #43a8f5;
+  stroke: #ffffff;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.category-side-panel .moodle-csv-action .icon-action-label {
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.category-side-panel .moodle-new-category-action {
+  align-items: center;
+  color: #ffffff;
+  flex: 0 1 96px;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 58px;
+  min-width: 92px;
+  padding: 5px 6px;
+  white-space: nowrap;
+}
+
+.category-side-panel .moodle-new-category-action span {
+  color: #ffffff !important;
+  font-size: 8px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.category-side-panel .moodle-new-category-action svg {
+  fill: none;
+  height: 23px;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  stroke-width: 2.3;
+  width: 23px;
+}
+
+@media (max-width: 370px) {
+  .category-side-panel .category-actions {
+    flex-wrap: wrap;
+  }
+}
+
 .category-side-panel th,
 .category-side-panel td {
   padding: 10px 8px;
@@ -961,6 +1071,631 @@
   .template-pagination .catalog-pagination-controls {
     justify-content: flex-start;
     margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Cabecera unificada de Moodle: el ciclo y las vistas viven en el panel azul. */
+.moodle-overview {
+  display: block;
+}
+
+.moodle-overview-metrics,
+.template-header-tools .moodle-template-context {
+  display: none;
+}
+
+.moodle-overview-hero {
+  align-items: center;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  justify-content: space-between;
+  min-height: 150px;
+}
+
+.moodle-overview-hero > span,
+.moodle-overview-hero > h2,
+.moodle-overview-hero > p {
+  grid-column: 1;
+}
+
+.moodle-overview-hero > span {
+  grid-row: 1;
+}
+
+.moodle-overview-hero > h2 {
+  grid-row: 2;
+}
+
+.moodle-overview-hero > p {
+  grid-row: 3;
+}
+
+.moodle-overview-actions {
+  align-content: end;
+  display: grid;
+  flex: 0 1 auto;
+  gap: 12px;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  justify-items: end;
+}
+
+.moodle-overview-actions .moodle-cycle-chip {
+  background: #ffffff;
+  border-color: #d7e4f8;
+  color: #0750cf;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(208 228 255 / 0.55);
+  color: #ffffff;
+}
+
+.moodle-overview-actions .moodle-section-tabs button.active {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #123985;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  min-height: 52px;
+  padding: 0 18px;
+}
+
+/* El bloque de accesos comparte el largo del estado del ciclo. */
+.moodle-overview-hero {
+  min-height: 0;
+  padding: 18px 28px;
+}
+
+.moodle-overview-actions {
+  gap: 8px;
+  width: min(100%, 672px);
+}
+
+.moodle-overview-actions .moodle-cycle-chip,
+.moodle-overview-actions .moodle-section-tabs {
+  width: 100%;
+}
+
+.moodle-overview-actions .moodle-section-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  width: 100%;
+}
+
+/* Se mantienen explícitamente sobre las reglas previas del módulo. */
+.moodle-shell .moodle-overview {
+  display: block;
+}
+
+.moodle-shell .moodle-overview-metrics,
+.moodle-shell .template-header-tools .moodle-template-context {
+  display: none;
+}
+
+.moodle-shell .moodle-overview-hero {
+  align-items: center;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 0;
+  padding: 18px 28px;
+}
+
+.moodle-shell .moodle-overview-hero > span,
+.moodle-shell .moodle-overview-hero > h2,
+.moodle-shell .moodle-overview-hero > p {
+  grid-column: 1;
+}
+
+.moodle-shell .moodle-overview-hero > span { grid-row: 1; }
+.moodle-shell .moodle-overview-hero > h2 { grid-row: 2; }
+.moodle-shell .moodle-overview-hero > p { grid-row: 3; }
+
+.moodle-shell .moodle-overview-actions {
+  gap: 8px;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: min(100%, 672px);
+}
+
+.moodle-shell .moodle-overview-actions .moodle-cycle-chip,
+.moodle-shell .moodle-overview-actions .moodle-section-tabs {
+  width: 100%;
+}
+
+.moodle-shell .moodle-overview-actions .moodle-section-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.moodle-shell .moodle-overview-actions .moodle-section-tabs button {
+  min-height: 52px;
+  padding: 0 18px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .moodle-overview-hero {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-overview-hero > span,
+  .moodle-overview-hero > h2,
+  .moodle-overview-hero > p,
+  .moodle-overview-actions {
+    grid-column: 1;
+  }
+
+  .moodle-overview-actions {
+    grid-row: 4;
+  }
+
+  .moodle-overview-actions {
+    justify-items: start;
+    width: 100%;
+  }
+
+  .moodle-overview-actions .moodle-cycle-chip,
+  .moodle-overview-actions .moodle-section-tabs {
+    justify-content: flex-start;
+  }
+}
+
+/* En pantallas amplias, el estado del ciclo y las secciones comparten una sola franja. */
+@media (min-width: 1181px) {
+  .moodle-shell .moodle-overview-hero {
+    grid-template-columns: minmax(340px, 1fr) minmax(760px, 1.3fr);
+  }
+
+  .moodle-shell .moodle-overview-actions {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(430px, 1.25fr) minmax(310px, 1fr);
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-cycle-chip,
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs {
+    margin: 0;
+    width: 100%;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs {
+    align-items: stretch;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Moodle comparte la jerarquia institucional sin perder su catalogo dividido. */
+.moodle-shell {
+  gap: 20px;
+}
+
+.moodle-shell .moodle-overview-hero {
+  border-radius: 11px;
+  box-shadow: 0 12px 25px rgb(7 29 79 / 0.15);
+  gap: 24px;
+  min-height: 138px;
+  padding: 20px 28px;
+}
+
+.moodle-shell .moodle-overview-hero > span {
+  font-size: 12px;
+}
+
+.moodle-shell .moodle-overview-hero h2 {
+  font-size: clamp(26px, 2.25vw, 32px);
+  margin: 2px 0 4px;
+}
+
+.moodle-shell .moodle-overview-hero p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.moodle-shell .moodle-overview-actions {
+  width: min(100%, 540px);
+}
+
+.moodle-shell .moodle-overview-actions .moodle-section-tabs button {
+  font-size: 12px;
+  min-height: 46px;
+  padding: 0 12px;
+}
+
+.moodle-shell .catalog-panels {
+  align-items: stretch;
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 11px;
+  box-shadow: 0 14px 32px rgb(15 35 83 / 0.08);
+  gap: 0;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  overflow: hidden;
+  padding-top: 4px;
+  position: relative;
+}
+
+.moodle-shell .catalog-panels::before {
+  background: linear-gradient(90deg, #1d4ed8, #0ea5e9, transparent);
+  content: '';
+  height: 4px;
+  inset: 0 0 auto;
+  position: absolute;
+}
+
+.moodle-shell .catalog-panels .workspace-panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.moodle-shell .catalog-panels .workspace-panel::before {
+  display: none;
+}
+
+.moodle-shell .catalog-panels .category-side-panel {
+  background: #f8fbff;
+  border-right: 1px solid #d7e4f8;
+  padding: 23px 20px;
+}
+
+.moodle-shell .catalog-panels .template-side-panel {
+  padding: 23px 26px 28px;
+}
+
+.moodle-shell .catalog-panels .panel-toolbar > div:first-child > span,
+.moodle-shell .catalog-panels .template-heading-copy > span {
+  color: #1457d6;
+  font-size: 12px;
+}
+
+@media (max-width: 980px) {
+  .moodle-shell .catalog-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-shell .catalog-panels .category-side-panel {
+    border-bottom: 1px solid #d7e4f8;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .moodle-shell .moodle-overview-hero {
+    min-height: 0;
+  }
+
+  .moodle-shell .moodle-overview-actions {
+    width: 100%;
+  }
+}
+
+/* La franja superior conserva el ciclo a la izquierda y las secciones a su derecha. */
+@media (min-width: 1181px) {
+  .moodle-shell .moodle-overview-hero {
+    grid-template-columns: minmax(340px, 1fr) minmax(760px, 1.3fr);
+  }
+
+  .moodle-shell .moodle-overview-actions {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(430px, 1.25fr) minmax(310px, 1fr);
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-cycle-chip,
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs {
+    margin: 0;
+    width: 100%;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs {
+    align-items: stretch;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Filtro de tipos integrado al panel de plantillas, sin pestañas flotantes. */
+.moodle-shell .template-type-tabs {
+  align-items: center;
+  background: #f5f9ff;
+  border: 1px solid #d7e4f8;
+  border-radius: 10px;
+  column-gap: 7px;
+  margin: 4px 0 12px;
+  padding: 8px;
+  row-gap: 7px;
+}
+
+.moodle-shell .template-type-tabs button {
+  border-bottom-color: var(--template-tab-border, #cbd5e1);
+  border-radius: 8px;
+  margin-bottom: 0;
+  min-height: 36px;
+  padding: 0 11px 0 14px;
+}
+
+.moodle-shell .template-type-tabs button::before {
+  border-radius: 8px 0 0 8px;
+  bottom: 0;
+  height: auto;
+  inset: 0 auto 0 0;
+  width: 4px;
+}
+
+.moodle-shell .template-type-tabs button.active {
+  border-color: var(--template-tab-color, #1457d6);
+  box-shadow: 0 4px 12px rgb(15 35 83 / 0.12);
+  transform: none;
+}
+
+.moodle-shell .template-type-tabs span {
+  font-size: 10px;
+}
+
+.moodle-shell .template-type-tabs strong {
+  font-size: 11px;
+  min-width: 22px;
+  padding: 3px 6px;
+}
+
+@media (max-width: 620px) {
+  .moodle-shell .template-type-tabs {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moodle-shell .template-type-tabs button {
+    justify-content: space-between;
+    min-width: 0;
+  }
+}
+
+/* El selector permite filtrar desde las acciones; las pestañas quedan bajo la búsqueda. */
+.moodle-shell .template-header-tools .toolbar-actions {
+  align-items: end;
+}
+
+.moodle-shell .template-header-tools .template-actions-under-search {
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.moodle-shell .template-type-select {
+  display: grid;
+  gap: 4px;
+  min-width: 148px;
+}
+
+.moodle-shell .template-type-select > span {
+  color: #1457d6;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.moodle-shell .template-type-select select {
+  background: #f8fbff;
+  border: 1px solid #bcd3f3;
+  border-radius: 8px;
+  color: #0b357f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 42px;
+  padding: 0 28px 0 11px;
+  width: 100%;
+}
+
+.moodle-shell .template-header-tools .template-type-tabs {
+  margin: 0;
+  width: 100%;
+}
+
+@media (max-width: 620px) {
+  .moodle-shell .template-type-select {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+/* Selector de tipo con opciones visuales, alineado a la acción de carga. */
+.moodle-shell .template-type-picker {
+  min-width: 188px;
+  position: relative;
+  z-index: 8;
+}
+
+.moodle-shell .template-type-picker summary {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid #bcd3f3;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  gap: 7px;
+  list-style: none;
+  min-height: 42px;
+  padding: 0 10px;
+}
+
+.moodle-shell .template-type-picker summary::-webkit-details-marker {
+  display: none;
+}
+
+.moodle-shell .template-type-picker summary > span {
+  color: #1457d6;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.moodle-shell .template-type-picker summary .template-type-pill {
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
+  padding: 5px 7px;
+}
+
+.moodle-shell .template-type-picker summary svg {
+  fill: none;
+  flex: 0 0 auto;
+  height: 16px;
+  stroke: #1457d6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+  transition: transform .15s ease;
+  width: 16px;
+}
+
+.moodle-shell .template-type-picker[open] summary {
+  border-color: #4a84e8;
+  box-shadow: 0 0 0 3px rgb(74 132 232 / 0.16);
+}
+
+.moodle-shell .template-type-picker[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.moodle-shell .template-type-picker-options {
+  background: #ffffff;
+  border: 1px solid #cfe0f6;
+  border-radius: 10px;
+  box-shadow: 0 12px 26px rgb(15 35 83 / 0.18);
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 9px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 7px);
+  width: min(440px, 80vw);
+}
+
+.moodle-shell .template-type-picker-options .template-type-pill {
+  align-items: center;
+  cursor: pointer;
+  font: inherit;
+  justify-content: space-between;
+  min-height: 34px;
+  text-align: left;
+  width: 100%;
+}
+
+.moodle-shell .template-type-picker-options .template-type-pill.active {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.moodle-shell .template-type-picker-options .template-type-pill strong {
+  background: rgb(255 255 255 / 0.72);
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 3px 6px;
+}
+
+@media (max-width: 620px) {
+  .moodle-shell .template-type-picker {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .moodle-shell .template-type-picker-options {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
+
+.moodle-shell .template-actions-under-search .secondary-action,
+.moodle-shell .template-actions-under-search .primary-action {
+  align-items: center;
+  background: #244a9b !important;
+  border: 1px solid #426fc4 !important;
+  color: #ffffff !important;
+  display: inline-flex;
+  gap: 7px;
+  justify-content: center;
+}
+
+.moodle-shell .template-actions-under-search .secondary-action:hover,
+.moodle-shell .template-actions-under-search .primary-action:hover {
+  background: #173b87 !important;
+  border-color: #7ab7ff !important;
+}
+
+.moodle-shell .template-actions-under-search .secondary-action span,
+.moodle-shell .template-actions-under-search .primary-action span {
+  color: #ffffff !important;
+}
+
+.moodle-shell .template-actions-under-search .secondary-action svg,
+.moodle-shell .template-actions-under-search .primary-action svg {
+  fill: none;
+  flex: 0 0 auto;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 18px;
+}
+
+.moodle-shell .template-type-picker summary {
+  background: #244a9b;
+  border-color: #426fc4;
+  color: #ffffff;
+}
+
+.moodle-shell .template-type-picker summary > span,
+.moodle-shell .template-type-picker summary svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+.moodle-shell .template-type-picker summary .template-type-pill {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.42);
+  color: #ffffff !important;
+}
+
+.moodle-shell .template-type-picker summary .template-type-pill * {
+  color: #ffffff !important;
+}
+
+.moodle-shell .template-type-picker[open] summary {
+  background: #173b87;
+  border-color: #7ab7ff;
+}
+
+@media (max-width: 560px) {
+  .moodle-overview-hero {
+    gap: 20px;
+  }
+
+  .moodle-overview-actions .moodle-cycle-chip {
     width: 100%;
   }
 }
@@ -1677,5 +2412,562 @@ td small {
   .batch-table th:nth-child(n),
   .batch-table td:nth-child(n) {
     width: 100%;
+  }
+}
+
+/* Ajuste final del encabezado Moodle: sin tarjetas de conteo. */
+.moodle-overview {
+  display: block;
+}
+
+.moodle-overview-metrics,
+.template-header-tools .moodle-template-context {
+  display: none;
+}
+
+.moodle-overview-hero {
+  align-items: center;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 150px;
+}
+
+.moodle-overview-hero > span,
+.moodle-overview-hero > h2,
+.moodle-overview-hero > p {
+  grid-column: 1;
+}
+
+.moodle-overview-hero > span { grid-row: 1; }
+.moodle-overview-hero > h2 { grid-row: 2; }
+.moodle-overview-hero > p { grid-row: 3; }
+
+.moodle-overview-actions {
+  align-content: end;
+  display: grid;
+  gap: 12px;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  justify-items: end;
+}
+
+.moodle-overview-actions .moodle-cycle-chip {
+  background: #ffffff;
+  border-color: #d7e4f8;
+  color: #0750cf;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(208 228 255 / 0.55);
+  color: #ffffff;
+}
+
+.moodle-overview-actions .moodle-section-tabs button.active {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #123985;
+}
+
+@media (max-width: 900px) {
+  .moodle-overview-hero {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-overview-hero > span,
+  .moodle-overview-hero > h2,
+  .moodle-overview-hero > p,
+  .moodle-overview-actions {
+    grid-column: 1;
+  }
+
+  .moodle-overview-actions {
+    grid-row: 4;
+    justify-items: start;
+    width: 100%;
+  }
+
+  .moodle-overview-actions .moodle-cycle-chip,
+  .moodle-overview-actions .moodle-section-tabs {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .moodle-overview-hero { gap: 20px; }
+
+  .moodle-overview-actions .moodle-cycle-chip { width: 100%; }
+}
+
+/* Identidad operativa Moodle: conserva el catálogo dividido en dos paneles. */
+.moodle-overview {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.6fr);
+}
+
+.moodle-overview-hero {
+  background: linear-gradient(135deg, #071b4a, #123b87);
+  border-left: 5px solid #26c7f4;
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgb(15 35 83 / 0.16);
+  color: #ffffff;
+  min-height: 162px;
+  padding: 26px 28px;
+}
+
+.moodle-overview-hero > span {
+  color: #9edaff;
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.moodle-overview-hero h2 {
+  color: #ffffff;
+  font-size: clamp(29px, 2.6vw, 38px);
+  line-height: 1.05;
+  margin: 8px 0 10px;
+}
+
+.moodle-overview-hero p {
+  color: #e3efff;
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 0;
+  max-width: 470px;
+}
+
+.moodle-overview-metrics {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.moodle-overview-metrics article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7e4f8;
+  border-radius: 10px;
+  display: flex;
+  gap: 14px;
+  min-height: 75px;
+  padding: 14px 18px;
+}
+
+.overview-icon {
+  align-items: center;
+  background: #edf4ff;
+  border-radius: 50%;
+  color: #1457d6;
+  display: inline-flex;
+  flex: 0 0 48px;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.overview-icon svg {
+  fill: none;
+  height: 24px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+  width: 24px;
+}
+
+.moodle-overview-metrics article > div {
+  display: grid;
+  gap: 2px;
+}
+
+.moodle-overview-metrics strong {
+  color: #061a44;
+  font-size: 29px;
+  line-height: 1;
+}
+
+.moodle-overview-metrics article > div > span {
+  color: #113a80;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.catalog-panels .workspace-panel {
+  box-shadow: 0 14px 32px rgb(15 35 83 / 0.07);
+}
+
+.category-side-panel .panel-toolbar > div:first-child > span,
+.template-heading-copy > span {
+  color: #0b55d9;
+}
+
+.template-side-panel .template-panel-toolbar {
+  gap: 18px;
+  grid-template-columns: minmax(245px, 0.65fr) minmax(420px, 1.35fr);
+}
+
+.moodle-template-context {
+  align-content: start;
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  width: 100%;
+}
+
+.moodle-cycle-chip {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid #c8dcf9;
+  border-radius: 9px;
+  color: #0750cf;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 9px;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  max-width: 100%;
+  padding: 8px 11px;
+  text-transform: uppercase;
+}
+
+.moodle-cycle-chip > strong {
+  background: #244494;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1;
+  padding: 7px 12px;
+}
+
+.moodle-cycle-chip > i {
+  background: #c8dcf9;
+  height: 28px;
+  width: 1px;
+}
+
+.moodle-cycle-chip .cycle-close {
+  align-items: center;
+  background: #f3f8ff;
+  border: 1px solid #d7e4f8;
+  border-radius: 7px;
+  display: inline-flex;
+  gap: 7px;
+  padding: 6px 8px;
+}
+
+.moodle-cycle-chip .cycle-close svg {
+  fill: none;
+  height: 17px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 17px;
+}
+
+.moodle-cycle-chip .cycle-close b {
+  font-size: 13px;
+}
+
+.moodle-section-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  justify-content: flex-end;
+}
+
+.moodle-section-tabs button {
+  background: #ffffff;
+  border: 1px solid #bcd3f3;
+  border-radius: 8px;
+  color: #0761d9;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  min-height: 39px;
+  padding: 0 15px;
+  text-transform: uppercase;
+}
+
+.moodle-section-tabs button.active {
+  background: #173987;
+  border-color: #173987;
+  box-shadow: 0 8px 16px rgb(23 57 135 / 0.18);
+  color: #ffffff;
+}
+
+.template-header-tools {
+  gap: 14px;
+}
+
+.template-header-tools .toolbar-actions {
+  gap: 8px;
+}
+
+.template-header-tools .secondary-action,
+.template-header-tools .primary-action {
+  min-height: 40px;
+}
+
+@media (max-width: 1180px) {
+  .moodle-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-overview-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .moodle-overview-metrics article {
+    min-height: 96px;
+  }
+
+  .template-side-panel .template-panel-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-template-context,
+  .template-header-tools {
+    justify-items: stretch;
+  }
+
+  .moodle-section-tabs,
+  .template-header-tools .toolbar-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
+  .moodle-overview {
+    gap: 12px;
+  }
+
+  .moodle-overview-hero {
+    min-height: auto;
+    padding: 22px 20px;
+  }
+
+  .moodle-overview-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moodle-overview-metrics article {
+    gap: 10px;
+    min-height: 80px;
+    padding: 12px;
+  }
+
+  .overview-icon {
+    flex-basis: 38px;
+    height: 38px;
+    width: 38px;
+  }
+
+  .overview-icon svg {
+    height: 20px;
+    width: 20px;
+  }
+
+  .moodle-overview-metrics strong {
+    font-size: 24px;
+  }
+
+  .moodle-overview-metrics article > div > span {
+    font-size: 12px;
+  }
+
+  .moodle-cycle-chip {
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .moodle-cycle-chip > i {
+    display: none;
+  }
+
+  .moodle-cycle-chip .cycle-close {
+    flex: 1 1 100%;
+  }
+
+  .moodle-section-tabs,
+  .template-header-tools .toolbar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .moodle-section-tabs button,
+  .template-header-tools .toolbar-actions > * {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* La última regla prevalece sobre la maqueta anterior de tarjetas. */
+.moodle-overview {
+  display: block;
+}
+
+.moodle-overview-metrics,
+.template-header-tools .moodle-template-context {
+  display: none;
+}
+
+.moodle-overview-hero {
+  align-items: center;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(340px, 1fr) minmax(760px, 1.3fr);
+  min-height: 150px;
+}
+
+.moodle-overview-hero > span,
+.moodle-overview-hero > h2,
+.moodle-overview-hero > p {
+  grid-column: 1;
+}
+
+.moodle-overview-hero > span { grid-row: 1; }
+.moodle-overview-hero > h2 { grid-row: 2; }
+.moodle-overview-hero > p { grid-row: 3; }
+
+.moodle-overview-actions {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-column: 2;
+  grid-template-columns: minmax(420px, 1fr) auto;
+  grid-row: 1 / span 3;
+  justify-items: start;
+  width: 100%;
+}
+
+.moodle-overview-actions .moodle-cycle-chip {
+  background: #ffffff;
+  border-color: #d7e4f8;
+  color: #0750cf;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(208 228 255 / 0.55);
+  color: #ffffff;
+}
+
+.moodle-overview-actions .moodle-section-tabs button.active {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #123985;
+}
+
+.moodle-overview-actions .moodle-cycle-chip {
+  flex-wrap: nowrap;
+  min-height: 46px;
+  min-width: 510px;
+}
+
+.moodle-overview-actions .moodle-cycle-chip > span:not(.cycle-close),
+.moodle-overview-actions .moodle-cycle-chip > strong,
+.moodle-overview-actions .moodle-cycle-chip .cycle-close {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.moodle-overview-actions .moodle-cycle-chip .cycle-close {
+  flex: 0 0 auto;
+}
+
+.moodle-overview-actions .moodle-section-tabs {
+  align-self: center;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: flex-end;
+  width: auto;
+}
+
+.moodle-overview-actions .moodle-section-tabs button {
+  min-height: 46px;
+  padding: 0 14px;
+  white-space: nowrap;
+  width: auto;
+}
+
+@media (max-width: 680px) {
+  .moodle-overview-actions .moodle-cycle-chip {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .moodle-overview-hero {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+  }
+
+  .moodle-overview-hero > span,
+  .moodle-overview-hero > h2,
+  .moodle-overview-hero > p,
+  .moodle-overview-actions {
+    grid-column: 1;
+  }
+
+  .moodle-overview-actions {
+    grid-row: 4;
+    justify-items: start;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
+
+/* En escritorio, el ciclo es el contexto central del panel y las secciones quedan a la derecha. */
+@media (min-width: 1181px) {
+  .moodle-overview-hero {
+    position: relative;
+  }
+
+  .moodle-overview-actions {
+    display: contents;
+  }
+
+  .moodle-overview-actions .moodle-cycle-chip {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  .moodle-overview-actions .moodle-section-tabs {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  /* Anula los anchos de la composición anterior: evita que ciclo y pestañas se estiren o se encimen. */
+  .moodle-shell .moodle-overview-actions .moodle-cycle-chip {
+    width: auto;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs {
+    align-items: center;
+    display: flex;
+    flex-wrap: nowrap;
+    width: auto;
+  }
+
+  .moodle-shell .moodle-overview-actions .moodle-section-tabs button {
+    width: auto;
   }
 }

@@ -1,3 +1,4 @@
+<section class="users-overview" aria-label="Resumen de usuarios">
 <section class="users-header">
   <div>
     <span>Panel de Coordinación de Sistemas</span>
@@ -5,33 +6,33 @@
     <p>Alta institucional, roles operativos y estado de acceso para el equipo academico.</p>
   </div>
 
-  <button class="primary-action" type="button" [disabled]="!canManageAccess()" (click)="openForm()">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 5v14M5 12h14"></path>
-    </svg>
-    <span>Nuevo usuario</span>
-  </button>
+  <div class="users-header-actions">
+    <button class="primary-action" type="button" [disabled]="!canManageAccess()" (click)="openForm()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5v14M5 12h14"></path>
+      </svg>
+      <span>Nuevo usuario</span>
+    </button>
+    <spai-role-manager [compact]="true" />
+  </div>
 </section>
-
-<section class="quick-panels" aria-label="Resumen y configuracion de usuarios">
-  <spai-role-manager />
 
   <section class="summary-grid" aria-label="Resumen de usuarios">
     <article>
-      <strong>{{ users().length }}</strong>
-      <span>Usuarios registrados</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6"></path></svg></span>
+      <div><strong>{{ users().length }}</strong><span>Usuarios registrados</span></div>
     </article>
     <article>
-      <strong>{{ activeUsersCount() }}</strong>
-      <span>Usuarios activos</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg></span>
+      <div><strong>{{ activeUsersCount() }}</strong><span>Usuarios activos</span></div>
     </article>
     <article>
-      <strong>{{ coordinatorCount() }}</strong>
-      <span>Coordinadores</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M21 21v-2a4 4 0 0 0-3-3.87"></path></svg></span>
+      <div><strong>{{ coordinatorCount() }}</strong><span>Coordinadores</span></div>
     </article>
     <article>
-      <strong>{{ rolesAvailableCount() }}</strong>
-      <span>Roles disponibles</span>
+      <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V7zM9 12l2 2 4-4"></path></svg></span>
+      <div><strong>{{ rolesAvailableCount() }}</strong><span>Roles disponibles</span></div>
     </article>
   </section>
 </section>
@@ -194,6 +195,18 @@
       <span>Directorio operativo</span>
       <h3>Usuarios registrados</h3>
     </div>
+    <aside class="directory-cycle-status" [class.pending]="!activeCycle()" aria-label="Estado del ciclo activo">
+      <div class="directory-cycle-main">
+        <span class="directory-cycle-kicker">Ciclo activo</span>
+        <strong class="directory-cycle-code">{{ activeCycleCodeLabel }}</strong>
+      </div>
+      <span class="directory-cycle-divider" aria-hidden="true"></span>
+      <span class="directory-cycle-date" [class.pending]="!activeCycle()?.tentativeCaptureCloseAt">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+        <span>Cierre de captura</span>
+        <strong>{{ activeCycleCaptureCloseLabel }}</strong>
+      </span>
+    </aside>
   </div>
 
   <div class="table-wrap">

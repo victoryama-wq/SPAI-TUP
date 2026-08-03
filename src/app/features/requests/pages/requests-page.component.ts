@@ -133,6 +133,16 @@ export class RequestsPageComponent {
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
 
+  get activeCycleCodeLabel(): string {
+    return this.activeCycle()?.code ?? 'Pendiente';
+  }
+
+  get activeCycleCaptureCloseLabel(): string {
+    const closeAt = this.activeCycle()?.tentativeCaptureCloseAt;
+
+    return closeAt ? this.formatCycleDate(closeAt).toUpperCase() : 'PENDIENTE';
+  }
+
   readonly requestTypeOptions: Array<{ value: OperationalRequestType; label: string }> = [
     { value: 'COMPARTIR_CLASE', label: 'Compartir clase' },
     { value: 'REABRIR_CAPTURA', label: 'Reabrir captura' },
@@ -1781,6 +1791,18 @@ export class RequestsPageComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
+  }
+
+  private formatCycleDate(value: string): string {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? new Date(`${value}T12:00:00`)
+      : new Date(value);
+
+    return new Intl.DateTimeFormat('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
   }
 
   private emptyRequestForm(cycle = this.activeCycle()?.code ?? ''): RequestForm {

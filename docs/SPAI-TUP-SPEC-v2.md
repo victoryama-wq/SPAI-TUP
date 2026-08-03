@@ -2564,6 +2564,38 @@ CSV para matriculacion individual:
   - Ligas Meet.
   - Moodle.
   - Importaciones y exportaciones CSV.
+
+### 24.18 Identidad visual operativa y tablero de actividades
+
+- Los modulos operativos comparten una identidad visual institucional: panel principal azul profundo, acento cian lateral o superior, tarjetas claras de conteo, controles compactos y tablas con bordes discretos.
+- La renovacion visual es responsiva: en pantallas angostas los paneles, filtros, chips, tarjetas y botones se apilan sin ocultar contenido ni alterar sus flujos funcionales.
+- Los encabezados de Ciclos, Usuarios, Nomenclaturas, Grupos, Docentes, Asignaturas, Asignaciones, Solicitudes, Ligas Meet, Moodle y Bitacora conservan sus operaciones existentes; el rediseño no cambia permisos, colecciones ni reglas de Firestore.
+- El ciclo activo y el cierre de captura se muestran dentro del encabezado operativo cuando aporta contexto; no se duplican en el Dashboard cuando el mismo dato ya esta representado en las tarjetas del rol.
+- Los botones de importacion y descarga CSV usan iconos consistentes, texto legible, tooltip cuando aplica y conservan exactamente las acciones ya autorizadas.
+- Las pestañas de modalidad, estado y tipo permanecen como controles de filtro funcionales. Se integran visualmente al borde de su panel y no deben romper la tabla o el panel de seguimiento.
+
+#### Dashboard de Sistemas
+
+- El Dashboard de Sistemas conserva bienvenida, tarjetas de conteo reales y el ciclo activo, y agrega un tablero de corcho de actividades solo para perfiles de Sistemas.
+- El tablero ofrece las vistas **Equipo** y **Privada**, con columnas **Pendiente**, **En proceso**, **Para revisar** y **Listo**.
+- Las actividades se crean, editan, mueven y eliminan solo despues de confirmar la operacion real en Firestore; no se muestra exito anticipado.
+- La vista Equipo queda preparada para usar las notificaciones internas y correo existentes al crear actividades para Sistemas, sin modificar ni sustituir esos flujos.
+- Coordinacion Academica y roles personalizados no ven el tablero de corcho.
+
+#### Dashboard de Coordinacion Academica
+
+- Coordinacion Academica conserva su dashboard sin tablero de corcho y muestra bienvenida institucional, tarjetas de docentes, ciclos, programas asignados y ciclo activo.
+- La tarjeta **Solicitudes a Sistemas** mantiene acceso a los apoyos operativos y se presenta junto a las tarjetas superiores con el mismo lenguaje visual.
+- El resumen academico conserva los datos reales y no escribe ni elimina informacion al aplicar cambios visuales.
+
+#### Catalogos y reportes por rol
+
+- En Docentes, Coordinacion Academica puede alternar entre **Mis docentes** y **Ver Global de docentes**. El boton de catalogo global debe tener ancho suficiente para su etiqueta completa.
+- El **Reporte CSV** de Docentes para Coordinacion Academica exporta exclusivamente los docentes vinculados a su coordinacion o programas asignados; Sistemas conserva el reporte institucional completo.
+- Las asignaturas registradas desde un perfil de Sistemas se identifican en la interfaz como **Sistemas**, no con un nombre tecnico, de prueba o del asistente.
+- Ninguno de estos ajustes visuales modifica datos existentes de Firestore por si mismo.
+- La publicación de esta renovación incluye una invalidación única de la sesión local por versión: al recargar o reabrir SPAI, cada usuario vuelve a autenticarse una vez para cargar los recursos actualizados. No se desactivan ni eliminan cuentas de Firebase Authentication.
+
 ## Exportacion de docentes nuevos y de reingreso
 
 - El modulo Docentes permite a Sistemas exportar un archivo CSV UTF-8 con los docentes clasificados como `Nuevo` o `Reingreso`.

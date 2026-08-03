@@ -11,6 +11,7 @@ import {
 import { ProgramStatus, ProgramsRepository } from '../data/programs.repository';
 import { AppUser, UsersRepository } from '../../users/data/users.repository';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
+import { CyclesRepository } from '../../cycles/data/cycles.repository';
 
 interface CoordinatorOption {
   label: string;
@@ -49,8 +50,10 @@ export class NomenclaturesPageComponent {
   private readonly usersRepository = inject(UsersRepository);
   private readonly userSessionService = inject(UserSessionService);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
+  private readonly cyclesRepository = inject(CyclesRepository);
 
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
+  readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly programs = this.programsRepository.programs;
   readonly users = this.usersRepository.users;
   readonly nomenclatureStatuses: NomenclatureStatus[] = ['ACTIVA', 'INACTIVA'];
@@ -496,7 +499,11 @@ export class NomenclaturesPageComponent {
   }
 
   updateSearchDraft(event: Event): void {
-    this.searchDraft.set((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
+
+    this.searchDraft.set(value);
+    this.searchText.set(value);
+    this.resetPagination();
   }
 
   applySearch(): void {
@@ -508,6 +515,22 @@ export class NomenclaturesPageComponent {
     this.searchDraft.set('');
     this.searchText.set('');
     this.resetPagination();
+  }
+
+  formatCycleDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'PENDIENTE';
+    }
+
+    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+
+    return Number.isNaN(date.getTime())
+      ? 'PENDIENTE'
+      : new Intl.DateTimeFormat('es-MX', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(date).replace('.', '').toUpperCase();
   }
 
   selectPageSize(event: Event): void {
