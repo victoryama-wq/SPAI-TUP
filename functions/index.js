@@ -230,9 +230,12 @@ async function recipientsForNotification(notification) {
     .filter((user) => user.email && String(user.email).includes('@'));
 
   if (notification.target === 'SISTEMAS') {
-    return uniqueEmails(users
-      .filter((user) => normalize(user.role).includes('sistemas'))
-      .map((user) => user.email));
+    const systemsUsers = users.filter((user) => normalize(user.role).includes('sistemas'));
+    const recipients = notification.type === 'AGENDA_EQUIPO'
+      ? systemsUsers.filter((user) => !isNotificationActor(user, notification.actorId))
+      : systemsUsers;
+
+    return uniqueEmails(recipients.map((user) => user.email));
   }
 
   if (notification.target !== 'COORDINACION_ACADEMICA') {
@@ -248,6 +251,13 @@ async function recipientsForNotification(notification) {
   return uniqueEmails(users
     .filter((user) => matchesAcademicTarget(user, target))
     .map((user) => user.email));
+}
+
+function isNotificationActor(user, actorId) {
+  const normalizedActorId = normalizeTarget(actorId);
+
+  return Boolean(normalizedActorId) && [user.id, user.authUid]
+    .some((value) => normalizeTarget(value) === normalizedActorId);
 }
 
 function matchesAcademicTarget(user, target) {

@@ -2582,6 +2582,7 @@ CSV para matriculacion individual:
 - Cada actividad permite elegir el color visual de su nota (amarillo, azul, verde, rosa o lila); la eleccion se guarda con la actividad en Firestore y los registros previos conservan amarillo como valor seguro predeterminado.
 - Los avisos verdes de confirmacion del tablero se cierran automaticamente despues de cinco segundos; los mensajes de error permanecen visibles para no ocultar fallas operativas.
 - La vista Equipo queda preparada para usar las notificaciones internas y correo existentes al crear actividades para Sistemas, sin modificar ni sustituir esos flujos.
+- Las actividades de la vista Equipo notifican por correo al resto de perfiles de Sistemas; el perfil que las crea queda excluido de ese correo para evitar una auto-notificacion redundante.
 - Coordinacion Academica y roles personalizados no ven el tablero de corcho.
 
 #### Dashboard de Coordinacion Academica
