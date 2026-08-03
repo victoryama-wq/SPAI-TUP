@@ -233,7 +233,8 @@ th {
 
 .main-system-requests {
   margin-bottom: 0;
-  max-width: 1500px;
+  /* La bandeja de Sistemas aprovecha todo el ancho que entregue cada pantalla. */
+  max-width: none;
   width: 100%;
 }
 

@@ -889,6 +889,12 @@ th {
   min-width: 260px;
 }
 
+/* Coordinación usa un ciclo compacto: conserva todas las opciones sin desplazar el estado del ciclo. */
+.coordination-cycle-toolbar .cycle-filter {
+  flex-basis: 220px;
+  min-width: 210px;
+}
+
 .group-search-filter {
   flex: 0 0 220px;
   min-width: 190px;

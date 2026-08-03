@@ -314,7 +314,7 @@
       <h3>Grupos por ciclo</h3>
     </div>
 
-    <div class="cycle-toolbar">
+    <div class="cycle-toolbar" [class.coordination-cycle-toolbar]="isAcademicCoordinator()">
       @if (isAcademicCoordinator()) {
         <label class="group-scope-filter">
           <span>Vista</span>
