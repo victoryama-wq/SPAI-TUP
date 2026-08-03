@@ -1228,7 +1228,11 @@
 .agenda-calendar-day > span { color: #234d87; font-size: 11px; font-weight: 900; }
 .agenda-calendar-day.outside-month { background: #fafcff; }
 .agenda-calendar-day.outside-month > span { color: #aab7c9; }
-.agenda-calendar-day button { background: #eaf2ff; border: 0; border-left: 3px solid #2b70d7; border-radius: 3px; color: #163b71; cursor: pointer; font: inherit; font-size: 10px; font-weight: 800; overflow: hidden; padding: 4px 5px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-calendar-day .agenda-calendar-activity { background: #fff4a6; border: 0; border-left: 3px solid #d5a900; border-radius: 3px; color: #3d341f; cursor: pointer; font: inherit; font-size: 10px; font-weight: 800; overflow: hidden; padding: 4px 5px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-calendar-day .agenda-calendar-activity.note-blue { background: #cbe9ff; border-left-color: #2b70d7; color: #163b71; }
+.agenda-calendar-day .agenda-calendar-activity.note-green { background: #d9f2c2; border-left-color: #419a5e; color: #295b39; }
+.agenda-calendar-day .agenda-calendar-activity.note-rose { background: #ffd8df; border-left-color: #ce6c7a; color: #72313e; }
+.agenda-calendar-day .agenda-calendar-activity.note-lilac { background: #e6d2fa; border-left-color: #8a62b7; color: #4d3570; }
 
 @media (max-width: 1200px) {
   .welcome-copy h2 { white-space: normal; }

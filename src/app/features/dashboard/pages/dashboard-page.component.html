@@ -167,7 +167,12 @@
             <article class="agenda-calendar-day" [class.outside-month]="!day.isCurrentMonth">
               <span>{{ day.dayNumber }}</span>
               @for (item of day.activities; track item.id) {
-                <button type="button" (click)="openAgendaEditor(item)">{{ item.title }}</button>
+                <button
+                  type="button"
+                  [class]="'agenda-calendar-activity ' + agendaNoteColorClass(item.noteColor)"
+                  (click)="openAgendaEditor(item)">
+                  {{ item.title }}
+                </button>
               }
             </article>
           }
