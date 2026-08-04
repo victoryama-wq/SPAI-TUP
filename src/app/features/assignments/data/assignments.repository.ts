@@ -229,14 +229,24 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     );
   }
 
-  updateAssignmentStatus(id: string, payload: AssignmentStatusUpdatePayload): Promise<void> {
-    return this.updateDocument(id, {
+  async updateAssignmentStatus(id: string, payload: AssignmentStatusUpdatePayload): Promise<void> {
+    await this.withFirestoreTimeout(
+      this.updateDocument(id, {
       status: payload.status,
       updatedBy: payload.updatedBy,
       updatedByName: payload.updatedByName,
       updatedByRole: payload.updatedByRole,
       updatedAt: new Date().toISOString(),
-    });
+      }),
+      ASSIGNMENT_SAVE_TIMEOUT_MS,
+      'Firestore no confirmo la actualizacion del estado de la asignacion. Revisa conexion e intenta de nuevo.',
+    );
+
+    await this.withFirestoreTimeout(
+      waitForPendingWrites(this.firestore),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'Firestore no confirmo el cambio de estado de la asignacion. Revisa conexion e intenta de nuevo.',
+    );
   }
 
   async deleteAssignments(ids: string[], payload: DeleteAssignmentPayload): Promise<void> {
