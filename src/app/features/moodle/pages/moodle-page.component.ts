@@ -1040,6 +1040,7 @@ export class MoodlePageComponent {
         updatedByName: actor.name,
         updatedByRole: actor.role,
       });
+      await this.refreshAssignmentsAfterStatusUpdate();
       this.showMessage('Estado de asignacion actualizado correctamente.', 'success');
     } catch (error) {
       this.showMessage(`No se pudo actualizar el estado. ${this.errorMessage(error)}`, 'error');
@@ -1084,6 +1085,7 @@ export class MoodlePageComponent {
 
     if (loadedIds.size) {
       this.selectedAssignments.update((current) => current.filter((id) => !loadedIds.has(id)));
+      await this.refreshAssignmentsAfterStatusUpdate();
     }
 
     if (failedUpdates) {
@@ -1142,6 +1144,10 @@ export class MoodlePageComponent {
 
     const updatedCount = assignmentsInCapture.length - failedUpdates;
 
+    if (updatedCount) {
+      await this.refreshAssignmentsAfterStatusUpdate();
+    }
+
     if (failedUpdates) {
       this.showMessage(
         updatedCount
@@ -1159,6 +1165,14 @@ export class MoodlePageComponent {
     }
 
     return Array.from(confirmedIds);
+  }
+
+  private async refreshAssignmentsAfterStatusUpdate(): Promise<void> {
+    try {
+      await this.assignmentsRepository.refreshFromServer();
+    } catch (error) {
+      console.warn('La asignacion se actualizo, pero no se pudo refrescar la vista Moodle.', error);
+    }
   }
 
   categoryForAssignment(assignment: AcademicAssignment): MoodleCategory | null {
