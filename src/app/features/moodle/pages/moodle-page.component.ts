@@ -1947,8 +1947,11 @@ export class MoodlePageComponent {
 
   private moodleFullname(assignment: AcademicAssignment): string {
     const subjectName = this.subjectNameWithoutInitialCode(assignment.subjectName);
+    const courseName = `${assignment.moodleId} ${subjectName} ${assignment.cycle}`;
 
-    return this.normalizeMoodleCourseText(`${assignment.moodleId} ${subjectName} ${assignment.cycle}`);
+    return this.usesTitleCaseForMoodleCourse(assignment)
+      ? this.toMoodleCourseTitle(courseName)
+      : this.normalizeMoodleCourseText(courseName);
   }
 
   private subjectNameWithoutInitialCode(value: string): string {
@@ -1962,6 +1965,23 @@ export class MoodlePageComponent {
       .trim()
       .toUpperCase()
       .replace(/\s+/g, ' ');
+  }
+
+  private toMoodleCourseTitle(value: string): string {
+    return this.normalizeMoodleCourseText(value)
+      .toLocaleLowerCase('es-MX')
+      .replace(/(^|[^\p{L}\p{N}])(\p{L})/gu, (_match, prefix: string, letter: string) =>
+        `${prefix}${letter.toLocaleUpperCase('es-MX')}`,
+      );
+  }
+
+  private usesTitleCaseForMoodleCourse(assignment: AcademicAssignment): boolean {
+    const mode = this.assignmentBatchMode(assignment);
+
+    return mode === 'Ejecutivo'
+      || mode === 'Virtual'
+      || mode === 'Especiales'
+      || mode === 'Posgrados';
   }
 
   private currentInstitutionalUsername(): string {
