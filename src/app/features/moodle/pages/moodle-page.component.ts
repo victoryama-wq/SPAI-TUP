@@ -1208,7 +1208,10 @@ export class MoodlePageComponent {
   private fallbackProgramTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
     return this.requiresStrictCodeTemplate(assignment)
       ? null
-      : this.activeTemplates().find((template) => template.programCode === assignment.program) ?? null;
+      : this.activeTemplates().find((template) =>
+        template.programCode === assignment.program
+        && !this.templateUsesSubjectCode(template),
+      ) ?? null;
   }
 
   automaticTemplateForDisplay(assignment: AcademicAssignment): MoodleCourseTemplate | null {
@@ -1428,10 +1431,19 @@ export class MoodlePageComponent {
       return null;
     }
 
-    return this.activeTemplates().find((template) =>
-      this.normalizeCourseComparableKey(template.templateCourse) === subjectKey
-      || this.normalizeCourseComparableKey(template.name) === subjectKey,
-    ) ?? null;
+    return this.activeTemplates()
+      .filter((template) => !this.templateUsesSubjectCode(template))
+      .find((template) =>
+        this.normalizeCourseComparableKey(template.templateCourse) === subjectKey
+        || this.normalizeCourseComparableKey(template.name) === subjectKey,
+      ) ?? null;
+  }
+
+  private templateUsesSubjectCode(template: MoodleCourseTemplate): boolean {
+    return Boolean(
+      this.extractInitialOperationalCode(template.templateCourse)
+      || this.extractInitialOperationalCode(template.name),
+    );
   }
 
   private findActiveTemplateByCourse(templateCourse: string): MoodleCourseTemplate | null {
@@ -1540,15 +1552,12 @@ export class MoodlePageComponent {
 
   private isPlan2027Assignment(assignment: AcademicAssignment): boolean {
     const nomenclature = this.nomenclatureForAssignment(assignment);
-    const searchText = this.normalizeSearchText([
-      assignment.program,
-      assignment.group,
+    const planText = this.normalizeSearchText([
       nomenclature?.planName,
       nomenclature?.planCode,
-      nomenclature?.notes,
     ].join(' '));
 
-    return /\b2027\b/.test(searchText);
+    return /\b2027\b/.test(planText);
   }
 
   private subjectStartsWithOperationalCode(subjectName: string): boolean {
