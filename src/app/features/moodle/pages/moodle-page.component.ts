@@ -1046,6 +1046,64 @@ export class MoodlePageComponent {
     }
   }
 
+  async markReviewedBatchAsLoaded(): Promise<void> {
+    const actor = this.actorData();
+
+    if (!actor || !this.canManageMoodle()) {
+      this.showMessage('No tienes permisos para actualizar estados Moodle.', 'error');
+      return;
+    }
+
+    const reviewedAssignments = this.moodleAssignments()
+      .filter((assignment) => assignment.status === 'EN_REVISION');
+
+    if (!reviewedAssignments.length) {
+      this.showMessage('No hay asignaciones En revision en esta vista para marcar como cargadas.', 'error');
+      return;
+    }
+
+    const results = await Promise.allSettled(
+      reviewedAssignments.map((assignment) => this.assignmentsRepository.updateAssignmentStatus(assignment.id, {
+        status: 'CARGADO_MOODLE',
+        updatedBy: actor.uid,
+        updatedByName: actor.name,
+        updatedByRole: actor.role,
+      })),
+    );
+
+    const loadedIds = new Set<string>();
+    let failedUpdates = 0;
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        loadedIds.add(reviewedAssignments[index].id);
+      } else {
+        failedUpdates += 1;
+      }
+    });
+
+    if (loadedIds.size) {
+      this.selectedAssignments.update((current) => current.filter((id) => !loadedIds.has(id)));
+    }
+
+    if (failedUpdates) {
+      this.showMessage(
+        loadedIds.size
+          ? `${loadedIds.size} asignacion(es) se marcaron como Cargado en Moodle; ${failedUpdates} no se pudieron actualizar.`
+          : 'No se pudo actualizar el lote a Cargado en Moodle.',
+        'error',
+      );
+      return;
+    }
+
+    this.showMessage(
+      reviewedAssignments.length === 1
+        ? 'La asignacion se marco como Cargado en Moodle.'
+        : `${reviewedAssignments.length} asignaciones se marcaron como Cargado en Moodle.`,
+      'success',
+    );
+  }
+
   private async sendAssignmentsToReview(assignments: AcademicAssignment[]): Promise<string[]> {
     const actor = this.actorData();
 

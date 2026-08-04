@@ -574,6 +574,16 @@
               <option value="EN_REVISION">En revision</option>
               <option value="CARGADO_MOODLE">Cargado en Moodle</option>
             </select>
+            @if (batchStatus() === 'EN_REVISION' && canManageMoodle()) {
+              <button
+                class="primary-action button-action lot-loaded-action"
+                type="button"
+                [disabled]="!moodleAssignments().length"
+                (click)="markReviewedBatchAsLoaded()"
+              >
+                Lote cargado
+              </button>
+            }
           </label>
         </div>
 

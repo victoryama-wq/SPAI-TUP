@@ -2246,6 +2246,18 @@ td small {
   min-height: 44px;
 }
 
+.lot-loaded-action {
+  margin-top: 2px;
+  min-height: 40px;
+  width: 100%;
+}
+
+.lot-loaded-action:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 .status-select:focus {
   box-shadow:
     0 0 0 3px rgb(37 99 235 / 0.16),
