@@ -882,25 +882,42 @@ export class MoodlePageComponent {
     return this.selectedAssignments().includes(assignmentId);
   }
 
-  toggleAssignment(assignmentId: string): void {
+  async toggleAssignment(assignmentId: string): Promise<void> {
     const current = this.selectedAssignments();
-    const next = current.includes(assignmentId)
-      ? current.filter((id) => id !== assignmentId)
-      : [...current, assignmentId];
 
-    this.selectedAssignments.set(next);
+    if (current.includes(assignmentId)) {
+      this.selectedAssignments.set(current.filter((id) => id !== assignmentId));
+      return;
+    }
+
+    const assignment = this.moodleAssignments().find((item) => item.id === assignmentId);
+
+    if (!assignment) {
+      this.showMessage('No se encontro la asignacion seleccionada.', 'error');
+      return;
+    }
+
+    const selectedIds = await this.sendAssignmentsToReview([assignment]);
+
+    if (selectedIds.includes(assignmentId)) {
+      this.selectedAssignments.set([...current, assignmentId]);
+    }
   }
 
-  toggleVisibleAssignments(): void {
-    const visibleIds = this.moodleAssignments().map((assignment) => assignment.id);
+  async toggleVisibleAssignments(): Promise<void> {
+    const visibleAssignments = this.moodleAssignments();
+    const visibleIds = visibleAssignments.map((assignment) => assignment.id);
     const current = this.selectedAssignments();
     const hasAllVisible = visibleIds.every((id) => current.includes(id));
 
-    this.selectedAssignments.set(
-      hasAllVisible
-        ? current.filter((id) => !visibleIds.includes(id))
-        : Array.from(new Set([...current, ...visibleIds])),
-    );
+    if (hasAllVisible) {
+      this.selectedAssignments.set(current.filter((id) => !visibleIds.includes(id)));
+      return;
+    }
+
+    const assignmentsToSelect = visibleAssignments.filter((assignment) => !current.includes(assignment.id));
+    const selectedIds = await this.sendAssignmentsToReview(assignmentsToSelect);
+    this.selectedAssignments.set(Array.from(new Set([...current, ...selectedIds])));
   }
 
   exportSelectedCsv(): void {
@@ -1027,6 +1044,63 @@ export class MoodlePageComponent {
     } catch (error) {
       this.showMessage(`No se pudo actualizar el estado. ${this.errorMessage(error)}`, 'error');
     }
+  }
+
+  private async sendAssignmentsToReview(assignments: AcademicAssignment[]): Promise<string[]> {
+    const actor = this.actorData();
+
+    if (!actor || !this.canManageMoodle()) {
+      this.showMessage('No tienes permisos para enviar asignaciones a revision.', 'error');
+      return [];
+    }
+
+    const assignmentsInCapture = assignments.filter((assignment) => assignment.status === 'EN_CAPTURA');
+
+    if (!assignmentsInCapture.length) {
+      return assignments.map((assignment) => assignment.id);
+    }
+
+    const results = await Promise.allSettled(
+      assignmentsInCapture.map((assignment) => this.assignmentsRepository.updateAssignmentStatus(assignment.id, {
+        status: 'EN_REVISION',
+        updatedBy: actor.uid,
+        updatedByName: actor.name,
+        updatedByRole: actor.role,
+      })),
+    );
+
+    const confirmedIds = new Set(
+      assignments.filter((assignment) => assignment.status !== 'EN_CAPTURA').map((assignment) => assignment.id),
+    );
+    let failedUpdates = 0;
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        confirmedIds.add(assignmentsInCapture[index].id);
+      } else {
+        failedUpdates += 1;
+      }
+    });
+
+    const updatedCount = assignmentsInCapture.length - failedUpdates;
+
+    if (failedUpdates) {
+      this.showMessage(
+        updatedCount
+          ? `${updatedCount} asignacion(es) pasaron a En revision; ${failedUpdates} no se pudieron actualizar.`
+          : 'No se pudo actualizar el estado de las asignaciones seleccionadas.',
+        'error',
+      );
+    } else if (updatedCount) {
+      this.showMessage(
+        updatedCount === 1
+          ? 'La asignacion seleccionada paso a En revision.'
+          : `${updatedCount} asignaciones seleccionadas pasaron a En revision.`,
+        'success',
+      );
+    }
+
+    return Array.from(confirmedIds);
   }
 
   categoryForAssignment(assignment: AcademicAssignment): MoodleCategory | null {
