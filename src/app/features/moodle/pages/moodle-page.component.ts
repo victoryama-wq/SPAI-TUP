@@ -27,7 +27,6 @@ const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
 const MOODLE_BATCH_MODES: MoodleBatchMode[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
 const TEMPLATE_BY_SUBJECT_NAME_PROGRAM_CODES = new Set(['EECI', 'EEQX', 'MADH']);
-const TEMPLATE_BY_INITIAL_CODE_PROGRAM_CODES = new Set(['MADH']);
 const SPECIAL_ARCHITECTURE_DEMO_PROGRAM_CODES = new Set(['ARQ', 'LARQ']);
 const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
 const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
@@ -1203,7 +1202,7 @@ export class MoodlePageComponent {
   }
 
   private requiresStrictCodeTemplate(assignment: AcademicAssignment): boolean {
-    return this.isPlan2027Assignment(assignment) || this.isPsychologyAssignment(assignment);
+    return this.isPlan2027Assignment(assignment);
   }
 
   private fallbackProgramTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
@@ -1357,32 +1356,11 @@ export class MoodlePageComponent {
   }
 
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
-    if (this.isPsychologyAssignment(assignment)) {
-      return this.findActiveTemplateByPsychologySubjectCode(assignment.subjectName);
-    }
-
     if (this.isPlan2027Assignment(assignment)) {
       return this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
     }
 
-    const templateBySubjectCode = this.findActiveTemplateBySubjectCode(assignment.subjectName);
-
-    if (templateBySubjectCode) {
-      return templateBySubjectCode;
-    }
-
     const batchMode = this.assignmentBatchMode(assignment);
-
-    const shouldMatchTemplateByInitialCode = batchMode === 'Posgrados'
-      || this.requiresTemplateByInitialCodeProgramRule(assignment);
-
-    const templateByProgramSubjectCode = shouldMatchTemplateByInitialCode
-      ? this.findActiveTemplateByInitialSubjectCode(assignment.subjectName, { allowPrefix: true })
-      : null;
-
-    if (templateByProgramSubjectCode) {
-      return templateByProgramSubjectCode;
-    }
 
     const shouldMatchTemplateBySubjectName = batchMode === 'Ejecutivo'
       || batchMode === 'Virtual'
@@ -1417,19 +1395,6 @@ export class MoodlePageComponent {
     return this.findActiveTemplateByCourse(templateCourse);
   }
 
-  private findActiveTemplateBySubjectCode(subjectName: string): MoodleCourseTemplate | null {
-    const subjectCode = this.extractAxiologicalCode(subjectName);
-
-    if (!subjectCode) {
-      return null;
-    }
-
-    return this.activeTemplates().find((template) =>
-      this.extractAxiologicalCode(template.templateCourse) === subjectCode
-      || this.extractAxiologicalCode(template.name) === subjectCode,
-    ) ?? null;
-  }
-
   private findActiveTemplateByInitialSubjectCode(
     subjectName: string,
     options: { allowPrefix?: boolean } = {},
@@ -1454,19 +1419,6 @@ export class MoodlePageComponent {
     return templatesWithCode
       .filter((entry) => subjectCode.startsWith(entry.code) && entry.code.length < subjectCode.length)
       .sort((current, next) => next.code.length - current.code.length)[0]?.template ?? null;
-  }
-
-  private findActiveTemplateByPsychologySubjectCode(subjectName: string): MoodleCourseTemplate | null {
-    const subjectCode = this.extractPsychologyTemplateCode(subjectName);
-
-    if (!subjectCode) {
-      return null;
-    }
-
-    return this.activeTemplates().find((template) =>
-      this.extractInitialOperationalCode(template.templateCourse) === subjectCode
-      || this.extractInitialOperationalCode(template.name) === subjectCode,
-    ) ?? null;
   }
 
   private findActiveTemplateBySubjectName(subjectName: string): MoodleCourseTemplate | null {
@@ -1565,12 +1517,6 @@ export class MoodlePageComponent {
     );
   }
 
-  private requiresTemplateByInitialCodeProgramRule(assignment: AcademicAssignment): boolean {
-    return this.assignmentProgramCandidates(assignment).some((programCode) =>
-      TEMPLATE_BY_INITIAL_CODE_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
-    );
-  }
-
   private shouldUseSpecialArchitectureDemoTemplate(
     assignment: AcademicAssignment,
     batchMode: MoodleBatchMode,
@@ -1590,20 +1536,6 @@ export class MoodlePageComponent {
       nomenclature?.abbreviation,
       nomenclature?.programCode,
     ];
-  }
-
-  private isPsychologyAssignment(assignment: AcademicAssignment): boolean {
-    const nomenclature = this.nomenclatureForAssignment(assignment);
-    const searchText = this.normalizeSearchText([
-      assignment.program,
-      assignment.group,
-      nomenclature?.programName,
-      nomenclature?.notes,
-    ].join(' '));
-
-    return assignment.program.trim().toUpperCase() === 'PSIC'
-      || /\bPSIC\b/.test(assignment.group.trim().toUpperCase())
-      || searchText.includes('psicologia');
   }
 
   private isPlan2027Assignment(assignment: AcademicAssignment): boolean {
@@ -2059,22 +1991,8 @@ export class MoodlePageComponent {
       .replace(/[^A-Z0-9]+/g, '');
   }
 
-  private extractAxiologicalCode(value: string): string {
-    return /^AX\d{3,4}(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[0] ?? '';
-  }
-
   private extractInitialOperationalCode(value: string): string {
     return /^([A-Z]{2,12}\d{1,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value))?.[1] ?? '';
-  }
-
-  private extractPsychologyTemplateCode(value: string): string {
-    const match = /^PSIC(\d{2,4})(?=$|[^A-Z0-9])/.exec(this.normalizeForMoodle(value));
-
-    if (!match) {
-      return '';
-    }
-
-    return `PSIC${match[1].slice(-2)}`;
   }
 
   private normalizeSearchText(value: string): string {
