@@ -1367,6 +1367,20 @@ export class MoodlePageComponent {
       }
     }
 
+    if (this.isHospitalAdministrationHealthAssignment(assignment)) {
+      const templateBySubjectCode = this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
+
+      if (templateBySubjectCode) {
+        return templateBySubjectCode;
+      }
+
+      const templateBySubjectName = this.findActiveTemplateBySubjectName(assignment.subjectName);
+
+      if (templateBySubjectName) {
+        return templateBySubjectName;
+      }
+    }
+
     if (this.isPlan2027Assignment(assignment)) {
       return this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
     }
@@ -1545,6 +1559,12 @@ export class MoodlePageComponent {
   private isPsychologyHealthBaseGroup(assignment: AcademicAssignment): boolean {
     return assignment.program.trim().toUpperCase() === 'PSIC'
       || /\bPSIC\b/i.test(assignment.group);
+  }
+
+  private isHospitalAdministrationHealthAssignment(assignment: AcademicAssignment): boolean {
+    return this.assignmentProgramCandidates(assignment).some((programCode) =>
+      programCode?.trim().toUpperCase() === 'MADH',
+    );
   }
 
   private requiresTemplateBySubjectNameProgramRule(assignment: AcademicAssignment): boolean {
