@@ -1359,6 +1359,14 @@ export class MoodlePageComponent {
   }
 
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    if (this.isPsychologyHealthBaseGroup(assignment)) {
+      const psychologyTemplate = this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
+
+      if (psychologyTemplate) {
+        return psychologyTemplate;
+      }
+    }
+
     if (this.isPlan2027Assignment(assignment)) {
       return this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
     }
@@ -1415,8 +1423,19 @@ export class MoodlePageComponent {
     })).filter((entry) => entry.code);
     const exactMatch = templatesWithCode.find((entry) => entry.code === subjectCode);
 
-    if (exactMatch || !options.allowPrefix) {
-      return exactMatch?.template ?? null;
+    if (exactMatch) {
+      return exactMatch.template;
+    }
+
+    const psychologyAbbreviatedCode = subjectCode.startsWith('PSIC')
+      ? `PSIC${subjectCode.slice(4).slice(-2)}`
+      : '';
+    const psychologyMatch = psychologyAbbreviatedCode
+      ? templatesWithCode.find((entry) => entry.code === psychologyAbbreviatedCode)
+      : null;
+
+    if (psychologyMatch || !options.allowPrefix) {
+      return psychologyMatch?.template ?? null;
     }
 
     return templatesWithCode
@@ -1521,6 +1540,11 @@ export class MoodlePageComponent {
 
   private isNutritionHealthBaseGroup(assignment: AcademicAssignment): boolean {
     return /\bNUT\s+(11|12)\b/i.test(assignment.group);
+  }
+
+  private isPsychologyHealthBaseGroup(assignment: AcademicAssignment): boolean {
+    return assignment.program.trim().toUpperCase() === 'PSIC'
+      || /\bPSIC\b/i.test(assignment.group);
   }
 
   private requiresTemplateBySubjectNameProgramRule(assignment: AcademicAssignment): boolean {
