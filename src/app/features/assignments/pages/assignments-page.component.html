@@ -115,7 +115,9 @@
               <option value="TODOS">Todos</option>
               <option value="EN_CAPTURA">En captura</option>
               <option value="EN_REVISION">En revision</option>
-              <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+              @if (isSystemsUser()) {
+                <option value="CARGADO_MOODLE">Cargado en Moodle</option>
+              }
             </select>
           </label>
         </div>
@@ -134,10 +136,12 @@
                 <strong>{{ reviewCount() }}</strong>
                 <span>En revision</span>
               </div>
-              <div>
-                <strong>{{ moodleLoadedCount() }}</strong>
-                <span>Cargado en Moodle</span>
-              </div>
+              @if (isSystemsUser()) {
+                <div>
+                  <strong>{{ moodleLoadedCount() }}</strong>
+                  <span>Cargado en Moodle</span>
+                </div>
+              }
             </div>
             <button
               class="scope-toggle-action report-download-action"

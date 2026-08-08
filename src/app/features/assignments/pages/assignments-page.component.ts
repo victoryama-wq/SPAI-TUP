@@ -305,6 +305,15 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   readonly canReviewAssignments = computed(() => this.canSeeAllAssignments());
 
+  /**
+   * Mientras se completa la auditoria de Moodle, el avance "Cargado en Moodle"
+   * es información operativa exclusiva de Sistemas. No altera el valor guardado:
+   * para los demás perfiles solo se presenta como "En revision".
+   */
+  readonly isSystemsUser = computed(() =>
+    this.session()?.appUser?.role.includes('Sistemas') === true,
+  );
+
   readonly canCaptureAssignments = computed(() => this.activeCycle()?.status === 'Captura');
 
   readonly assignedProgramCodes = computed(() => {
@@ -648,7 +657,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     for (const assignment of this.visibleAssignments()) {
       summary.total += 1;
 
-      const status = this.normalizedAssignmentStatus(assignment.status);
+      const status = this.displayAssignmentStatus(assignment.status);
 
       if (status === 'EN_CAPTURA') {
         summary.capture += 1;
@@ -675,7 +684,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return 'Hay asignaciones en captura; confirma ID Moodle, materia, docente y grupo antes de enviarlas a revision.';
     }
 
-    if (this.moodleLoadedCount() > 0) {
+    if (this.isSystemsUser() && this.moodleLoadedCount() > 0) {
       return 'Hay asignaciones cargadas en Moodle; revisa el panel Moodle para dar seguimiento operativo.';
     }
 
@@ -1858,7 +1867,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   statusClass(status: AssignmentStatus): string {
-    return this.normalizedAssignmentStatus(status).toLowerCase();
+    return this.displayAssignmentStatus(status).toLowerCase();
   }
 
   isAssignmentDeleted(assignment: AcademicAssignment): boolean {
@@ -1874,7 +1883,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       CON_OBSERVACION: 'En revision',
     };
 
-    return labels[status];
+    return labels[this.displayAssignmentStatus(status)];
   }
 
   assignmentById(id: string): AcademicAssignment | null {
@@ -2107,7 +2116,15 @@ export class AssignmentsPageComponent implements OnDestroy {
     const statusFilter = this.statusFilter();
 
     return statusFilter === 'TODOS'
-      || this.normalizedAssignmentStatus(assignment.status) === statusFilter;
+      || this.displayAssignmentStatus(assignment.status) === statusFilter;
+  }
+
+  private displayAssignmentStatus(status: AssignmentStatus): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
+    const normalizedStatus = this.normalizedAssignmentStatus(status);
+
+    return !this.isSystemsUser() && normalizedStatus === 'CARGADO_MOODLE'
+      ? 'EN_REVISION'
+      : normalizedStatus;
   }
 
   private normalizedAssignmentStatus(status: AssignmentStatus): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
