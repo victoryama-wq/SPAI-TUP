@@ -237,6 +237,10 @@
   width: 100%;
 }
 
+.recent-enrollment-action {
+  grid-column: 1 / -1;
+}
+
 .enrollment-action {
   flex-direction: column;
   gap: 5px;

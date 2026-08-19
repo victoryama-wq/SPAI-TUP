@@ -58,7 +58,7 @@
                 </svg>
                 <span>{{ catalogScope() === 'GLOBAL' ? 'Mis asignaciones' : 'Catalogo global' }}</span>
               </button>
-            } @else if (canSeeAllAssignments()) {
+            } @else if (canSeeAllAssignments() || usesGlobalCatalogOnly()) {
               <span class="scope-toggle-action scope-status-action active" title="Catalogo global de asignaciones">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
@@ -70,18 +70,20 @@
               Ciclo activo
               <strong>{{ activeCycleCode() }}</strong>
             </span>
-            <button
-              class="primary-action"
-              type="button"
-              [disabled]="!canManageAssignments() || !canCaptureAssignments()"
-              [title]="captureBlockedMessage() || 'Nueva asignacion'"
-              (click)="openAssignmentModal()"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 5v14M5 12h14"></path>
-              </svg>
-              <span>Asignacion</span>
-            </button>
+            @if (canManageAssignments()) {
+              <button
+                class="primary-action"
+                type="button"
+                [disabled]="!canCaptureAssignments()"
+                [title]="captureBlockedMessage() || 'Nueva asignacion'"
+                (click)="openAssignmentModal()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                <span>Asignacion</span>
+              </button>
+            }
           </div>
         </div>
 
@@ -115,7 +117,7 @@
               <option value="TODOS">Todos</option>
               <option value="EN_CAPTURA">En captura</option>
               <option value="EN_REVISION">En revision</option>
-              @if (isSystemsUser()) {
+              @if (canSeeMoodleLoadedStatus()) {
                 <option value="CARGADO_MOODLE">Cargado en Moodle</option>
               }
             </select>
@@ -136,7 +138,7 @@
                 <strong>{{ reviewCount() }}</strong>
                 <span>En revision</span>
               </div>
-              @if (isSystemsUser()) {
+              @if (canSeeMoodleLoadedStatus()) {
                 <div>
                   <strong>{{ moodleLoadedCount() }}</strong>
                   <span>Cargado en Moodle</span>
@@ -196,7 +198,9 @@
             }
             <th>{{ isEnglishTab() ? 'Adicionales al nombre' : 'Observaciones' }}</th>
             <th class="center-column">Estado</th>
-            <th>Acciones</th>
+            @if (canManageAssignments()) {
+              <th>Acciones</th>
+            }
           </tr>
         </thead>
       }
@@ -280,38 +284,40 @@
               }
             </td>
             <td class="center-column" data-label="Estado">
-              <span class="status-badge" [ngClass]="statusClass(assignment.status)">
-                {{ statusLabel(assignment.status) }}
+              <span class="status-badge" [ngClass]="statusClass(assignment.status, assignment)">
+                {{ statusLabel(assignment.status, assignment) }}
               </span>
             </td>
-            <td data-label="Acciones">
-              <div class="row-actions">
-                <button
-                  type="button"
-                  class="icon-row-action"
-                  [disabled]="!canManageAssignments() || !canCaptureAssignments() || !canEditAssignment(assignment)"
-                  aria-label="Editar asignacion"
-                  title="Editar asignacion"
-                  (click)="editAssignment(assignment)"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  class="icon-row-action danger-row-action"
-                  [disabled]="!canDeleteAssignment(assignment)"
-                  aria-label="Eliminar asignacion"
-                  title="Eliminar asignacion"
-                  (click)="deleteAssignment(assignment)"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"></path>
-                  </svg>
-                </button>
-              </div>
-            </td>
+            @if (canManageAssignments()) {
+              <td data-label="Acciones">
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="icon-row-action"
+                    [disabled]="!canEditAssignment(assignment)"
+                    aria-label="Editar asignacion"
+                    title="Editar asignacion"
+                    (click)="editAssignment(assignment)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-row-action danger-row-action"
+                    [disabled]="!canDeleteAssignment(assignment)"
+                    aria-label="Eliminar asignacion"
+                    title="Eliminar asignacion"
+                    (click)="deleteAssignment(assignment)"
+                  >
+                    <svg viewBox="0 0 24" aria-hidden="true">
+                      <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            }
           </tr>
         } @empty {
           <tr>
@@ -394,7 +400,28 @@
         [class.special-mode-form]="modeTab() === 'Especiales' || modeTab() === 'Inglés'"
         [class.special-case-active]="assignmentForm.special"
         [class.english-mode-form]="isEnglishForm()"
+        [class.coordination-operational-edit]="isAcademicCoordinatorOperationalEdit()"
+        [class.coordination-enrollment-only-edit]="isAcademicCoordinatorEnrollmentOnlyEdit()"
+        [class.systems-operational-edit]="isSystemsOperationalEdit()"
       >
+        @if (isAcademicCoordinatorOperationalEdit()) {
+          <p class="coordination-edit-notice">
+            Puedes actualizar el docente, el grupo base, los grupos compartidos y las matrículas adicionales, incluso si la asignación ya fue cargada en Moodle. La materia, el ID Moodle y el estatus quedan protegidos; Sistemas recibirá una notificación de los cambios.
+          </p>
+        }
+        @if (isAcademicCoordinatorEnrollmentOnlyEdit()) {
+          <p class="coordination-edit-notice">
+            Esta asignación pertenece a otra coordinación. Aquí solo puedes agregar o actualizar matrículas adicionales; la materia, ID Moodle, docente, grupos y estatus quedan protegidos. Sistemas recibirá una notificación.
+          </p>
+          <label class="additional-enrollments-only-field">
+            <span>Matrículas adicionales</span>
+            <textarea
+              [(ngModel)]="assignmentForm.studentEnrollments"
+              rows="4"
+              placeholder="Una matrícula por línea o separadas por coma"
+            ></textarea>
+          </label>
+        }
         @if (modeTab() === 'Especiales') {
           <div class="special-type-controls" role="group" aria-label="Tipo de asignacion especial">
             <button
@@ -521,8 +548,8 @@
             <input
               type="text"
               [(ngModel)]="assignmentForm.moodleId"
-              [disabled]="assignmentForm.propedeutic"
-              [class.locked-input]="assignmentForm.propedeutic"
+              [disabled]="assignmentForm.propedeutic || hasLockedAssignmentIdentity()"
+              [class.locked-input]="assignmentForm.propedeutic || hasLockedAssignmentIdentity()"
               placeholder="asignatura-123"
             />
           </label>
@@ -698,7 +725,11 @@
           @if (assignmentForm.shared) {
             <label class="shared-count-field">
               <span>Con cuantos grupos *</span>
-              <select [ngModel]="assignmentForm.sharedGroupCount" (ngModelChange)="onSharedGroupCountChange($event)">
+              <select
+                [ngModel]="assignmentForm.sharedGroupCount"
+                [disabled]="lockedShareGroups().length > 0"
+                (ngModelChange)="onSharedGroupCountChange($event)"
+              >
                 <option [ngValue]="0" disabled>Seleccionar cantidad</option>
                 @for (count of sharedGroupCountOptions(); track count) {
                   <option [ngValue]="count">{{ count }}</option>
@@ -807,7 +838,7 @@
         <button
           class="primary-action"
           type="button"
-          [disabled]="!canCaptureAssignments() || isSavingAssignment"
+          [disabled]="(!editingAssignmentId && !canCaptureAssignments()) || isSavingAssignment"
           (click)="saveAssignment()"
         >
           {{ isSavingAssignment ? 'Guardando...' : submitLabel }}

@@ -109,6 +109,7 @@
               <div class="entry-title">
                 <span class="action-pill">{{ actionLabel(entry.action) }}</span>
                 <strong>{{ moduleLabel(entry.module) }}</strong>
+                <span class="server-entry-badge" *ngIf="entry.integrity === 'VERIFICADO_SERVIDOR'">Verificado por servidor</span>
               </div>
               <time [attr.datetime]="entry.createdAt">{{ formatShortDate(entry.createdAt) }}</time>
             </div>
@@ -173,6 +174,31 @@
     </main>
 
     <aside class="audit-side-panel">
+      <section class="side-card assignment-alert-control" *ngIf="canManageAssignmentChangeNotifications()">
+        <span>Control de Sistemas</span>
+        <h3>Alertas de asignaciones</h3>
+        <p>
+          Avisa al equipo cuando Coordinacion Academica cambie o retire un docente, modifique grupos o elimine una asignacion.
+        </p>
+        <strong class="assignment-alert-status" [class.is-active]="assignmentChangeNotificationsEnabled()">
+          {{ assignmentChangeNotificationsEnabled() ? 'Alertas activas' : 'Alertas pausadas' }}
+        </strong>
+        <button
+          type="button"
+          class="assignment-alert-toggle"
+          [disabled]="isUpdatingAssignmentChangeNotifications()"
+          (click)="toggleAssignmentChangeNotifications()"
+        >
+          {{ assignmentChangeNotificationsEnabled() ? 'Desactivar alertas' : 'Activar alertas' }}
+        </button>
+        <p class="assignment-alert-message" *ngIf="assignmentChangeNotificationsMessage()">
+          {{ assignmentChangeNotificationsMessage() }}
+        </p>
+        <p class="assignment-alert-error" *ngIf="assignmentChangeNotificationsReadError()">
+          {{ assignmentChangeNotificationsReadError() }}
+        </p>
+      </section>
+
       <section class="side-card">
         <span>Seguimiento</span>
         <h3>Ultima actividad</h3>

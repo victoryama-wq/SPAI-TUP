@@ -27,6 +27,7 @@ const CATEGORY_PAGE_SIZE_OPTIONS = [5, 10, 25];
 const MOODLE_BATCH_MODES: MoodleBatchMode[] = ['Escolarizado', 'Ejecutivo', 'Virtual', 'Salud', 'Posgrados', 'Especiales', 'Inglés'];
 const HEALTH_PROGRAM_CODES = new Set(['ENF', 'NUT', 'PSIC', 'EECI', 'EEQX', 'MADH']);
 const TEMPLATE_BY_SUBJECT_NAME_PROGRAM_CODES = new Set(['EECI', 'EEQX', 'MADH']);
+const TEMPLATE_BY_SUBJECT_CODE_PROGRAM_CODES = new Set(['MAYGDCH']);
 const SPECIAL_ARCHITECTURE_DEMO_PROGRAM_CODES = new Set(['ARQ', 'LARQ']);
 const ENGLISH_PROGRAM_CODES = new Set(['ING', 'ING-FCS']);
 const HEALTH_TEXT_MARKERS = ['facultad de ciencias de la salud', 'ciencias de la salud', 'salud'];
@@ -34,6 +35,10 @@ const ENGLISH_TEXT_MARKERS = ['ingles', 'inglés'];
 const POSTGRADUATE_TEXT_MARKERS = ['maestria', 'especialidad', 'especializacion', 'doctorado', 'posgrado'];
 const NURSING_HEALTH_TEMPLATE = 'CURSO_DEMO_ENF';
 const NUTRITION_HEALTH_TEMPLATE = 'CURSO_DEMO_NUT';
+const HEALTH_SECTION_01_SHARED_TEMPLATE_BY_SUBJECT: Record<string, string> = {
+  TALLERDECOMUNICACIONORALYESCRITA: 'PSIC03',
+  ANTROPOLOGIASOCIAL: 'PSIC04',
+};
 const DEFAULT_TEMPLATE_BY_MODE: Partial<Record<MoodleBatchMode, string>> = {
   Escolarizado: 'CURSO_DEMO_ESCOLARIZADO',
 };
@@ -370,6 +375,15 @@ export class MoodlePageComponent {
       );
   });
 
+  /** The exact rows that will be exported with the active batch filters. */
+  readonly selectedMoodleAssignments = computed(() => {
+    const selectedIds = new Set(this.selectedAssignments());
+
+    return this.moodleAssignments().filter((assignment) => selectedIds.has(assignment.id));
+  });
+
+  readonly selectedMoodleAssignmentCount = computed(() => this.selectedMoodleAssignments().length);
+
   readonly currentCycleMoodleAssignments = computed(() => {
     const activeCycle = this.activeCycle();
 
@@ -383,7 +397,31 @@ export class MoodlePageComponent {
   });
 
   readonly loadedMoodleAssignments = computed(() =>
-    this.currentCycleMoodleAssignments().filter((assignment) => this.isLoadedInMoodle(assignment)),
+    this.currentCycleMoodleAssignments()
+      .filter((assignment) => {
+        const lifecycle = assignment as unknown as Record<string, unknown>;
+        const status = String(
+          lifecycle['status'] ??
+            lifecycle['assignmentStatus'] ??
+            lifecycle['lifecycleStatus'] ??
+            '',
+        )
+          .trim()
+          .toUpperCase();
+
+        return (
+          lifecycle['active'] !== false &&
+          lifecycle['isActive'] !== false &&
+          lifecycle['deleted'] !== true &&
+          lifecycle['isDeleted'] !== true &&
+          lifecycle['deletedAt'] == null &&
+          lifecycle['removedAt'] == null &&
+          lifecycle['archived'] !== true &&
+          lifecycle['archivedAt'] == null &&
+          !['ELIMINADA', 'ELIMINADO', 'BORRADA', 'BORRADO', 'INACTIVA', 'INACTIVO'].includes(status)
+        );
+      })
+      .filter((assignment) => this.isLoadedInMoodle(assignment)),
   );
 
   readonly batchModeSummary = computed(() =>
@@ -920,7 +958,7 @@ export class MoodlePageComponent {
   }
 
   exportSelectedCsv(): void {
-    const selectedRows = this.moodleAssignments().filter((assignment) => this.isAssignmentSelected(assignment.id));
+    const selectedRows = this.selectedMoodleAssignments();
 
     if (!selectedRows.length) {
       this.showMessage('Selecciona al menos una asignacion para generar el CSV.', 'error');
@@ -957,23 +995,36 @@ export class MoodlePageComponent {
     this.showMessage('CSV Moodle generado correctamente.', 'success');
   }
 
-  exportGroupEnrollmentCsv(): void {
-    const loadedRows = this.loadedMoodleAssignments();
+  async exportGroupEnrollmentCsv(): Promise<void> {
+    let loadedRows: AcademicAssignment[];
+
+    try {
+      loadedRows = await this.assignmentsRepository.getActiveLoadedAssignmentsForMoodle(this.activeCycleCode());
+    } catch (error) {
+      this.showMessage(`No se pudo confirmar Firestore antes de generar la matriculacion por grupo. ${this.errorMessage(error)}`, 'error');
+      return;
+    }
 
     if (!loadedRows.length) {
       this.showMessage('No hay asignaciones cargadas en Moodle para generar matriculacion por grupo.', 'error');
       return;
     }
 
-    const csvRows = [['shortname', 'enrolment_1', 'enrolment_1_cohortidnumber', 'enrolment_1_role']];
+    const enrollmentRows = new Map<string, string[]>();
 
     loadedRows.forEach((assignment) => {
       const courseShortname = this.moodleShortname(assignment);
 
       this.moodleGroupEnrollmentTargets(assignment).forEach((target) => {
-        csvRows.push([courseShortname, 'cohort', target, 'student']);
+        const row = [courseShortname, 'cohort', target, 'student'];
+        enrollmentRows.set(row.join('\u001f'), row);
       });
     });
+
+    const csvRows = [
+      ['shortname', 'enrolment_1', 'enrolment_1_cohortidnumber', 'enrolment_1_role'],
+      ...enrollmentRows.values(),
+    ];
 
     if (csvRows.length === 1) {
       this.showMessage('Las asignaciones cargadas no tienen grupos para matricular.', 'error');
@@ -988,28 +1039,51 @@ export class MoodlePageComponent {
     this.showMessage('CSV de matriculacion por grupos generado correctamente.', 'success');
   }
 
-  exportStudentEnrollmentCsv(): void {
-    const loadedRows = this.loadedMoodleAssignments();
+  async exportStudentEnrollmentCsv(scope: 'all' | 'recent' = 'all'): Promise<void> {
+    let loadedRows: AcademicAssignment[];
+
+    try {
+      loadedRows = await this.assignmentsRepository.getActiveLoadedAssignmentsForMoodle(this.activeCycleCode());
+    } catch (error) {
+      this.showMessage(`No se pudo confirmar Firestore antes de generar la matriculacion individual. ${this.errorMessage(error)}`, 'error');
+      return;
+    }
 
     if (!loadedRows.length) {
       this.showMessage('No hay asignaciones cargadas en Moodle para generar matriculacion individual.', 'error');
       return;
     }
 
-    const csvRows = [['username', 'course1', 'role1']];
+    const assignmentsToExport = scope === 'recent'
+      ? loadedRows.filter((assignment) => this.wasUpdatedInLast24Hours(assignment))
+      : loadedRows;
 
-    loadedRows.forEach((assignment) => {
+    if (!assignmentsToExport.length) {
+      this.showMessage('No hay asignaciones cargadas en Moodle con cambios confirmados durante las ultimas 24 horas.', 'error');
+      return;
+    }
+
+    const enrollmentRows = new Map<string, string[]>();
+
+    assignmentsToExport.forEach((assignment) => {
       const courseShortname = this.moodleShortname(assignment);
       const teacherUsername = this.moodleTeacherEnrollmentTarget(assignment);
 
       this.moodleStudentEnrollmentTargets(assignment).forEach((studentUsername) => {
-        csvRows.push([studentUsername, courseShortname, 'student']);
+        const row = [studentUsername, courseShortname, 'student'];
+        enrollmentRows.set(row.join('\u001f'), row);
       });
 
       if (teacherUsername) {
-        csvRows.push([teacherUsername, courseShortname, 'editingteacher']);
+        const row = [teacherUsername, courseShortname, 'editingteacher'];
+        enrollmentRows.set(row.join('\u001f'), row);
       }
     });
+
+    const csvRows = [
+      ['username', 'course1', 'role1'],
+      ...enrollmentRows.values(),
+    ];
 
     if (csvRows.length === 1) {
       this.showMessage('Las asignaciones cargadas no tienen matriculas ni docentes para matricular.', 'error');
@@ -1020,8 +1094,13 @@ export class MoodlePageComponent {
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
       .join('\n');
 
-    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-matriculacion-individual-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
-    this.showMessage('CSV de matriculacion individual generado correctamente.', 'success');
+    const fileSuffix = scope === 'recent' ? '-cambios-24h' : '';
+    const message = scope === 'recent'
+      ? `CSV de matriculacion individual generado para ${assignmentsToExport.length} asignacion(es) con cambios de las ultimas 24 horas.`
+      : `CSV de matriculacion individual generado para ${assignmentsToExport.length} asignacion(es) vigentes cargadas en Moodle.`;
+
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-matriculacion-individual${fileSuffix}-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
+    this.showMessage(message, 'success');
   }
 
   async updateAssignmentStatus(assignment: AcademicAssignment, status: AssignmentStatus): Promise<void> {
@@ -1359,6 +1438,14 @@ export class MoodlePageComponent {
   }
 
   private automaticTemplateForAssignment(assignment: AcademicAssignment): MoodleCourseTemplate | null {
+    if (this.requiresTemplateBySubjectCodeProgramRule(assignment)) {
+      const templateBySubjectCode = this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
+
+      if (templateBySubjectCode) {
+        return templateBySubjectCode;
+      }
+    }
+
     if (this.isPsychologyHealthBaseGroup(assignment)) {
       const psychologyTemplate = this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
 
@@ -1381,11 +1468,27 @@ export class MoodlePageComponent {
       }
     }
 
+    const batchMode = this.assignmentBatchMode(assignment);
+
+    if (batchMode === 'Posgrados' && this.isFirstTermPostgraduateGroup(assignment)) {
+      const templateBySubjectCode = this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
+
+      if (templateBySubjectCode) {
+        return templateBySubjectCode;
+      }
+    }
+
+    if (this.isHealthSection01Group(assignment)) {
+      const healthTemplate = this.findActiveHealthSection01TemplateBySubjectName(assignment.subjectName);
+
+      if (healthTemplate) {
+        return healthTemplate;
+      }
+    }
+
     if (this.isPlan2027Assignment(assignment)) {
       return this.findActiveTemplateByInitialSubjectCode(assignment.subjectName);
     }
-
-    const batchMode = this.assignmentBatchMode(assignment);
 
     const shouldMatchTemplateBySubjectName = batchMode === 'Ejecutivo'
       || batchMode === 'Virtual'
@@ -1469,6 +1572,31 @@ export class MoodlePageComponent {
       .find((template) =>
         this.normalizeCourseComparableKey(template.templateCourse) === subjectKey
         || this.normalizeCourseComparableKey(template.name) === subjectKey,
+      ) ?? null;
+  }
+
+  /**
+   * Las secciones 01A, 01B y 01C de Enfermería y Nutrición conservan sus demos como
+   * respaldo, excepto cuando existe una plantilla de curso padre equivalente
+   * o una materia genérica compartida con Psicología.
+   */
+  private findActiveHealthSection01TemplateBySubjectName(subjectName: string): MoodleCourseTemplate | null {
+    const subjectKey = this.normalizeHealthSection01TemplateKey(subjectName);
+
+    if (!subjectKey) {
+      return null;
+    }
+
+    const sharedHealthTemplate = HEALTH_SECTION_01_SHARED_TEMPLATE_BY_SUBJECT[subjectKey];
+
+    if (sharedHealthTemplate) {
+      return this.findActiveTemplateByCourse(sharedHealthTemplate);
+    }
+
+    return this.activeTemplates()
+      .find((template) =>
+        this.normalizeHealthSection01TemplateKey(template.templateCourse) === subjectKey
+        || this.normalizeHealthSection01TemplateKey(template.name) === subjectKey,
       ) ?? null;
   }
 
@@ -1556,6 +1684,14 @@ export class MoodlePageComponent {
     return /\bNUT\s+(11|12)\b/i.test(assignment.group);
   }
 
+  private isHealthSection01Group(assignment: AcademicAssignment): boolean {
+    return /\b(?:ENF|NUT)\s+\d+\s+01\s*[ABC]\b/i.test(assignment.group);
+  }
+
+  private isFirstTermPostgraduateGroup(assignment: AcademicAssignment): boolean {
+    return /(?:^|\s)01A(?:$|\s)/i.test(assignment.group.trim());
+  }
+
   private isPsychologyHealthBaseGroup(assignment: AcademicAssignment): boolean {
     return assignment.program.trim().toUpperCase() === 'PSIC'
       || /\bPSIC\b/i.test(assignment.group);
@@ -1570,6 +1706,12 @@ export class MoodlePageComponent {
   private requiresTemplateBySubjectNameProgramRule(assignment: AcademicAssignment): boolean {
     return this.assignmentProgramCandidates(assignment).some((programCode) =>
       TEMPLATE_BY_SUBJECT_NAME_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
+    );
+  }
+
+  private requiresTemplateBySubjectCodeProgramRule(assignment: AcademicAssignment): boolean {
+    return this.assignmentProgramCandidates(assignment).some((programCode) =>
+      TEMPLATE_BY_SUBJECT_CODE_PROGRAM_CODES.has((programCode ?? '').trim().toUpperCase()),
     );
   }
 
@@ -1989,6 +2131,17 @@ export class MoodlePageComponent {
     ));
   }
 
+  private wasUpdatedInLast24Hours(assignment: AcademicAssignment): boolean {
+    const updatedAt = Date.parse(assignment.updatedAt ?? '');
+
+    if (Number.isNaN(updatedAt)) {
+      return false;
+    }
+
+    const elapsed = Date.now() - updatedAt;
+    return elapsed >= 0 && elapsed <= 24 * 60 * 60 * 1000;
+  }
+
   private moodleStudentEnrollmentTargets(assignment: AcademicAssignment): string[] {
     return Array.from(new Set(
       this.splitEnrollmentValues(assignment.studentEnrollments)
@@ -1999,8 +2152,11 @@ export class MoodlePageComponent {
 
   private moodleTeacherEnrollmentTarget(assignment: AcademicAssignment): string {
     const teacherUser = assignment.teacherMoodleUser.trim().toLowerCase();
+    const teacherName = assignment.teacherName.trim().toUpperCase();
 
-    if (!teacherUser || teacherUser.includes('temporalmente')) {
+    if (!teacherUser
+      || teacherUser.includes('temporalmente')
+      || teacherName.includes('TEMPORALMENTE SIN DOCENTE')) {
       return '';
     }
 
@@ -2042,6 +2198,14 @@ export class MoodlePageComponent {
       .replace(/^\d+\s*[-_ ]+\s*/, '')
       .replace(/^(?:AX|PSIC|[A-Z]{2,12})\d{2,4}\s*[-_: ]+\s*/, '')
       .replace(/[^A-Z0-9]+/g, '');
+  }
+
+  private normalizeHealthSection01TemplateKey(value: string): string {
+    const key = this.normalizeCourseComparableKey(value).replace(/CURSOPADRE$/, '');
+
+    return key === 'ANATOMIAYFISIOLOGIAHUMANAI'
+      ? 'ANATOMIAYFISIOLOGIAI'
+      : key;
   }
 
   private extractInitialOperationalCode(value: string): string {

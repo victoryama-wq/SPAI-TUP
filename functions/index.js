@@ -2,7 +2,11 @@ const { initializeApp } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { logger } = require('firebase-functions');
 const { defineSecret } = require('firebase-functions/params');
-const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const {
+  onDocumentCreated,
+  onDocumentDeleted,
+  onDocumentUpdated,
+} = require('firebase-functions/v2/firestore');
 const { HttpsError, onCall } = require('firebase-functions/v2/https');
 const nodemailer = require('nodemailer');
 
@@ -17,6 +21,221 @@ const SMTP_USER = 'noreply@tecplayacar.edu.mx';
 const FROM_EMAIL = 'SPAI TUP <noreply@tecplayacar.edu.mx>';
 const BRAND_LOGO_URL = 'https://spai-6ef68.web.app/brand/tup-logo-full.png';
 const BRAND_MASCOT_URL = 'https://spai-6ef68.web.app/brand/tup-mascot-login.png';
+const ASSIGNMENT_ALERTS_CONFIG_ID = 'notificaciones_asignaciones';
+
+/**
+ * Bitacora confiable, fase inicial.
+ *
+ * Estas entradas se generan desde Cloud Functions despues de que Firestore
+ * confirma la operacion. No dependen de que la pantalla siga abierta ni de
+ * codigo que pueda ejecutar el navegador del usuario.
+ */
+exports.auditAssignmentCreated = onDocumentCreated(
+  { document: 'asignaciones/{assignmentId}', region: 'us-central1' },
+  async (event) => {
+    const assignment = event.data?.data();
+
+    if (!assignment) {
+      return null;
+    }
+
+    return writeTrustedAssignmentAudit({
+      action: 'ASIGNACION_CREADA_SERVIDOR',
+      assignmentId: event.params.assignmentId,
+      after: assignment,
+      changes: {},
+    });
+  },
+);
+
+exports.auditAssignmentUpdated = onDocumentUpdated(
+  { document: 'asignaciones/{assignmentId}', region: 'us-central1' },
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+
+    if (!before || !after) {
+      return null;
+    }
+
+    const changes = trustedAssignmentChanges(before, after);
+
+    if (!Object.keys(changes).length) {
+      return null;
+    }
+
+    return writeTrustedAssignmentAudit({
+      action: after.deletedAt && !before.deletedAt
+        ? 'ASIGNACION_ELIMINADA_SERVIDOR'
+        : 'ASIGNACION_ACTUALIZADA_SERVIDOR',
+      assignmentId: event.params.assignmentId,
+      before,
+      after,
+      changes,
+    });
+  },
+);
+
+exports.auditAssignmentDeleted = onDocumentDeleted(
+  { document: 'asignaciones/{assignmentId}', region: 'us-central1' },
+  async (event) => {
+    const assignment = event.data?.data();
+
+    if (!assignment) {
+      return null;
+    }
+
+    return writeTrustedAssignmentAudit({
+      action: 'ASIGNACION_ELIMINADA_SERVIDOR',
+      assignmentId: event.params.assignmentId,
+      before: assignment,
+      changes: { registro: { before: 'Activo', after: 'Eliminado permanentemente' } },
+    });
+  },
+);
+
+exports.auditAssignmentAlertsConfiguration = onDocumentUpdated(
+  { document: `configuracion/${ASSIGNMENT_ALERTS_CONFIG_ID}`, region: 'us-central1' },
+  async (event) => {
+    const before = event.data?.before.data() || {};
+    const after = event.data?.after.data() || {};
+
+    if (before.enabled === after.enabled) {
+      return null;
+    }
+
+    return db.collection('bitacora').add({
+      module: 'Bitacora',
+      action: after.enabled ? 'ALERTAS_ASIGNACIONES_ACTIVADAS_SERVIDOR' : 'ALERTAS_ASIGNACIONES_PAUSADAS_SERVIDOR',
+      description: after.enabled
+        ? 'El servidor confirmo la activacion de alertas de cambios de asignaciones.'
+        : 'El servidor confirmo la pausa de alertas de cambios de asignaciones.',
+      user: trustedText(after.updatedByName, 'Usuario no identificado'),
+      userRole: 'Sistemas',
+      entity: 'configuracion',
+      entityId: ASSIGNMENT_ALERTS_CONFIG_ID,
+      metadata: {
+        enabled: Boolean(after.enabled),
+        updatedBy: trustedText(after.updatedBy, ''),
+      },
+      createdAt: new Date().toISOString(),
+      serverRecordedAt: FieldValue.serverTimestamp(),
+      source: 'SERVIDOR',
+      integrity: 'VERIFICADO_SERVIDOR',
+    });
+  },
+);
+
+function writeTrustedAssignmentAudit({ action, assignmentId, before = null, after = null, changes }) {
+  const assignment = after || before || {};
+  const isDeleted = action.includes('ELIMINADA');
+  const actorName = trustedText(
+    isDeleted ? assignment.deletedByName : assignment.updatedByName || assignment.createdByName,
+    'Usuario no identificado',
+  );
+  const actorRole = trustedText(
+    isDeleted ? assignment.deletedByRole : assignment.updatedByRole || assignment.createdByRole,
+    'Sin rol registrado',
+  );
+  const subject = [trustedText(assignment.subjectId, ''), trustedText(assignment.subjectName, 'Asignatura sin nombre')]
+    .filter(Boolean)
+    .join(' - ');
+  const summary = Object.keys(changes)
+    .map((field) => trustedAssignmentFieldLabel(field))
+    .join(', ');
+
+  return db.collection('bitacora').add({
+    module: 'Asignaciones',
+    action,
+    description: isDeleted
+      ? `El servidor confirmo la eliminacion de ${subject} (${trustedText(assignment.group, 'sin grupo')}).`
+      : action.includes('CREADA')
+        ? `El servidor confirmo el alta de ${subject} para ${trustedText(assignment.group, 'caso especial')}.`
+        : `El servidor confirmo la actualizacion de ${subject}${summary ? `: ${summary}.` : '.'}`,
+    user: actorName,
+    userRole: actorRole,
+    entity: 'asignaciones',
+    entityId: assignmentId,
+    metadata: {
+      cycle: trustedText(assignment.cycle, ''),
+      program: trustedText(assignment.program, ''),
+      group: trustedText(assignment.group, ''),
+      subjectId: trustedText(assignment.subjectId, ''),
+      subjectName: trustedText(assignment.subjectName, ''),
+      moodleId: trustedText(assignment.moodleId, ''),
+      changedFields: Object.keys(changes).map((field) => trustedAssignmentFieldLabel(field)),
+      changes,
+    },
+    createdAt: new Date().toISOString(),
+    serverRecordedAt: FieldValue.serverTimestamp(),
+    source: 'SERVIDOR',
+    integrity: 'VERIFICADO_SERVIDOR',
+  });
+}
+
+function trustedAssignmentChanges(before, after) {
+  const fields = [
+    'cycle', 'program', 'group', 'subjectId', 'subjectName', 'moodleId',
+    'teacherMoodleUser', 'teacherName', 'status', 'shared', 'sharedGroups',
+    'sharedPrograms', 'special', 'studentEnrollments', 'observations', 'deletedAt',
+  ];
+
+  return fields.reduce((changes, field) => {
+    const previous = trustedComparableAssignmentValue(field, before[field]);
+    const next = trustedComparableAssignmentValue(field, after[field]);
+
+    if (JSON.stringify(previous) !== JSON.stringify(next)) {
+      changes[field] = { before: previous, after: next };
+    }
+
+    return changes;
+  }, {});
+}
+
+function trustedComparableAssignmentValue(field, value) {
+  if (field === 'studentEnrollments') {
+    const amount = String(value || '').split(/[\s,;\n]+/).filter(Boolean).length;
+    return amount ? `${amount} matricula(s)` : 'Sin matriculas adicionales';
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean).sort();
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'Si' : 'No';
+  }
+
+  return trustedText(value, 'Sin dato');
+}
+
+function trustedAssignmentFieldLabel(field) {
+  const labels = {
+    cycle: 'Ciclo',
+    program: 'Programa',
+    group: 'Grupo base',
+    subjectId: 'Clave de asignatura',
+    subjectName: 'Asignatura',
+    moodleId: 'ID Moodle',
+    teacherMoodleUser: 'Usuario Moodle del docente',
+    teacherName: 'Docente',
+    status: 'Estatus',
+    shared: 'Clase compartida',
+    sharedGroups: 'Grupos compartidos',
+    sharedPrograms: 'Programas compartidos',
+    special: 'Caso especial',
+    studentEnrollments: 'Matriculas adicionales',
+    observations: 'Observaciones',
+    deletedAt: 'Eliminacion',
+  };
+
+  return labels[field] || field;
+}
+
+function trustedText(value, fallback) {
+  const text = String(value || '').trim();
+  return text || fallback;
+}
 
 exports.sendEmailForNotification = onDocumentCreated(
   {
@@ -340,6 +559,10 @@ function htmlBody(notification) {
 
 function audienceMessage(notification) {
   if (notification.target === 'SISTEMAS') {
+    if (notification.type === 'ASIGNACION_MODIFICADA') {
+      return 'Equipo de Sistemas, se registró un cambio en una asignación por Coordinación Académica.';
+    }
+
     if (notification.type === 'AGENDA_EQUIPO') {
       return 'Equipo de Sistemas, se agregó una nueva actividad a la agenda operativa.';
     }
@@ -369,6 +592,10 @@ function notificationMessageLines(notification) {
     ].filter((line, index) => index === 0 || Boolean(line));
   }
 
+  if (notification.type === 'ASIGNACION_MODIFICADA') {
+    return [message].filter(Boolean);
+  }
+
   return [
     `La Coordinacion Academica correspondiente a ${actorName} genero la siguiente solicitud: ${title}.`,
     message,
@@ -393,6 +620,10 @@ function notificationHtmlMessageLines(notification) {
       `<strong>${escapedActor}</strong> agregó una actividad de equipo: ${escapeHtml(title)}.`,
       message ? escapeHtml(message) : '',
     ].filter((line, index) => index === 0 || Boolean(line));
+  }
+
+  if (notification.type === 'ASIGNACION_MODIFICADA') {
+    return [message ? escapeHtml(message) : 'Se registró un cambio en una asignación.'];
   }
 
   return [

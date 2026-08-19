@@ -486,6 +486,18 @@ export class AppComponent {
 
     if (notification.type === 'AGENDA_EQUIPO' || notification.entity === 'agenda_operativa_equipo') {
       void this.router.navigate(['/']);
+      return;
+    }
+
+    if (notification.type === 'ASIGNACION_MODIFICADA' || notification.entity === 'asignaciones') {
+      const appUser = this.userSessionService.session()?.appUser;
+
+      if (appUser && !this.canAccessPath('/asignaciones', appUser)) {
+        void this.router.navigate(['/']);
+        return;
+      }
+
+      void this.router.navigate(['/asignaciones']);
     }
   }
 

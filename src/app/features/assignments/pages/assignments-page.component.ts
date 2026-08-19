@@ -3,6 +3,7 @@ import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
+import { AssignmentChangeNotificationsRepository } from '../../../core/data/assignment-change-notifications.repository';
 import { SystemNotificationsRepository } from '../../../core/data/system-notifications.repository';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
 import { AcademicGroup, GroupsRepository } from '../../groups/data/groups.repository';
@@ -126,6 +127,7 @@ interface AssignmentStatusSummary {
 export class AssignmentsPageComponent implements OnDestroy {
   private readonly assignmentsRepository = inject(AssignmentsRepository);
   private readonly auditLogRepository = inject(AuditLogRepository);
+  private readonly assignmentChangeNotificationsRepository = inject(AssignmentChangeNotificationsRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly groupsRepository = inject(GroupsRepository);
@@ -239,7 +241,11 @@ export class AssignmentsPageComponent implements OnDestroy {
   searchQuery = signal('');
   readonly normalizedSearchQuery = computed(() => this.normalizeSearch(this.searchQuery()));
   readonly normalizedSearchTokens = computed(() => this.normalizedSearchQuery().split(' ').filter(Boolean));
-  catalogScope = signal<AssignmentCatalogScope>('OWN');
+  // La coordinación inicia en el catálogo global para poder registrar
+  // matrículas adicionales de casos especiales, incluso en asignaciones
+  // externas. Al abrir una ajena, el formulario conserva el modo limitado
+  // que solo permite modificar `studentEnrollments`.
+  catalogScope = signal<AssignmentCatalogScope>('GLOBAL');
   shareGroupSearch = signal('');
   modeTab = signal<AssignmentModeTab>('Escolarizado');
   formMessage = '';
@@ -306,13 +312,52 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly canReviewAssignments = computed(() => this.canSeeAllAssignments());
 
   /**
-   * Mientras se completa la auditoria de Moodle, el avance "Cargado en Moodle"
-   * es información operativa exclusiva de Sistemas. No altera el valor guardado:
-   * para los demás perfiles solo se presenta como "En revision".
+   * Los roles personalizados con permiso de consulta en Asignaciones no
+   * capturan ni modifican datos: trabajan siempre sobre el catálogo global.
+   */
+  readonly usesGlobalCatalogOnly = computed(() => {
+    const appUser = this.session()?.appUser;
+
+    return appUser?.status === 'Activo'
+      && !this.canSeeAllAssignments()
+      && this.modulePermissionService.customPermissionFor(appUser, 'asignaciones') === 'view';
+  });
+
+  /**
+   * Sistemas conserva la vista completa de Moodle. Coordinación Académica ve
+   * el avance real únicamente para programas identificados como Plan 2027.
    */
   readonly isSystemsUser = computed(() =>
     this.session()?.appUser?.role.includes('Sistemas') === true,
   );
+
+  readonly plan2027ProgramAliases = computed(() => {
+    const aliases = new Set<string>();
+
+    for (const nomenclature of this.nomenclatures()) {
+      const planReference = this.normalizeSearchText(
+        `${nomenclature.planName} ${nomenclature.planCode}`,
+      );
+
+      if (!planReference.includes('2027')) {
+        continue;
+      }
+
+      [nomenclature.abbreviation, nomenclature.programCode]
+        .map((value) => value.trim().toUpperCase())
+        .filter(Boolean)
+        .forEach((value) => aliases.add(value));
+    }
+
+    return aliases;
+  });
+
+  readonly canSeeMoodleLoadedStatus = computed(() => {
+    const role = this.session()?.appUser?.role ?? '';
+
+    return this.isSystemsUser()
+      || this.isAcademicCoordinationRole(role);
+  });
 
   readonly canCaptureAssignments = computed(() => this.activeCycle()?.status === 'Captura');
 
@@ -657,7 +702,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     for (const assignment of this.visibleAssignments()) {
       summary.total += 1;
 
-      const status = this.displayAssignmentStatus(assignment.status);
+      const status = this.displayAssignmentStatus(assignment.status, assignment);
 
       if (status === 'EN_CAPTURA') {
         summary.capture += 1;
@@ -684,7 +729,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return 'Hay asignaciones en captura; confirma ID Moodle, materia, docente y grupo antes de enviarlas a revision.';
     }
 
-    if (this.isSystemsUser() && this.moodleLoadedCount() > 0) {
+    if (this.canSeeMoodleLoadedStatus() && this.moodleLoadedCount() > 0) {
       return 'Hay asignaciones cargadas en Moodle; revisa el panel Moodle para dar seguimiento operativo.';
     }
 
@@ -797,11 +842,6 @@ export class AssignmentsPageComponent implements OnDestroy {
       return;
     }
 
-    if (!this.canCaptureAssignments()) {
-      this.formMessage = this.captureBlockedMessage();
-      return;
-    }
-
     this.editingAssignmentId = assignment.id;
     this.formErrors = [];
     this.formMessage = '';
@@ -900,6 +940,11 @@ export class AssignmentsPageComponent implements OnDestroy {
           shared: this.isSharedInTable(assignment),
         },
       });
+      this.flushNotificationTasks(this.notifySystemsAboutAcademicAssignmentDeletion(
+        actor,
+        assignment,
+        assignmentsToDelete,
+      ));
     } catch (error) {
       console.error('No se pudo eliminar la asignacion', error);
       this.formMessage = '';
@@ -920,6 +965,34 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   async saveAssignment(continueAdding = false): Promise<void> {
     if (this.isSavingAssignment) {
+      return;
+    }
+
+    const currentEditingAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId) ?? null
+      : null;
+
+    if (currentEditingAssignment && this.requiresMoodleLoadedChangeConfirmation(currentEditingAssignment)) {
+      const confirmed = await this.confirmationDialogService.confirm({
+        title: 'Advertencia',
+        message: 'Este curso ya se encuentra cargado en Moodle. La Coordinación de Sistemas ya realizó la revisión del curso anteriormente.\n\n¿Estás seguro de que deseas realizar estos cambios? Cualquier cambio realizado en SPAI a un curso ya cargado puede verse reflejado en Moodle en un lapso máximo de 24 horas.',
+        confirmLabel: 'Aceptar cambios',
+        cancelLabel: 'Cancelar',
+      });
+
+      if (!confirmed) {
+        this.showTemporaryFormMessage('No se realizaron cambios en la asignación.');
+        return;
+      }
+    }
+
+    if (this.isAcademicCoordinatorEnrollmentOnlyEdit()) {
+      await this.saveAcademicCoordinatorEnrollmentOnlyEdit();
+      return;
+    }
+
+    if (this.isOperationalAssignmentEdit()) {
+      await this.saveOperationalAssignmentEdit();
       return;
     }
 
@@ -1006,7 +1079,9 @@ export class AssignmentsPageComponent implements OnDestroy {
       };
       const assignmentId = await this.assignmentsRepository.upsertAssignment(basePayload);
       const createdAssignmentIds = this.editingAssignmentId ? [] : [assignmentId];
-      const sharedNotificationTasks: Promise<unknown>[] = [];
+      const sharedNotificationTasks: Promise<unknown>[] = [
+        ...this.notifySystemsAboutAcademicAssignmentChanges(currentAssignment, actor, basePayload, group?.fullGroup ?? ''),
+      ];
 
       if (this.assignmentForm.shared && !this.assignmentForm.special && shareGroups.length) {
         for (const shareGroup of shareGroups) {
@@ -1113,6 +1188,178 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
   }
 
+  private async saveOperationalAssignmentEdit(): Promise<void> {
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId) ?? null
+      : null;
+
+    if (!currentAssignment) {
+      this.formErrors = ['No se encontro la asignacion que deseas actualizar. Cierra la ventana e intenta de nuevo.'];
+      return;
+    }
+
+    const group = this.isSpecialAssignment(currentAssignment) ? null : this.selectedGroup();
+    const selectedProgram = group?.programAbbreviation ?? currentAssignment.program;
+    const program = this.programCodeForWrite(selectedProgram);
+    if ((!this.isSpecialAssignment(currentAssignment) && !group) || !program || !this.hasValidTeacherSelection()) {
+      this.formErrors = ['Selecciona un grupo y un docente validos.'];
+      return;
+    }
+
+    const isSystemsEdit = this.canSeeAllAssignments();
+    if (!isSystemsEdit && (!this.canModifyAssignment(currentAssignment) || !this.canUseDestinationProgram(selectedProgram))) {
+      this.formErrors = ['Solo puedes actualizar asignaciones de tus programas asignados.'];
+      return;
+    }
+
+    const actor = this.actorData();
+    const canManageSharedGroups = isSystemsEdit || this.canManageBaseAssignment(currentAssignment);
+    const sharedGroups = canManageSharedGroups && this.assignmentForm.shared
+      ? this.mergeSharedGroupNames(this.assignmentForm.shareGroups)
+      : this.assignmentSharedGroups(currentAssignment);
+    const sharedPrograms = canManageSharedGroups
+      ? this.sharedProgramsForGroups(sharedGroups)
+      : currentAssignment.sharedPrograms ?? [];
+    const nextAssignment = {
+      cycle: currentAssignment.cycle,
+      group: group?.fullGroup ?? currentAssignment.group,
+      subjectId: currentAssignment.subjectId,
+      subjectName: currentAssignment.subjectName,
+      moodleId: currentAssignment.moodleId,
+      teacherMoodleUser: this.selectedTeacherMoodleUser(),
+      teacherName: this.selectedTeacherName(),
+      sharedGroups,
+      studentEnrollments: this.normalizedStudentEnrollments(),
+    };
+
+    this.isSavingAssignment = true;
+    this.formErrors = [];
+    this.formMessage = 'Guardando cambios operativos en Firestore. Espera la confirmacion.';
+
+    try {
+      await this.assignmentsRepository.updateAssignmentOperationalData(currentAssignment.id, {
+        group: nextAssignment.group,
+        program,
+        teacherMoodleUser: nextAssignment.teacherMoodleUser,
+        teacherName: nextAssignment.teacherName,
+        shared: sharedGroups.length > 0,
+        sharedGroups,
+        sharedPrograms,
+        studentEnrollments: nextAssignment.studentEnrollments,
+        updatedBy: actor.createdBy,
+        updatedByName: actor.createdByName,
+        updatedByRole: actor.createdByRole,
+      });
+      await this.assignmentsRepository.refreshFromServer();
+
+      await this.auditLogRepository.register({
+        module: 'Asignaciones',
+        action: 'ASIGNACION_OPERATIVA_EDITADA',
+        description: `${isSystemsEdit ? 'Sistemas' : 'Coordinacion'} actualizo docente, grupo base, grupos compartidos o matrículas adicionales de ${currentAssignment.subjectId}.`,
+        user: actor.createdByName,
+        userRole: actor.createdByRole,
+        entity: 'asignaciones',
+        entityId: currentAssignment.id,
+        metadata: {
+          cycle: currentAssignment.cycle,
+          previousGroup: currentAssignment.group,
+          nextGroup: nextAssignment.group,
+          previousTeacher: currentAssignment.teacherMoodleUser,
+          nextTeacher: nextAssignment.teacherMoodleUser,
+          previousSharedGroups: this.assignmentSharedGroups(currentAssignment),
+          nextSharedGroups: sharedGroups,
+          previousStudentEnrollments: currentAssignment.studentEnrollments,
+          nextStudentEnrollments: nextAssignment.studentEnrollments,
+        },
+      });
+      this.flushNotificationTasks(this.notifySystemsAboutAcademicAssignmentChanges(
+        currentAssignment,
+        actor,
+        nextAssignment,
+        nextAssignment.group,
+      ));
+      this.showTemporaryFormMessage(isSystemsEdit
+        ? 'Cambios operativos confirmados en Firestore.'
+        : 'Cambios operativos confirmados en Firestore. Sistemas fue notificado.');
+      this.closeAssignmentModal();
+    } catch (error) {
+      console.error('No se pudo actualizar la asignacion operativa', error);
+      this.formMessage = '';
+      this.formErrors = [`No se pudieron guardar los cambios. ${this.readFirebaseMessage(error)}`];
+    } finally {
+      this.isSavingAssignment = false;
+    }
+  }
+
+  private async saveAcademicCoordinatorEnrollmentOnlyEdit(): Promise<void> {
+    const currentAssignment = this.editingAssignmentId
+      ? this.assignments().find((assignment) => assignment.id === this.editingAssignmentId) ?? null
+      : null;
+
+    if (!currentAssignment || !this.isAcademicCoordinatorEnrollmentOnlyEdit()) {
+      this.formErrors = ['No se encontro la asignacion que deseas actualizar. Cierra la ventana e intenta de nuevo.'];
+      return;
+    }
+
+    const actor = this.actorData();
+    const nextStudentEnrollments = this.normalizedStudentEnrollments();
+    this.isSavingAssignment = true;
+    this.formErrors = [];
+    this.formMessage = 'Guardando matrículas adicionales en Firestore. Espera la confirmacion.';
+
+    try {
+      await this.assignmentsRepository.updateAssignmentAdditionalEnrollments(currentAssignment.id, {
+        studentEnrollments: nextStudentEnrollments,
+        updatedBy: actor.createdBy,
+        updatedByName: actor.createdByName,
+        updatedByRole: actor.createdByRole,
+      });
+      await this.assignmentsRepository.refreshFromServer();
+
+      await this.auditLogRepository.register({
+        module: 'Asignaciones',
+        action: 'ASIGNACION_MATRICULAS_ADICIONALES_EDITADAS',
+        description: `Coordinacion actualizo matrículas adicionales de ${currentAssignment.subjectId} desde el catálogo global.`,
+        user: actor.createdByName,
+        userRole: actor.createdByRole,
+        entity: 'asignaciones',
+        entityId: currentAssignment.id,
+        metadata: {
+          cycle: currentAssignment.cycle,
+          moodleId: currentAssignment.moodleId,
+          subjectId: currentAssignment.subjectId,
+          previousStudentEnrollments: currentAssignment.studentEnrollments,
+          nextStudentEnrollments,
+          scope: 'CATALOGO_GLOBAL',
+        },
+      });
+      this.flushNotificationTasks(this.notifySystemsAboutAcademicAssignmentChanges(
+        currentAssignment,
+        actor,
+        {
+          cycle: currentAssignment.cycle,
+          group: currentAssignment.group,
+          subjectId: currentAssignment.subjectId,
+          subjectName: currentAssignment.subjectName,
+          moodleId: currentAssignment.moodleId,
+          teacherMoodleUser: currentAssignment.teacherMoodleUser,
+          teacherName: currentAssignment.teacherName,
+          sharedGroups: this.assignmentSharedGroups(currentAssignment),
+          studentEnrollments: nextStudentEnrollments,
+        },
+        currentAssignment.group,
+      ));
+      this.showTemporaryFormMessage('Matrículas adicionales confirmadas en Firestore. Sistemas fue notificado.');
+      this.closeAssignmentModal();
+    } catch (error) {
+      console.error('No se pudieron actualizar las matrículas adicionales', error);
+      this.formMessage = '';
+      this.formErrors = [`No se pudieron guardar las matrículas adicionales. ${this.readFirebaseMessage(error)}`];
+    } finally {
+      this.isSavingAssignment = false;
+    }
+  }
+
   private async removeSharedParticipation(assignment: AcademicAssignment): Promise<void> {
     const userSharedGroups = this.assignmentSharedGroupsForCurrentUser(assignment);
 
@@ -1179,6 +1426,21 @@ export class AssignmentsPageComponent implements OnDestroy {
           remainingSharedGroups,
         },
       });
+      this.flushNotificationTasks(this.notifySystemsAboutAcademicAssignmentChanges(
+        assignment,
+        actor,
+        {
+          cycle: assignment.cycle,
+          group: assignment.group,
+          subjectId: assignment.subjectId,
+          subjectName: assignment.subjectName,
+          moodleId: assignment.moodleId,
+          teacherMoodleUser: assignment.teacherMoodleUser,
+          teacherName: assignment.teacherName,
+          sharedGroups: remainingSharedGroups,
+        },
+        assignment.group,
+      ));
     } catch (error) {
       console.error('No se pudo retirar la clase compartida', error);
       this.formMessage = '';
@@ -1231,6 +1493,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   isGlobalCatalogVisible(): boolean {
     return this.canSeeAllAssignments()
+      || this.usesGlobalCatalogOnly()
       || (this.canToggleGlobalCatalog() && this.catalogScope() === 'GLOBAL');
   }
 
@@ -1290,6 +1553,10 @@ export class AssignmentsPageComponent implements OnDestroy {
   catalogScopeLabel(): string {
     if (this.canSeeAllAssignments()) {
       return 'Vista Sistemas - Catalogo global';
+    }
+
+    if (this.usesGlobalCatalogOnly()) {
+      return 'Vista de consulta - Catalogo global';
     }
 
     return this.catalogScope() === 'GLOBAL'
@@ -1866,15 +2133,15 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.syncPickerInputsFromForm();
   }
 
-  statusClass(status: AssignmentStatus): string {
-    return this.displayAssignmentStatus(status).toLowerCase();
+  statusClass(status: AssignmentStatus, assignment?: AcademicAssignment): string {
+    return this.displayAssignmentStatus(status, assignment).toLowerCase();
   }
 
   isAssignmentDeleted(assignment: AcademicAssignment): boolean {
     return Boolean(assignment.deletedAt);
   }
 
-  statusLabel(status: AssignmentStatus): string {
+  statusLabel(status: AssignmentStatus, assignment?: AcademicAssignment): string {
     const labels: Record<AssignmentStatus, string> = {
       EN_CAPTURA: 'En captura',
       EN_REVISION: 'En revision',
@@ -1883,7 +2150,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       CON_OBSERVACION: 'En revision',
     };
 
-    return labels[this.displayAssignmentStatus(status)];
+    return labels[this.displayAssignmentStatus(status, assignment)];
   }
 
   assignmentById(id: string): AcademicAssignment | null {
@@ -1928,9 +2195,59 @@ export class AssignmentsPageComponent implements OnDestroy {
     return `Grupo base de otra coordinacion. Tu grupo vinculado: ${userGroups.join(', ')}.`;
   }
 
-  canEditAssignment(assignment: AcademicAssignment): boolean {
-    return this.canModifyAssignment(assignment)
-      && this.normalizedAssignmentStatus(assignment.status) === 'EN_CAPTURA';
+  canEditAssignment(_assignment: AcademicAssignment): boolean {
+    if (!this.canManageAssignments()) {
+      return false;
+    }
+
+    const role = this.session()?.appUser?.role ?? '';
+
+    if (this.canSeeAllAssignments()) {
+      return true;
+    }
+
+    // Toda Coordinación Académica puede abrir cualquier asignación que tenga
+    // visible para registrar matrículas adicionales. Al no pertenecer a sus
+    // programas, el formulario se limita automáticamente a ese único campo;
+    // docente, grupos, materia, ID Moodle y estado permanecen protegidos.
+    return this.isAcademicCoordinationRole(role);
+  }
+
+  isAcademicCoordinatorOperationalEdit(): boolean {
+    const assignment = this.editingAssignmentId
+      ? this.assignments().find((item) => item.id === this.editingAssignmentId) ?? null
+      : null;
+
+    return assignment !== null
+      && !this.canSeeAllAssignments()
+      && this.isAcademicCoordinationRole(this.session()?.appUser?.role ?? '')
+      && this.canModifyAssignment(assignment);
+  }
+
+  isAcademicCoordinatorEnrollmentOnlyEdit(): boolean {
+    const assignment = this.editingAssignmentId
+      ? this.assignments().find((item) => item.id === this.editingAssignmentId) ?? null
+      : null;
+
+    return assignment !== null
+      && !this.canSeeAllAssignments()
+      && this.isAcademicCoordinationRole(this.session()?.appUser?.role ?? '')
+      && !this.canModifyAssignment(assignment);
+  }
+
+  isSystemsOperationalEdit(): boolean {
+    return this.editingAssignmentId !== null && this.canSeeAllAssignments();
+  }
+
+  isOperationalAssignmentEdit(): boolean {
+    return this.isAcademicCoordinatorOperationalEdit() || this.isSystemsOperationalEdit();
+  }
+
+  hasLockedAssignmentIdentity(): boolean {
+    return this.editingAssignmentId !== null
+      && (this.isAcademicCoordinatorOperationalEdit()
+        || this.isAcademicCoordinatorEnrollmentOnlyEdit()
+        || this.isSystemsOperationalEdit());
   }
 
   canDeleteAssignment(assignment: AcademicAssignment): boolean {
@@ -2116,15 +2433,65 @@ export class AssignmentsPageComponent implements OnDestroy {
     const statusFilter = this.statusFilter();
 
     return statusFilter === 'TODOS'
-      || this.displayAssignmentStatus(assignment.status) === statusFilter;
+      || this.displayAssignmentStatus(assignment.status, assignment) === statusFilter;
   }
 
-  private displayAssignmentStatus(status: AssignmentStatus): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
+  private displayAssignmentStatus(
+    status: AssignmentStatus,
+    assignment?: AcademicAssignment,
+  ): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
     const normalizedStatus = this.normalizedAssignmentStatus(status);
 
-    return !this.isSystemsUser() && normalizedStatus === 'CARGADO_MOODLE'
+    return !this.canShowMoodleLoadedStatus(assignment) && normalizedStatus === 'CARGADO_MOODLE'
       ? 'EN_REVISION'
       : normalizedStatus;
+  }
+
+  private canShowMoodleLoadedStatus(assignment?: AcademicAssignment): boolean {
+    if (this.isSystemsUser()) {
+      return true;
+    }
+
+    if (!assignment) {
+      return false;
+    }
+
+    const role = this.session()?.appUser?.role ?? '';
+
+    if (!this.isAcademicCoordinationRole(role)) {
+      return false;
+    }
+
+    // Coordinación Académica puede dar seguimiento al avance real de Moodle
+    // en todas sus asignaciones. Esto solo cambia la vista: el estado de
+    // Firestore no se altera desde esta condición.
+    return true;
+  }
+
+  private requiresMoodleLoadedChangeConfirmation(assignment: AcademicAssignment): boolean {
+    const role = this.session()?.appUser?.role ?? '';
+
+    return this.isAcademicCoordinationRole(role)
+      && this.normalizedAssignmentStatus(assignment.status) === 'CARGADO_MOODLE';
+  }
+
+  private isPlan2027Assignment(assignment: AcademicAssignment): boolean {
+    const plan2027Aliases = this.plan2027ProgramAliases();
+
+    return Array.from(this.programAliases(assignment.program))
+      .some((alias) => plan2027Aliases.has(alias));
+  }
+
+  private isSecondTermNonPostgraduateAssignment(assignment: AcademicAssignment): boolean {
+    const group = this.groupsByFullGroup().get(assignment.group);
+
+    if (group?.groupCode.trim() === '02') {
+      return !this.isPostgraduateGroup(group);
+    }
+
+    const isSecondTerm = /(?:^|\s)02[A-Z]?(?:\s|$)/i.test(assignment.group.trim());
+
+    return isSecondTerm && !(group && this.isPostgraduateGroup(group));
   }
 
   private normalizedAssignmentStatus(status: AssignmentStatus): Exclude<AssignmentStatus, 'VALIDADO' | 'CON_OBSERVACION'> {
@@ -2188,7 +2555,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       assignment.group,
       ...this.assignmentSharedGroups(assignment),
       assignment.observations,
-      this.statusLabel(assignment.status),
+      this.statusLabel(assignment.status, assignment),
     ].join(' ');
   }
 
@@ -2428,7 +2795,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       sharedGroups.length ? 'Si' : 'No',
       sharedGroups.join(', '),
       this.assignmentReportParticipation(assignment),
-      this.statusLabel(assignment.status),
+      this.statusLabel(assignment.status, assignment),
       this.assignmentReportMode(assignment),
       assignment.studentEnrollments,
       assignment.observations,
@@ -3960,6 +4327,112 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
   }
 
+  private notifySystemsAboutAcademicAssignmentChanges(
+    previousAssignment: AcademicAssignment | null | undefined,
+    actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
+    nextAssignment: Pick<
+      UpsertAssignmentPayload,
+      'cycle' | 'group' | 'subjectId' | 'subjectName' | 'moodleId' | 'teacherMoodleUser' | 'teacherName' | 'sharedGroups' | 'studentEnrollments'
+    >,
+    selectedGroup: string,
+  ): Promise<unknown>[] {
+    if (!previousAssignment
+      || !this.isAcademicCoordinationRole(actor.createdByRole)
+      || !this.assignmentChangeNotificationsRepository.enabled()) {
+      return [];
+    }
+
+    const changes: string[] = [];
+    const previousTeacher = this.assignmentTeacherLabel(previousAssignment.teacherName, previousAssignment.teacherMoodleUser);
+    const nextTeacher = this.assignmentTeacherLabel(nextAssignment.teacherName, nextAssignment.teacherMoodleUser);
+
+    if (this.normalizeSearchText(previousAssignment.teacherMoodleUser) !== this.normalizeSearchText(nextAssignment.teacherMoodleUser)) {
+      changes.push(`Docente: ${previousTeacher} → ${nextTeacher}.`);
+    }
+
+    const previousGroup = previousAssignment.group.trim().toUpperCase();
+    const nextGroup = (nextAssignment.group || selectedGroup).trim().toUpperCase();
+
+    if (previousGroup !== nextGroup) {
+      changes.push(`Grupo base: ${this.assignmentGroupName(previousGroup)} → ${this.assignmentGroupName(nextGroup)}.`);
+    }
+
+    const previousEnrollments = previousAssignment.studentEnrollments.trim();
+    const nextEnrollments = (nextAssignment.studentEnrollments ?? '').trim();
+
+    if (previousEnrollments !== nextEnrollments) {
+      changes.push(`Matrículas adicionales actualizadas: ${nextEnrollments || 'sin matrículas registradas'}.`);
+    }
+
+    const previousSharedGroups = new Set(this.assignmentSharedGroups(previousAssignment));
+    const nextSharedGroups = new Set((nextAssignment.sharedGroups ?? []).map((group) => group.trim().toUpperCase()).filter(Boolean));
+    const addedSharedGroups = Array.from(nextSharedGroups).filter((group) => !previousSharedGroups.has(group));
+    const removedSharedGroups = Array.from(previousSharedGroups).filter((group) => !nextSharedGroups.has(group));
+
+    if (addedSharedGroups.length) {
+      changes.push(`Grupo(s) compartido(s) agregado(s): ${addedSharedGroups.join(', ')}.`);
+    }
+
+    if (removedSharedGroups.length) {
+      changes.push(`Grupo(s) compartido(s) retirado(s): ${removedSharedGroups.join(', ')}.`);
+    }
+
+    if (!changes.length) {
+      return [];
+    }
+
+    return [this.firestoreSafeNotificationTask(this.systemNotificationsRepository.create({
+      title: 'Cambio de asignación por Coordinación',
+      message: `${actor.createdByName} actualizó la asignación ${nextAssignment.subjectId} - ${nextAssignment.subjectName} (ID Moodle ${nextAssignment.moodleId}, ciclo ${nextAssignment.cycle}). ${changes.join(' ')}`,
+      type: 'ASIGNACION_MODIFICADA',
+      entity: 'asignaciones',
+      entityId: previousAssignment.id,
+      actorId: actor.createdBy,
+      actorName: actor.createdByName,
+      actorRole: actor.createdByRole,
+    }))];
+  }
+
+  private notifySystemsAboutAcademicAssignmentDeletion(
+    actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
+    assignment: AcademicAssignment,
+    deletedAssignments: AcademicAssignment[],
+  ): Promise<unknown>[] {
+    if (!this.isAcademicCoordinationRole(actor.createdByRole) || !this.assignmentChangeNotificationsRepository.enabled()) {
+      return [];
+    }
+
+    const affectedGroups = Array.from(new Set(
+      deletedAssignments
+        .map((item) => this.assignmentGroupName(item.group))
+        .filter(Boolean),
+    ));
+    const deletedCount = deletedAssignments.length;
+
+    return [this.firestoreSafeNotificationTask(this.systemNotificationsRepository.create({
+      title: 'Asignación eliminada por Coordinación',
+      message: `${actor.createdByName} eliminó ${deletedCount > 1 ? `${deletedCount} asignaciones relacionadas` : 'una asignación'}: ${assignment.subjectId} - ${assignment.subjectName} (ID Moodle ${assignment.moodleId}, ciclo ${assignment.cycle}). Grupo(s) afectado(s): ${affectedGroups.join(', ') || 'caso especial'}.`,
+      type: 'ASIGNACION_MODIFICADA',
+      entity: 'asignaciones',
+      entityId: assignment.id,
+      actorId: actor.createdBy,
+      actorName: actor.createdByName,
+      actorRole: actor.createdByRole,
+    }))];
+  }
+
+  private assignmentTeacherLabel(name: string, moodleUser: string): string {
+    if (this.normalizeSearchText(moodleUser) === TEMPORARY_TEACHER_USER || !name.trim()) {
+      return 'Temporalmente sin docente';
+    }
+
+    return name.trim();
+  }
+
+  private assignmentGroupName(group: string): string {
+    return group.trim() || 'Caso especial';
+  }
+
   private notifySystemsAboutSharedClass(
     actor: Pick<UpsertAssignmentPayload, 'createdBy' | 'createdByName' | 'createdByRole' | 'createdByPrograms'>,
     sharedAssignmentId: string,
@@ -4049,7 +4522,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private firestoreSafeNotificationTask(task: Promise<unknown>): Promise<unknown> {
     return this.withNotificationTimeout(task, 8000).catch((error) => {
-      console.warn('No se pudo crear una notificacion academica de clase compartida', error);
+      console.warn('No se pudo crear una notificacion del sistema.', error);
       return undefined;
     });
   }

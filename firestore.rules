@@ -6,12 +6,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function hasInstitutionalEmail() {
-      return signedIn()
-        && request.auth.token.email is string
-        && request.auth.token.email.matches('.*@tecplayacar[.]edu[.]mx$');
-    }
-
     function userDocExists() {
       return signedIn()
         && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
@@ -64,11 +58,11 @@ service cloud.firestore {
     }
 
     function canReadInstitutionalCatalogs() {
-      return hasInstitutionalEmail() || isActiveUser();
+      return isActiveUser();
     }
 
     function canReadUsersDirectory() {
-      return hasInstitutionalEmail() || isActiveUser();
+      return isActiveUser();
     }
 
     function canManageUsers() {
@@ -112,7 +106,7 @@ service cloud.firestore {
     }
 
     function canCreatePendingTeacher() {
-      return hasInstitutionalEmail()
+      return isActiveUser()
         && request.resource.data.status == 'PENDIENTE'
         && request.resource.data.origin == 'MANUAL'
         && request.resource.data.normalizedMoodleUser is string
@@ -121,7 +115,7 @@ service cloud.firestore {
     }
 
     function canUpdateOwnPendingTeacher(teacherId) {
-      return hasInstitutionalEmail()
+      return isActiveUser()
         && resource.data.status == 'PENDIENTE'
         && resource.data.origin == 'MANUAL'
         && request.resource.data.status == 'PENDIENTE'
@@ -130,7 +124,7 @@ service cloud.firestore {
     }
 
     function canDeleteOwnPendingTeacher(teacherId) {
-      return hasInstitutionalEmail()
+      return isActiveUser()
         && hasModuleAccess('docentes')
         && resource.data.status == 'PENDIENTE'
         && resource.data.origin == 'MANUAL'
@@ -160,8 +154,7 @@ service cloud.firestore {
     }
 
     function canReadAssignments() {
-      return hasInstitutionalEmail()
-        || isSystemsMember()
+      return isSystemsMember()
         || isAcademicCoordinator()
         || hasModuleAccess('asignaciones');
     }
@@ -233,7 +226,8 @@ service cloud.firestore {
     }
 
     function canCreateOwnAssignment() {
-      return hasInstitutionalEmail()
+      return isActiveUser()
+        && isAcademicCoordinator()
         && request.resource.data.createdBy == request.auth.uid;
     }
 
@@ -243,7 +237,8 @@ service cloud.firestore {
     }
 
     function canWriteOwnAssignment() {
-      return hasInstitutionalEmail()
+      return isActiveUser()
+        && isAcademicCoordinator()
         && resource.data.createdBy == request.auth.uid;
     }
 
@@ -291,6 +286,79 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId))
         && canWriteAssignmentProgram(
           get(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId)).data.program
+        );
+    }
+
+    // Coordinación Académica puede corregir docente, grupo base y matrículas
+    // adicionales incluso después de cargar la asignación en Moodle. La materia,
+    // el ID Moodle, el estado, los grupos compartidos y la trazabilidad siguen
+    // protegidos para Sistemas.
+    function changesOnlyAcademicAssignmentOperationalData() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'group',
+        'program',
+        'teacherMoodleUser',
+        'teacherName',
+        'shared',
+        'sharedGroups',
+        'sharedPrograms',
+        'studentEnrollments',
+        'updatedBy',
+        'updatedByName',
+        'updatedByRole',
+        'updatedAt'
+      ]);
+    }
+
+    function canAcademicCoordinatorUpdateAssignmentOperationalData() {
+      return isAcademicCoordinator()
+        && changesOnlyAcademicAssignmentOperationalData()
+        && canWriteAssignmentProgram(resource.data.program)
+        && canWriteAssignmentProgram(request.resource.data.program);
+    }
+
+    // Desde el catálogo global, Coordinación puede registrar únicamente
+    // matrículas adicionales. No obtiene permisos sobre docente, grupos,
+    // materia, ID Moodle, estado ni programas ajenos.
+    function changesOnlyAcademicAssignmentEnrollments() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'studentEnrollments',
+        'updatedBy',
+        'updatedByName',
+        'updatedByRole',
+        'updatedAt'
+      ]);
+    }
+
+    function canAcademicCoordinatorUpdateAnyAssignmentEnrollments() {
+      return isAcademicCoordinator()
+        && changesOnlyAcademicAssignmentEnrollments();
+    }
+
+    // Una vez cargada en Moodle, la identidad académica no se puede alterar
+    // desde el cliente, ni siquiera por Sistemas. Sí permanecen editables los
+    // datos operativos autorizados.
+    function preservesLoadedAssignmentIdentity() {
+      return !['CARGADO_MOODLE', 'VALIDADO'].hasAny([resource.data.status])
+        || (
+          request.resource.data.moodleId == resource.data.moodleId
+          && request.resource.data.normalizedMoodleId == resource.data.normalizedMoodleId
+          && request.resource.data.subjectId == resource.data.subjectId
+          && request.resource.data.subjectName == resource.data.subjectName
+        );
+    }
+
+    function canUpdateAssignmentDocument() {
+      return isSystemsMember()
+        || canAcademicCoordinatorUpdateAssignmentOperationalData()
+        || canAcademicCoordinatorUpdateAnyAssignmentEnrollments()
+        || (
+          !isAcademicCoordinator()
+          && (
+            canUpdateSharedAssignmentParticipation()
+            || canWriteOwnNonEnglishAssignment()
+            || canWriteExistingSharedAssignmentFromSource()
+          )
         );
     }
 
@@ -353,7 +421,7 @@ service cloud.firestore {
     }
 
     function canCreateSystemRequest() {
-      return (isActiveUser() || hasInstitutionalEmail())
+      return isActiveUser()
         && request.resource.data.requestedBy == request.auth.uid
         && request.resource.data.status == 'PENDIENTE'
         && request.resource.data.type in ['REABRIR_CAPTURA', 'ALTA_GRUPO', 'CAMBIAR_ID_ASIGNATURA', 'DOCENTE_NUEVO']
@@ -385,7 +453,36 @@ service cloud.firestore {
       return signedIn()
         && userId == request.auth.uid
         && request.resource.data.authUid == request.auth.uid
-        && request.resource.data.status == 'Inactivo';
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.name is string
+        && request.resource.data.role == 'Pendiente de autorizacion'
+        && request.resource.data.status == 'Inactivo'
+        && request.resource.data.assignedPrograms is list
+        && request.resource.data.assignedPrograms.size() == 0
+        && request.resource.data.access is map
+        && request.resource.data.access.dashboard == false
+        && request.resource.data.access.usuarios == false
+        && request.resource.data.access.ciclos == false
+        && request.resource.data.access.nomenclaturas == false
+        && request.resource.data.access.grupos == false
+        && request.resource.data.access.docentes == false
+        && request.resource.data.access.asignaturas == false
+        && request.resource.data.access.asignaciones == false
+        && request.resource.data.access.solicitudes == false
+        && request.resource.data.access.ligasMeet == false
+        && request.resource.data.access.moodle == false
+        && request.resource.data.access.bitacora == false
+        && request.resource.data.keys().hasOnly([
+          'authUid',
+          'name',
+          'email',
+          'role',
+          'assignedPrograms',
+          'access',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ]);
     }
 
     function isOwnEmailBinding(userId) {
@@ -412,7 +509,7 @@ service cloud.firestore {
     }
 
     match /roles_personalizados/{roleId} {
-      allow read: if isActiveUser() || hasInstitutionalEmail();
+      allow read: if isActiveUser();
       allow create, update, delete: if canManageUsers();
     }
 
@@ -481,13 +578,9 @@ service cloud.firestore {
         && request.resource.data.subjectId is string
         && request.resource.data.teacherMoodleUser is string;
 
-      allow update: if (
-          canWriteAssignmentProgram(resource.data.program)
-          || canUpdateSharedAssignmentParticipation()
-          || canWriteOwnNonEnglishAssignment()
-          || canWriteExistingSharedAssignmentFromSource()
-        )
+      allow update: if canUpdateAssignmentDocument()
         && canChangeAssignmentProgram()
+        && preservesLoadedAssignmentIdentity()
         && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt
@@ -513,7 +606,7 @@ service cloud.firestore {
     match /solicitudes_sistemas/{requestId} {
       allow read: if isSystemsMember()
         || (
-          (isActiveUser() || hasInstitutionalEmail())
+          isActiveUser()
           && resource.data.requestedBy == request.auth.uid
         );
 
@@ -531,7 +624,13 @@ service cloud.firestore {
       allow read: if isSystemsMember()
         || hasModuleAccess('bitacora');
 
-      allow create: if isActiveUser() || hasInstitutionalEmail();
+      // Las entradas verificadas se generan exclusivamente desde Cloud Functions
+      // (Admin SDK). El cliente solo puede conservar eventos transitorios
+      // identificados expresamente como no verificados durante la migracion.
+      allow create: if isActiveUser()
+        && request.resource.data.source == 'CLIENTE'
+        && request.resource.data.integrity == 'NO_VERIFICADO'
+        && request.resource.data.createdAt is string;
       allow update, delete: if false;
     }
 
@@ -576,15 +675,25 @@ service cloud.firestore {
     match /configuracion/{configId} {
       allow read: if canReadInstitutionalCatalogs();
 
-      allow create, update: if configId == 'docentes'
-        && (
-          canEditTeachers()
-          || (
-            isActiveUser()
-            && hasModuleAccess('docentes')
+      allow create, update: if (
+          configId == 'docentes'
+          && (
+            canEditTeachers()
+            || (
+              isActiveUser()
+              && hasModuleAccess('docentes')
+            )
           )
+          && request.resource.data.lastMoodleTeacherNumber is int
         )
-        && request.resource.data.lastMoodleTeacherNumber is int;
+        || (
+          configId == 'notificaciones_asignaciones'
+          && isSystemsMember()
+          && request.resource.data.enabled is bool
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.updatedByName is string
+          && request.resource.data.updatedAt is string
+        );
 
       allow delete: if canEditTeachers();
     }
@@ -592,18 +701,19 @@ service cloud.firestore {
     match /notificaciones/{notificationId} {
       allow read: if isSystemsMember()
         || (
-          (isActiveUser() || hasInstitutionalEmail())
+          isActiveUser()
           && canReadAcademicNotificationTarget()
         );
 
-      allow create: if (isActiveUser() || hasInstitutionalEmail())
+      allow create: if isActiveUser()
         && request.resource.data.type in [
           'DOCENTE_NUEVO',
           'DOCENTE_VALIDADO',
           'ASIGNACIONES_HITO',
           'CLASE_COMPARTIDA',
           'SOLICITUD_SISTEMAS',
-          'AGENDA_EQUIPO'
+          'AGENDA_EQUIPO',
+          'ASIGNACION_MODIFICADA'
         ]
         && (
           request.resource.data.type != 'AGENDA_EQUIPO'
@@ -625,7 +735,7 @@ service cloud.firestore {
       allow update: if (
           isSystemsMember()
           || (
-            (isActiveUser() || hasInstitutionalEmail())
+            isActiveUser()
             && canReadAcademicNotificationTarget()
           )
         )

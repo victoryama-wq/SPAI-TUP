@@ -64,7 +64,6 @@ export abstract class FirestoreRepository<T extends { id: string }> {
           this.loadingSignal.set(false);
           this.itemsSignal.set(
             snapshot.docs
-              .filter((item) => !item.metadata.hasPendingWrites)
               .map((item) => ({ id: item.id, ...item.data() }) as T),
           );
         },
@@ -94,7 +93,6 @@ export abstract class FirestoreRepository<T extends { id: string }> {
         this.readErrorSignal.set('');
         this.itemsSignal.set(
           snapshot.docs
-            .filter((item) => !item.metadata.hasPendingWrites)
             .map((item) => ({ id: item.id, ...item.data() }) as T),
         );
       })

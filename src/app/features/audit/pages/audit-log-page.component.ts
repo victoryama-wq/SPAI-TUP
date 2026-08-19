@@ -5,6 +5,8 @@ import {
   AuditLogEntry,
   AuditLogRepository,
 } from '../../../core/data/audit-log.repository';
+import { UserSessionService } from '../../../core/auth/user-session.service';
+import { AssignmentChangeNotificationsRepository } from '../../../core/data/assignment-change-notifications.repository';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 
 type PeriodFilter = 'Todos' | 'Hoy' | '7 dias' | '30 dias';
@@ -25,6 +27,8 @@ interface SummaryRow {
 export class AuditLogPageComponent {
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
+  private readonly userSessionService = inject(UserSessionService);
+  private readonly assignmentChangeNotificationsRepository = inject(AssignmentChangeNotificationsRepository);
   private readonly metadataKeysToHide = new Set([
     'action',
     'createdAt',
@@ -45,6 +49,15 @@ export class AuditLogPageComponent {
   readonly selectedPeriod = signal<PeriodFilter>('Todos');
   readonly pageSize = signal(10);
   readonly currentPage = signal(1);
+  readonly isUpdatingAssignmentChangeNotifications = signal(false);
+  readonly assignmentChangeNotificationsMessage = signal('');
+  readonly assignmentChangeNotificationsEnabled = this.assignmentChangeNotificationsRepository.enabled;
+  readonly assignmentChangeNotificationsReadError = this.assignmentChangeNotificationsRepository.readError;
+  readonly canManageAssignmentChangeNotifications = computed(() => {
+    const appUser = this.userSessionService.session()?.appUser;
+
+    return appUser?.status === 'Activo' && appUser.role.includes('Sistemas');
+  });
 
   readonly sortedEntries = computed(() =>
     [...this.entries()].sort((left, right) => this.timeValue(right.createdAt) - this.timeValue(left.createdAt)),
@@ -136,6 +149,39 @@ export class AuditLogPageComponent {
     this.selectedAction.set('Todas');
     this.selectedPeriod.set('Todos');
     this.resetPage();
+  }
+
+  async toggleAssignmentChangeNotifications(): Promise<void> {
+    const session = this.userSessionService.session();
+    const appUser = session?.appUser;
+
+    if (!session || !appUser || !this.canManageAssignmentChangeNotifications() || this.isUpdatingAssignmentChangeNotifications()) {
+      return;
+    }
+
+    const enabled = !this.assignmentChangeNotificationsEnabled();
+
+    this.isUpdatingAssignmentChangeNotifications.set(true);
+    this.assignmentChangeNotificationsMessage.set('');
+
+    try {
+      await this.assignmentChangeNotificationsRepository.setEnabled({
+        enabled,
+        updatedBy: session.authUid,
+        updatedByName: appUser.name || session.displayName,
+      });
+
+      this.assignmentChangeNotificationsMessage.set(
+        enabled
+          ? 'Alertas activadas para cambios de asignaciones.'
+          : 'Alertas pausadas. No se avisara a Sistemas hasta volver a activarlas.',
+      );
+    } catch (error) {
+      console.error('No se pudo actualizar el control de alertas de asignaciones.', error);
+      this.assignmentChangeNotificationsMessage.set('No se pudo actualizar la configuracion. Revisa tus permisos.');
+    } finally {
+      this.isUpdatingAssignmentChangeNotifications.set(false);
+    }
   }
 
   formatCycleDate(value: string | null | undefined): string {

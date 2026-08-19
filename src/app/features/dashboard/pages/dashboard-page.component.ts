@@ -32,6 +32,17 @@ interface MetricCard {
   icon: string;
 }
 
+interface ConsultationModule {
+  key: ModuleKey;
+  label: string;
+}
+
+interface ResearchProgramSummary {
+  program: string;
+  label: string;
+  count: number;
+}
+
 interface RealProgressCard {
   label: string;
   value: string;
@@ -190,6 +201,58 @@ export class DashboardPageComponent implements OnDestroy {
       ? this.metrics().filter((metric) => metric.label !== 'Ciclo activo')
       : this.metrics(),
   );
+  readonly customRoleModules = computed<ConsultationModule[]>(() => {
+    const appUser = this.userSessionService.session()?.appUser;
+    const modules: ReadonlyArray<ConsultationModule> = [
+      { key: 'nomenclaturas', label: 'Nomenclaturas' },
+      { key: 'grupos', label: 'Grupos' },
+      { key: 'docentes', label: 'Docentes' },
+      { key: 'asignaturas', label: 'Asignaturas' },
+      { key: 'asignaciones', label: 'Asignaciones' },
+      { key: 'solicitudes', label: 'Solicitudes' },
+      { key: 'ligasMeet', label: 'Ligas Meet' },
+      { key: 'moodle', label: 'Moodle' },
+      { key: 'bitacora', label: 'Bitácora' },
+    ];
+
+    return modules.filter((module) => this.hasModuleAccess(appUser, module.key));
+  });
+  readonly isResearchCoordinationRole = computed(() => {
+    const appUser = this.userSessionService.session()?.appUser;
+
+    return this.isCustomConsultationRoleForUser(appUser)
+      && this.normalizeSearchText(appUser?.role ?? '').includes('investigacion');
+  });
+  readonly researchAssignments = computed(() => {
+    const activeCycleCode = this.activeCycle()?.code ?? '';
+
+    return this.assignmentsRepository.assignments()
+      .filter((assignment) => !activeCycleCode || assignment.cycle === activeCycleCode)
+      .filter((assignment) => this.normalizeSearchText(assignment.subjectName).includes('investigacion'));
+  });
+  readonly researchAssignmentsTotal = computed(() => this.researchAssignments().length);
+  readonly researchAssignmentsByProgram = computed<ResearchProgramSummary[]>(() => {
+    const programLabels = new Map(
+      this.programsRepository.programs().map((program) => [
+        program.code.trim().toUpperCase(),
+        `${program.code.trim().toUpperCase()} — ${program.name.trim()}`,
+      ]),
+    );
+    const counts = new Map<string, number>();
+
+    for (const assignment of this.researchAssignments()) {
+      const program = assignment.program.trim().toUpperCase() || 'SIN_CARRERA';
+      counts.set(program, (counts.get(program) ?? 0) + 1);
+    }
+
+    return Array.from(counts.entries())
+      .map(([program, count]) => ({
+        program,
+        label: programLabels.get(program) ?? (program === 'SIN_CARRERA' ? 'Sin carrera definida' : program),
+        count,
+      }))
+      .sort((first, second) => second.count - first.count || first.label.localeCompare(second.label, 'es'));
+  });
 
   readonly metrics = computed<MetricCard[]>(() => {
     const appUser = this.userSessionService.session()?.appUser;
@@ -197,7 +260,6 @@ export class DashboardPageComponent implements OnDestroy {
     const users = this.usersRepository.users();
     const cycles = this.cyclesRepository.cycles();
     const teachers = this.teachersRepository.teachers();
-    const requests = this.sharedRequestsRepository.requests();
     const assignments = this.assignmentsRepository.assignments();
     const activeCycle = this.activeCycle();
     const activeCycleCode = activeCycle?.code ?? '';
@@ -208,38 +270,50 @@ export class DashboardPageComponent implements OnDestroy {
     if (this.isCustomConsultationRoleForUser(appUser)) {
       const consultationMetrics: MetricCard[] = [
         {
+          label: 'Usuarios activos',
+          value: String(users.filter((user) => user.status === 'Activo').length),
+          hint: 'Coleccion usuarios',
+          icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6',
+        },
+        {
+          label: 'Ciclos registrados',
+          value: String(cycles.length),
+          hint: 'Coleccion ciclos',
+          icon: 'M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+        },
+        {
           label: 'Ciclo activo',
           value: activeCycle?.code ?? '--',
           hint: this.activeCycleHint(activeCycle),
           icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
         },
         {
-          label: 'Solicitudes',
-          value: String(requests.length),
-          hint: 'Seguimiento operativo',
-          icon: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+          label: 'Roles personalizados',
+          value: String(this.customRolesRepository.roleTemplates().length),
+          hint: 'Coleccion roles_personalizados',
+          icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
         },
       ];
 
       if (this.hasModuleAccess(appUser, 'docentes')) {
-        consultationMetrics.unshift({
-          label: 'Docentes registrados',
+        consultationMetrics.push({
+          label: 'Docentes totales',
           value: String(teachers.length),
-          hint: 'Consulta de docentes',
+          hint: 'Catalogo global de docentes',
           icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
         });
       }
 
       if (this.hasModuleAccess(appUser, 'asignaciones')) {
-        consultationMetrics.splice(1, 0, {
-          label: 'Asignaciones',
-          value: String(cycleAssignments.length),
-          hint: activeCycleCode ? `Ciclo ${activeCycleCode}` : 'Sin ciclo activo',
+        consultationMetrics.push({
+          label: 'Asignaciones registradas',
+          value: String(assignments.length),
+          hint: 'Catalogo global de asignaciones',
           icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
         });
       }
 
-      return consultationMetrics.slice(0, 4);
+      return consultationMetrics;
     }
 
     if (isAcademicCoordinator) {
@@ -1055,10 +1129,9 @@ export class DashboardPageComponent implements OnDestroy {
       return false;
     }
 
-    const permissions = Object.values(customRole.permissions);
-
-    return permissions.some((permission) => permission === 'view')
-      && !permissions.some((permission) => permission === 'edit');
+    // El Dashboard distingue los roles creados en la administracion de roles,
+    // independientemente de que sus modulos sean de consulta o edicion.
+    return true;
   }
 
   private hasModuleAccess(appUser: AppUser | null | undefined, module: ModuleKey): boolean {
@@ -1067,6 +1140,10 @@ export class DashboardPageComponent implements OnDestroy {
 
   private normalizeIdentity(value: string): string {
     return value.trim().toLowerCase();
+  }
+
+  private normalizeSearchText(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
   }
 
   private greetingForUser(name: string, greetingGender?: string): 'Bienvenida' | 'Bienvenido' {

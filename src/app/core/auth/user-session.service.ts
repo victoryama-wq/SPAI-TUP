@@ -25,6 +25,20 @@ export interface UserSession {
 
 const SESSION_RELEASE_KEY = 'spai.session.release';
 const SESSION_RELEASE_VERSION = '2026-08-03-operational-dashboard';
+const PENDING_USER_ACCESS = {
+  dashboard: false,
+  usuarios: false,
+  ciclos: false,
+  nomenclaturas: false,
+  grupos: false,
+  docentes: false,
+  asignaturas: false,
+  asignaciones: false,
+  solicitudes: false,
+  ligasMeet: false,
+  moodle: false,
+  bitacora: false,
+};
 
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {
@@ -92,9 +106,11 @@ export class UserSessionService {
             authUid: authUser.uid,
             name: authUser.displayName ?? authUser.email,
             email: normalizedEmail,
-            role: 'Auxiliar de Sistemas',
+            // Un correo institucional no otorga un rol ni permisos por sí solo.
+            // Sistemas debe autorizar y configurar el perfil desde Usuarios.
+            role: 'Pendiente de autorizacion',
             assignedPrograms: [],
-            access: {},
+            access: PENDING_USER_ACCESS,
             status: 'Inactivo',
             createdAt: timestamp,
             updatedAt: timestamp,

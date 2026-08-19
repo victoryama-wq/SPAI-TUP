@@ -14,6 +14,8 @@ export interface AuditLogEntry {
   entityId: string;
   metadata: Record<string, unknown>;
   createdAt: string;
+  source?: 'SERVIDOR' | 'CLIENTE';
+  integrity?: 'VERIFICADO_SERVIDOR' | 'NO_VERIFICADO';
 }
 
 export interface CreateAuditLogPayload {
@@ -38,8 +40,15 @@ export class AuditLogRepository extends FirestoreRepository<AuditLogEntry> {
     super(inject(FIREBASE_DB), AUDIT_LOG_COLLECTION, orderBy('createdAt', 'desc'));
   }
 
-  register(payload: CreateAuditLogPayload): void {
-    void this.addDocument({
+  register(payload: CreateAuditLogPayload): Promise<void> {
+    // Asignaciones ya se registra desde Cloud Functions despues de la
+    // confirmacion real de Firestore. Evitamos duplicar o simular evidencia
+    // desde la pantalla del usuario.
+    if (payload.module === 'Asignaciones') {
+      return Promise.resolve();
+    }
+
+    return this.addDocument({
       module: payload.module,
       action: payload.action,
       description: payload.description,
@@ -49,6 +58,8 @@ export class AuditLogRepository extends FirestoreRepository<AuditLogEntry> {
       entityId: payload.entityId,
       metadata: payload.metadata ?? {},
       createdAt: new Date().toISOString(),
-    });
+      source: 'CLIENTE',
+      integrity: 'NO_VERIFICADO',
+    }).then(() => undefined);
   }
 }

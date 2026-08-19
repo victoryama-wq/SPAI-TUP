@@ -7,6 +7,47 @@
   box-shadow: 0 16px 35px rgb(15 35 83 / 0.12);
 }
 
+.coordination-edit-notice {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #b9d9ff;
+  border-radius: 8px;
+  background: #eef7ff;
+  color: #17436e;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+/* La identidad académica (materia e ID Moodle) queda protegida al editar. */
+.coordination-operational-edit .subject-field,
+.coordination-operational-edit .program-field,
+.coordination-operational-edit .special-type-controls,
+.coordination-operational-edit .english-modality-field,
+.coordination-operational-edit .english-subject-field,
+.coordination-operational-edit .fixed-status-field,
+.coordination-operational-edit .moodle-id-field,
+.systems-operational-edit .subject-field,
+.systems-operational-edit .moodle-id-field {
+  pointer-events: none;
+  opacity: 0.58;
+}
+
+.coordination-enrollment-only-edit > :not(.coordination-edit-notice):not(.additional-enrollments-only-field) {
+  display: none !important;
+}
+
+.additional-enrollments-only-field {
+  align-self: start;
+  display: grid;
+  gap: 7px;
+  grid-column: 1 / -1;
+}
+
+.additional-enrollments-only-field textarea {
+  min-height: 102px;
+}
+
 /* Margen de lectura: la tabla no queda pegada a los bordes del módulo. */
 @media (min-width: 900px) {
   .table-panel > .table-wrap {

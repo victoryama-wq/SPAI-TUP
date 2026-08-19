@@ -79,6 +79,29 @@ export interface AssignmentStatusUpdatePayload {
   updatedByRole: string;
 }
 
+/** Cambios operativos expresamente permitidos a Coordinación durante Captura. */
+export interface AssignmentOperationalUpdatePayload {
+  group: string;
+  program: string;
+  teacherMoodleUser: string;
+  teacherName: string;
+  shared: boolean;
+  sharedGroups: string[];
+  sharedPrograms: string[];
+  studentEnrollments: string;
+  updatedBy: string;
+  updatedByName: string;
+  updatedByRole: string;
+}
+
+/** Cambio acotado disponible desde el catálogo global de Coordinación. */
+export interface AssignmentAdditionalEnrollmentsUpdatePayload {
+  studentEnrollments: string;
+  updatedBy: string;
+  updatedByName: string;
+  updatedByRole: string;
+}
+
 export const ASSIGNMENTS_COLLECTION = 'asignaciones';
 const ASSIGNMENT_SAVE_TIMEOUT_MS = 30000;
 const ASSIGNMENT_VERIFY_TIMEOUT_MS = 10000;
@@ -221,6 +244,32 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     return value.trim().toLowerCase();
   }
 
+  /**
+   * Fuente autoritativa para las exportaciones de matriculación Moodle.
+   * Consulta el servidor al momento de exportar para no reutilizar filas
+   * eliminadas o inactivas que aún puedan permanecer temporalmente en la vista.
+   */
+  async getActiveLoadedAssignmentsForMoodle(cycle: string): Promise<AcademicAssignment[]> {
+    const normalizedCycle = cycle.trim();
+
+    if (!normalizedCycle) {
+      return [];
+    }
+
+    const snapshot = await this.withFirestoreTimeout(
+      getDocsFromServer(query(
+        collection(this.firestore, this.collectionPath),
+        where('cycle', '==', normalizedCycle),
+      )),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'Firestore no respondio al confirmar las asignaciones para matriculacion Moodle.',
+    );
+
+    return snapshot.docs
+      .map((item) => ({ id: item.id, ...item.data() }) as AcademicAssignment)
+      .filter((assignment) => this.isActiveLoadedAssignmentForMoodle(assignment));
+  }
+
   deleteAssignment(id: string, _payload: DeleteAssignmentPayload): Promise<void> {
     return this.withFirestoreTimeout(
       this.deleteDocument(id),
@@ -249,12 +298,124 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     );
   }
 
+  async updateAssignmentOperationalData(id: string, payload: AssignmentOperationalUpdatePayload): Promise<void> {
+    const expected = {
+      group: payload.group.trim().toUpperCase(),
+      program: payload.program.trim().toUpperCase(),
+      teacherMoodleUser: payload.teacherMoodleUser.trim().toLowerCase(),
+      teacherName: this.normalizeName(payload.teacherName),
+      sharedGroups: this.normalizeList(payload.sharedGroups),
+      sharedPrograms: this.normalizeList(payload.sharedPrograms),
+      studentEnrollments: payload.studentEnrollments.trim(),
+    };
+    const expectedShared = expected.sharedGroups.length > 0;
+
+    await this.withFirestoreTimeout(
+      this.updateDocument(id, {
+        ...expected,
+        shared: expectedShared,
+        updatedBy: payload.updatedBy,
+        updatedByName: payload.updatedByName,
+        updatedByRole: payload.updatedByRole,
+        updatedAt: new Date().toISOString(),
+      }),
+      ASSIGNMENT_SAVE_TIMEOUT_MS,
+      'Firestore no confirmo la actualizacion operativa de la asignacion. Revisa conexion e intenta de nuevo.',
+    );
+
+    await this.withFirestoreTimeout(
+      waitForPendingWrites(this.firestore),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'Firestore no confirmo los cambios operativos de la asignacion. Revisa conexion e intenta de nuevo.',
+    );
+
+    const snapshot = await this.withFirestoreTimeout(
+      getDocFromServer(doc(this.firestore, this.collectionPath, id)),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'No se pudo verificar la actualizacion operativa en Firestore.',
+    );
+
+    if (!snapshot.exists()) {
+      throw new Error('Firestore no devolvio la asignacion actualizada.');
+    }
+
+    const saved = snapshot.data();
+    const savedSharedGroups = this.normalizeList(Array.isArray(saved['sharedGroups']) ? saved['sharedGroups'] : []);
+    const savedSharedPrograms = this.normalizeList(Array.isArray(saved['sharedPrograms']) ? saved['sharedPrograms'] : []);
+    if (saved['group'] !== expected.group
+      || saved['program'] !== expected.program
+      || saved['teacherMoodleUser'] !== expected.teacherMoodleUser
+      || saved['studentEnrollments'] !== expected.studentEnrollments
+      || saved['shared'] !== expectedShared
+      || savedSharedGroups.join('|') !== expected.sharedGroups.join('|')
+      || savedSharedPrograms.join('|') !== expected.sharedPrograms.join('|')) {
+      throw new Error('Firestore no devolvio los cambios operativos esperados.');
+    }
+  }
+
+  async updateAssignmentAdditionalEnrollments(
+    id: string,
+    payload: AssignmentAdditionalEnrollmentsUpdatePayload,
+  ): Promise<void> {
+    const expectedEnrollments = payload.studentEnrollments.trim();
+
+    await this.withFirestoreTimeout(
+      this.updateDocument(id, {
+        studentEnrollments: expectedEnrollments,
+        updatedBy: payload.updatedBy,
+        updatedByName: payload.updatedByName,
+        updatedByRole: payload.updatedByRole,
+        updatedAt: new Date().toISOString(),
+      }),
+      ASSIGNMENT_SAVE_TIMEOUT_MS,
+      'Firestore no confirmo la actualizacion de las matriculas adicionales. Revisa conexion e intenta de nuevo.',
+    );
+
+    await this.withFirestoreTimeout(
+      waitForPendingWrites(this.firestore),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'Firestore no confirmo las matriculas adicionales. Revisa conexion e intenta de nuevo.',
+    );
+
+    const snapshot = await this.withFirestoreTimeout(
+      getDocFromServer(doc(this.firestore, this.collectionPath, id)),
+      ASSIGNMENT_VERIFY_TIMEOUT_MS,
+      'No se pudo verificar la actualizacion de matriculas en Firestore.',
+    );
+
+    if (!snapshot.exists() || snapshot.data()['studentEnrollments'] !== expectedEnrollments) {
+      throw new Error('Firestore no devolvio las matriculas adicionales esperadas.');
+    }
+  }
+
   async deleteAssignments(ids: string[], payload: DeleteAssignmentPayload): Promise<void> {
     await Promise.all(ids.map((id) => this.deleteAssignment(id, payload)));
   }
 
   private normalizeName(value: string): string {
     return value.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
+  private isActiveLoadedAssignmentForMoodle(assignment: AcademicAssignment): boolean {
+    const lifecycle = assignment as unknown as Record<string, unknown>;
+    const status = String(
+      lifecycle['status']
+        ?? lifecycle['assignmentStatus']
+        ?? lifecycle['lifecycleStatus']
+        ?? '',
+    ).trim().toUpperCase();
+
+    return !assignment.sourceAssignmentId
+      && lifecycle['active'] !== false
+      && lifecycle['isActive'] !== false
+      && lifecycle['deleted'] !== true
+      && lifecycle['isDeleted'] !== true
+      && lifecycle['deletedAt'] == null
+      && lifecycle['removedAt'] == null
+      && lifecycle['archived'] !== true
+      && lifecycle['archivedAt'] == null
+      && !['ELIMINADA', 'ELIMINADO', 'BORRADA', 'BORRADO', 'INACTIVA', 'INACTIVO'].includes(status)
+      && ['CARGADO_MOODLE', 'VALIDADO'].includes(status);
   }
 
   private normalizeList(values: string[]): string[] {

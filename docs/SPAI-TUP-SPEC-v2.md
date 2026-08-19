@@ -1,7 +1,7 @@
 # SPAI TUP - Especificacion del Proyecto v2
 
 Fecha: 2026-05-27  
-Ultima actualizacion: 2026-06-20
+Ultima actualizacion: 2026-08-19
 Proyecto: **Sistema de Planeación Académica Institucional TUP**  
 Nombre corto: **SPAI TUP**
 
@@ -943,6 +943,7 @@ Reglas:
 - La accion eliminar en Asignaciones debe borrar fisicamente el documento de Firestore cuando las reglas lo permitan; no debe ocultarlo con `deletedAt` como respaldo silencioso.
 - La deteccion de Posgrados en Asignaciones debe usar programas, nomenclaturas, `programType`, nombre de programa, plan y notas para identificar maestrias, doctorados, posgrados o especializaciones de Campus TUP.
 - Coordinacion Academica no puede modificar la asignacion origen de otra coordinacion.
+- Coordinacion Academica puede corregir el docente, el grupo base, los grupos compartidos y las matriculas adicionales de sus asignaciones origen, incluso cuando su estado sea **Cargado en Moodle**. Si su grupo solo participa en una clase compartida cuyo origen pertenece a otra coordinacion, no puede cambiar dicha configuracion. La materia, el ID Moodle, el estatus y la trazabilidad permanecen protegidos para Sistemas; cada correccion autorizada genera una alerta para Sistemas cuando esta funcion se encuentra activa.
 - Coordinacion de Sistemas puede consultar todas las asignaciones y validar o revisar informacion.
 - Auxiliar de Sistemas puede consultar y gestionar Asignaciones cuando Coordinacion de Sistemas le habilita `access.asignaciones == true`.
 - La captura y edicion solo estan habilitadas cuando el ciclo activo operativo esta en estado `Captura`.
@@ -2565,6 +2566,14 @@ CSV para matriculacion individual:
   - Moodle.
   - Importaciones y exportaciones CSV.
 
+#### Bitacora confiable: transicion a evidencia de servidor
+
+- Las entradas verificadas se crean desde Cloud Functions despues de que Firestore confirma la operacion; el navegador no puede crear, editar ni borrar una entrada marcada como verificada.
+- La primera cobertura obligatoria es **Asignaciones**: alta, edicion, cambio de estatus, cambio de docente, grupo base, grupos compartidos, matriculas adicionales y eliminacion.
+- Cada evento verificado conserva el actor registrado, rol, entidad, identificador, valores relevantes antes/despues, fecha ISO generada en servidor y sello `serverRecordedAt`.
+- En la vista de Bitacora, las entradas con `integrity: VERIFICADO_SERVIDOR` se distinguen como **Verificado por servidor**. Las entradas historicas o migradas desde cliente se conservan como evidencia de transicion y no se presentan como verificadas.
+- El ajuste de alertas de cambios de asignacion tambien se registra desde servidor. La migracion de Docentes, Solicitudes, Catalogos y Moodle debe hacerse modulo por modulo sin eliminar historicos.
+
 ### 24.18 Identidad visual operativa y tablero de actividades
 
 - Los modulos operativos comparten una identidad visual institucional: panel principal azul profundo, acento cian lateral o superior, tarjetas claras de conteo, controles compactos y tablas con bordes discretos.
@@ -2604,3 +2613,94 @@ CSV para matriculacion individual:
 - El modulo Docentes permite a Sistemas exportar un archivo CSV UTF-8 con los docentes clasificados como `Nuevo` o `Reingreso`.
 - Antes de descargar, Sistemas selecciona un rango inclusivo de fechas y puede revisar el total de nuevos, reingresos y registros incluidos.
 - El reporte conserva los datos operativos del docente, su coordinacion, programas asignados, origen y usuario que realizo el alta.
+
+## 25. Actualizacion operativa y de control - agosto 2026
+
+Esta seccion complementa las reglas vigentes de las secciones 12, 16 y 24. En caso de diferencia, las reglas de esta seccion prevalecen para los flujos de asignaciones, alertas y Moodle.
+
+### 25.1 Alcance y proteccion de informacion
+
+- Los cambios de identidad visual no crean, modifican ni eliminan documentos de Firestore por si mismos.
+- Toda escritura operativa espera confirmacion de Firestore antes de mostrar una confirmacion al usuario.
+- Ninguna accion de mantenimiento, auditoria o despliegue puede eliminar asignaciones, grupos, docentes, cursos o datos historicos sin autorizacion explicita de Sistemas.
+- Los paneles deben conservar comportamiento responsivo: a menor ancho se apilan controles y tarjetas, sin ocultar acciones ni forzar desplazamiento horizontal innecesario.
+
+### 25.2 Agenda operativa de Sistemas
+
+- El tablero de corcho es exclusivo de perfiles de Sistemas. Coordinacion Academica y roles personalizados no lo ven.
+- Tiene dos vistas: **Equipo** y **Privada**; la primera comparte actividades con el equipo de Sistemas y la segunda pertenece solo a quien la crea.
+- Las columnas son **Pendiente**, **En proceso**, **Para revisar** y **Listo**.
+- Una actividad puede crearse, editarse, eliminarse, reordenarse por arrastre y moverse entre columnas. El enlace **Seguimiento** avanza una actividad al siguiente estado.
+- Cada nota permite color amarillo, azul, verde, rosa o lila. El color se conserva en Firestore y tambien se refleja en el evento de la vista Calendario.
+- Las notas usan chincheta visual; su color es decorativo y no modifica prioridad, permisos ni estado.
+- Al guardar una actividad nueva o editada, el modal se cierra solo despues de una confirmacion real de Firestore. El mensaje verde de exito se oculta a los cinco segundos.
+- Una actividad de Equipo genera notificaciones internas y por correo para los demas perfiles de Sistemas. La persona creadora se excluye de sus propios avisos.
+- El mensaje de una actividad creada por Sistemas debe identificar al emisor como miembro de Sistemas; nunca debe presentarlo como Coordinacion Academica.
+
+### 25.3 Dashboard y lenguaje visual por rol
+
+- Sistemas conserva el Dashboard con bienvenida, tarjetas reales de conteo, agenda de corcho y resumen de actividades.
+- Coordinacion Academica conserva Dashboard sin tablero de corcho. Muestra bienvenida, docentes, ciclos, programas asignados, ciclo activo y acceso a Solicitudes a Sistemas con tarjetas del mismo alto y estilo visual.
+- Los modulos Usuarios, Ciclos, Nomenclaturas, Grupos, Docentes, Asignaturas, Asignaciones, Solicitudes, Ligas Meet, Moodle y Bitacora usan encabezados azul institucional, acento cian, tarjetas blancas, chips de ciclo y controles compactos.
+- Las pestañas funcionales de modalidad, tipo o estado se mantienen como filtros. Deben quedar visualmente integradas al borde inferior o superior de su panel, sin cubrir tablas ni paneles laterales.
+
+### 25.4 Edicion de asignaciones por Coordinacion Academica
+
+- Coordinacion Academica puede editar una asignacion ya existente de sus programas asignados, incluso cuando su estado sea **Cargado en Moodle**, solo en los campos: **docente**, **grupo/programa base asociado**, **grupos/programas compartidos** y **matriculas adicionales**.
+- Desde el catalogo global, cualquier Coordinacion Academica puede registrar exclusivamente **matriculas adicionales** para casos especiales, aun cuando la asignacion no sea de su programa ni tenga un grupo compartido. Esta excepcion no habilita cambios de docente, grupo, programas, materia, ID Moodle ni estado.
+- Materia, ID Moodle, estatus, modalidad y demas datos de control quedan protegidos para Coordinacion Academica. La identidad academica (ID Moodle, clave y nombre de materia) se conserva al estar la asignacion cargada en Moodle, tambien en operaciones de Sistemas desde cliente.
+- Sistemas conserva la edicion operativa completa que ya tiene autorizada por sus permisos.
+- Al guardar una edicion limitada se registra bitacora y se notifica al equipo de Sistemas con el cambio detectado de docente, grupo o matriculas adicionales.
+- Si la asignacion se elimina o se retira/cambia docente o grupo desde una operacion autorizada de Coordinacion, Sistemas debe recibir aviso interno y por correo cuando las alertas esten activas.
+- Antes de confirmar un cambio de Coordinacion sobre una asignacion **Cargada en Moodle**, SPAI muestra una advertencia y requiere aceptar explicitamente el posible reflejo en Moodle dentro de un maximo de 24 horas.
+- La interfaz informa claramente a Coordinacion cuales campos puede actualizar para evitar una expectativa de edicion completa.
+
+### 25.5 Alertas de cambios de asignacion
+
+- Bitacora incorpora un control exclusivo de Sistemas para activar o desactivar las alertas de asignaciones.
+- Con alertas activas, se avisa a Sistemas por cambios hechos por Coordinacion Academica en docente, grupo, matriculas adicionales y eliminacion de asignaciones.
+- El control no modifica asignaciones existentes; solo habilita o deshabilita la emision de notificaciones futuras.
+- Toda alerta debe identificar usuario, rol, asignacion afectada, valor anterior y nuevo cuando aplique, asi como fecha de la accion.
+
+### 25.6 Estados visibles y preparacion de lotes Moodle
+
+- El estado real `CARGADO_MOODLE` es visible para Sistemas y para Coordinacion Academica en las asignaciones que puede consultar. Los roles personalizados de solo consulta no obtienen permisos operativos a partir de esta visualizacion.
+- Al seleccionar asignaciones para un CSV de Moodle, estas pasan a **En revision** solo despues de confirmar la actualizacion en Firestore.
+- Cuando el filtro es **En revision**, el boton **Lote cargado** cambia las asignaciones de ese lote a `CARGADO_MOODLE` y actualiza de inmediato tabla, seleccion, contadores por modalidad y tarjeta de vista actual; no debe requerir recargar la pagina.
+- Los conteos, la seleccion y el CSV se calculan sobre la misma lista filtrada y confirmada para evitar diferencias entre registros visibles y registros exportados.
+- En CSV de cursos, Ejecutivo, Virtual, Especiales y Posgrados usan nombres de materia con mayuscula inicial por palabra y el resto en minusculas. Las demas modalidades conservan su regla institucional vigente.
+
+### 25.7 Politica de plantillas Moodle
+
+- Para Escolarizado de nomenclatura plan 2027 se requiere plantilla especifica por codigo de materia. La ausencia de una plantilla por codigo se muestra a Sistemas para revision; no debe ocultarse con una Demo de forma silenciosa.
+- Escolarizado de planes anteriores usa su plantilla Demo correspondiente, salvo reglas especiales autorizadas por Sistemas.
+- Ejecutivo ordinario busca plantilla por coincidencia normalizada de nombre de materia. Virtual, Especiales y Posgrados tambien usan coincidencia normalizada de nombre cuando corresponda.
+- Las maestrias de primer cuatrimestre en grupos `01A`, y las reglas especiales como `MADH`, priorizan coincidencia por codigo de materia antes de recurrir a coincidencia de nombre.
+- En Salud, las asignaciones ENF y NUT de grupos `01A`, `01B` y `01C` buscan primero plantilla especifica compatible por codigo o nombre normalizado. Demo ENF o Demo NUT solo se utiliza si no existe una plantilla especifica autorizada.
+- Las materias PSIC genericas de Salud, entre ellas **Taller de Comunicacion Oral y Escrita** y **Antropologia Social**, pueden usarse como plantilla compatible para ENF y NUT cuando la regla por codigo o nombre asi lo determine.
+- El codigo de Psicologia puede tener formatos abreviados equivalentes; por ejemplo, una asignatura `PSIC0102` puede detectar una plantilla `PSIC02` cuando ambos identifican la misma materia.
+- La materia correcta es **Fundamentos de Enfermeria I**. No se debe crear o asociar una asignacion nueva con el nombre incompleto `Fundamentos de Enfermeria` si se refiere a dicha materia.
+- Los planes nuevos que definan plantilla por codigo siguen la misma prioridad: codigo exacto o equivalente primero, nombre compatible despues y Demo solo como ultima alternativa permitida.
+
+### 25.8 Auditoria Moodle y matriculacion docente
+
+- La auditoria de cursos compara para cada asignacion cargada: ID Moodle, nombre completo, nombre corto, categoria/carrera, plantilla padre, contenido visible y docente inscrito.
+- El curso padre es la plantilla. Su nombre corto es la referencia tecnica principal para verificar de cual plantilla se replico el curso de destino.
+- Para asignaciones del plan 2027, la auditoria debe confirmar que la plantilla por codigo corresponda a la materia y que el contenido tenga el formato institucional enriquecido, no una pagina plana sin la estructura esperada.
+- Las equivalencias autorizadas de carrera, como Administracion y Finanzas dentro de Administracion de Empresas por cambio de plan, y las clases compartidas justificadas, se documentan como excepciones y no se reportan como error automatico.
+- Cuando falte el docente asignado en los participantes Moodle, Sistemas puede generar el CSV de matriculacion con encabezados `username`, `course1`, `role1`; `username` es el usuario Moodle, `course1` el nombre corto y `role1` es siempre `editingteacher`.
+- Toda discrepancia detectada por auditoria se revisa antes de cambiar el estatus de una asignacion. Si un curso marcado como cargado no existe o no corresponde, Sistemas puede devolverlo a **En revision** con bitacora de la correccion.
+
+### 25.9 CSV de matriculacion Moodle
+
+- La exportacion consulta Firestore en servidor al momento de generar el archivo. Solo usa asignaciones vigentes, activas, no eliminadas y con estado `CARGADO_MOODLE` o equivalente validado; no reutiliza filas que hayan quedado en memoria despues de una eliminacion.
+- El CSV de matriculacion por grupo usa exactamente las columnas `shortname`, `enrolment_1`, `enrolment_1_cohortidnumber`, `enrolment_1_role`. Genera una fila por cada grupo base o compartido, elimina duplicados identicos y establece `cohort` y `student` como valores fijos de matriculacion.
+- El CSV de matriculacion individual usa `username`, `course1`, `role1`. Incluye cada matricula adicional normalizada con prefijo `tup` cuando falta; incluye al docente con `editingteacher` solo si tiene usuario Moodle valido y no es **TEMPORALMENTE SIN DOCENTE**. Una asignacion sin docente valido ni matriculas adicionales no produce una fila vacia.
+- Sistemas puede elegir entre exportar todas las asignaciones vigentes cargadas o solo las actualizadas y confirmadas durante las ultimas 24 horas. La misma lista efectiva se usa para el contador y para el archivo descargado.
+
+### 25.10 Acceso autorizado, alertas y evidencia verificable
+
+- Un inicio de sesion autenticado no concede por si mismo acceso institucional ni rol de Sistemas. El usuario debe contar con un documento activo y autorizado en `usuarios/{uid}`; los correos institucionales sin perfil autorizado no reciben acceso automatico.
+- Las reglas de Firestore restringen lectura de catalogos, directorio, asignaciones, solicitudes y notificaciones a usuarios activos con el permiso correspondiente.
+- Las notificaciones `ASIGNACION_MODIFICADA` distinguen los cambios realizados por Coordinacion Academica de las solicitudes ordinarias: se dirigen al equipo de Sistemas y describen la modificacion, sin presentarla como una nueva solicitud.
+- La bitacora verificada de Asignaciones se genera desde Cloud Functions despues de confirmar el cambio en Firestore. Registra altas, actualizaciones, eliminaciones y los campos modificados; las entradas verificadas no pueden ser alteradas desde el navegador.

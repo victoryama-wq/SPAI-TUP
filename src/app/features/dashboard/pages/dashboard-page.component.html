@@ -82,6 +82,81 @@
   </section>
 </section>
 
+@if (isCustomConsultationRole()) {
+  @if (isResearchCoordinationRole()) {
+    <section class="custom-role-consultation-panel research-consultation-panel" aria-labelledby="research-panel-title">
+      <div class="research-consultation-copy">
+        <span class="custom-role-kicker">Coordinación de investigación</span>
+        <h3 id="research-panel-title">Seguimiento de materias de investigación</h3>
+        <p>Resumen de las asignaciones del ciclo activo cuya materia corresponde a investigación.</p>
+
+        <div class="research-total-grid" aria-label="Resumen de asignaciones de investigación">
+          <article>
+            <strong>{{ researchAssignmentsTotal() }}</strong>
+            <span>Asignaciones de investigación</span>
+          </article>
+          <article>
+            <strong>{{ researchAssignmentsByProgram().length }}</strong>
+            <span>Carreras con registros</span>
+          </article>
+        </div>
+
+        <section class="research-program-breakdown" aria-label="Asignaciones de investigación por carrera">
+          <span>Asignaciones por carrera</span>
+          <div>
+            @for (item of researchAssignmentsByProgram(); track item.program) {
+              <article><strong>{{ item.count }}</strong><span>{{ item.label }}</span></article>
+            } @empty {
+              <p>Sin asignaciones de investigación en el ciclo activo.</p>
+            }
+          </div>
+        </section>
+      </div>
+
+      <section class="research-consultation-modules" aria-labelledby="research-modules-title">
+        <div>
+          <span class="custom-role-kicker">Tu acceso es personalizado</span>
+          <h4 id="research-modules-title">Módulos de consulta</h4>
+          <p>Tu perfil permite consultar exclusivamente la información institucional habilitada.</p>
+        </div>
+        <div class="custom-role-module-list" aria-label="Módulos disponibles">
+          @for (module of customRoleModules(); track module.key) {
+            <span>{{ module.label }}</span>
+          } @empty {
+            <span>Sin módulos de consulta asignados</span>
+          }
+        </div>
+      </section>
+
+      <figure class="custom-role-moodle-flyer research-role-flyer">
+        <img src="brand/moodle-flyer.svg" alt="Material informativo de Moodle" />
+        <figcaption>Consulta institucional</figcaption>
+      </figure>
+    </section>
+  } @else {
+  <section class="custom-role-consultation-panel" aria-labelledby="custom-role-panel-title">
+    <div class="custom-role-consultation-copy">
+      <span class="custom-role-kicker">Accesos habilitados</span>
+      <h3 id="custom-role-panel-title">Módulos de consulta</h3>
+      <p>Elige un módulo desde el menú principal para consultar la información institucional disponible.</p>
+
+      <div class="custom-role-module-list" aria-label="Módulos disponibles">
+        @for (module of customRoleModules(); track module.key) {
+          <span>{{ module.label }}</span>
+        } @empty {
+          <span>Sin módulos de consulta asignados</span>
+        }
+      </div>
+    </div>
+
+    <figure class="custom-role-moodle-flyer">
+      <img src="brand/moodle-flyer.svg" alt="Material informativo de Moodle" />
+      <figcaption>Información y acompañamiento académico</figcaption>
+    </figure>
+  </section>
+  }
+}
+
 @if (isAcademicCoordinator() && showRealProgressPanel()) {
   <section class="coordination-progress-panel" aria-labelledby="coordination-progress-title">
     <header class="coordination-progress-heading">

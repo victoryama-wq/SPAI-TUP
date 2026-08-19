@@ -1701,6 +1701,211 @@
 
 .dashboard-metrics-stack .metric-grid { align-items: start; }
 
+/* Panel informativo exclusivo de los perfiles personalizados de consulta. */
+.custom-role-consultation-panel {
+  background: #ffffff;
+  border: 1px solid #d7e4f5;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgb(15 44 91 / 0.08);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.48fr);
+  margin: 0 0 18px;
+  min-height: 210px;
+  overflow: hidden;
+}
+
+.custom-role-consultation-copy {
+  background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%);
+  border-left: 4px solid #36b9e9;
+  display: grid;
+  gap: 8px;
+  padding: 24px 30px;
+}
+
+.custom-role-kicker {
+  color: #1d64bc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.custom-role-consultation-copy h3 {
+  color: #092d70;
+  font-size: clamp(23px, 1.85vw, 29px);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.custom-role-consultation-copy > p {
+  color: #496887;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 650px;
+}
+
+.custom-role-module-list {
+  align-content: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.custom-role-module-list span {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cfe0f5;
+  border-radius: 999px;
+  color: #164e9c;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.custom-role-moodle-flyer {
+  align-items: stretch;
+  background: #eef6ff;
+  border: 0;
+  border-left: 1px solid #d7e4f5;
+  display: grid;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.custom-role-moodle-flyer img {
+  display: block;
+  height: 100%;
+  min-height: 210px;
+  object-fit: contain;
+  object-position: center;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.custom-role-moodle-flyer figcaption {
+  background: linear-gradient(90deg, rgb(7 29 79 / 0.88), rgb(7 29 79 / 0.4));
+  bottom: 0;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  left: 0;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  position: absolute;
+  right: 0;
+  text-transform: uppercase;
+}
+
+/* Resumen exclusivo de Coordinación de Investigación. */
+.research-consultation-panel {
+  grid-template-columns: minmax(390px, 1.05fr) minmax(250px, .7fr) minmax(280px, .72fr);
+  min-height: 0;
+}
+
+.research-consultation-copy {
+  background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 100%);
+  border-left: 4px solid #36b9e9;
+  display: grid;
+  gap: 10px;
+  padding: 20px 26px;
+}
+
+.research-consultation-copy h3,
+.research-consultation-modules h4 {
+  color: #092d70;
+  margin: 0;
+}
+
+.research-consultation-copy h3 { font-size: clamp(22px, 1.75vw, 28px); }
+
+.research-consultation-copy > p,
+.research-consultation-modules > div > p {
+  color: #496887;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.research-total-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.research-total-grid article {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7e4f5;
+  border-radius: 10px;
+  display: flex;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px 12px;
+}
+
+.research-total-grid strong { color: #155cc7; font-size: 25px; line-height: 1; }
+.research-total-grid span { color: #173d79; font-size: 11px; font-weight: 900; line-height: 1.2; text-transform: uppercase; }
+
+.research-program-breakdown { display: grid; gap: 8px; }
+.research-program-breakdown > span { color: #164e9c; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.research-program-breakdown > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.research-program-breakdown article {
+  align-items: center;
+  background: #eef6ff;
+  border: 1px solid #cfe0f5;
+  border-radius: 8px;
+  color: #164e9c;
+  display: inline-flex;
+  font-size: 11px;
+  gap: 7px;
+  max-width: 100%;
+  padding: 7px 9px;
+}
+.research-program-breakdown article strong { color: #0a3d90; font-size: 15px; }
+.research-program-breakdown article span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.research-program-breakdown p { color: #637c9e; font-size: 12px; margin: 0; }
+
+.research-role-flyer { border-left: 1px solid #d7e4f5; }
+.research-role-flyer img { min-height: 205px; }
+
+.research-consultation-modules {
+  align-content: center;
+  background: #f7fbff;
+  border-left: 1px solid #d7e4f5;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+  padding: 20px 22px;
+}
+.research-consultation-modules h4 { font-size: 19px; margin-top: 4px; }
+.research-consultation-modules .custom-role-module-list { align-content: start; margin: 0; }
+
+@media (max-width: 920px) {
+  .custom-role-consultation-panel { grid-template-columns: minmax(0, 1fr) minmax(230px, 0.56fr); }
+  .custom-role-consultation-copy { padding: 24px; }
+  .research-consultation-panel { grid-template-columns: minmax(0, 1fr) minmax(230px, .65fr); }
+  .research-consultation-modules { border-left: 0; border-top: 1px solid #d7e4f5; grid-column: 1 / -1; padding: 18px 24px; }
+}
+
+@media (max-width: 620px) {
+  .custom-role-consultation-panel { grid-template-columns: 1fr; }
+  .custom-role-consultation-copy { padding: 22px 18px; }
+  .custom-role-moodle-flyer { border-left: 0; border-top: 1px solid #d7e4f5; }
+  .custom-role-moodle-flyer img { min-height: 190px; }
+  .research-consultation-copy,
+  .research-consultation-modules { padding: 20px 18px; }
+  .research-role-flyer { border-left: 0; border-top: 1px solid #d7e4f5; }
+  .research-total-grid { grid-template-columns: 1fr; }
+}
+
 .operational-summary-cards {
   display: grid;
   gap: 8px;

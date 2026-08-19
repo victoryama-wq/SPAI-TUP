@@ -264,6 +264,19 @@
   min-width: 0;
 }
 
+.server-entry-badge {
+  background: #e8f8ef;
+  border: 1px solid #86d9a8;
+  border-radius: 999px;
+  color: #087443;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .entry-title strong {
   color: #07163c;
   font-size: 18px;
@@ -796,6 +809,63 @@ dd {
 
 .audit-side-panel .side-card:first-child {
   border-top: 3px solid #1d5bd8;
+}
+
+.assignment-alert-control {
+  background: linear-gradient(135deg, #f7fbff, #ffffff);
+}
+
+.side-card > .assignment-alert-status {
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  color: #9a3412;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  justify-self: start;
+  line-height: 1;
+  padding: 7px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.assignment-alert-status.is-active {
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+  color: #087443;
+}
+
+.assignment-alert-toggle {
+  background: #173f8a;
+  border: 1px solid #1d5bd8;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+.assignment-alert-toggle:hover:not(:disabled) {
+  background: #1457d6;
+}
+
+.assignment-alert-toggle:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.side-card .assignment-alert-message,
+.side-card .assignment-alert-error {
+  font-size: 12px;
+}
+
+.side-card .assignment-alert-error {
+  color: #be123c;
 }
 
 @media (max-width: 1120px) {
