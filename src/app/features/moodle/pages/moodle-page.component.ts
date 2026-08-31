@@ -1039,6 +1039,59 @@ export class MoodlePageComponent {
     this.showMessage('CSV de matriculacion por grupos generado correctamente.', 'success');
   }
 
+  async exportSelectedGroupEnrollmentCsv(): Promise<void> {
+    const selectedIds = new Set(this.selectedAssignments());
+
+    if (!selectedIds.size) {
+      this.showMessage('Selecciona al menos una asignacion para generar la matriculacion por grupo.', 'error');
+      return;
+    }
+
+    let loadedRows: AcademicAssignment[];
+
+    try {
+      loadedRows = await this.assignmentsRepository.getActiveLoadedAssignmentsForMoodle(this.activeCycleCode());
+    } catch (error) {
+      this.showMessage(`No se pudo confirmar Firestore antes de generar la matriculacion por grupo. ${this.errorMessage(error)}`, 'error');
+      return;
+    }
+
+    const selectedRows = loadedRows.filter((assignment) => selectedIds.has(assignment.id));
+
+    if (!selectedRows.length) {
+      this.showMessage('Ninguna asignacion seleccionada esta vigente y Cargada en Moodle.', 'error');
+      return;
+    }
+
+    const enrollmentRows = new Map<string, string[]>();
+
+    selectedRows.forEach((assignment) => {
+      const courseShortname = this.moodleShortname(assignment);
+
+      this.moodleGroupEnrollmentTargets(assignment).forEach((target) => {
+        const row = [courseShortname, 'cohort', target, 'student'];
+        enrollmentRows.set(row.join('\u001f'), row);
+      });
+    });
+
+    const csvRows = [
+      ['shortname', 'enrolment_1', 'enrolment_1_cohortidnumber', 'enrolment_1_role'],
+      ...enrollmentRows.values(),
+    ];
+
+    if (csvRows.length === 1) {
+      this.showMessage('Las asignaciones seleccionadas no tienen grupos para matricular.', 'error');
+      return;
+    }
+
+    const csvContent = csvRows
+      .map((row) => row.map((value) => this.escapeCsvValue(value)).join(','))
+      .join('\n');
+
+    this.downloadTextFile(`\uFEFF${csvContent}\n`, `moodle-matriculacion-grupos-seleccion-${this.activeCycleCode()}.csv`, 'text/csv;charset=utf-8;');
+    this.showMessage(`CSV de matriculacion por grupos generado para ${selectedRows.length} asignacion(es) seleccionada(s).`, 'success');
+  }
+
   async exportStudentEnrollmentCsv(scope: 'all' | 'recent' = 'all'): Promise<void> {
     let loadedRows: AcademicAssignment[];
 

@@ -709,16 +709,31 @@
           <button
             class="secondary-action button-action enrollment-action"
             type="button"
-            title="Matriculacion por grupo"
-            aria-label="Generar CSV de matriculacion por grupo"
+            title="Matriculacion por grupo de todas las asignaciones vigentes cargadas en Moodle"
+            aria-label="Generar CSV de matriculacion por grupo de todas las asignaciones"
             (click)="exportGroupEnrollmentCsv()"
           >
-            <span>Matriculaci&oacute;n</span>
+            <span>Grupos: todos</span>
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </button>
+          <button
+            class="secondary-action button-action enrollment-action selected-group-enrollment-action"
+            type="button"
+            title="Matriculacion por grupo solo de las asignaciones seleccionadas y cargadas en Moodle"
+            aria-label="Generar CSV de matriculacion por grupo de las asignaciones seleccionadas"
+            [disabled]="!selectedMoodleAssignmentCount()"
+            (click)="exportSelectedGroupEnrollmentCsv()"
+          >
+            <span>Grupos: selecci&oacute;n</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="m16 11 2 2 4-4"></path>
             </svg>
           </button>
           <button
