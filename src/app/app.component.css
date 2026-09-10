@@ -357,6 +357,11 @@
   width: 26px;
 }
 
+.nav-menu-toggle-inline img {
+  height: 31px;
+  width: 39px;
+}
+
 .module-scroll a {
   align-items: center;
   border-bottom: 4px solid transparent;
