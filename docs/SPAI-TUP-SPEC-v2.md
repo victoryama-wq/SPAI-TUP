@@ -2695,8 +2695,9 @@ Esta seccion complementa las reglas vigentes de las secciones 12, 16 y 24. En ca
 
 - La exportacion consulta Firestore en servidor al momento de generar el archivo. Solo usa asignaciones vigentes, activas, no eliminadas y con estado `CARGADO_MOODLE` o equivalente validado; no reutiliza filas que hayan quedado en memoria despues de una eliminacion.
 - El CSV de matriculacion por grupo usa exactamente las columnas `shortname`, `enrolment_1`, `enrolment_1_cohortidnumber`, `enrolment_1_role`. Genera una fila por cada grupo base o compartido, elimina duplicados identicos y establece `cohort` y `student` como valores fijos de matriculacion.
+- La accion **Grupos: todos** exporta todas las asignaciones vigentes cargadas del ciclo activo. La accion **Grupos: seleccion** exporta exclusivamente las asignaciones marcadas en Lotes Moodle, las vuelve a confirmar en Firestore y omite las que ya no existan, esten eliminadas o no tengan estatus `CARGADO_MOODLE`. El archivo seleccionado se nombra `moodle-matriculacion-grupos-seleccion-{ciclo}.csv`.
 - El CSV de matriculacion individual usa `username`, `course1`, `role1`. Incluye cada matricula adicional normalizada con prefijo `tup` cuando falta; incluye al docente con `editingteacher` solo si tiene usuario Moodle valido y no es **TEMPORALMENTE SIN DOCENTE**. Una asignacion sin docente valido ni matriculas adicionales no produce una fila vacia.
-- Sistemas puede elegir entre exportar todas las asignaciones vigentes cargadas o solo las actualizadas y confirmadas durante las ultimas 24 horas. La misma lista efectiva se usa para el contador y para el archivo descargado.
+- Para la matriculacion individual, Sistemas puede elegir entre exportar todas las asignaciones vigentes cargadas o solo las actualizadas y confirmadas durante las ultimas 24 horas. La misma lista efectiva se usa para el contador y para el archivo descargado.
 
 ### 25.10 Acceso autorizado, alertas y evidencia verificable
 
