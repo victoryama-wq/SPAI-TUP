@@ -237,10 +237,6 @@
   width: 100%;
 }
 
-.recent-enrollment-action {
-  grid-column: 1 / -1;
-}
-
 .selected-group-enrollment-action:not(:disabled) {
   background: #eaf8f0;
   border-color: #9ee4bd;
