@@ -439,14 +439,6 @@
   width: 40px;
 }
 
-.dashboard-nav-logo {
-  display: block;
-  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.18));
-  height: 28px;
-  object-fit: contain;
-  width: 36px;
-}
-
 .module-scroll a:hover .nav-icon-wrap,
 .module-scroll a.active .nav-icon-wrap {
   background: rgb(255 255 255 / 0.08);
