@@ -357,11 +357,6 @@
   width: 26px;
 }
 
-.nav-menu-toggle-inline img {
-  height: 31px;
-  width: 39px;
-}
-
 .module-scroll a {
   align-items: center;
   border-bottom: 4px solid transparent;
@@ -442,6 +437,14 @@
     color 0.18s ease,
     transform 0.18s ease;
   width: 40px;
+}
+
+.dashboard-nav-logo {
+  display: block;
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.18));
+  height: 28px;
+  object-fit: contain;
+  width: 36px;
 }
 
 .module-scroll a:hover .nav-icon-wrap,

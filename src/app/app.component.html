@@ -130,7 +130,9 @@
           aria-label="Ocultar encabezado"
           (click)="toggleHeader()"
         >
-          <img src="brand/tup-button-logo.png" alt="" aria-hidden="true" />
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
           <span>Ocultar encabezado</span>
         </button>
       }
@@ -141,13 +143,17 @@
             <a
               [routerLink]="item.path"
               routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: item.path === '/' }"
-            >
-              <span class="nav-icon-wrap">
+            [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          >
+            <span class="nav-icon-wrap">
+              @if (item.moduleKey === 'dashboard') {
+                <img class="dashboard-nav-logo" src="brand/tup-button-logo.png" alt="" aria-hidden="true" />
+              } @else {
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path [attr.d]="item.icon"></path>
                 </svg>
-                @if (navBadgeCount(item) > 0) {
+              }
+              @if (navBadgeCount(item) > 0) {
                   <strong class="nav-badge" aria-label="Solicitudes pendientes">
                     {{ navBadgeCount(item) > 99 ? '99+' : navBadgeCount(item) }}
                   </strong>
