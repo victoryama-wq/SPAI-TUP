@@ -43,6 +43,7 @@ npm run build
 
 - [Entorno local: cuentas ficticias, inicio, parada, restablecimiento y pruebas](docs/ENTORNO-LOCAL.md).
 - [Seguimiento de estabilizacion por etapas](docs/ESTABILIZACION.md).
+- [Copia de la BD online con inicio de sesion DEMO](docs/COPIA-BD-DEMO.md).
 
 El spec actualizado del proyecto esta en:
 

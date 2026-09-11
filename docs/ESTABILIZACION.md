@@ -138,3 +138,64 @@ ficticias. La siguiente intervencion propuesta es etapa 1, previa indicacion
 del propietario. Preparar contratos por rol/coordinacion, accion, campo y
 estado del ciclo, con compatibilidad de perfiles existentes; despues pruebas
 de reproduccion y GitHub CI. No iniciar permisos ni migraciones en esa fase.
+
+## Ampliacion autorizada — copia BD para DEMO (2026-09-11)
+
+El propietario solicito trabajar con los datos de la BD online conservando el
+inicio de sesion DEMO. Esta autorizacion sustituye la restriccion inicial de
+usar exclusivamente fixtures en su entorno local. Las etapas 1 a 8 siguen
+pendientes, sin cambios de permisos, estados ni escrituras online.
+
+**Estado: completada.** Se leyeron 6.109 documentos de 17 colecciones con un
+instante `readTime` comun; se revisaron subcolecciones y padres ausentes. La
+copia original, SHA-256, seleccion y mapeos se guardan exclusivamente en
+`.local/`, ignorada por Git. Ver [COPIA-BD-DEMO.md](COPIA-BD-DEMO.md).
+
+Cuatro accesos DEMO usan los IDs de perfiles originales, conservando nombre,
+rol, permisos, programas y referencias. Solo `email` y `authUid` cambian en esos
+perfiles locales. El inactivo DEMO es ficticio y adicional: total 6.110 documentos.
+La importacion suspende triggers de fondo para no alterar avisos ni bitacora;
+despues se reactivan con el correo simulado existente. El reinicio carga la copia
+seleccionada sin consultar produccion. La suite del entorno conserva fixtures
+propios independientemente de esa seleccion.
+
+Incidencias resueltas: se corrigio la codificacion del sufijo REST de listado de
+colecciones antes de obtener el archivo completo. El primer intento de carga
+local se detuvo al detectar un perfil creado por una sesion persistida de otra
+pestana. Se cerro esa sesion y se agrego un control exclusivo de DEMO para que
+el navegador espere perfiles del supervisor en vez de crearlos durante el
+restablecimiento. No cambia el registro de usuarios de produccion.
+
+Verificacion observada:
+
+- Ocho pruebas unitarias: aprobadas, incluidas preservacion de IDs y valores,
+  conversion de referencias al destino local, rechazo de origen/rutas
+  incompatibles y precision de enteros y timestamps.
+- Suite integrada original: aprobada con fixtures; incluye correo simulado,
+  callable, Storage cerrado, restablecimiento y fallo de los cuatro SDK sin
+  conexion alternativa al apagar emuladores.
+- Comparacion exhaustiva de 6.110 documentos importados: aprobada en la carga
+  inicial exitosa y nuevamente tras restablecer la copia.
+- Cinco accesos DEMO y lectura autenticada de colecciones copiadas: aprobados
+  antes y despues del restablecimiento; sockets observados solo en loopback.
+- Restablecimiento con una sesion de navegador abierta: aprobado, eliminando
+  ademas un documento y una cuenta de prueba y recuperando la copia seleccionada.
+- Navegador: dashboard con perfil original de Sistemas, 16 usuarios activos,
+  un ciclo y dos roles personalizados, mediante acceso DEMO.
+- Build local aprobado; build de produccion aprobado tras el control de sesion,
+  con advertencia de tamano de 762.42 kB frente a 750 kB (pendiente de etapa 7).
+- Copia, manifiestos y mapeos excluidos de Git; no se exporto Authentication ni
+  Storage ni se realizaron escrituras en Firestore online.
+
+Archivos de la ampliacion: `.gitignore`, `README.md`, `package.json`,
+`src/index.local.html`, `src/app/core/auth/user-session.service.ts`,
+`tools/local/run.mjs`, `tools/local/seed.mjs`, `tools/local/export-source.mjs`,
+`tools/local/import-snapshot.mjs`, `tools/local/select-data.mjs`,
+`tools/local/snapshot.mjs`, `tools/local/tests/reset.mjs`,
+`tools/local/tests/snapshot.test.mjs`, `tools/local/tests/verify-copy.mjs`,
+`docs/ENTORNO-LOCAL.md`, `docs/COPIA-BD-DEMO.md` y este seguimiento.
+
+Esta es una copia estatica para desarrollo, no sincronizacion continua ni un
+respaldo administrado de recuperacion. Las fechas y datos academicos originales
+se conservan con sus inconsistencias. Los datos reales no se anonimizan por la
+instruccion recibida; no deben incorporarse al repositorio ni a un deploy.

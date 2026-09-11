@@ -11,7 +11,10 @@
     "local:stop": "node tools/local/control.mjs stop",
     "local:reset": "node tools/local/control.mjs reset",
     "local:seed": "node tools/local/control.mjs seed",
-    "test:local:unit": "node --test tools/local/tests/config.test.mjs",
+    "local:data:export": "node tools/local/export-source.mjs --read-online",
+    "local:data:copy": "node tools/local/select-data.mjs snapshot",
+    "local:data:synthetic": "node tools/local/select-data.mjs synthetic",
+    "test:local:unit": "node --test tools/local/tests/config.test.mjs tools/local/tests/snapshot.test.mjs",
     "test:local": "node tools/local/run.mjs --test"
   },
   "dependencies": {

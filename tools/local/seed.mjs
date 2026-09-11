@@ -2,9 +2,13 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { config, root, accounts, password, localEnvironment, verifyHub } from './config.mjs';
 import { fixtures } from './fixtures.mjs';
+import { loadSelectedSnapshot } from './snapshot.mjs';
+import { importSnapshot } from './import-snapshot.mjs';
 
 export async function seed() {
   await verifyHub(); // Validate the demo project before loading any Admin SDK.
+  const snapshot = loadSelectedSnapshot();
+  if (snapshot) return importSnapshot(snapshot);
   Object.assign(process.env, localEnvironment());
   const require = createRequire(resolve(root, 'functions/package.json'));
   const { initializeApp, deleteApp } = require('firebase-admin/app');

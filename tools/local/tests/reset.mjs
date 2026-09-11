@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { config, password } from '../config.mjs';
 import { control } from '../control.mjs';
 import { guardNetwork } from './network-guard.mjs';
+import { loadSelectedSnapshot, prepareSnapshot } from '../snapshot.mjs';
 
 guardNetwork();
+const snapshot = loadSelectedSnapshot();
+const systemsUid = snapshot ? prepareSnapshot(snapshot).mappings.find((a) => a.slot === 'demo-sistemas').uid : 'demo-sistemas';
 const firestore = `http://${config.host}:${config.firestore}/v1/projects/${config.projectId}/databases/(default)/documents`;
 const auth = `http://${config.host}:${config.auth}/identitytoolkit.googleapis.com/v1/accounts:`;
 const probe = `${firestore}/ciclos/demo-reset-probe`;
@@ -13,6 +16,6 @@ const newAccount = { email: 'demo.reset.probe@example.invalid', password, return
 assert.equal((await fetch(`${auth}signUp?key=demo`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(newAccount) })).status, 200);
 await control('reset');
 assert.equal((await fetch(probe, { headers })).status, 404);
-assert.equal((await fetch(`${firestore}/usuarios/demo-sistemas`, { headers })).status, 200);
+assert.equal((await fetch(`${firestore}/usuarios/${encodeURIComponent(systemsUid)}`, { headers })).status, 200);
 assert.equal((await fetch(`${auth}signInWithPassword?key=demo`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(newAccount) })).status, 400);
-console.log('PASS: local:reset recreated the emulator processes, removed extra test user/document and restored fixtures.');
+console.log(`PASS: local:reset recreated the emulator processes, removed extra test user/document and restored ${snapshot ? 'the selected database copy' : 'fixtures'}.`);

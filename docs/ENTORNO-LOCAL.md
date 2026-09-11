@@ -1,5 +1,11 @@
 # SPAI-TUP — Entorno local aislado (etapa 0)
 
+> Ampliacion autorizada el 2026-09-11: se admite una copia local de la BD real
+> manteniendo las sesiones DEMO. Si existe `.local/data-source.json`, inicio y
+> restablecimiento cargan esa copia. Ver [COPIA-BD-DEMO.md](COPIA-BD-DEMO.md).
+> Las cuentas, programas y cantidades sinteticas descritas abajo corresponden
+> al modo de fixtures original, que sigue disponible para las pruebas.
+
 Este entorno usa datos ficticios creados en codigo. No requiere acceso a un
 proyecto Firebase real ni iniciar sesion con `firebase login`, Google o SMTP.
 Las reglas de Firestore y Storage son las existentes: esta etapa no corrige

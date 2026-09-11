@@ -9,6 +9,8 @@ import { config, root, sessionFile, localEnvironment, verifyHub } from './config
 import { seed } from './seed.mjs';
 
 const testMode = process.argv.includes('--test');
+// Environment tests always use fixtures; never ingest the owner's local copy.
+if (testMode) process.env.SPAI_LOCAL_SYNTHETIC = 'true';
 const token = randomBytes(32).toString('hex');
 let child;
 let ready = false;
@@ -55,6 +57,7 @@ async function startEmulators() {
   saveSession();
   const deadline = Date.now() + 150000;
   let lastError;
+  let servicesReady = false;
   while (Date.now() < deadline) {
     if (stopping) return;
     if (child.exitCode !== null) throw new Error(`Firebase CLI termino con codigo ${child.exitCode}.`);
@@ -65,13 +68,14 @@ async function startEmulators() {
       });
       const result = await response.json();
       if (result.error?.status !== 'UNAUTHENTICATED') throw new Error('Functions aun no esta listo.');
-      await seed();
-      ready = true;
-      console.log('DEMO listo. UI http://127.0.0.1:4000 — web: npm start — detener: npm run local:stop');
-      return;
+      servicesReady = true;
+      break;
     } catch (error) { lastError = error; await delay(1000); }
   }
-  throw new Error(`Emuladores no disponibles: ${lastError?.message}`);
+  if (!servicesReady) throw new Error(`Emuladores no disponibles: ${lastError?.message}`);
+  await seed(); // Fail once on a data error; never retry a partially loaded snapshot.
+  ready = true;
+  console.log('DEMO listo. UI http://127.0.0.1:4000 — web: npm start — detener: npm run local:stop');
 }
 
 const server = createHttpServer(async (request, response) => {
@@ -108,7 +112,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => void shutdo
 try {
   if (Number(process.versions.node.split('.')[0]) !== 22) throw new Error('Usa Node.js 22 (ver .nvmrc) antes de iniciar emuladores.');
   await new Promise((ok, fail) => { server.once('error', fail); server.listen(config.control, config.host, ok); });
-  if (testMode) await runNode(['--test', 'tools/local/tests/config.test.mjs']);
+  if (testMode) await runNode(['--test', 'tools/local/tests/config.test.mjs', 'tools/local/tests/snapshot.test.mjs']);
   await startEmulators();
   if (testMode && !stopping) {
     await runNode(['tools/local/tests/integration.mjs']);

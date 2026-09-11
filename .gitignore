@@ -36,6 +36,6 @@ ui-debug.log
 tmp/
 temp/
 
-# Estado efimero de emuladores, nunca datos reales
+# Estado de emuladores y copias privadas de la BD; nunca versionar
 .local/
 functions/.secret.local

@@ -15,6 +15,7 @@ import { httpsCallable } from 'firebase/functions';
 import { AppUser, USERS_COLLECTION } from '../../features/users/data/users.repository';
 import { AuthService } from './auth.service';
 import { FIREBASE_FUNCTIONS, FIREBASE_DB } from '../firebase/firebase.tokens';
+import { environment } from '../../../environments/environment';
 
 export interface UserSession {
   authUid: string;
@@ -97,6 +98,12 @@ export class UserSessionService {
       };
 
       const bootstrapUser = async () => {
+        // DEMO profiles are loaded by the supervisor. A persisted browser session
+        // must not create users while the emulator is being reset or imported.
+        if (environment.mode === 'local') {
+          setUnauthenticatedAppSession();
+          return;
+        }
         const timestamp = new Date().toISOString();
 
         await setDoc(
