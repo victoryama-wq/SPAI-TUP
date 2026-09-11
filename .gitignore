@@ -35,3 +35,7 @@ ui-debug.log
 # Archivos temporales
 tmp/
 temp/
+
+# Estado efimero de emuladores, nunca datos reales
+.local/
+functions/.secret.local

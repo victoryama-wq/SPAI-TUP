@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "spai-6ef68"
+    "default": "demo-spai-tup",
+    "production": "spai-6ef68"
   },
   "targets": {
     "spai-6ef68": {

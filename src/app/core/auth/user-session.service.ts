@@ -11,10 +11,10 @@ import {
   where,
   doc,
 } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import { AppUser, USERS_COLLECTION } from '../../features/users/data/users.repository';
 import { AuthService } from './auth.service';
-import { FIREBASE_APP, FIREBASE_DB } from '../firebase/firebase.tokens';
+import { FIREBASE_FUNCTIONS, FIREBASE_DB } from '../firebase/firebase.tokens';
 
 export interface UserSession {
   authUid: string;
@@ -44,9 +44,8 @@ const PENDING_USER_ACCESS = {
 export class UserSessionService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly firebaseApp = inject(FIREBASE_APP);
   private readonly firestore = inject(FIREBASE_DB);
-  private readonly functions = getFunctions(this.firebaseApp, 'us-central1');
+  private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly syncUserProfileByEmail = httpsCallable<Record<string, never>, { synced: boolean; reason?: string }>(
     this.functions,
     'syncUserProfileByEmail',

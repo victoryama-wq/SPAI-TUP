@@ -1,0 +1,11 @@
+{
+  "projectId": "demo-spai-tup",
+  "host": "127.0.0.1",
+  "auth": 9099,
+  "firestore": 8080,
+  "functions": 5001,
+  "storage": 9199,
+  "hub": 4400,
+  "ui": 4000,
+  "control": 4310
+}

@@ -6,11 +6,13 @@ import {
   onAuthStateChanged,
   setPersistence,
   signInWithPopup,
+  signInWithEmailAndPassword,
   signInWithRedirect,
   signOut,
   User,
 } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../firebase/firebase.tokens';
+import { environment } from '../../../environments/environment';
 
 const INSTITUTIONAL_DOMAIN = '@tecplayacar.edu.mx';
 
@@ -36,6 +38,9 @@ export class AuthService {
   }
 
   async signInWithGoogle(): Promise<void> {
+    if (environment.mode === 'local') {
+      throw new Error('Google real esta desactivado en modo local. Usa una cuenta DEMO.');
+    }
     this.redirectErrorSignal.set('');
     const provider = this.createGoogleProvider();
 
@@ -58,6 +63,15 @@ export class AuthService {
 
   async signOut(): Promise<void> {
     await signOut(this.auth);
+  }
+
+  async signInWithLocalAccount(email: string): Promise<void> {
+    if (environment.mode !== 'local' || this.auth.app.options.projectId !== 'demo-spai-tup') {
+      throw new Error('El acceso DEMO solo esta disponible con Authentication Emulator.');
+    }
+    this.redirectErrorSignal.set('');
+    await setPersistence(this.auth, browserLocalPersistence);
+    await signInWithEmailAndPassword(this.auth, email, 'Demo-only-2026!');
   }
 
   private async completeRedirectSignIn(): Promise<void> {

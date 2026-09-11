@@ -3,9 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "ng serve",
+    "start": "ng serve --configuration local --host 127.0.0.1",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "build:local": "ng build --configuration local",
+    "local:emulators": "node tools/local/run.mjs",
+    "local:stop": "node tools/local/control.mjs stop",
+    "local:reset": "node tools/local/control.mjs reset",
+    "local:seed": "node tools/local/control.mjs seed",
+    "test:local:unit": "node --test tools/local/tests/config.test.mjs",
+    "test:local": "node tools/local/run.mjs --test"
   },
   "dependencies": {
     "@angular/animations": "^20.0.0",
@@ -24,6 +31,10 @@
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
+    "firebase-tools": "15.30.0",
     "typescript": "~5.8.0"
+  },
+  "engines": {
+    "node": ">=22.12.0 <23"
   }
 }

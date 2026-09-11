@@ -30,13 +30,21 @@
       }
 
       @if (loginState() === 'signedOut') {
+        @if (isLocal) {
+          <label for="demo-account">Cuenta ficticia del emulador</label>
+          <select id="demo-account" [value]="localEmail" (change)="localEmail = $any($event.target).value">
+            @for (account of localAccounts; track account.uid) {
+              <option [value]="account.email">{{ account.name }}</option>
+            }
+          </select>
+        }
         <button
           class="google-button"
           type="button"
           [disabled]="busy()"
           (click)="signIn()"
         >
-          <span class="google-mark" aria-hidden="true">
+          <span class="google-mark" aria-hidden="true" [hidden]="isLocal">
             <svg viewBox="0 0 24 24">
               <path class="google-blue" d="M21.6 12.23c0-.78-.07-1.53-.2-2.23H12v4.22h5.38a4.6 4.6 0 0 1-1.99 3.02v2.51h3.22c1.89-1.74 2.99-4.3 2.99-7.52z"></path>
               <path class="google-green" d="M12 22c2.7 0 4.96-.89 6.61-2.25l-3.22-2.51c-.9.6-2.04.95-3.39.95-2.6 0-4.81-1.75-5.6-4.12H3.08v2.59A9.98 9.98 0 0 0 12 22z"></path>
@@ -44,7 +52,7 @@
               <path class="google-red" d="M12 5.81c1.47 0 2.79.51 3.83 1.51l2.86-2.86C16.96 2.85 14.7 2 12 2a9.98 9.98 0 0 0-8.92 5.34L6.4 9.93C7.19 7.56 9.4 5.81 12 5.81z"></path>
             </svg>
           </span>
-          <span>{{ busy() ? 'Abriendo Google...' : 'Ingresar' }}</span>
+          <span>{{ busy() ? (isLocal ? 'Conectando al emulador...' : 'Abriendo Google...') : (isLocal ? 'Ingresar a DEMO' : 'Ingresar') }}</span>
         </button>
 
         <p>

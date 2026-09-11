@@ -1,6 +1,8 @@
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserSessionService } from '../../../../core/auth/user-session.service';
+import { environment } from '../../../../../environments/environment';
+import localAccounts from '../../../../../environments/local-accounts.json';
 
 type LoginState = 'loading' | 'signedOut' | 'preparing' | 'pending';
 type MascotPose = 'base' | 'saludo';
@@ -11,6 +13,9 @@ type MascotPose = 'base' | 'saludo';
   styleUrl: './login-page.component.css',
 })
 export class LoginPageComponent implements OnDestroy {
+  readonly isLocal = environment.mode === 'local';
+  readonly localAccounts = localAccounts;
+  localEmail = localAccounts[0].email;
   private readonly authService = inject(AuthService);
   private readonly userSessionService = inject(UserSessionService);
   private readonly busySignal = signal(false);
@@ -68,12 +73,16 @@ export class LoginPageComponent implements OnDestroy {
     this.busySignal.set(true);
 
     try {
-      await this.authService.signInWithGoogle();
+      if (this.isLocal) {
+        await this.authService.signInWithLocalAccount(this.localEmail);
+      } else {
+        await this.authService.signInWithGoogle();
+      }
     } catch (error) {
       console.error('No se pudo iniciar sesion con Google', error);
       const message = error instanceof Error ? error.message : '';
       this.errorSignal.set(
-        message.includes('@tecplayacar.edu.mx')
+        this.isLocal ? 'No se pudo acceder al emulador. Inicia npm run local:emulators y comprueba las cuentas DEMO.' : message.includes('@tecplayacar.edu.mx')
           ? message
           : 'No se pudo iniciar sesion con Google. Intenta nuevamente con tu correo institucional.',
       );

@@ -9,8 +9,10 @@ const {
 } = require('firebase-functions/v2/firestore');
 const { HttpsError, onCall } = require('firebase-functions/v2/https');
 const nodemailer = require('nodemailer');
+const { resolveLocalRuntime } = require('./local-runtime');
 
-initializeApp();
+const localRuntime = resolveLocalRuntime();
+initializeApp(localRuntime ? { projectId: localRuntime.projectId } : undefined);
 
 const db = getFirestore();
 const smtpPassword = defineSecret('SPAI_SMTP_PASSWORD');
@@ -241,7 +243,7 @@ exports.sendEmailForNotification = onDocumentCreated(
   {
     document: 'notificaciones/{notificationId}',
     region: 'us-central1',
-    secrets: [smtpPassword],
+    secrets: localRuntime ? [] : [smtpPassword],
   },
   async (event) => {
     const snapshot = event.data;
@@ -252,6 +254,18 @@ exports.sendEmailForNotification = onDocumentCreated(
 
     const notification = snapshot.data();
     const notificationId = event.params.notificationId;
+
+    // No recipients, Secret Manager, SMTP or remote assets are accessed locally.
+    if (localRuntime) {
+      await markEmailStatus(notificationId, {
+        emailStatus: 'SIMULADO_LOCAL',
+        emailUpdatedAt: FieldValue.serverTimestamp(),
+        emailRecipients: [],
+        emailRecipientCount: 0,
+      });
+      logger.info('Correo simulado en demo-spai-tup.', { notificationId });
+      return;
+    }
 
     if (shouldSkipAssignmentMilestoneEmail(notification)) {
       await markEmailStatus(notificationId, {

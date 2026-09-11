@@ -1,0 +1,7 @@
+[
+  { "uid": "demo-sistemas", "email": "demo.sistemas@tecplayacar.edu.mx", "name": "Sistemas DEMO", "role": "Coordinación de Sistemas", "programs": [] },
+  { "uid": "demo-auxiliar", "email": "demo.auxiliar@tecplayacar.edu.mx", "name": "Auxiliar DEMO", "role": "Auxiliar de Sistemas", "programs": [] },
+  { "uid": "demo-coord-a", "email": "demo.coordinacion.a@tecplayacar.edu.mx", "name": "Coordinación A DEMO", "role": "Coordinación Académica", "programs": ["ADM"] },
+  { "uid": "demo-coord-b", "email": "demo.coordinacion.b@tecplayacar.edu.mx", "name": "Coordinación B DEMO", "role": "Coordinación Académica", "programs": ["DER"] },
+  { "uid": "demo-inactivo", "email": "demo.inactivo@tecplayacar.edu.mx", "name": "Usuario inactivo DEMO", "role": "Coordinación Académica", "programs": [] }
+]
