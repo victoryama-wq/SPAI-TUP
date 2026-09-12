@@ -1,5 +1,40 @@
 # SPAI-TUP — Seguimiento de estabilizacion
 
+## Estado vigente — Etapa 1 (2026-09-12)
+
+Etapa 0 y copia privada conservadas. Etapa 1 autorizada y completada en contratos,
+matriz, pruebas base y CI preparada; quedan decisiones y validaciones pendientes,
+sin implementar correcciones de etapas 2–8. Base verificada: `3a93ea6`, descendiente
+de `146cf9f`. Rama `codex/etapa-1-contratos-pruebas`; árbol inicial limpio.
+No se hizo push, merge, deploy ni consulta online de Firestore.
+
+- [Matriz por módulo, acción, ámbito y campo](ETAPA-1-MATRIZ-PERMISOS.md).
+- [Contratos de estados, concurrencia y decisiones](ETAPA-1-CONTRATOS.md).
+- [Pruebas, hallazgos por etapa y CI](ETAPA-1-PRUEBAS.md).
+
+Resumen: 8 pruebas originales unitarias y suite de aislamiento/reset/offline
+aprobadas; 72 caracterizaciones nuevas coinciden, con 31 contratos aprobados,
+39 incumplimientos y 2 sondas pendientes de decisión. Compilaciones local y
+producción aprobadas; se conserva advertencia de 762.42 kB. Se registra el cierre
+inicial de sesión como observación histórica pendiente, sin corregirlo aquí.
+La CI se valida localmente para Windows; corrida GitHub pendiente de publicación
+autorizada. El job de contratos está diseñado para fallar visiblemente mientras
+esos incumplimientos sigan abiertos.
+
+Decisión D1 del propietario: **bloquear correcciones académicas hasta reabrir
+captura**, incluso si la asignación está cargada en Moodle. D2/D3 y propuestas
+de edición docente/delegación se detallan en los contratos. Copia y selección
+privadas preservadas por SHA-256 antes/después; tests solo usan fixtures.
+
+Archivos de Etapa 1: `README.md`, `package.json`, `tools/local/run.mjs`,
+`tools/stage1/{report,source-harness,logic,rules,contracts}.mjs`,
+`.github/workflows/stage1.yml`, los tres documentos `docs/ETAPA-1-*.md`,
+`docs/ENTORNO-LOCAL.md`, `docs/COPIA-BD-DEMO.md` y este seguimiento.
+Sin modificaciones en `src/`, reglas ni Functions de la aplicación.
+
+Las secciones siguientes conservan evidencia histórica fechada de Etapa 0;
+sus autorizaciones y pendientes iniciales no sustituyen este estado vigente.
+
 ## Alcance y punto de partida
 
 - Fecha de intervencion: 2026-09-11, zona institucional America/Cancun.
@@ -18,7 +53,7 @@
 | Etapa | Alcance | Estado |
 |---|---|---|
 | 0 | Entorno seguro de pruebas | Completada y verificada localmente |
-| 1 | Contratos funcionales, matriz por accion/campo, pruebas base y CI | Pendiente de autorizacion |
+| 1 | Contratos funcionales, matriz por accion/campo, pruebas base y CI | Completada localmente; decisiones y CI remota pendientes documentados |
 | 2 | Permisos Firestore y Functions; compatibilidad de perfiles existentes | Pendiente |
 | 3 | Ciclos, solicitudes, atomicidad y estado Moodle | Pendiente |
 | 4 | Integridad, referencias y migraciones repetibles | Pendiente |

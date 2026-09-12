@@ -15,7 +15,10 @@
     "local:data:copy": "node tools/local/select-data.mjs snapshot",
     "local:data:synthetic": "node tools/local/select-data.mjs synthetic",
     "test:local:unit": "node --test tools/local/tests/config.test.mjs tools/local/tests/snapshot.test.mjs",
-    "test:local": "node tools/local/run.mjs --test"
+    "test:local": "node tools/local/run.mjs --test",
+    "test:stage1": "node tools/local/run.mjs --test --stage1",
+    "test:contracts": "node tools/stage1/contracts.mjs",
+    "check:functions": "node --check functions/index.js && node --check functions/local-runtime.js"
   },
   "dependencies": {
     "@angular/animations": "^20.0.0",

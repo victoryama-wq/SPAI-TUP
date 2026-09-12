@@ -41,9 +41,12 @@ npm run build
 
 ## Documentacion
 
-- [Entorno local: cuentas ficticias, inicio, parada, restablecimiento y pruebas](docs/ENTORNO-LOCAL.md).
+- [Entorno local: sesiones DEMO, datos ficticios o copia, inicio y pruebas](docs/ENTORNO-LOCAL.md).
 - [Seguimiento de estabilizacion por etapas](docs/ESTABILIZACION.md).
 - [Copia de la BD online con inicio de sesion DEMO](docs/COPIA-BD-DEMO.md).
+- [Etapa 1: matriz de permisos por acción y campo](docs/ETAPA-1-MATRIZ-PERMISOS.md).
+- [Etapa 1: contratos y decisiones funcionales](docs/ETAPA-1-CONTRATOS.md).
+- [Etapa 1: resultados, fallos conocidos y CI](docs/ETAPA-1-PRUEBAS.md).
 
 El spec actualizado del proyecto esta en:
 

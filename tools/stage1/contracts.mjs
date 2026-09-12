@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { root } from '../local/config.mjs';
+const reports = ['stage1-rules', 'stage1-logic'].map((name) => JSON.parse(readFileSync(resolve(root, `.local/test-results/${name}.json`), 'utf8')));
+const failed = reports.flatMap((r) => r.cases).filter((c) => c.contractMatches === false);
+const pending = reports.flatMap((r) => r.cases).filter((c) => c.contractMatches === null);
+for (const test of failed) console.log(`CONTRACT_FAIL ${test.id} ${test.finding} etapa ${test.stage}`);
+for (const test of pending) console.log(`CONTRACT_UNRESOLVED ${test.id} ${test.finding} etapa ${test.stage}`);
+console.log(`${failed.length} incumplimientos esperados, reproducidos y abiertos. No es aprobacion de seguridad.`);
+if (failed.length || pending.length || reports.some((r) => r.cases.some((c) => !c.baselineMatches))) process.exitCode = 1;

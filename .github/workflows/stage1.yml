@@ -1,0 +1,82 @@
+name: Etapa 1 - caracterizacion y contratos abiertos
+
+on:
+  pull_request:
+  push:
+    branches: [main, 'codex/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stage1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    name: Windows - aislamiento y caracterizacion
+    runs-on: windows-2025
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CI: 'true'
+      SPAI_LOCAL_SYNTHETIC: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            functions/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '25.0.2'
+      - name: Instalar frontend con lockfile
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Instalar Functions con lockfile
+        run: npm ci --prefix functions --ignore-scripts --no-audit --no-fund
+      - name: Comprobar sintaxis de Functions
+        run: npm run check:functions
+      - name: Compilar Angular local
+        run: npm run build:local
+      - name: Compilar Angular produccion (sin publicar)
+        run: npm run build
+      - name: Aislamiento y caracterizacion con emuladores
+        run: npm run test:stage1
+      - name: Guardar evidencia ficticia
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-fictitious-results
+          path: .local/test-results/stage1-*.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  contracts:
+    name: Contratos esperados - fallos conocidos abiertos
+    needs: baseline
+    runs-on: windows-2025
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/download-artifact@v4
+        with:
+          name: stage1-fictitious-results
+          path: .local/test-results
+      - name: Exigir contratos (rojo hasta corregir etapas 2 y 3)
+        shell: pwsh
+        run: node tools/stage1/contracts.mjs

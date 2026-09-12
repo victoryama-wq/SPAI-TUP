@@ -113,10 +113,15 @@ npm run test:local:unit
 node tools/local/tests/verify-copy.mjs
 ```
 
-La suite `npm run test:local` usa siempre fixtures sinteticos, aunque la copia
+Las suites `npm run test:local` y `npm run test:stage1` usan siempre fixtures sinteticos, aunque la copia
 este seleccionada; requiere detener primero los emuladores. No modifica el
 archivo de seleccion. Al terminar, iniciar `local:emulators` para recuperar la
 copia. Esta suite no usa credenciales ni lee produccion.
+
+Etapa 1 agrega la [matriz y evidencia de permisos](ETAPA-1-PRUEBAS.md) con
+perfiles adicionales exclusivamente ficticios. No amplía los accesos de la
+copia ni usa sus documentos en CI. El comando `test:contracts` evalúa reportes
+ficticios y señala los incumplimientos; no verifica la copia privada.
 
 Los resultados de la carga actual y las pruebas se registran en
 [ESTABILIZACION.md](ESTABILIZACION.md). La copia conserva los problemas de datos

@@ -116,6 +116,10 @@ try {
   await startEmulators();
   if (testMode && !stopping) {
     await runNode(['tools/local/tests/integration.mjs']);
+    if (process.argv.includes('--stage1')) {
+      await runNode(['tools/stage1/logic.mjs']);
+      await runNode(['tools/stage1/rules.mjs']);
+    }
     await runNode(['tools/local/tests/reset.mjs']);
     await stopEmulators();
     await runNode(['tools/local/tests/offline.mjs']);

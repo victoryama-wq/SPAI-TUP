@@ -1,4 +1,4 @@
-# SPAI-TUP — Entorno local aislado (etapa 0)
+# SPAI-TUP — Entorno local y pruebas (etapas 0 y 1)
 
 > Ampliacion autorizada el 2026-09-11: se admite una copia local de la BD real
 > manteniendo las sesiones DEMO. Si existe `.local/data-source.json`, inicio y
@@ -6,8 +6,10 @@
 > Las cuentas, programas y cantidades sinteticas descritas abajo corresponden
 > al modo de fixtures original, que sigue disponible para las pruebas.
 
-Este entorno usa datos ficticios creados en codigo. No requiere acceso a un
-proyecto Firebase real ni iniciar sesion con `firebase login`, Google o SMTP.
+El entorno admite dos modos: **ficticio**, creado en codigo para pruebas, y
+**copia privada**, con los datos ya descargados y sesiones DEMO. El inicio,
+restablecimiento y pruebas no requieren acceso a un proyecto Firebase real
+ni iniciar sesion con `firebase login`, Google o SMTP.
 Las reglas de Firestore y Storage son las existentes: esta etapa no corrige
 permisos, estados ni contratos academicos.
 
@@ -41,7 +43,8 @@ npm run local:emulators
 ```
 
 Esperar **DEMO listo**. El supervisor comprueba puertos, arranca todos los
-emuladores, espera una respuesta real de Functions y carga las cuentas y fixtures.
+emuladores, espera una respuesta del emulador de Functions y carga las cuentas
+y el conjunto seleccionado: copia si existe seleccion valida, fixtures si no.
 Si falta un servicio, falla y detiene su propia sesion; no se conecta a produccion.
 La primera descarga puede tardar mas: si vence el limite de arranque, corregir
 la descarga o conexion y repetir el comando.
@@ -53,10 +56,15 @@ npm start
 ```
 
 Abrir <http://127.0.0.1:4200/>. El encabezado indica **DEMO LOCAL**. Elegir una
-cuenta ficticia y pulsar **Ingresar a DEMO**. El control de version de sesion
+cuenta DEMO y pulsar **Ingresar a DEMO**. En modo copia se enlazan cuatro perfiles
+originales y un inactivo ficticio; en modo sintetico todos son ficticios.
+El control de version de sesion
 preexistente puede cerrar el primer acceso; volver a pulsar Ingresar si ocurre.
 
-| Cuenta | Rol actual | Programas |
+La tabla siguiente describe **solo los fixtures**, no los roles/programas de
+los perfiles privados enlazados. Para estos, ver `.local/import-report.json`.
+
+| Cuenta | Rol ficticio | Programas ficticios |
 |---|---|---|
 | `demo.sistemas@tecplayacar.edu.mx` | Coordinación de Sistemas | Acceso de Sistemas existente |
 | `demo.auxiliar@tecplayacar.edu.mx` | Auxiliar de Sistemas | Acceso de Sistemas existente |
@@ -67,7 +75,8 @@ preexistente puede cerrar el primer acceso; volver a pulsar Ingresar si ocurre.
 La clave local comun es `Demo-only-2026!`. Estas identidades solo existen en
 Authentication Emulator. Se usa el dominio institucional para conservar la
 validacion actual del producto; no se consulta Google ni se envia correo a ellas.
-Los docentes ficticios usan `example.invalid`.
+Los docentes ficticios usan `example.invalid`; los datos de la copia conservan
+sus valores originales. No abrir sus ligas Moodle/Meet durante las pruebas.
 
 ## Servicios y aislamiento
 
@@ -128,7 +137,7 @@ para que seleccione 27-1; no se corrige esta ambiguedad en la etapa 0.
 npm run local:seed
 ```
 
-Vuelve a escribir los documentos y cuentas conocidos usando IDs deterministas;
+En modo ficticio, vuelve a escribir documentos y cuentas conocidos usando IDs deterministas;
 no elimina registros adicionales. Restablece los valores base de esos documentos.
 Para empezar desde cero, manteniendo la web en su otra terminal:
 
@@ -137,9 +146,33 @@ npm run local:reset
 ```
 
 El supervisor detiene su arbol de procesos y arranca una sesion vacia, luego carga
-los fixtures. Se pierden las escrituras locales de prueba, usuarios adicionales
+el conjunto seleccionado. Se pierden las escrituras locales de prueba, usuarios adicionales
 y objetos de Storage. Cerrar sesion/recargar el navegador y volver a elegir la
-cuenta DEMO. No se guardan ni importan exportaciones de produccion.
+cuenta DEMO. En modo copia se importa el archivo privado ya descargado, sin
+lectura online; se verifican sus documentos. `local:seed` rechaza mezclar una
+copia con una BD poblada: en ese modo utilizar `local:reset`.
+
+## Comandos y selección de datos
+
+| Comando | Efecto | Copia privada / red |
+|---|---|---|
+| `local:emulators` | Inicia servicios y carga selección vigente | Lee copia local solo si seleccionada; sin consulta online |
+| `start` | Inicia Angular DEMO en 4200 | No inicia ni carga emuladores |
+| `local:data:copy` | Verifica y selecciona archivo de latest.json | No descarga; no modifica servicios ya abiertos |
+| `local:data:synthetic` | Retira selección para próximo inicio/reset | Conserva archivo de copia; no modifica servicios abiertos |
+| `local:seed` | Reescribe fixtures conocidos, sin borrar extras | Copia solo sobre emulador vacío; rechaza mezcla |
+| `local:reset` | Reinicia servicios propios vacíos y carga selección | Pierde cambios locales; conserva archivo y selección |
+| `local:stop` | Detiene solo sesión propia de emuladores | No borra copia ni selección; Angular se detiene aparte |
+| `test:local:unit` | Pruebas de configuración/conversión con objetos ficticios | No requiere emuladores ni archivo privado |
+| `test:local` | Suite original de aislamiento, reset y offline | Fuerza fixtures en el proceso, conserva selección privada |
+| `test:stage1` | Suite original más permisos y lógica funcional | Siempre ficticio; requiere puertos libres; apaga al terminar |
+| `test:contracts` | Evalúa reportes de la última ejecución de stage1 | No inicia servicios; retorna 1 mientras haya incumplimientos |
+| `local:data:export` | Nueva descarga online, solo con autorización expresa | No es inicio ni test; crea otro archivo, conserva anterior |
+
+Para aplicar una selección ejecutar `local:reset` si los servicios propios están
+abiertos, o `local:emulators` si están detenidos. Las pruebas no deben ejecutar
+comandos de selección ni exportación. Al terminarlas, `local:emulators` recupera
+la copia seleccionada sin necesitar `local:data:copy` de nuevo.
 
 La carga valida el PID del hub frente al proceso iniciado por el supervisor y
 los endpoints esperados. El control exige un token efimero guardado en
@@ -163,11 +196,11 @@ de procesos. Solo Windows ha sido verificado en esta etapa.
 Con los emuladores detenidos y puertos libres:
 
 ```powershell
-npm run test:local:unit
-npm run test:local
+npm run test:stage1
+npm run test:contracts
 npm run build:local
 npm run build
-npm run lint --prefix functions
+npm run check:functions
 ```
 
 `test:local` ejecuta las comprobaciones unitarias, inicia una sesion propia,
@@ -181,9 +214,11 @@ Firestore puede dejar una escritura pendiente mientras no hay conexion; eso no
 equivale a una escritura confirmada. La prueba exige que no se confirme y que
 solo se intente 127.0.0.1. No modifica ese comportamiento del SDK.
 
-Estas pruebas verifican **aislamiento**, no certifican la matriz de permisos ni
-los flujos academicos completos. El modo local conserva los fallos funcionales
-registrados en [ESTABILIZACION.md](ESTABILIZACION.md).
+La suite original verifica **aislamiento**. `test:stage1` añade caracterización
+de reglas mediante SDKs reales y de métodos UI/repositorios TypeScript; no es
+smoke completo de navegador. `test:contracts` debe fallar mientras existan
+incumplimientos documentados. No equivale a aprobación de seguridad. Consultar
+[ETAPA-1-PRUEBAS.md](ETAPA-1-PRUEBAS.md) y [ESTABILIZACION.md](ESTABILIZACION.md).
 
 ## Referencias
 
