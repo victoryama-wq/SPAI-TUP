@@ -1,3 +1,4 @@
+import { hasCapability } from '../../users/data/module-permission.service';
 ﻿import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,6 +22,7 @@ export class CyclesPageComponent {
   private readonly userSessionService = inject(UserSessionService);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
 
+  readonly canManage = computed(() => hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES'));
   readonly cycles = this.cyclesRepository.cycles;
   readonly currentAccessDiagnostic = computed(() => {
     const session = this.userSessionService.session();
@@ -76,6 +78,7 @@ export class CyclesPageComponent {
   }
 
   openForm(): void {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     this.duplicateCode = false;
     this.formError = '';
     this.form.reset({
@@ -101,6 +104,7 @@ export class CyclesPageComponent {
   }
 
   async saveCycle(): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     this.formError = '';
 
     if (this.form.invalid) {
@@ -131,6 +135,7 @@ export class CyclesPageComponent {
   }
 
   async startCapture(cycle: AcademicCycle): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     const confirmed = await this.confirmationDialogService.confirm({
       title: 'Activar ciclo',
       message: `Activar ${cycle.code} como ciclo activo? Se mostrara en el encabezado y en los modulos operativos de SPAI.`,
@@ -144,6 +149,7 @@ export class CyclesPageComponent {
   }
 
   async closeCapture(cycle: AcademicCycle): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     const confirmed = await this.confirmationDialogService.confirm({
       title: 'Cerrar captura',
       message: `Cerrar captura para el ciclo ${cycle.code}? Las coordinaciones academicas ya no podran editar materias.`,
@@ -157,6 +163,7 @@ export class CyclesPageComponent {
   }
 
   async reopenCapture(cycle: AcademicCycle): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     const confirmed = await this.confirmationDialogService.confirm({
       title: 'Reabrir captura',
       message: `Reabrir captura para el ciclo ${cycle.code}? Las coordinaciones academicas podran hacer ajustes nuevamente.`,
@@ -170,6 +177,7 @@ export class CyclesPageComponent {
   }
 
   async closeCycle(cycle: AcademicCycle): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     const confirmed = await this.confirmationDialogService.confirm({
       title: 'Cerrar ciclo',
       message: `Cerrar el ciclo ${cycle.code}? Quedara como historico de consulta.`,
@@ -183,6 +191,7 @@ export class CyclesPageComponent {
   }
 
   async deleteCycle(cycle: AcademicCycle): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     if (!this.canDeleteCycle(cycle)) {
       await this.confirmationDialogService.alert({
         title: 'No se puede eliminar',
@@ -209,6 +218,7 @@ export class CyclesPageComponent {
   }
 
   async updateTentativeCaptureClose(cycle: AcademicCycle, event: Event): Promise<void> {
+    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
     const input = event.target as HTMLInputElement;
     const tentativeCaptureCloseAt = input.value || null;
 

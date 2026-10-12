@@ -1,3 +1,4 @@
+import { hasAccess, isSystems } from '../../users/data/module-permission.service';
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AssignmentsRepository } from '../../assignments/data/assignments.repository';
@@ -256,7 +257,7 @@ export class DashboardPageComponent implements OnDestroy {
 
   readonly metrics = computed<MetricCard[]>(() => {
     const appUser = this.userSessionService.session()?.appUser;
-    const isAcademicCoordinator = appUser?.role.toLowerCase().includes('acad') === true;
+    const isAcademicCoordinator = appUser?.baseRole === 'COORDINACION_ACADEMICA';
     const users = this.usersRepository.users();
     const cycles = this.cyclesRepository.cycles();
     const teachers = this.teachersRepository.teachers();
@@ -380,16 +381,17 @@ export class DashboardPageComponent implements OnDestroy {
   readonly isAcademicCoordinator = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
 
-    return appUser?.status === 'Activo' && appUser.role.toLowerCase().includes('acad');
+    return appUser?.status === 'Activo' && appUser.baseRole === 'COORDINACION_ACADEMICA';
   });
   readonly isCustomConsultationRole = computed(() =>
     this.isCustomConsultationRoleForUser(this.userSessionService.session()?.appUser),
   );
+  readonly canEditAgenda = computed(() => isSystems(this.userSessionService.session()?.appUser) && hasAccess(this.userSessionService.session()?.appUser, 'dashboard', true));
   readonly canShowOperationalAgenda = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
 
     return appUser?.status === 'Activo'
-      && (appUser.role === 'Coordinación de Sistemas' || appUser.role === 'Auxiliar de Sistemas');
+      && isSystems(appUser) && hasAccess(appUser, 'dashboard');
   });
   readonly visibleAgendaItems = computed(() =>
     this.agendaItems().filter((item) => item.scope === this.agendaScope()),
@@ -504,7 +506,7 @@ export class DashboardPageComponent implements OnDestroy {
 
   readonly realProgress = computed<RealProgressCard[]>(() => {
     const appUser = this.userSessionService.session()?.appUser;
-    const isAcademicCoordinator = appUser?.role.toLowerCase().includes('acad') === true;
+    const isAcademicCoordinator = appUser?.baseRole === 'COORDINACION_ACADEMICA';
     const activeCycleCode = this.activeCycle()?.code ?? '';
     const users = this.usersRepository.users();
     const nomenclatures = this.nomenclaturesRepository.nomenclatures();
@@ -732,6 +734,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   openNewAgendaItem(): void {
+    if (!this.canEditAgenda()) return;
     const scope = this.agendaScope();
 
     this.agendaEditorItem.set(null);
@@ -741,6 +744,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   openAgendaEditor(item: OperationalAgendaItem): void {
+    if (!this.canEditAgenda()) return;
     this.agendaEditorItem.set(item);
     this.agendaForm.set({
       scope: item.scope,
@@ -795,6 +799,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   async saveAgendaItem(): Promise<void> {
+    if (!this.canEditAgenda()) return;
     const form = this.agendaForm();
     const editingItem = this.agendaEditorItem();
     const title = form.title.trim();
@@ -862,6 +867,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   toggleAgendaMoveMode(column: AgendaColumn): void {
+    if (!this.canEditAgenda()) return;
     if (this.agendaActionItemId()) {
       return;
     }
@@ -905,6 +911,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   async dropAgendaItem(event: DragEvent, target: OperationalAgendaItem): Promise<void> {
+    if (!this.canEditAgenda()) return;
     event.preventDefault();
     const draggedItemId = this.agendaDraggingItemId();
     const orderedItems = this.agendaItemsForColumn(target.column);
@@ -947,6 +954,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   async advanceAgendaItem(item: OperationalAgendaItem): Promise<void> {
+    if (!this.canEditAgenda()) return;
     const nextColumn = this.nextAgendaColumn(item.column);
 
     if (!nextColumn) {
@@ -968,6 +976,7 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   async deleteAgendaItem(item: OperationalAgendaItem): Promise<void> {
+    if (!this.canEditAgenda()) return;
     if (!window.confirm(`¿Eliminar la actividad “${item.title}”? Esta acción no se puede deshacer.`)) {
       return;
     }
@@ -1118,24 +1127,11 @@ export class DashboardPageComponent implements OnDestroy {
   }
 
   private isCustomConsultationRoleForUser(appUser: AppUser | null | undefined): boolean {
-    if (!appUser || appUser.status !== 'Activo') {
-      return false;
-    }
-
-    const customRole = this.customRolesRepository.roleTemplates()
-      .find((role) => this.normalizeIdentity(role.name) === this.normalizeIdentity(appUser.role));
-
-    if (!customRole) {
-      return false;
-    }
-
-    // El Dashboard distingue los roles creados en la administracion de roles,
-    // independientemente de que sus modulos sean de consulta o edicion.
-    return true;
+    return appUser?.status === 'Activo' && appUser.baseRole === 'CUSTOM' && !Object.values(appUser.permissions ?? {}).includes('EDIT');
   }
 
   private hasModuleAccess(appUser: AppUser | null | undefined, module: ModuleKey): boolean {
-    return appUser?.status === 'Activo' && appUser.access?.[module] === true;
+    return hasAccess(appUser, module);
   }
 
   private normalizeIdentity(value: string): string {

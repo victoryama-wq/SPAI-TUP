@@ -1,3 +1,5 @@
+import { UserSessionService } from '../auth/user-session.service';
+import { authorizedQuery } from './authorized-query';
 import { effect, inject, signal } from '@angular/core';
 import {
   addDoc,
@@ -24,7 +26,9 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   private readonly itemsSignal = signal<T[]>([]);
   private readonly readErrorSignal = signal('');
   private readonly loadingSignal = signal(false);
-  private readonly collectionQuery: Query;
+  private collectionQuery: Query | null = null;
+  private readonly userSession = inject(UserSessionService);
+  private generation = 0;
 
   readonly items = this.itemsSignal.asReadonly();
   readonly readError = this.readErrorSignal.asReadonly();
@@ -35,13 +39,12 @@ export abstract class FirestoreRepository<T extends { id: string }> {
     protected readonly collectionPath: string,
     ...constraints: QueryConstraint[]
   ) {
-    const ref = collection(this.firestore, this.collectionPath);
-    this.collectionQuery = constraints.length
-      ? query(ref, ...constraints)
-      : query(ref, orderBy('createdAt', 'desc'));
-
     effect((onCleanup) => {
-      if (!this.authService.isAuthenticated()) {
+      const generation = ++this.generation;
+      this.itemsSignal.set([]);
+      try { this.collectionQuery = authorizedQuery(this.firestore, this.collectionPath, constraints, this.userSession.session()?.appUser); }
+      catch (error) { this.collectionQuery = null; this.loadingSignal.set(false); this.readErrorSignal.set(error instanceof Error ? error.message : 'Consulta no disponible.'); return; }
+      if (!this.authService.isAuthenticated() || !this.collectionQuery) {
         this.itemsSignal.set([]);
         this.readErrorSignal.set('');
         this.loadingSignal.set(false);
@@ -59,6 +62,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       const unsubscribe = onSnapshot(
         this.collectionQuery,
         (snapshot) => {
+          if (generation !== this.generation) return;
           clearTimeout(initialLoadTimeout);
           this.readErrorSignal.set('');
           this.loadingSignal.set(false);
@@ -68,7 +72,9 @@ export abstract class FirestoreRepository<T extends { id: string }> {
           );
         },
         (error) => {
+          if (generation !== this.generation) return;
           clearTimeout(initialLoadTimeout);
+          this.itemsSignal.set([]);
           console.error(`No se pudo leer ${this.collectionPath}`, error);
           this.readErrorSignal.set(error.message);
           this.loadingSignal.set(false);
@@ -83,6 +89,8 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   }
 
   refreshFromServer(): Promise<void> {
+    const generation = this.generation;
+    if (!this.collectionQuery) return Promise.reject(new Error('PERMISO_REVOCADO o módulo sin autorización vigente.'));
     this.loadingSignal.set(true);
 
     return this.withReadTimeout(
@@ -90,6 +98,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       `La consulta de ${this.collectionPath} no respondio a tiempo.`,
     )
       .then((snapshot) => {
+        if (generation !== this.generation) return;
         this.readErrorSignal.set('');
         this.itemsSignal.set(
           snapshot.docs
@@ -97,12 +106,14 @@ export abstract class FirestoreRepository<T extends { id: string }> {
         );
       })
       .catch((error) => {
+        if (generation !== this.generation) return;
+        this.itemsSignal.set([]);
         console.error(`No se pudo actualizar ${this.collectionPath} desde servidor`, error);
         this.readErrorSignal.set(error.message);
         throw error;
       })
       .finally(() => {
-        this.loadingSignal.set(false);
+        if (generation === this.generation) this.loadingSignal.set(false);
       });
   }
 

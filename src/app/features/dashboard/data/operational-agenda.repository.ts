@@ -1,3 +1,4 @@
+import { isSystems, hasAccess } from '../../users/data/module-permission.service';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
   addDoc,
@@ -66,7 +67,7 @@ export class OperationalAgendaRepository {
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
 
-      if (!session || !appUser || appUser.status !== 'Activo' || !this.isBaseSystemsRole(appUser.role)) {
+      if (!session || !appUser || appUser.status !== 'Activo' || !isSystems(appUser) || !hasAccess(appUser, 'dashboard')) {
         this.teamItemsSignal.set([]);
         this.privateItemsSignal.set([]);
         this.errorSignal.set('');
@@ -75,6 +76,7 @@ export class OperationalAgendaRepository {
 
       const handleError = (error: Error) => {
         console.error('No se pudo cargar la agenda operativa.', error);
+        this.teamItemsSignal.set([]); this.privateItemsSignal.set([]);
         this.errorSignal.set('No se pudo actualizar la agenda. Verifica tu conexión y permisos.');
       };
       const unsubscribeTeam = onSnapshot(
@@ -237,7 +239,7 @@ export class OperationalAgendaRepository {
     const session = this.userSessionService.session();
     const appUser = session?.appUser;
 
-    if (!session || !appUser || appUser.status !== 'Activo' || !this.isBaseSystemsRole(appUser.role)) {
+    if (!session || !appUser || appUser.status !== 'Activo' || !isSystems(appUser) || !hasAccess(appUser, 'dashboard', true)) {
       throw new Error('La agenda operativa solo está disponible para perfiles base de Sistemas.');
     }
 

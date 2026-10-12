@@ -184,7 +184,6 @@ export class TeachersRepository extends FirestoreRepository<Teacher> {
       teacherCode: payload.teacherCode?.trim() || teacher.teacherCode,
       fullName: this.normalizeFullName(payload.fullName),
       normalizedName: this.normalizeSearchText(payload.fullName),
-      email: payload.email?.trim().toLowerCase() ?? '',
       paymentType: payload.paymentType ?? '',
       category: payload.category ?? '',
       phone: payload.phone?.trim() ?? '',

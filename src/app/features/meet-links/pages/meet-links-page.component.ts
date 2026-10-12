@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -96,22 +97,9 @@ export class MeetLinksPageComponent {
       : 'Cuando existan asignaciones de grupos virtuales en el ciclo activo apareceran aqui.',
   );
 
-  readonly canViewMeetLinks = computed(() => {
-    const currentSession = this.session();
-    const appUser = currentSession?.appUser;
+  readonly canViewMeetLinks = computed(() => hasAccess(this.session()?.appUser, 'ligasMeet'));
 
-    return appUser?.status === 'Activo'
-      && (
-        appUser.role.includes('Sistemas')
-        || appUser.access?.ligasMeet === true
-      );
-  });
-
-  readonly canEditMeetLinks = computed(() => {
-    const appUser = this.session()?.appUser;
-
-    return appUser?.status === 'Activo' && appUser.role.includes('Sistemas');
-  });
+  readonly canEditMeetLinks = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'ligasMeet', true));
 
   readonly meetRows = computed(() => {
     const activeCycle = this.activeCycle();

@@ -1,5 +1,7 @@
 # Etapa 1 — Contratos funcionales y operaciones
 
+> Evidencia histórica de Etapa 1. El contrato vigente es [Etapa 2 v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md); ver [trazabilidad E2-R01](E2-R01-SEGURIDAD-PERMISOS.md). D2 y D3 ya tienen definición en v0.4. El contenido histórico inferior no se reescribe.
+
 Fecha: 2026-09-12. Base revisada: `3a93ea6`, descendiente de `146cf9f`.
 Esta etapa documenta y reproduce; no modifica reglas, componentes ni repositorios
 funcionales. La [matriz](ETAPA-1-MATRIZ-PERMISOS.md) distingue interfaz y servidor.

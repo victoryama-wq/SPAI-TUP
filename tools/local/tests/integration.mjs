@@ -29,7 +29,7 @@ try {
   await assert.rejects(uploadBytes(ref(services.storage, 'demo/probe.txt'), new Uint8Array([1, 2, 3])), (error) => error.code === 'storage/unauthorized');
   console.log('PASS: Storage emulator reachable; original deny-all rules preserved.');
   const notification = doc(services.db, 'notificaciones/demo-test-mail');
-  await setDoc(notification, { type: 'SOLICITUD_SISTEMAS', target: 'SISTEMAS', title: 'Correo ficticio', message: 'Nunca enviar', createdAt: new Date().toISOString(), readBy: [] });
+  await setDoc(notification, { actorId: accounts[0].uid, type: 'SOLICITUD_SISTEMAS', target: 'SISTEMAS', title: 'Correo ficticio', message: 'Nunca enviar', createdAt: new Date().toISOString(), readBy: [] });
   let data;
   for (let attempt = 0; attempt < 40; attempt++) {
     data = (await getDocFromServer(notification)).data();

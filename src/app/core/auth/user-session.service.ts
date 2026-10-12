@@ -73,12 +73,20 @@ export class UserSessionService {
       const email = authUser.email;
       const normalizedEmail = email.toLowerCase();
       const userRef = doc(this.firestore, USERS_COLLECTION, authUser.uid);
-      let emailUnsubscribe: (() => void) | null = null;
+      let disposed = false;
+      let legacyExpiry: ReturnType<typeof setTimeout> | undefined;
 
       const setSession = (snapshot: DocumentSnapshot) => {
-        const appUser = snapshot.exists()
+        if (disposed) return;
+        let appUser = snapshot.exists()
           ? ({ id: snapshot.id, ...snapshot.data() } as AppUser)
           : null;
+        clearTimeout(legacyExpiry);
+        const legacy = appUser?.legacyAuthorization;
+        if (appUser && appUser.permissionSchemaVersion !== 2 && !appUser.identityAliasOf && appUser.status === 'Activo' && legacy?.mappingVersion === 'E2-R01-v0.4-1' && legacy.profileRevision === appUser.revision && legacy.expiresAtMillis > Date.now()) {
+          appUser = { ...appUser, ...legacy };
+          legacyExpiry = setTimeout(() => setSession(snapshot), legacy.expiresAtMillis - Date.now());
+        }
 
         this.sessionSignal.set({
           authUid: authUser.uid,
@@ -89,6 +97,7 @@ export class UserSessionService {
       };
 
       const setUnauthenticatedAppSession = () => {
+        if (disposed) return;
         this.sessionSignal.set({
           authUid: authUser.uid,
           email: normalizedEmail,
@@ -125,133 +134,21 @@ export class UserSessionService {
         );
       };
 
-      const selectEmailUserSnapshot = (emailSnapshot: QuerySnapshot<DocumentData>): DocumentSnapshot | null => {
-        const candidates = emailSnapshot.docs.filter((item) => item.data()['status'] === 'Activo');
-
-        if (!candidates.length) {
-          return emailSnapshot.docs[0] ?? null;
-        }
-
-        const exactUidUser = candidates.find((item) => item.id === authUser.uid);
-
-        if (exactUidUser) {
-          return exactUidUser;
-        }
-
-        const withPrograms = candidates.find((item) => {
-          const assignedPrograms = item.data()['assignedPrograms'];
-
-          return Array.isArray(assignedPrograms) && assignedPrograms.length > 0 && item.id !== authUser.uid;
-        });
-
-        return withPrograms ?? candidates.find((item) => item.id !== authUser.uid) ?? candidates[0];
-      };
-
-      const normalizeComparableValue = (value: unknown): string => JSON.stringify(value ?? null);
-
-      const needsUidSync = (
-        sourceData: Omit<AppUser, 'id'>,
-        fallbackSnapshot: DocumentSnapshot | null,
-      ): boolean => {
-        if (!fallbackSnapshot?.exists() || fallbackSnapshot.id !== authUser.uid) {
-          return true;
-        }
-
-        const currentData = fallbackSnapshot.data();
-        const fieldsToCompare = [
-          'name',
-          'email',
-          'role',
-          'greetingGender',
-          'assignedPrograms',
-          'access',
-          'status',
-        ];
-
-        return fieldsToCompare.some((field) => {
-          return normalizeComparableValue(currentData[field]) !== normalizeComparableValue(sourceData[field as keyof Omit<AppUser, 'id'>]);
-        }) || currentData['authUid'] !== authUser.uid;
-      };
-
-      const listenByEmail = (fallbackSnapshot: DocumentSnapshot | null) => {
-        const usersRef = collection(this.firestore, USERS_COLLECTION);
-        const userQuery = query(
-          usersRef,
-          where('email', '==', normalizedEmail),
-        );
-
-        emailUnsubscribe?.();
-        emailUnsubscribe = onSnapshot(userQuery, async (emailSnapshot) => {
-          const emailUserSnapshot = selectEmailUserSnapshot(emailSnapshot);
-
-          if (!emailUserSnapshot) {
-            if (fallbackSnapshot?.exists()) {
-              setSession(fallbackSnapshot);
-              return;
-            }
-
-            try {
-              await bootstrapUser();
-            } catch (error) {
-              console.error('No se pudo preparar el usuario inicial en Firestore', error);
-              setUnauthenticatedAppSession();
-            }
-            return;
-          }
-
-          const emailUser = { id: emailUserSnapshot.id, ...emailUserSnapshot.data() } as AppUser;
-          const { id: _id, ...emailUserData } = emailUser;
-
-          if (emailUserSnapshot.id === authUser.uid) {
-            setSession(emailUserSnapshot);
-            return;
-          }
-
-          if (!needsUidSync(emailUserData, fallbackSnapshot)) {
-            if (fallbackSnapshot?.exists()) {
-              setSession(fallbackSnapshot);
-              return;
-            }
-
-            setUnauthenticatedAppSession();
-            return;
-          }
-
-          try {
-            await this.syncUserProfileByEmail({});
-          } catch (error) {
-            console.warn('El usuario se reconocio por correo, pero no se pudo migrar al UID de Firebase.', error);
-            setUnauthenticatedAppSession();
-          }
-        }, (error) => {
-          console.error('No se pudo buscar el usuario por correo institucional', error);
-
-          if (fallbackSnapshot?.exists()) {
-            setSession(fallbackSnapshot);
-            return;
-          }
-
-          setUnauthenticatedAppSession();
-        });
-      };
-
-      const unsubscribe = onSnapshot(userRef, async (snapshot) => {
-        if (snapshot.exists()) {
-          const appUser = { id: snapshot.id, ...snapshot.data() } as AppUser;
-
-          if (appUser.status === 'Activo') {
-            setSession(snapshot);
-          }
-        }
-
-        listenByEmail(snapshot);
-      }, (error) => {
-        console.error('No se pudo leer el usuario activo por UID', error);
+      let linking = false;
+      const unsubscribe = onSnapshot(userRef, async snapshot => {
+        if (snapshot.exists()) { setSession(snapshot); return; }
         setUnauthenticatedAppSession();
-      });
+        if (linking) return;
+        linking = true;
+        try {
+          const result = await this.syncUserProfileByEmail({});
+          if (!disposed && !result.data.synced) await bootstrapUser();
+        } catch (error) { console.warn('La identidad requiere revisión administrativa.', error); }
+      }, error => { console.error('No se pudo consultar el perfil vigente.', error); setUnauthenticatedAppSession(); });
 
       onCleanup(() => {
-        emailUnsubscribe?.();
+        disposed = true;
+        clearTimeout(legacyExpiry);
         unsubscribe();
       });
     });

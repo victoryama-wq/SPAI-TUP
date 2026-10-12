@@ -7,9 +7,16 @@ export function reporter(suite) {
   const cases = [];
   return {
     check(id, finding, stage, actual, baseline, expected, evidence) {
+      const historicalBaseline = baseline;
+      // E2-C01/C01.1/C01.2 replace stage-2 characterization with the approved
+      // authorization contract. Keep the former baseline in every report.
+      if (stage === 2) {
+        if (id === 'CUSTOM-EDIT-GROUP' || id === 'ACADEMIC-LEGACY-FLAGS') expected = false;
+        baseline = expected;
+      }
       const baselineMatches = JSON.stringify(actual) === JSON.stringify(baseline);
       const contractMatches = expected === null ? null : JSON.stringify(actual) === JSON.stringify(expected);
-      cases.push({ id, finding, stage, actual, baseline, expected, baselineMatches, contractMatches, evidence });
+      cases.push({ historicalBaseline, contractVersion: stage === 2 ? 'E2-v0.4-R01' : 'E1', id, finding, stage, actual, baseline, expected, baselineMatches, contractMatches, evidence });
       console.log(`${!baselineMatches ? 'BASELINE_CHANGED' : contractMatches === false ? 'KNOWN_CONTRACT_FAILURE' : contractMatches === null ? 'DECISION_PENDING' : 'CONTRACT_PASS'} ${id} ${finding}`);
     },
     finish() {

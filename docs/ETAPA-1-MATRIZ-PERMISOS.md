@@ -1,5 +1,7 @@
 # Etapa 1 — Matriz de permisos por operación
 
+> Evidencia histórica de Etapa 1. El contrato vigente es [Etapa 2 v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md); ver [trazabilidad E2-R01](E2-R01-SEGURIDAD-PERMISOS.md). D2 y D3 ya tienen definición en v0.4. El contenido histórico inferior no se reescribe.
+
 Revisión local del código en `3a93ea6`, 2026-09-12. No es una lectura de reglas
 desplegadas. Las pruebas usan perfiles ficticios; cuatro accesos de la copia
 privada **no** demuestran cobertura de todos los roles.

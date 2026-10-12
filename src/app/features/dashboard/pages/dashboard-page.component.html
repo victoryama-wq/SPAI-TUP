@@ -216,7 +216,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
           {{ isAgendaCalendarVisible() ? 'Ver tablero' : 'Calendario' }}
         </button>
-        <button class="agenda-create-button" type="button" (click)="openNewAgendaItem()">+ Nueva actividad</button>
+        <button class="agenda-create-button" type="button" [disabled]="!canEditAgenda()" (click)="openNewAgendaItem()">+ Nueva actividad</button>
       </div>
     </div>
 
@@ -271,7 +271,7 @@
                   [class.is-draggable]="isAgendaMoveMode(column.key)"
                   [class.is-dragging]="agendaDraggingItemId() === item.id"
                   [class.is-drop-target]="agendaDropTargetId() === item.id"
-                  [draggable]="isAgendaMoveMode(column.key)"
+                  [draggable]="canEditAgenda() && isAgendaMoveMode(column.key)"
                   (dragstart)="startAgendaDrag($event, item)"
                   (dragover)="previewAgendaDrop($event, item)"
                   (dragleave)="clearAgendaDropPreview()"
@@ -282,12 +282,12 @@
                   @if (item.detail) { <p>{{ item.detail }}</p> }
                   <small class="agenda-due-date">{{ agendaDueDateLabel(item) }}</small>
                   <div class="agenda-note-actions">
-                    <button type="button" (click)="openAgendaEditor(item)">Editar</button>
+                    <button type="button" [disabled]="!canEditAgenda()" (click)="openAgendaEditor(item)">Editar</button>
                     <button
                       type="button"
                       class="move"
                       [class.active]="isAgendaMoveMode(item.column)"
-                      [disabled]="agendaActionItemId() === item.id"
+                      [disabled]="!canEditAgenda() || agendaActionItemId() === item.id"
                       (click)="toggleAgendaMoveMode(item.column)">
                       {{ isAgendaMoveMode(item.column) ? 'Terminar' : 'Mover' }}
                     </button>
@@ -299,7 +299,7 @@
                       (click)="advanceAgendaItem(item)">
                       Seguimiento
                     </button>
-                    <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="agendaActionItemId() === item.id">Eliminar</button>
+                    <button type="button" class="delete" (click)="deleteAgendaItem(item)" [disabled]="!canEditAgenda() || agendaActionItemId() === item.id">Eliminar</button>
                   </div>
                 </article>
               } @empty { <p class="agenda-empty">Sin actividades en esta etapa.</p> }

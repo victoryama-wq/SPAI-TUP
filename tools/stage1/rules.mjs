@@ -48,7 +48,7 @@ async function reset(path, data) { await db.doc(path).set(data); }
 const path = (key, name) => doc(services.get(key).db, name);
 async function allowed(operation) {
   try { await operation(); return true; }
-  catch (error) { if (error.code === 'permission-denied') return false; throw error; }
+  catch (error) { if (error.code === 'permission-denied' && !/maximum of|INTERNAL|UNAVAILABLE/i.test(error.message)) return false; throw error; }
 }
 async function check(id, finding, stage, operation, baseline, expected, evidence = 'firestore.rules') {
   report.check(id, finding, stage, await allowed(operation), baseline, expected, evidence);
@@ -57,7 +57,7 @@ async function check(id, finding, stage, operation, baseline, expected, evidence
 try {
   for (const [key, role, status, enabled, assignedPrograms] of specs) {
     await adminAuth.getAuth(admin).createUser({ uid: uid(key), email: email(key), password, emailVerified: true });
-    await reset(`usuarios/${uid(key)}`, { authUid: uid(key), name: `Ficticio ${key}`, email: email(key), role, status, access: { ...access(enabled), ...(key === 'aux-users' ? { usuarios: true } : {}) }, assignedPrograms });
+    await reset(`usuarios/${uid(key)}`, { permissionSchemaVersion:2, baseRole:key==='systems'||key==='inactive'?'ADMIN_GENERAL':key.startsWith('academic')?'COORDINACION_ACADEMICA':key.startsWith('aux')?'ADMIN_OPERATIVO':'CUSTOM', permissions:Object.fromEntries(modules.map(k=>[k,enabled?(key==='custom-view'?'VIEW':'EDIT'):'NONE'])), scope:{programs: key==='custom-view'||key==='custom-edit'?['*']:assignedPrograms,cycles:['*'],teachers:[],fields:[]}, authUid: uid(key), name: `Ficticio ${key}`, email: email(key), role, status, access: { ...access(enabled), ...(key === 'aux-users' ? { usuarios: true } : {}) }, assignedPrograms });
     const client = runtime.initializeFirebaseRuntime(localConfig, `stage1-${key}`);
     services.set(key, client);
     await signInWithEmailAndPassword(client.auth, email(key), password);
@@ -100,7 +100,9 @@ try {
     await check(`REQUEST-READ-${who}`, 'F03', 2, () => getDocFromServer(path(who, 'solicitudes_compartidas/stage1-request')), true, who !== 'academic-c');
     await check(`REQUEST-RESOLVE-${who}`, 'F03', 2, () => updateDoc(path(who, 'solicitudes_compartidas/stage1-request'), { status: 'ACEPTADA', respondedBy: uid(who) }), true, who === 'academic-a');
   }
-  await check('REQUEST-TERMINAL-REWRITE', 'F07', 3, () => updateDoc(path('academic-a', 'solicitudes_compartidas/stage1-request'), { status: 'RECHAZADA' }), true, false);
+  // R01 requires the authenticated respondent. Keep the terminal-state defect
+  // exercised independently of that newly enforced authorization requirement.
+  await check('REQUEST-TERMINAL-REWRITE', 'F07', 3, () => updateDoc(path('academic-a', 'solicitudes_compartidas/stage1-request'), { status: 'RECHAZADA', respondedBy: uid('academic-a') }), true, false);
   await check('REQUEST-FORGED-OWNER', 'F03', 2, () => setDoc(path('academic-a', 'solicitudes_compartidas/stage1-forged'), { ...shared, requestedBy: uid('academic-b') }), true, false);
   await check('SYSTEM-REQUEST-FOREIGN-READ', 'F03', 2, () => getDocFromServer(path('academic-a', 'solicitudes_sistemas/demo-reapertura')), false, false);
   await check('SYSTEM-REQUEST-FOREIGN-DELETE', 'F03', 2, () => deleteDoc(path('academic-a', 'solicitudes_sistemas/demo-reapertura')), true, false);

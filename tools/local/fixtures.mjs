@@ -13,6 +13,10 @@ export function fixtures() {
   for (const account of accounts) {
     const enabled = account.role.includes('Sistemas') ? modules : academicModules;
     add(`usuarios/${account.uid}`, {
+      permissionSchemaVersion: 2, revision: 1, area: account.uid === 'demo-sistemas' || account.uid === 'demo-auxiliar' ? 'Sistemas DEMO' : 'Académica DEMO',
+      baseRole: account.uid === 'demo-sistemas' ? 'ADMIN_GENERAL' : account.uid === 'demo-auxiliar' ? 'ADMIN_OPERATIVO' : 'COORDINACION_ACADEMICA',
+      permissions: Object.fromEntries(modules.map(k => [k, enabled.includes(k) ? (['docentes','asignaciones','solicitudes'].includes(k) ? 'EDIT' : 'VIEW') : 'NONE'])),
+      scope: { programs: account.programs, cycles: ['*'], teachers: [], fields: [] },
       authUid: account.uid, name: account.name, email: account.email, role: account.role,
       greetingGender: 'Femenino', assignedPrograms: account.programs,
       access: Object.fromEntries(modules.map((key) => [key, enabled.includes(key)])),

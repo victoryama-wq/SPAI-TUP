@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
@@ -54,14 +55,7 @@ export class GroupsPageComponent implements OnDestroy {
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly programs = this.programsRepository.programs;
   readonly activeCycle = this.cyclesRepository.activeCycle;
-  readonly canManageGroups = computed(() => {
-    const appUser = this.userSessionService.session()?.appUser;
-
-    return (
-      appUser?.status === 'Activo' &&
-      this.isSystemsRole(appUser.role)
-    );
-  });
+  readonly canManageGroups = computed(() => isSystems(this.userSessionService.session()?.appUser) && hasAccess(this.userSessionService.session()?.appUser, 'grupos', true));
   readonly isConsultationMode = computed(() => !this.canManageGroups());
 
   readonly activeGroupsCount = computed(
@@ -99,7 +93,7 @@ export class GroupsPageComponent implements OnDestroy {
     const appUser = this.userSessionService.session()?.appUser;
     const role = this.normalizeRole(appUser?.role ?? '');
 
-    return appUser?.status === 'Activo' && role.includes('acad') && !role.includes('sistemas');
+    return appUser?.status === 'Activo' && appUser.baseRole === 'COORDINACION_ACADEMICA';
   });
 
   readonly assignedProgramCodes = computed(() => {

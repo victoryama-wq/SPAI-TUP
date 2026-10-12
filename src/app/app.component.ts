@@ -1,3 +1,4 @@
+import { hasAccess } from './features/users/data/module-permission.service';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth/auth.service';
@@ -63,7 +64,7 @@ export class AppComponent {
 
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly hasActiveAccess = computed(
-    () => this.isAuthenticated() && this.userSessionService.session()?.appUser?.status === 'Activo',
+    () => { const user = this.userSessionService.session()?.appUser; return this.isAuthenticated() && user?.status === 'Activo' && user.permissionSchemaVersion === 2 && !user.identityAliasOf; },
   );
   readonly isHeaderCollapsed = this.isHeaderCollapsedSignal.asReadonly();
   readonly isProfileMenuOpen = this.isProfileMenuOpenSignal.asReadonly();
@@ -80,8 +81,7 @@ export class AppComponent {
     const storedNotifications = this.systemNotifications().filter((notification) =>
       !this.systemNotificationsRepository.isReadByUser(notification, appUser.id, session.authUid),
     );
-    const role = appUser.role.toLowerCase();
-    const requestNotifications = role.includes('sistemas')
+    const requestNotifications = ['ADMIN_GENERAL', 'ADMIN_OPERATIVO'].includes(appUser.baseRole ?? '')
       ? this.systemRequestsRepository.requests()
           .filter((request) => request.status === 'PENDIENTE')
           .map((request): SystemNotification => ({
@@ -117,25 +117,7 @@ export class AppComponent {
       return [];
     }
 
-    const role = appUser.role.toLowerCase();
-    const isSystemsUser = role.includes('sistemas');
-    const isAcademicCoordinator = role.includes('acad');
-
-    return this.navItems.filter((item) => {
-      if (item.moduleKey === 'dashboard') {
-        return true;
-      }
-
-      if (isSystemsUser) {
-        return true;
-      }
-
-      if (isAcademicCoordinator) {
-        return this.canAcademicCoordinatorAccessModule(item.moduleKey);
-      }
-
-      return appUser.access?.[item.moduleKey] === true;
-    });
+    return this.navItems.filter(item => hasAccess(appUser, item.moduleKey));
   });
   readonly userInitials = computed(() => {
     const session = this.userSessionService.session();
@@ -301,9 +283,7 @@ export class AppComponent {
   }
 
   private isAcademicCoordinationUser(appUser: AppUser): boolean {
-    const role = appUser.role.toLowerCase();
-
-    return role.includes('acad') && !role.includes('sistemas');
+    return appUser.baseRole === 'COORDINACION_ACADEMICA';
   }
 
   private captureCloseAlertKey(cycleCode: string, closeAt: string): string {
@@ -403,9 +383,8 @@ export class AppComponent {
   }
 
   isSystemsDashboardRoute(): boolean {
-    const role = this.userSessionService.session()?.appUser?.role.toLowerCase() ?? '';
-
-    return this.isDashboardRoute() && role.includes('sistemas');
+    const role = this.userSessionService.session()?.appUser?.baseRole;
+    return this.isDashboardRoute() && (role === 'ADMIN_GENERAL' || role === 'ADMIN_OPERATIVO');
   }
 
   isMoodleRoute(): boolean {
@@ -455,6 +434,7 @@ export class AppComponent {
   }
 
   openNotification(notification: SystemNotification): void {
+    if (notification.type === 'SEGURIDAD') { this.markNotificationAsRead(notification); this.isNotificationsMenuOpenSignal.set(false); void this.router.navigate(['/usuarios']); return; }
     this.markNotificationAsRead(notification);
     this.isNotificationsMenuOpenSignal.set(false);
 
@@ -522,23 +502,7 @@ export class AppComponent {
       return true;
     }
 
-    if (navItem.moduleKey === 'dashboard') {
-      return true;
-    }
-
-    const role = appUser.role.toLowerCase();
-    const isSystemsUser = role.includes('sistemas');
-    const isAcademicCoordinator = role.includes('acad');
-
-    if (isSystemsUser) {
-      return true;
-    }
-
-    if (isAcademicCoordinator) {
-      return this.canAcademicCoordinatorAccessModule(navItem.moduleKey);
-    }
-
-    return appUser.access?.[navItem.moduleKey] === true;
+    return hasAccess(appUser, navItem.moduleKey);
   }
 
   private canAcademicCoordinatorAccessModule(moduleKey: keyof ModuleAccess): boolean {

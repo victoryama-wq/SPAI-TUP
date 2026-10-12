@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -145,13 +146,7 @@ export class SubjectsPageComponent {
   });
   readonly selectedDuplicateCount = computed(() => this.selectedDuplicateSubjectIds().size);
 
-  readonly canManageSubjects = computed(() => {
-    const appUser = this.session()?.appUser;
-
-    return appUser?.status === 'Activo'
-      && (appUser.role.includes('Sistemas')
-        || (appUser.role === 'Auxiliar de Sistemas' && appUser.access?.asignaturas));
-  });
+  readonly canManageSubjects = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'asignaturas', true));
 
   readonly visibleSubjects = computed(() => {
     const query = this.normalizeSearchText(this.appliedSearchTerm());

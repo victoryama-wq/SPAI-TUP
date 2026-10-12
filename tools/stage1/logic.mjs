@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { sourceMembers, deferred } from './source-harness.mjs';
+import { sourceMembers, sourceFunctions, deferred } from './source-harness.mjs';
 import { reporter } from './report.mjs';
 
 const report = reporter('stage1-logic');
@@ -11,11 +11,12 @@ const request = { id: 'request-a', requestType: 'COMPARTIR_CLASE', status: 'PEND
 const source = { id: 'source', cycle: '27-1', program: 'ADM', group: '27-1 ADM 11 01', subjectId: 'TEST', subjectName: 'PRUEBA', moodleId: 'test', teacherMoodleUser: 'ficticio', teacherName: 'FICTICIO', status: 'CARGADO_MOODLE', sharedGroups: [], sharedPrograms: [], observations: '', studentEnrollments: '' };
 const evidence = (path, member) => `${path}#${member}`;
 
-const permission = sourceMembers('src/app/features/users/data/module-permission.service.ts', 'ModulePermissionService', ['hasModuleAccess', 'canEditModule', 'customPermissionFor', 'customRoleFor', 'normalizeIdentity'], { customRolesRepository: { roleTemplates: () => [{ name: 'Consulta Sistemas', permissions: { docentes: 'view' } }] } });
-const aux = { id: 'aux-off', role: 'Auxiliar de Sistemas', status: 'Activo', access: { docentes: false } };
-const view = { ...aux, role: 'Consulta Sistemas', access: { docentes: true } };
+const helpers = sourceFunctions('src/app/features/users/data/module-permission.service.ts', ['hasAccess','isSystems','hasCapability']);
+const permission = sourceMembers('src/app/features/users/data/module-permission.service.ts', 'ModulePermissionService', ['hasModuleAccess', 'canEditModule', 'customPermissionFor'], {}, helpers);
+const aux = { id: 'aux-off', role: 'Auxiliar de Sistemas', status: 'Activo', permissionSchemaVersion: 2, baseRole: 'ADMIN_OPERATIVO', permissions: { docentes:'NONE' }, access: { docentes: false } };
+const view = { ...aux, baseRole:'CUSTOM', permissions:{docentes:'VIEW'}, role: 'Consulta Sistemas', access: { docentes: true } };
 for (const [id, user, baseline, expected] of [['UI-AUX-OFF', aux, true, false], ['UI-CUSTOM-VIEW', view, false, false]]) {
-  const page = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canManageTeachers'], { session: () => ({ appUser: user }), modulePermissionService: permission });
+  const page = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canManageTeachers'], { session: () => ({ appUser: user }), modulePermissionService: permission }, helpers);
   report.check(id, 'F01', 2, page.canManageTeachers(), baseline, expected, 'TeachersPageComponent.canManageTeachers + ModulePermissionService');
 }
 const requestUi = (program) => sourceMembers(requestFile, 'RequestsPageComponent', ['canAccessRequest', 'canRespondRequest', 'canCancelRequest'], {
@@ -26,7 +27,7 @@ for (const [program, read, respond] of [['ADM', true, true], ['DER', true, false
   const ui = requestUi(program);
   report.check(`UI-REQUEST-${program}`, 'F03', 2, [ui.canAccessRequest(request), ui.canRespondRequest(request)], [read, respond], [read, respond], evidence(requestFile, 'canAccessRequest/canRespondRequest'));
 }
-const teacherUi = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canDeleteOwnPendingNewTeacher'], { session: () => ({ authUid: 'test-a', appUser: { id: 'test-a', status: 'Activo', access: { docentes: true } } }), modulePermissionService: permission });
+const teacherUi = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canDeleteOwnPendingNewTeacher'], { session: () => ({ authUid: 'test-a', appUser: { id: 'test-a', status: 'Activo', permissionSchemaVersion:2, baseRole:'COORDINACION_ACADEMICA', permissions:{docentes:'EDIT'}, access: { docentes: true } } }), modulePermissionService: permission });
 report.check('UI-TEACHER-OWNERSHIP', 'F02', 2, ['test-a', 'test-b'].map((createdBy) => teacherUi.canDeleteOwnPendingNewTeacher({ status: 'PENDIENTE', origin: 'MANUAL', lifecycleStatus: 'NUEVO', createdBy })), [true, false], [true, false], 'TeachersPageComponent.canDeleteOwnPendingNewTeacher');
 
 let cycles = [{ id: 'a', code: '27-1', status: 'Captura cerrada' }, { id: 'b', code: '27-2', status: 'Preparacion' }];
@@ -100,7 +101,7 @@ await assert.rejects(failedSave, (e) => e.code === 'permission-denied');
 report.check('SHARE-FIRST-WRITE-FAILS', 'F06', 3, failUi.closed, false, false, 'First write rejects: acceptRequest does not close modal (caller saveResponse still discards promise)');
 
 const cycleSave = deferred();
-const cycleUi = sourceMembers('src/app/features/cycles/pages/cycles-page.component.ts', 'CyclesPageComponent', ['saveCycle'], { form: { invalid: false, getRawValue: () => ({ code: '27-1' }) }, cyclesRepository: { hasCycleCode: () => false, createCycle: () => cycleSave.promise }, closeForm() { this.closed = true; }, getSaveErrorMessage: (e) => e.code, closed: false }, { console: { error() {} } });
+const cycleUi = sourceMembers('src/app/features/cycles/pages/cycles-page.component.ts', 'CyclesPageComponent', ['saveCycle'], { canManage: () => true, form: { invalid: false, getRawValue: () => ({ code: '27-1' }) }, cyclesRepository: { hasCycleCode: () => false, createCycle: () => cycleSave.promise }, closeForm() { this.closed = true; }, getSaveErrorMessage: (e) => e.code, closed: false }, { console: { error() {} } });
 const saving = cycleUi.saveCycle();
 assert.equal(cycleUi.isSaving, true);
 cycleSave.reject(Object.assign(new Error('denied'), { code: 'permission-denied' })); await saving;

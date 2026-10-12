@@ -6,7 +6,7 @@
       <p>Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.</p>
     </div>
 
-    <button class="primary-action" type="button" (click)="openForm()">
+    <button class="primary-action" type="button" [disabled]="!canManage()" (click)="openForm()">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 5v14M5 12h14"></path>
       </svg>
@@ -175,7 +175,7 @@
                 class="table-date-input"
                 type="date"
                 [value]="dateInputValue(cycle.tentativeCaptureCloseAt)"
-                [disabled]="cycle.status === 'Cerrado'"
+                [disabled]="!canManage() || cycle.status === 'Cerrado'"
                 aria-label="Cierre de Captura"
                 (change)="updateTentativeCaptureClose(cycle, $event)"
               />
@@ -190,7 +190,7 @@
                 <button
                   class="capture-action icon-action"
                   type="button"
-                  [disabled]="cycle.status !== 'Preparacion' && cycle.status !== 'Captura' && cycle.status !== 'Captura cerrada'"
+                  [disabled]="!canManage() || cycle.status !== 'Preparacion' && cycle.status !== 'Captura' && cycle.status !== 'Captura cerrada'"
                   aria-label="Accion de captura"
                   title="Accion de captura"
                   (click)="
@@ -222,7 +222,7 @@
                 <button
                   class="text-action icon-action"
                   type="button"
-                  [disabled]="cycle.status !== 'Captura cerrada'"
+                  [disabled]="!canManage() || cycle.status !== 'Captura cerrada'"
                   aria-label="Cerrar ciclo"
                   title="Cerrar ciclo"
                   (click)="closeCycle(cycle)"
@@ -234,7 +234,7 @@
                 <button
                   class="danger-action icon-action"
                   type="button"
-                  [disabled]="!canDeleteCycle(cycle)"
+                  [disabled]="!canManage() || !canDeleteCycle(cycle)"
                   aria-label="Eliminar ciclo"
                   title="Eliminar ciclo"
                   (click)="deleteCycle(cycle)"

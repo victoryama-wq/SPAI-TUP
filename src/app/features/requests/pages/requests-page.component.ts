@@ -1,3 +1,4 @@
+import { hasAccess, isSystems } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -170,18 +171,13 @@ export class RequestsPageComponent {
 
   readonly canSeeAllRequests = computed(() => {
     const appUser = this.session()?.appUser;
-    return appUser?.status === 'Activo' && this.userRole().includes('Sistemas');
+    return isSystems(appUser) && hasAccess(appUser, 'solicitudes') && (appUser?.baseRole === 'ADMIN_GENERAL' || appUser?.scope?.programs.includes('*') === true);
   });
 
   readonly canUseRequests = computed(() => {
     const appUser = this.session()?.appUser;
 
-    return appUser?.status === 'Activo'
-      && (
-        this.userRole().includes('Sistemas')
-        || this.userRole().includes('Acad')
-        || appUser.access?.solicitudes === true
-      );
+    return hasAccess(appUser, 'solicitudes', true);
   });
 
   readonly destinationGroupOptions = computed(() => {
@@ -576,6 +572,7 @@ export class RequestsPageComponent {
   }
 
   openRequestModal(sourceAssignmentId = ''): void {
+    if (!this.canUseRequests()) return;
     this.formErrors = [];
     this.formMessage = '';
     this.sourceSearchTerm.set('');
@@ -1122,7 +1119,7 @@ export class RequestsPageComponent {
     const requestType = this.requestTypeFor(request);
 
     if (requestType !== 'COMPARTIR_CLASE') {
-      return request.status === 'PENDIENTE' && this.canSeeAllRequests();
+      return request.status === 'PENDIENTE' && this.canUseRequests() && this.canSeeAllRequests();
     }
 
     return request.status === 'PENDIENTE'
@@ -1146,11 +1143,11 @@ export class RequestsPageComponent {
   }
 
   canRespondSystemRequest(request: SystemRequest): boolean {
-    return this.canSeeAllRequests() && !['ATENDIDA', 'RECHAZADA'].includes(request.status);
+    return this.canUseRequests() && this.canSeeAllRequests() && !['ATENDIDA', 'RECHAZADA'].includes(request.status);
   }
 
   canDeleteSystemRequest(): boolean {
-    return this.canSeeAllRequests();
+    return this.canUseRequests() && this.canSeeAllRequests();
   }
 
   statusClass(status: SharedRequestStatus): string {
@@ -1645,7 +1642,7 @@ export class RequestsPageComponent {
   }
 
   private userPrograms(): string[] {
-    const programs = this.session()?.appUser?.assignedPrograms;
+    const programs = this.session()?.appUser?.scope?.programs;
 
     return Array.isArray(programs)
       ? programs.map((program) => program.trim().toUpperCase()).filter(Boolean)
@@ -1655,7 +1652,7 @@ export class RequestsPageComponent {
   private userHasProgram(program: string): boolean {
     const normalizedProgram = program.trim().toUpperCase();
 
-    return !!normalizedProgram && this.userPrograms().includes(normalizedProgram);
+    return !!normalizedProgram && (this.userPrograms().includes('*') || this.userPrograms().includes(normalizedProgram));
   }
 
   private tabLabel(tab: RequestTab): string {

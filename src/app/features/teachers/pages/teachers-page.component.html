@@ -423,6 +423,7 @@
                       </button>
                     }
                   }
+                  @if (!canManageTeachers() && canEditTeacher(teacher)) { <button type="button" (click)="openEditModal(teacher)">Editar ficha</button> }
                   @if (canDeleteTeacher(teacher)) {
                     <button
                       type="button"
@@ -706,7 +707,8 @@
         </label>
         <label>
           <span>Correo</span>
-          <input type="email" [(ngModel)]="editForm.email" placeholder="juan.perez@tecplayacar.edu.mx" />
+          <input type="email" [value]="editForm.email" readonly aria-readonly="true" />
+          <small>Identidad protegida. Su corrección requiere el procedimiento institucional.</small>
         </label>
         <label>
           <span>Tipo de pago</span>

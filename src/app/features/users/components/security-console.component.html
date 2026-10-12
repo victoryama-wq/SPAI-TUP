@@ -1,0 +1,104 @@
+<section class="security-panel">
+  <h2>Control de accesos — Seguridad y permisos</h2>
+  <p>Los cambios se confirman en servidor con motivo, autor y revisión. El nombre de un rol no concede permisos.</p>
+  @if (error) { <p role="alert">{{ error }}</p> }
+  @if (message) { <p role="status">{{ message }}</p> }
+  <button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>
+  @if (directory(); as data) {
+    @if (general()) {
+      <button type="button" (click)="open('user')">Nuevo perfil institucional</button>
+      <button type="button" (click)="open('role')">Definir rol personalizado</button>
+    }
+    <label>Motivo del cambio <input [(ngModel)]="reason" maxlength="1000" placeholder="Explica la autorización o revisión" /></label>
+    <div class="table-scroll"><table>
+      <caption>Perfiles y alcance vigente</caption>
+      <thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th>Programas</th><th>Acciones</th></tr></thead>
+      <tbody>@for (user of data.usuarios; track user.id) {
+        <tr><td>{{ user.name }}<br>{{ user.email }}</td><td>{{ roleLabels[user.baseRole ?? ''] || 'Heredado: requiere revisión' }}</td><td>{{ user.status }}</td>
+        <td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td>
+        <td>@if (general()) {
+          <button type="button" (click)="open('user', user)">Editar perfil</button>
+          @if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" (click)="open('delegation', user)">Otorgar delegación nueva</button> }
+        }</td></tr>
+      }</tbody>
+    </table></div>
+    @if (mode) {
+      <form (ngSubmit)="save()">
+        <h3>{{ mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
+        @if (mode !== 'delegation') { <label>Nombre <input name="name" [(ngModel)]="name" required /></label> }
+        @if (mode === 'user') {
+          <label>Correo institucional <input name="email" type="email" [(ngModel)]="email" required /></label>
+          <label>Área institucional real <input name="area" [(ngModel)]="area" required maxlength="160" /></label>
+          <label>Perfil <select name="baseRole" [(ngModel)]="baseRole">@for (role of baseRoles; track role) { <option [value]="role">{{ roleLabels[role] }}</option> }</select></label>
+          <label>Estado <select name="status" [(ngModel)]="status"><option>Activo</option><option>Inactivo</option></select></label>
+          <p>El auxiliar obtiene sus facultades mediante una delegación separada. Administración General tiene alcance institucional.</p>
+        }
+        <fieldset><legend>Ámbito explícito</legend>
+          <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
+          <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
+          <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
+          @if (mode === 'delegation') { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
+          <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
+        </fieldset>
+        <fieldset><legend>Módulos</legend>
+          <button type="button" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" (click)="quickPermissions(false)">Quitar todos</button>
+          @for (module of modules; track module) {
+            <div class="permission-row"><strong>{{ module }}</strong>
+              <label><input type="checkbox" [checked]="permissions[module] === 'VIEW' || permissions[module] === 'EDIT'" (change)="setPermission(module, false, $any($event.target).checked)" />Consultar</label>
+              <label><input type="checkbox" [checked]="permissions[module] === 'EDIT'" (change)="setPermission(module, true, $any($event.target).checked)" />Editar</label>
+            </div>
+          }
+          <p>Los catálogos reservados y los módulos administrativos no se conceden mediante roles personalizados. El servidor rechaza una configuración incompatible.</p>
+        </fieldset>
+        @if (mode !== 'user') {
+          <fieldset><legend>Acciones sensibles (independientes de Editar)</legend>
+            @for (cap of capabilities; track cap) {
+              @if (mode === 'delegation' || cap === 'REQUEST_TEACHER_MOODLE_IDENTITY') {
+                <label><input type="checkbox" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
+              }
+            }
+          </fieldset>
+        }
+        <p>Revisa persona, ámbitos y módulos anteriores antes de confirmar. La cuenta de Authentication no se crea desde este formulario.</p>
+        <button type="submit" [disabled]="busy">Revisar y confirmar</button><button type="button" (click)="mode = null">Cancelar</button>
+      </form>
+    }
+    <h3>Asignar un rol preaprobado</h3>
+    <label>Persona<select [(ngModel)]="selectedUserId" (ngModelChange)="preview = null"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }} — {{ user.email }}</option> }</select></label>
+    <label>Rol<select [(ngModel)]="selectedRoleId"><option value="">Seleccionar</option>@for (role of data.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label>
+    <button type="button" (click)="assign()" [disabled]="busy">Revisar asignación</button>
+    @for (role of data.roles_personalizados; track role.id) { @if (general() && role.status === 'ACTIVE') {
+      <p>{{ role.name }} <button (click)="open('role', role)">Editar definición sin asignaciones vigentes</button><button (click)="action('deleteRole', role)">Retirar definición</button></p>
+    } }
+    <h3>Asignaciones vigentes y revisiones</h3>
+    @for (assignment of data.asignaciones_roles; track assignment.id) {
+      <p>{{ userName(assignment.userId) }} — {{ roleName(assignment.roleId) }} — {{ assignment.status }} — {{ assignment.reviewStatus }}
+      @if (assignment.status === 'ACTIVE') { <button (click)="action('removeRole', assignment)" [disabled]="busy">Retirar rol</button> }</p>
+    }
+    @if (general()) {
+      <h3>Delegaciones</h3>
+      @for (grant of data.delegaciones; track grant.id) { <p>{{ userName(grant.userId) }} — {{ grant.status }}
+        @if (grant.status === 'ACTIVE') { <button (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }
+      </p> }
+      <h3>Revisiones pendientes para Administración General</h3>
+      @for (review of data.revisiones_roles; track review.id) { @if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') {
+        <p>{{ userName(review.userId) }} — el rol conserva su estado efectivo hasta la decisión.
+        <button (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button (click)="replaceReview(review)" [disabled]="busy">Sustituir por el rol seleccionado</button></p>
+      } }
+      <h3>Transición de perfiles heredados</h3>
+      <p>Selecciona la persona arriba. La correspondencia exige evidencia institucional; nunca se deduce del nombre del rol. Campos ausentes permanecen sin acceso.</p>
+      <label>Correspondencia verificada<select [(ngModel)]="mappingRole"><option value="COORDINACION_ACADEMICA">Coordinación Académica</option><option value="ALTA_DOCENTES">Alta de Docentes</option></select></label>
+      <button (click)="migration('approveMapping')" [disabled]="busy">Registrar correspondencia verificada</button>
+      <button (click)="migration('previewMigration')" [disabled]="busy">Consultar vista previa</button>
+      @if (preview; as p) {
+        <p>Estado: {{ p.proposed.status }}. Revisión de perfil: {{ p.profileRevision }}. Revisión de delegación: {{ p.delegationRevision }}. No resueltos: {{ p.proposed.unresolved.join(', ') }}.</p>
+        <p>Rol anterior: {{ p.previous.baseRole || 'Sin clave verificada' }}. Propuesto: {{ p.proposed.baseRole }}.</p>
+        <p>Ámbito anterior: {{ p.previous.scope | json }}. Propuesto: {{ p.proposed.scope | json }}.</p>
+        <p>Capacidades anteriores: {{ p.previous.capabilities?.join(', ') || 'Sin capacidades verificadas' }}. Propuestas: {{ p.proposed.capabilities.join(', ') || 'Ninguna' }}.</p>
+        <p>Diferencias de módulos: {{ p.differences.join(', ') || 'Ninguna' }}.</p>
+        <table><thead><tr><th>Módulo</th><th>Anterior explícito</th><th>Flag heredado</th><th>Propuesto</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ module }}</td><td>{{ p.previous.permissions?.[module] || 'Ausente; no concede acceso' }}</td><td>{{ p.previous.access?.[module] === true ? 'true (requiere correspondencia)' : p.previous.access?.[module] === false ? 'false (revocado)' : 'Ausente' }}</td><td>{{ p.proposed.permissions[module] }}</td></tr> }</tbody></table>
+        <button (click)="migration('applyMigration')" [disabled]="busy">Revisar y aplicar esta vista previa</button>
+      }
+    }
+  } @else { <p>Sin directorio autorizado. Un administrador debe revisar el perfil. Los permisos heredados no se activan automáticamente.</p> }
+</section>

@@ -116,11 +116,13 @@ try {
   await startEmulators();
   if (testMode && !stopping) {
     await runNode(['tools/local/tests/integration.mjs']);
+    if (process.argv.includes('--r01')) await runNode(['tools/e2-r01/integration.mjs']);
     if (process.argv.includes('--stage1')) {
       await runNode(['tools/stage1/logic.mjs']);
       await runNode(['tools/stage1/rules.mjs']);
     }
     await runNode(['tools/local/tests/reset.mjs']);
+    if (process.argv.includes('--ui')) await runNode(['node_modules/@playwright/test/cli.js', 'test', '--config', 'tools/e2-r01/playwright.config.mjs']);
     await stopEmulators();
     await runNode(['tools/local/tests/offline.mjs']);
     await shutdown();

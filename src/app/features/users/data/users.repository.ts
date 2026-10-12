@@ -22,7 +22,18 @@ export interface ModuleAccess {
   bitacora: boolean;
 }
 
+export type EffectiveLevel = 'NONE' | 'VIEW' | 'EDIT';
 export interface AppUser {
+  area?: string;
+  baseRole?: 'ADMIN_GENERAL' | 'ADMIN_OPERATIVO' | 'COORDINACION_ACADEMICA' | 'ALTA_DOCENTES' | 'CUSTOM' | 'PENDING';
+  permissionSchemaVersion?: number;
+  permissions?: Partial<Record<keyof ModuleAccess, EffectiveLevel>>;
+  capabilities?: string[];
+  scope?: { programs: string[]; cycles: string[]; teachers: string[]; fields: string[] };
+  revision?: number;
+  delegationId?: string;
+  identityAliasOf?: string;
+  legacyAuthorization?: { mappingVersion: string; profileRevision: number; expiresAtMillis: number; permissionSchemaVersion: number; baseRole: AppUser['baseRole']; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[] };
   id: string;
   authUid: string | null;
   name: string;
@@ -82,7 +93,7 @@ export const ACADEMIC_COORDINATION_ACCESS: ModuleAccess = {
 
 @Injectable({ providedIn: 'root' })
 export class UsersRepository extends FirestoreRepository<AppUser> {
-  readonly users = computed(() => this.deduplicateUsers(this.items()));
+  readonly users = computed(() => this.items().filter(user => !user.identityAliasOf));
   readonly usersReadError = this.readError;
 
   constructor() {

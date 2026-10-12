@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -185,13 +186,7 @@ export class MoodlePageComponent {
     void this.router.navigate(['/moodle'], { queryParams: { tab } });
   }
 
-  readonly canManageMoodle = computed(() => {
-    const appUser = this.session()?.appUser;
-
-    return appUser?.status === 'Activo'
-      && appUser.role.includes('Sistemas')
-      && appUser.access?.moodle === true;
-  });
+  readonly canManageMoodle = computed(() => hasAccess(this.session()?.appUser, 'moodle', true) && (hasCapability(this.session()?.appUser, 'MANAGE_MOODLE_TEMPLATES') || hasCapability(this.session()?.appUser, 'CONFIRM_MOODLE_UPDATE')));
 
   readonly visibleCategories = computed(() =>
     [...this.categories()].sort((first, second) =>

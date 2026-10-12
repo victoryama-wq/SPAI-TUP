@@ -72,7 +72,7 @@ export class SystemRequestsRepository {
         return;
       }
 
-      const constraints: QueryConstraint[] = appUser.role.toLowerCase().includes('sistemas')
+      const constraints: QueryConstraint[] = appUser.baseRole === 'ADMIN_GENERAL' || (appUser.baseRole === 'ADMIN_OPERATIVO' && appUser.scope?.programs.includes('*'))
         ? [orderBy('createdAt', 'desc')]
         : [where('requestedBy', '==', session.authUid)];
       const requestsQuery = query(collection(this.firestore, SYSTEM_REQUESTS_COLLECTION), ...constraints);

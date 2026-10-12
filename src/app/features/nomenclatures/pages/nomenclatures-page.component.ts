@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -78,14 +79,7 @@ export class NomenclaturesPageComponent {
 
     return programCodes.size;
   });
-  readonly canManageNomenclatures = computed(() => {
-    const appUser = this.userSessionService.session()?.appUser;
-
-    return (
-      appUser?.status === 'Activo' &&
-      this.isSystemsRole(appUser.role)
-    );
-  });
+  readonly canManageNomenclatures = computed(() => isSystems(this.userSessionService.session()?.appUser) && hasAccess(this.userSessionService.session()?.appUser, 'nomenclaturas', true));
   readonly isConsultationMode = computed(() => !this.canManageNomenclatures());
   readonly tableColumnCount = computed(() => (this.canManageNomenclatures() ? 8 : 7));
   readonly coordinatorOptions = computed<CoordinatorOption[]>(() => {
@@ -315,7 +309,7 @@ export class NomenclaturesPageComponent {
         coordinator: payload.coordinator,
         status: payload.programStatus,
       });
-      await this.usersRepository.assignProgramToCoordinator(payload.coordinator, programCode);
+      this.csvImportMessage = 'Catálogo guardado. Los permisos se revisan y confirman por Administración en Usuarios; el nombre del responsable no concede acceso.';
     } catch (error) {
       this.csvImportMessage = `Nomenclatura guardada. No se pudo actualizar el programa o coordinador automaticamente: ${this.readFirebaseMessage(error)}`;
     }
@@ -401,7 +395,6 @@ export class NomenclaturesPageComponent {
             coordinator: row.coordinator,
             status: row.programStatus,
           });
-          await this.usersRepository.assignProgramToCoordinator(row.coordinator, programCode);
 
           const result = await this.nomenclaturesRepository.upsertNomenclature({
             abbreviation: row.abbreviation,

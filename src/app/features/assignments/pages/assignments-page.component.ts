@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -275,41 +276,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.clearFormMessageTimeout();
   }
 
-  readonly canSeeAllAssignments = computed(() => {
-    const appUser = this.session()?.appUser;
-    const canEditAssignments = this.modulePermissionService.canEditModule(appUser, 'asignaciones');
+  readonly canSeeAllAssignments = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'asignaciones'));
 
-    return appUser?.status === 'Activo'
-      && canEditAssignments
-      && (
-        this.isSystemsCoordinationRole(appUser.role)
-        || (this.isSystemsAssistantRole(appUser.role) && appUser.access?.asignaciones === true)
-      );
-  });
+  readonly canViewAssignments = computed(() => hasAccess(this.session()?.appUser, 'asignaciones'));
 
-  readonly canViewAssignments = computed(() => {
-    const appUser = this.session()?.appUser;
+  readonly canManageAssignments = computed(() => hasAccess(this.session()?.appUser, 'asignaciones', true));
 
-    return appUser?.status === 'Activo'
-      && (
-        this.canSeeAllAssignments()
-        || this.isAcademicCoordinationRole(appUser.role)
-        || appUser.access?.asignaciones === true
-      );
-  });
-
-  readonly canManageAssignments = computed(() => {
-    const appUser = this.session()?.appUser;
-
-    return appUser?.status === 'Activo'
-      && this.modulePermissionService.canEditModule(appUser, 'asignaciones')
-      && (
-        this.canSeeAllAssignments()
-        || this.isAcademicCoordinationRole(appUser.role)
-      );
-  });
-
-  readonly canReviewAssignments = computed(() => this.canSeeAllAssignments());
+  readonly canReviewAssignments = computed(() => hasCapability(this.session()?.appUser, 'CONFIRM_MOODLE_UPDATE'));
 
   /**
    * Los roles personalizados con permiso de consulta en Asignaciones no
@@ -328,7 +301,7 @@ export class AssignmentsPageComponent implements OnDestroy {
    * el avance real únicamente para programas identificados como Plan 2027.
    */
   readonly isSystemsUser = computed(() =>
-    this.session()?.appUser?.role.includes('Sistemas') === true,
+    isSystems(this.session()?.appUser),
   );
 
   readonly plan2027ProgramAliases = computed(() => {
@@ -2195,22 +2168,14 @@ export class AssignmentsPageComponent implements OnDestroy {
     return `Grupo base de otra coordinacion. Tu grupo vinculado: ${userGroups.join(', ')}.`;
   }
 
-  canEditAssignment(_assignment: AcademicAssignment): boolean {
-    if (!this.canManageAssignments()) {
-      return false;
-    }
-
-    const role = this.session()?.appUser?.role ?? '';
-
-    if (this.canSeeAllAssignments()) {
-      return true;
-    }
-
-    // Toda Coordinación Académica puede abrir cualquier asignación que tenga
-    // visible para registrar matrículas adicionales. Al no pertenecer a sus
-    // programas, el formulario se limita automáticamente a ese único campo;
-    // docente, grupos, materia, ID Moodle y estado permanecen protegidos.
-    return this.isAcademicCoordinationRole(role);
+  canEditAssignment(assignment: AcademicAssignment): boolean {
+    const user = this.session()?.appUser;
+    if (!hasAccess(user, 'asignaciones', true)) return false;
+    if (user?.baseRole === 'ADMIN_GENERAL') return true;
+    if (!(user?.scope?.cycles ?? []).some(cycle => cycle === '*' || cycle === assignment.cycle)) return false;
+    if (user?.baseRole === 'COORDINACION_ACADEMICA') return true;
+    if (!this.canModifyAssignment(assignment)) return false;
+    return user?.baseRole !== 'ADMIN_OPERATIVO' || !['CARGADO_MOODLE', 'VALIDADO'].includes(assignment.status) || hasCapability(user, 'OPERATE_EXCEPTIONAL_CHANGE');
   }
 
   isAcademicCoordinatorOperationalEdit(): boolean {
@@ -2220,7 +2185,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     return assignment !== null
       && !this.canSeeAllAssignments()
-      && this.isAcademicCoordinationRole(this.session()?.appUser?.role ?? '')
+      && ['COORDINACION_ACADEMICA', 'CUSTOM'].includes(this.session()?.appUser?.baseRole ?? '')
       && this.canModifyAssignment(assignment);
   }
 
@@ -2251,15 +2216,9 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   canDeleteAssignment(assignment: AcademicAssignment): boolean {
-    if (!this.canManageAssignments()) {
-      return false;
-    }
-
-    if (this.canSeeAllAssignments()) {
-      return true;
-    }
-
-    return this.canManageBaseAssignment(assignment);
+    return hasAccess(this.session()?.appUser, 'asignaciones', true)
+      && hasCapability(this.session()?.appUser, 'OPERATE_EXCEPTIONAL_CHANGE')
+      && this.canModifyAssignment(assignment);
   }
 
   private sharedBaseAssignmentId(assignment: AcademicAssignment): string {
@@ -2369,25 +2328,15 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private canModifyAssignment(assignment: AcademicAssignment): boolean {
-    if (this.isEnglishAssignment(assignment)) {
-      return this.canSeeAllAssignments()
-        || this.assignmentPrograms(assignment).some((program) => {
-          return this.isEnglishProgramCode(program) && this.isAssignedProgram(program);
-        });
-    }
-
-    return this.canSeeAllAssignments()
-      || this.assignmentPrograms(assignment).some((program) => this.isAssignedProgram(program));
+    const user = this.session()?.appUser;
+    return user?.baseRole === 'ADMIN_GENERAL' || (
+      (user?.scope?.programs ?? []).some(program => program === '*' || program === assignment.program)
+      && (user?.scope?.cycles ?? []).some(cycle => cycle === '*' || cycle === assignment.cycle)
+    );
   }
 
   private canManageBaseAssignment(assignment: AcademicAssignment): boolean {
-    if (this.isEnglishAssignment(assignment)) {
-      return this.canModifyAssignment(assignment);
-    }
-
-    return this.canSeeAllAssignments()
-      || this.isAssignedProgram(assignment.program)
-      || this.wasAssignmentCreatedByCurrentUser(assignment);
+    return this.canModifyAssignment(assignment);
   }
 
   private canUseSharedGroupOption(group: AcademicGroup): boolean {
@@ -3820,15 +3769,15 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private isSystemsCoordinationRole(role: string): boolean {
-    return role.includes('Sistemas') && !role.includes('Auxiliar');
+    return this.session()?.appUser?.baseRole === 'ADMIN_GENERAL';
   }
 
   private isSystemsAssistantRole(role: string): boolean {
-    return role.includes('Sistemas') && role.includes('Auxiliar');
+    return this.session()?.appUser?.baseRole === 'ADMIN_OPERATIVO';
   }
 
   private isAcademicCoordinationRole(role: string): boolean {
-    return role.includes('Acad');
+    return this.session()?.appUser?.baseRole === 'COORDINACION_ACADEMICA';
   }
 
   private isPostgraduateGroup(group: AcademicGroup): boolean {

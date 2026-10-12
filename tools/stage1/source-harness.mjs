@@ -32,3 +32,16 @@ export function deferred() {
   const outcome = promise.then(() => 'confirmed', (e) => e.code || e.message);
   return { promise, resolve, reject, outcome };
 }
+
+// Execute exported pure permission helpers from their actual source (R01).
+export function sourceFunctions(path, names) {
+  const code = readFileSync(resolve(root, path), 'utf8');
+  const source = ts.createSourceFile(path, code, ts.ScriptTarget.Latest, true);
+  const declarations = names.map(name => {
+    const declaration = source.statements.find(s => ts.isFunctionDeclaration(s) && s.name?.text === name);
+    if (!declaration) throw new Error('Function not found: ' + name);
+    return declaration.getText(source).replace(/^export /, '');
+  });
+  const js = ts.transpileModule(declarations.join('\n') + '\n({' + names.join(',') + '});', { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  return vm.runInNewContext(js, {});
+}

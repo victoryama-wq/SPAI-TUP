@@ -327,63 +327,50 @@ exports.sendEmailForNotification = onDocumentCreated(
   },
 );
 
-exports.syncUserProfileByEmail = onCall(
-  {
-    region: 'us-central1',
-  },
-  async (request) => {
-    const auth = request.auth;
-
-    if (!auth?.uid || !auth.token?.email) {
-      throw new HttpsError('unauthenticated', 'Debes iniciar sesion para sincronizar el perfil.');
+const security = require('./security/service');
+const securityService = security.createSecurityService(db);
+const securedCall = handler => onCall({ region: 'us-central1' }, async request => {
+  try { return await handler(request); }
+  catch (error) {
+    const allowed = ['invalid-argument', 'unauthenticated', 'permission-denied', 'not-found', 'already-exists', 'failed-precondition', 'aborted', 'resource-exhausted'];
+    const code = allowed.includes(error.code) ? error.code : error.code === 10 ? 'aborted' : 'internal';
+    throw new HttpsError(code, code === 'internal' ? 'No se pudo confirmar la operación.' : error.message);
+  }
+});
+exports.securityCommand = securedCall(request => securityService.execute(request.auth, request.data));
+exports.securityDirectory = securedCall(request => securityService.list(request.auth));
+exports.deliverSecurityNotification = onDocumentCreated({ document: 'eventos_seguridad/{eventId}', region: 'us-central1', retry: true }, event => security.processNotification(db, event.params.eventId, Boolean(localRuntime)));
+exports.syncUserProfileByEmail = securedCall(async request => {
+  const auth = request.auth;
+  if (!auth?.uid || !auth.token?.email) throw new HttpsError('unauthenticated', 'Inicia sesión.');
+  const email = String(auth.token.email).trim().toLowerCase();
+  if (!email.endsWith('@tecplayacar.edu.mx') || auth.token.email_verified !== true) throw new HttpsError('permission-denied', 'Se requiere correo institucional verificado.');
+  return db.runTransaction(async tx => {
+    const fence = db.doc('seguridad/control'); const lock = await tx.get(fence);
+    const uidRef = db.collection('usuarios').doc(auth.uid); const canonical = await tx.get(uidRef);
+    // Never replace an existing canonical profile with a more privileged duplicate.
+    if (canonical.exists && canonical.data().authUid === auth.uid) return { synced: true, uid: auth.uid };
+    if (canonical.exists && !canonical.data().authUid && !canonical.data().identityAliasOf && canonical.data().email === email) {
+      tx.update(uidRef, { authUid: auth.uid });
+      tx.set(fence, { revision: (lock.data()?.revision || 0) + 1 });
+      return { synced: true, uid: auth.uid };
     }
-
-    const email = String(auth.token.email).trim().toLowerCase();
-
-    if (!email.endsWith('@tecplayacar.edu.mx')) {
-      throw new HttpsError('permission-denied', 'Solo se permiten correos institucionales.');
-    }
-
-    const usersSnapshot = await db.collection('usuarios').get();
-    const matchingUsers = usersSnapshot.docs
-      .map((doc) => ({ ref: doc.ref, id: doc.id, data: doc.data() }))
-      .filter((user) => normalizeTarget(user.data.email) === normalizeTarget(email));
-
-    if (!matchingUsers.length) {
-      return { synced: false, reason: 'not-found' };
-    }
-
-    const activeUsers = matchingUsers.filter((user) => normalize(user.data.status) === 'activo');
-    const source = pickUserProfileSource(activeUsers.length ? activeUsers : matchingUsers, auth.uid);
-
-    if (!source) {
-      return { synced: false, reason: 'not-found' };
-    }
-
-    const sourceData = source.data;
-    const timestamp = new Date().toISOString();
-    const payload = userProfilePayloadForUid(sourceData, auth.uid, email, timestamp);
-
-    const batch = db.batch();
-    const uidRef = db.collection('usuarios').doc(auth.uid);
-    batch.set(uidRef, payload, { merge: true });
-
-    const duplicateUsers = matchingUsers.filter((user) => user.id !== auth.uid);
-
-    duplicateUsers.forEach((user) => {
-      batch.delete(user.ref);
-    });
-
-    await batch.commit();
-
-    return {
-      synced: true,
-      sourceUserId: source.id,
-      uid: auth.uid,
-      deletedDuplicates: duplicateUsers.length,
-    };
-  },
-);
+    const matches = await tx.get(db.collection('usuarios').where('email', '==', email).limit(3));
+    const candidates = matches.docs.filter(d => d.id !== auth.uid && !d.data().identityAliasOf);
+    if (!candidates.length) return { synced: false, reason: 'not-found' };
+    if (candidates.length !== 1 || (candidates[0].data().authUid && candidates[0].data().authUid !== auth.uid)) throw new HttpsError('failed-precondition', 'Identidad ambigua; solicita revisión administrativa.');
+    if (canonical.exists) throw new HttpsError('failed-precondition', 'El perfil existente requiere revisión antes de vincularse.');
+    const source = candidates[0]; const now = new Date().toISOString();
+    const references = await Promise.all(['delegaciones', 'asignaciones_roles', 'revisiones_roles'].map(collection => tx.get(db.collection(collection).where('userId', '==', source.id).limit(101))));
+    if (references.reduce((n, snapshot) => n + snapshot.size, 0) > 100) throw new HttpsError('resource-exhausted', 'La vinculación requiere revisión de referencias por lotes.');
+    for (const snapshot of references) for (const reference of snapshot.docs) tx.update(reference.ref, { userId: auth.uid, revision: (reference.data().revision || 0) + 1 });
+    tx.create(uidRef, { ...source.data(), id: auth.uid, authUid: auth.uid, identitySourceId: source.id, revision: (source.data().revision || 0) + 1, updatedAt: now });
+    // Preserve historical references; canonical access resolves through the UID.
+    tx.update(source.ref, { identityAliasOf: auth.uid, updatedAt: now });
+    tx.set(fence, { revision: (lock.data()?.revision || 0) + 1 });
+    return { synced: true, uid: auth.uid, sourceUserId: source.id, deletedDuplicates: 0 };
+  });
+});
 
 function pickUserProfileSource(users, authUid) {
   const uidUser = users.find((user) => user.id === authUid && normalize(user.data.status) === 'activo');
@@ -463,7 +450,7 @@ async function recipientsForNotification(notification) {
     .filter((user) => user.email && String(user.email).includes('@'));
 
   if (notification.target === 'SISTEMAS') {
-    const systemsUsers = users.filter((user) => normalize(user.role).includes('sistemas'));
+    const systemsUsers = users.filter((user) => user.permissionSchemaVersion === 2 && !user.identityAliasOf && user.baseRole === 'ADMIN_GENERAL');
     const recipients = notification.type === 'AGENDA_EQUIPO'
       ? systemsUsers.filter((user) => !isNotificationActor(user, notification.actorId))
       : systemsUsers;

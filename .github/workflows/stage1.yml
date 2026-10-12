@@ -1,4 +1,4 @@
-name: Etapa 1 - caracterizacion y contratos abiertos
+name: E2 R01 - seguridad local y contratos abiertos
 
 on:
   pull_request:
@@ -45,12 +45,28 @@ jobs:
         run: npm ci --prefix functions --ignore-scripts --no-audit --no-fund
       - name: Comprobar sintaxis de Functions
         run: npm run check:functions
+      - name: Política R01
+        run: npm run test:r01:unit
+      - name: Instalar navegador de pruebas
+        run: npx playwright install chromium
       - name: Compilar Angular local
         run: npm run build:local
       - name: Compilar Angular produccion (sin publicar)
         run: npm run build
-      - name: Aislamiento y caracterizacion con emuladores
-        run: npm run test:stage1
+      - name: Seguridad R01, regresion E1, UI y aislamiento con emuladores
+        run: npm run test:r01:full
+      - name: Guardar evidencia R01 ficticia
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r01-fictitious-results
+          path: |
+            .local/test-results/e2-r01.json
+            .local/test-results/r01-ui.json
+            .local/test-results/r01-ui-*.png
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
       - name: Guardar evidencia ficticia
         if: always()
         uses: actions/upload-artifact@v4

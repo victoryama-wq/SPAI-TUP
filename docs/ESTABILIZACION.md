@@ -1,6 +1,12 @@
 # SPAI-TUP — Seguimiento de estabilizacion
 
-## Estado vigente — Etapa 1 (2026-09-12)
+## Estado vigente — E2-R01 (2026-10-12)
+
+**VALIDADA_LOCAL**, exclusivamente seguridad y permisos. [Ficha y evidencia](E2-R01-VALIDACION.md), [matriz y mapeo](E2-R01-SEGURIDAD-PERMISOS.md), [resultados sintéticos](E2-R01-RESULTADOS.json). Contrato vigente: [Etapa 2 v0.4 completo](ETAPA-2-CONTRATOS-ESTABILIZACION.md).
+
+8 pruebas R01, 32 escenarios integrados, 3 pruebas Chromium y 72 caracterizaciones E1 aprobadas; se conservan 18 incumplimientos de R02/R03. Sin push, merge, CI remota, despliegue ni modificación del respaldo privado o selección de datos. La rama local es `codex/e2-r01-seguridad-permisos`; main permanece intacta. Las secciones siguientes conservan el historial de E1 y E0.
+
+## Estado histórico — Etapa 1 (2026-09-12)
 
 Etapa 0 y copia privada conservadas. Etapa 1 autorizada y completada en contratos,
 matriz, pruebas base y CI preparada; quedan decisiones y validaciones pendientes,

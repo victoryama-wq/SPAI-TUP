@@ -1,796 +1,195 @@
 rules_version = '2';
-
 service cloud.firestore {
-  match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function userDocExists() {
-      return signedIn()
-        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
-    }
-
-    function currentUser() {
-      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid));
-    }
-
-    function isActiveUser() {
-      return userDocExists()
-        && currentUser().data.status == 'Activo';
-    }
-
-    function userRole() {
-      return currentUser().data.role;
-    }
-
-    function isSystemsMember() {
-      return isActiveUser()
-        && userRole() is string
-        && (
-          userRole().matches('.*Sistemas.*')
-          || userRole().matches('.*sistemas.*')
-        );
-    }
-
-    function isSystemsCoordinator() {
-      return isSystemsMember()
-        && (
-          userRole().matches('.*Coordinaci.*Sistemas.*')
-          || userRole().matches('.*Coordinador.*Sistemas.*')
-        );
-    }
-
-    function isAcademicCoordinator() {
-      return isActiveUser()
-        && userRole() is string
-        && (
-          userRole().matches('.*Acad.*')
-          || userRole().matches('.*acad.*')
-        )
-        && !userRole().matches('.*Sistemas.*')
-        && !userRole().matches('.*sistemas.*');
-    }
-
-    function hasModuleAccess(moduleKey) {
-      return isActiveUser()
-        && currentUser().data.access[moduleKey] == true;
-    }
-
-    function canReadInstitutionalCatalogs() {
-      return isActiveUser();
-    }
-
-    function canReadUsersDirectory() {
-      return isActiveUser();
-    }
-
-    function canManageUsers() {
-      return isSystemsCoordinator()
-        || (
-          isSystemsMember()
-          && hasModuleAccess('usuarios')
-        );
-    }
-
-    function canEditCycles() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('ciclos')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function canEditNomenclatures() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('nomenclaturas')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function canEditGroups() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('grupos')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function canEditTeachers() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('docentes')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function canCreatePendingTeacher() {
-      return isActiveUser()
-        && request.resource.data.status == 'PENDIENTE'
-        && request.resource.data.origin == 'MANUAL'
-        && request.resource.data.normalizedMoodleUser is string
-        && request.resource.data.fullName is string
-        && request.resource.data.moodleUser is string;
-    }
-
-    function canUpdateOwnPendingTeacher(teacherId) {
-      return isActiveUser()
-        && resource.data.status == 'PENDIENTE'
-        && resource.data.origin == 'MANUAL'
-        && request.resource.data.status == 'PENDIENTE'
-        && request.resource.data.origin == 'MANUAL'
-        && teacherId == request.resource.data.normalizedMoodleUser;
-    }
-
-    function canDeleteOwnPendingTeacher(teacherId) {
-      return isActiveUser()
-        && hasModuleAccess('docentes')
-        && resource.data.status == 'PENDIENTE'
-        && resource.data.origin == 'MANUAL'
-        && resource.data.lifecycleStatus == 'NUEVO'
-        && teacherId == resource.data.normalizedMoodleUser
-        && (
-          resource.data.createdBy == request.auth.uid
-          || (
-            resource.data.createdBy is string
-            && exists(/databases/$(database)/documents/usuarios/$(resource.data.createdBy))
-            && get(/databases/$(database)/documents/usuarios/$(resource.data.createdBy)).data.authUid == request.auth.uid
-          )
-        );
-    }
-
-    function isBaseSystemsUser() {
-      return isActiveUser()
-        && userRole() in ['Coordinación de Sistemas', 'Auxiliar de Sistemas'];
-    }
-
-    function canEditSubjects() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('asignaturas')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function canReadAssignments() {
-      return isSystemsMember()
-        || isAcademicCoordinator()
-        || hasModuleAccess('asignaciones');
-    }
-
-    function canWriteAssignmentProgram(program) {
-      return isSystemsMember()
-        || (
-          isAcademicCoordinator()
-          && program is string
-          && (
-            (
-              currentUser().data.assignedPrograms is list
-              && currentUser().data.assignedPrograms.hasAny([program])
-            )
-            || (
-              request.resource.data.createdBy == request.auth.uid
-              && request.resource.data.createdByPrograms is list
-              && request.resource.data.createdByPrograms.hasAny([program])
-            )
-            || isCurrentUserCoordinatorOfProgram(program)
-          )
-        );
-    }
-
-    function isCurrentUserCoordinatorOfProgram(program) {
-      return program is string
-        && exists(/databases/$(database)/documents/programas/$(program))
-        && (
-          get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.name
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.email
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == currentUser().data.authUid
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.uid
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.token.email
-          || get(/databases/$(database)/documents/programas/$(program)).data.coordinator == request.auth.token.name
-        );
-    }
-
-    function canWriteAssignmentPrograms(programs) {
-      return isSystemsMember()
-        || (
-          isAcademicCoordinator()
-          && programs is list
-          && (
-            (
-              currentUser().data.assignedPrograms is list
-              && currentUser().data.assignedPrograms.hasAny(programs)
-            )
-            || (
-              request.resource.data.createdBy == request.auth.uid
-              && request.resource.data.createdByPrograms is list
-              && request.resource.data.createdByPrograms.hasAny(programs)
-            )
-          )
-        );
-    }
-
-    function canWriteAssignment() {
-      return canWriteAssignmentProgram(request.resource.data.program)
-        || canCreateOwnNonEnglishAssignment();
-    }
-
-    function canChangeAssignmentProgram() {
-      return request.resource.data.program == resource.data.program
-        || isSystemsMember()
-        || (
-          canWriteAssignmentProgram(resource.data.program)
-          && canWriteAssignmentProgram(request.resource.data.program)
-        );
-    }
-
-    function canCreateOwnAssignment() {
-      return isActiveUser()
-        && isAcademicCoordinator()
-        && request.resource.data.createdBy == request.auth.uid;
-    }
-
-    function canCreateOwnNonEnglishAssignment() {
-      return canCreateOwnAssignment()
-        && !isEnglishAssignmentProgram(request.resource.data.program);
-    }
-
-    function canWriteOwnAssignment() {
-      return isActiveUser()
-        && isAcademicCoordinator()
-        && resource.data.createdBy == request.auth.uid;
-    }
-
-    function canWriteOwnNonEnglishAssignment() {
-      return canWriteOwnAssignment()
-        && !isEnglishAssignmentProgram(resource.data.program);
-    }
-
-    function isEnglishAssignmentProgram(program) {
-      return program is string
-        && ['ING', 'ING-FCS', 'INGLES', 'IDIOMAS', 'IDIOMA'].hasAny([program]);
-    }
-
-    function canDeleteAssignment() {
-      return canWriteAssignmentProgram(resource.data.program)
-        || canWriteOwnNonEnglishAssignment()
-        || canWriteExistingSharedAssignmentFromSource();
-    }
-
-    function preservesExistingSharedGroups() {
-      return !(resource.data.sharedGroups is list)
-        || (
-          request.resource.data.sharedGroups is list
-          && request.resource.data.sharedGroups.hasAll(resource.data.sharedGroups)
-        );
-    }
-
-    function preservesExistingSharedPrograms() {
-      return !(resource.data.sharedPrograms is list)
-        || (
-          request.resource.data.sharedPrograms is list
-          && request.resource.data.sharedPrograms.hasAll(resource.data.sharedPrograms)
-        );
-    }
-
-    function canUpdateSharedAssignmentParticipation() {
-      return canWriteAssignmentPrograms(resource.data.sharedPrograms)
-        && preservesExistingSharedGroups()
-        && preservesExistingSharedPrograms();
-    }
-
-    function canWriteExistingSharedAssignmentFromSource() {
-      return resource.data.shared == true
-        && resource.data.sourceAssignmentId is string
-        && exists(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId))
-        && canWriteAssignmentProgram(
-          get(/databases/$(database)/documents/asignaciones/$(resource.data.sourceAssignmentId)).data.program
-        );
-    }
-
-    // Coordinación Académica puede corregir docente, grupo base y matrículas
-    // adicionales incluso después de cargar la asignación en Moodle. La materia,
-    // el ID Moodle, el estado, los grupos compartidos y la trazabilidad siguen
-    // protegidos para Sistemas.
-    function changesOnlyAcademicAssignmentOperationalData() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'group',
-        'program',
-        'teacherMoodleUser',
-        'teacherName',
-        'shared',
-        'sharedGroups',
-        'sharedPrograms',
-        'studentEnrollments',
-        'updatedBy',
-        'updatedByName',
-        'updatedByRole',
-        'updatedAt'
-      ]);
-    }
-
-    function canAcademicCoordinatorUpdateAssignmentOperationalData() {
-      return isAcademicCoordinator()
-        && changesOnlyAcademicAssignmentOperationalData()
-        && canWriteAssignmentProgram(resource.data.program)
-        && canWriteAssignmentProgram(request.resource.data.program);
-    }
-
-    // Desde el catálogo global, Coordinación puede registrar únicamente
-    // matrículas adicionales. No obtiene permisos sobre docente, grupos,
-    // materia, ID Moodle, estado ni programas ajenos.
-    function changesOnlyAcademicAssignmentEnrollments() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'studentEnrollments',
-        'updatedBy',
-        'updatedByName',
-        'updatedByRole',
-        'updatedAt'
-      ]);
-    }
-
-    function canAcademicCoordinatorUpdateAnyAssignmentEnrollments() {
-      return isAcademicCoordinator()
-        && changesOnlyAcademicAssignmentEnrollments();
-    }
-
-    // Una vez cargada en Moodle, la identidad académica no se puede alterar
-    // desde el cliente, ni siquiera por Sistemas. Sí permanecen editables los
-    // datos operativos autorizados.
-    function preservesLoadedAssignmentIdentity() {
-      return !['CARGADO_MOODLE', 'VALIDADO'].hasAny([resource.data.status])
-        || (
-          request.resource.data.moodleId == resource.data.moodleId
-          && request.resource.data.normalizedMoodleId == resource.data.normalizedMoodleId
-          && request.resource.data.subjectId == resource.data.subjectId
-          && request.resource.data.subjectName == resource.data.subjectName
-        );
-    }
-
-    function canUpdateAssignmentDocument() {
-      return isSystemsMember()
-        || canAcademicCoordinatorUpdateAssignmentOperationalData()
-        || canAcademicCoordinatorUpdateAnyAssignmentEnrollments()
-        || (
-          !isAcademicCoordinator()
-          && (
-            canUpdateSharedAssignmentParticipation()
-            || canWriteOwnNonEnglishAssignment()
-            || canWriteExistingSharedAssignmentFromSource()
-          )
-        );
-    }
-
-    function canReadMeetLinks() {
-      return isSystemsMember()
-        || hasModuleAccess('ligasMeet');
-    }
-
-    function canEditMeetLinks() {
-      return isSystemsMember();
-    }
-
-    function canReadMoodleCatalogs() {
-      return isSystemsMember()
-        || hasModuleAccess('moodle');
-    }
-
-    function canEditMoodleCatalogs() {
-      return isSystemsMember()
-        && (
-          hasModuleAccess('moodle')
-          || userRole().matches('.*Sistemas.*')
-        );
-    }
-
-    function isValidMeetLinkDocument(meetLinkId) {
-      return request.resource.data.assignmentId == meetLinkId
-        && request.resource.data.assignmentId is string
-        && request.resource.data.cycle is string
-        && request.resource.data.meetUrl is string
-        && request.resource.data.status in [
-          'PENDIENTE',
-          'REVISADA',
-          'GENERADA'
-        ]
-        && request.resource.data.observations is string
-        && request.resource.data.createdBy is string
-        && request.resource.data.createdByName is string
-        && request.resource.data.createdByRole is string
-        && request.resource.data.createdAt is string
-        && request.resource.data.updatedBy is string
-        && request.resource.data.updatedByName is string
-        && request.resource.data.updatedByRole is string
-        && request.resource.data.updatedAt is string;
-    }
-
-    function changesAssignmentDeletionFields() {
-      return request.resource.data.diff(resource.data).changedKeys().hasAny([
-        'deletedAt',
-        'deletedBy',
-        'deletedByName',
-        'deletedByRole'
-      ]);
-    }
-
-    function canReadSharedRequests() {
-      return isSystemsMember()
-        || isAcademicCoordinator()
-        || hasModuleAccess('solicitudes');
-    }
-
-    function canCreateSystemRequest() {
-      return isActiveUser()
-        && request.resource.data.requestedBy == request.auth.uid
-        && request.resource.data.status == 'PENDIENTE'
-        && request.resource.data.type in ['REABRIR_CAPTURA', 'ALTA_GRUPO', 'CAMBIAR_ID_ASIGNATURA', 'DOCENTE_NUEVO']
-        && request.resource.data.title is string
-        && request.resource.data.detail is string
-        && request.resource.data.cycle is string
-        && request.resource.data.createdAt is string
-        && request.resource.data.updatedAt is string;
-    }
-
-    function canReadAcademicNotificationTarget() {
-      return resource.data.target == 'COORDINACION_ACADEMICA'
-        && resource.data.targetUserId is string
-        && (
-          resource.data.targetUserId == request.auth.uid
-          || (
-            request.auth.token.email is string
-            && resource.data.targetUserId == request.auth.token.email
-          )
-          || (
-            isActiveUser()
-            && currentUser().data.assignedPrograms is list
-            && currentUser().data.assignedPrograms.hasAny([resource.data.targetUserId])
-          )
-        );
-    }
-
-    function isOwnBootstrapUser(userId) {
-      return signedIn()
-        && userId == request.auth.uid
-        && request.resource.data.authUid == request.auth.uid
-        && request.resource.data.email == request.auth.token.email
-        && request.resource.data.name is string
-        && request.resource.data.role == 'Pendiente de autorizacion'
-        && request.resource.data.status == 'Inactivo'
-        && request.resource.data.assignedPrograms is list
-        && request.resource.data.assignedPrograms.size() == 0
-        && request.resource.data.access is map
-        && request.resource.data.access.dashboard == false
-        && request.resource.data.access.usuarios == false
-        && request.resource.data.access.ciclos == false
-        && request.resource.data.access.nomenclaturas == false
-        && request.resource.data.access.grupos == false
-        && request.resource.data.access.docentes == false
-        && request.resource.data.access.asignaturas == false
-        && request.resource.data.access.asignaciones == false
-        && request.resource.data.access.solicitudes == false
-        && request.resource.data.access.ligasMeet == false
-        && request.resource.data.access.moodle == false
-        && request.resource.data.access.bitacora == false
-        && request.resource.data.keys().hasOnly([
-          'authUid',
-          'name',
-          'email',
-          'role',
-          'assignedPrograms',
-          'access',
-          'status',
-          'createdAt',
-          'updatedAt'
-        ]);
-    }
-
-    function isOwnEmailBinding(userId) {
-      return signedIn()
-        && resource.data.authUid == null
-        && resource.data.email == request.auth.token.email
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['authUid', 'updatedAt'])
-        && request.resource.data.authUid == request.auth.uid;
-    }
-
-    match /usuarios/{userId} {
-      allow read: if canReadUsersDirectory()
-        || userId == request.auth.uid
-        || resource.data.authUid == request.auth.uid
-        || resource.data.email == request.auth.token.email;
-
-      allow create: if canManageUsers()
-        || isOwnBootstrapUser(userId);
-
-      allow update: if canManageUsers()
-        || isOwnEmailBinding(userId);
-
-      allow delete: if canManageUsers();
-    }
-
-    match /roles_personalizados/{roleId} {
-      allow read: if isActiveUser();
-      allow create, update, delete: if canManageUsers();
-    }
-
-    match /ciclos/{cycleId} {
-      allow read: if canReadInstitutionalCatalogs();
-      allow create, update, delete: if canEditCycles();
-    }
-
-    match /programas/{programId} {
-      allow read: if canReadInstitutionalCatalogs();
-      allow create, update, delete: if canEditNomenclatures();
-    }
-
-    match /nomenclaturas_programas/{nomenclatureId} {
-      allow read: if canReadInstitutionalCatalogs();
-      allow create, update, delete: if canEditNomenclatures();
-    }
-
-    match /grupos/{groupId} {
-      allow read: if canReadInstitutionalCatalogs();
-      allow create, update, delete: if canEditGroups();
-    }
-
-    match /docentes/{teacherId} {
-      allow read: if canReadInstitutionalCatalogs();
-
-      allow create: if teacherId == request.resource.data.normalizedMoodleUser
-        && (
-          canEditTeachers()
-          || canCreatePendingTeacher()
-        );
-
-      allow update: if canEditTeachers()
-        || canUpdateOwnPendingTeacher(teacherId);
-
-      allow delete: if (
-          canEditTeachers()
-          && resource.data.status == 'INACTIVO'
-        )
-        || canDeleteOwnPendingTeacher(teacherId);
-    }
-
-    match /asignaturas/{subjectId} {
-      allow read: if canReadInstitutionalCatalogs();
-
-      allow create: if canEditSubjects()
-        && subjectId == request.resource.data.subjectId;
-
-      allow update: if canEditSubjects()
-        && request.resource.data.subjectId == resource.data.subjectId;
-
-      allow delete: if canEditSubjects();
-    }
-
-    match /asignaciones/{assignmentId} {
-      allow read: if canReadAssignments();
-
-      allow create: if canWriteAssignment()
-        && (
-          isSystemsMember()
-          || request.resource.data.createdBy == request.auth.uid
-        )
-        && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
-        && request.resource.data.cycle is string
-        && request.resource.data.group is string
-        && request.resource.data.subjectId is string
-        && request.resource.data.teacherMoodleUser is string;
-
-      allow update: if canUpdateAssignmentDocument()
-        && canChangeAssignmentProgram()
-        && preservesLoadedAssignmentIdentity()
-        && request.resource.data.moodleId == request.resource.data.normalizedMoodleId
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdAt == resource.data.createdAt
-        && (
-          !changesAssignmentDeletionFields()
-          || canDeleteAssignment()
-        );
-
-      allow delete: if canDeleteAssignment();
-    }
-
-    match /solicitudes_compartidas/{requestId} {
-      allow read: if canReadSharedRequests();
-
-      allow create: if canReadSharedRequests()
-        && request.resource.data.status == 'PENDIENTE';
-
-      allow update: if canReadSharedRequests();
-
-      allow delete: if false;
-    }
-
-    match /solicitudes_sistemas/{requestId} {
-      allow read: if isSystemsMember()
-        || (
-          isActiveUser()
-          && resource.data.requestedBy == request.auth.uid
-        );
-
-      allow create: if canCreateSystemRequest();
-
-      allow update: if isSystemsMember()
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.requestedBy == resource.data.requestedBy;
-
-      allow delete: if isSystemsMember()
-        || hasModuleAccess('solicitudes');
-    }
-
-    match /bitacora/{entryId} {
-      allow read: if isSystemsMember()
-        || hasModuleAccess('bitacora');
-
-      // Las entradas verificadas se generan exclusivamente desde Cloud Functions
-      // (Admin SDK). El cliente solo puede conservar eventos transitorios
-      // identificados expresamente como no verificados durante la migracion.
-      allow create: if isActiveUser()
-        && request.resource.data.source == 'CLIENTE'
-        && request.resource.data.integrity == 'NO_VERIFICADO'
-        && request.resource.data.createdAt is string;
-      allow update, delete: if false;
-    }
-
-    match /ligas_meet/{meetLinkId} {
-      allow read: if canReadMeetLinks();
-
-      allow create: if canEditMeetLinks()
-        && isValidMeetLinkDocument(meetLinkId)
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedBy == request.auth.uid;
-
-      allow update: if canEditMeetLinks()
-        && isValidMeetLinkDocument(meetLinkId)
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.updatedBy == request.auth.uid;
-
-      allow delete: if canEditMeetLinks();
-    }
-
-    match /moodle_categorias/{categoryId} {
-      allow read: if canReadMoodleCatalogs();
-      allow create, update: if canEditMoodleCatalogs()
-        && request.resource.data.categoryNumber is string
-        && request.resource.data.programCode is string
-        && request.resource.data.programName is string
-        && request.resource.data.status in ['Activo', 'Inactivo'];
-      allow delete: if canEditMoodleCatalogs();
-    }
-
-    match /moodle_plantillas/{templateId} {
-      allow read: if canReadMoodleCatalogs();
-      allow create, update: if canEditMoodleCatalogs()
-        && request.resource.data.templateCourse is string
-        && request.resource.data.name is string
-        && request.resource.data.modality is string
-        && request.resource.data.programCode is string
-        && request.resource.data.status in ['Activo', 'Inactivo'];
-      allow delete: if canEditMoodleCatalogs();
-    }
-
-    match /configuracion/{configId} {
-      allow read: if canReadInstitutionalCatalogs();
-
-      allow create, update: if (
-          configId == 'docentes'
-          && (
-            canEditTeachers()
-            || (
-              isActiveUser()
-              && hasModuleAccess('docentes')
-            )
-          )
-          && request.resource.data.lastMoodleTeacherNumber is int
-        )
-        || (
-          configId == 'notificaciones_asignaciones'
-          && isSystemsMember()
-          && request.resource.data.enabled is bool
-          && request.resource.data.updatedBy == request.auth.uid
-          && request.resource.data.updatedByName is string
-          && request.resource.data.updatedAt is string
-        );
-
-      allow delete: if canEditTeachers();
-    }
-
-    match /notificaciones/{notificationId} {
-      allow read: if isSystemsMember()
-        || (
-          isActiveUser()
-          && canReadAcademicNotificationTarget()
-        );
-
-      allow create: if isActiveUser()
-        && request.resource.data.type in [
-          'DOCENTE_NUEVO',
-          'DOCENTE_VALIDADO',
-          'ASIGNACIONES_HITO',
-          'CLASE_COMPARTIDA',
-          'SOLICITUD_SISTEMAS',
-          'AGENDA_EQUIPO',
-          'ASIGNACION_MODIFICADA'
-        ]
-        && (
-          request.resource.data.type != 'AGENDA_EQUIPO'
-          || isBaseSystemsUser()
-        )
-        && (
-          request.resource.data.target == 'SISTEMAS'
-          || (
-            request.resource.data.target == 'COORDINACION_ACADEMICA'
-            && request.resource.data.targetUserId is string
-            && request.resource.data.targetUserId != ''
-            && (
-              isSystemsMember()
-              || request.resource.data.type == 'CLASE_COMPARTIDA'
-            )
-          )
-        );
-
-      allow update: if (
-          isSystemsMember()
-          || (
-            isActiveUser()
-            && canReadAcademicNotificationTarget()
-          )
-        )
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['readBy']);
-
-      allow delete: if false;
-    }
-
-    match /agenda_operativa_equipo/{activityId} {
-      allow read: if isBaseSystemsUser();
-
-      allow create: if isBaseSystemsUser()
-        && request.resource.data.scope == 'EQUIPO'
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.title is string
-        && request.resource.data.column is string
-        && request.resource.data.priority is string;
-
-      allow update: if isBaseSystemsUser()
-        && request.resource.data.scope == 'EQUIPO'
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdByName == resource.data.createdByName
-        && request.resource.data.createdAt == resource.data.createdAt;
-
-      allow delete: if isBaseSystemsUser();
-    }
-
-    match /agenda_operativa_privada/{ownerId}/actividades/{activityId} {
-      allow read: if isBaseSystemsUser() && ownerId == request.auth.uid;
-
-      allow create: if isBaseSystemsUser()
-        && ownerId == request.auth.uid
-        && request.resource.data.scope == 'PRIVADA'
-        && request.resource.data.ownerId == request.auth.uid
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.title is string
-        && request.resource.data.column is string
-        && request.resource.data.priority is string;
-
-      allow update: if isBaseSystemsUser()
-        && ownerId == request.auth.uid
-        && resource.data.ownerId == request.auth.uid
-        && request.resource.data.scope == 'PRIVADA'
-        && request.resource.data.ownerId == resource.data.ownerId
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdByName == resource.data.createdByName
-        && request.resource.data.createdAt == resource.data.createdAt;
-
-      allow delete: if isBaseSystemsUser()
-        && ownerId == request.auth.uid
-        && resource.data.ownerId == request.auth.uid;
-    }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
+ match /databases/{database}/documents {
+  function signedIn() { return request.auth != null; }
+  function user() {
+    let u = signedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data : {};
+    let legacy = u.get('legacyAuthorization', {});
+    return u.get('permissionSchemaVersion', 0) == 2 ? u :
+      (u.get('status', '') == 'Activo' && u.get('identityAliasOf', null) == null && legacy.get('mappingVersion', '') == 'E2-R01-v0.4-1' && legacy.get('profileRevision', -1) == u.get('revision', 0) && legacy.get('expiresAtMillis', 0) > request.time.toMillis() ? legacy : {});
   }
+  function valid(u) { return signedIn() && u.get('status', '') == 'Activo' && u.get('permissionSchemaVersion', 0) == 2 && u.get('identityAliasOf', null) == null; }
+  function active() { return valid(user()); }
+  function general() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_GENERAL'; }
+  function auxiliary() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_OPERATIVO'; }
+  function delegation() { let grantId = user().get('delegationId', '_none'); return grantId != '_none' && exists(/databases/$(database)/documents/delegaciones/$(grantId)) ? get(/databases/$(database)/documents/delegaciones/$(grantId)).data : {}; }
+  function grantActive(u) { let grantId = u.get('delegationId', '_none'); let grant = grantId != '_none' && exists(/databases/$(database)/documents/delegaciones/$(grantId)) ? get(/databases/$(database)/documents/delegaciones/$(grantId)).data : {}; return grant.get('status', '') == 'ACTIVE' && grant.get('userId', '') == request.auth.uid; }
+  function delegated() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_OPERATIVO' && grantActive(u); }
+  function permissions() { return auxiliary() ? delegation().get('permissions', {}) : user().get('permissions', {}); }
+  function hasModule(u, key, edit) {
+    let role = u.get('baseRole', ''); let level = u.get('permissions', {}).get(key, 'NONE');
+    return valid(u) && (role == 'ADMIN_GENERAL' || ((edit ? level == 'EDIT' : level in ['VIEW', 'EDIT']) && (role != 'ADMIN_OPERATIVO' || grantActive(u))));
+  }
+  function module(key, edit) { return hasModule(user(), key, edit); }
+  function academic() { let u = user(); return valid(u) && u.get('baseRole', '') == 'COORDINACION_ACADEMICA'; }
+  function systems() { return general() || delegated(); }
+  function scope() { return user().get('scope', {}); }
+  function within(kind, value) { let u = user(); return u.get('baseRole', '') == 'ADMIN_GENERAL' || u.get('scope', {}).get(kind, []).hasAny(['*', value]); }
+  function capability(key) {
+    let u = user();
+    return valid(u) && (u.get('baseRole', '') == 'ADMIN_GENERAL' || (u.get('baseRole', '') == 'ADMIN_OPERATIVO' && u.get('capabilities', []).hasAny([key]) && grantActive(u)));
+  }
+  function inProgram(program) { return within('programs', program); }
+  function inCycle(cycle) { return within('cycles', cycle); }
+  function delegatedFields() { return general() || user().get('scope', {}).get('fields', []).hasAny(['*']) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(user().get('scope', {}).get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole'])); }
+  function protectedIdentity() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authUid', 'updatedAt']) && resource.data.get('authUid', null) == null && request.resource.data.get('authUid', '') == request.auth.uid && resource.data.get('email', '') == request.auth.token.email && request.auth.token.get('email_verified', false) == true; }
+  function bootstrap(userId) {
+    let d = request.resource.data;
+    return signedIn() && userId == request.auth.uid && d.authUid == request.auth.uid && d.email == request.auth.token.email
+      && d.role == 'Pendiente de autorizacion' && d.status == 'Inactivo' && d.assignedPrograms == []
+      && d.access.values().hasOnly([false])
+      && d.keys().hasOnly(['authUid', 'name', 'email', 'role', 'status', 'assignedPrograms', 'access', 'createdAt', 'updatedAt']);
+  }
+  match /usuarios/{uid} {
+    allow get: if signedIn() && (uid == request.auth.uid || general());
+    allow list: if signedIn() && (uid == request.auth.uid || general());
+    allow create: if bootstrap(uid);
+    allow update: if signedIn() && protectedIdentity();
+    allow delete: if false;
+  }
+  match /roles_personalizados/{id} { allow read: if general(); allow write: if false; }
+  match /delegaciones/{id} { allow read: if general() || (signedIn() && resource.data.userId == request.auth.uid); allow write: if false; }
+  match /asignaciones_roles/{id} { allow read: if general() || (active() && resource.data.userId == request.auth.uid); allow write: if false; }
+  match /revisiones_roles/{id} { allow read: if general(); allow write: if false; }
+  match /previews_permisos/{id} { allow read: if general(); allow write: if false; }
+  match /eventos_seguridad/{id} { allow read: if general(); allow write: if false; }
+  match /avisos_seguridad/{id} {
+    allow read: if active() && resource.data.recipient == request.auth.uid;
+    allow update: if active() && resource.data.recipient == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read == true;
+    allow create, delete: if false;
+  }
+  function globalCatalog(key) { let u = user(); return hasModule(u, key, false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA', 'ALTA_DOCENTES'] || u.get('scope', {}).get('programs', []).hasAny(['*'])); }
+  function catalogRead(key, program) { let u = user(); return hasModule(u, key, false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA', 'ALTA_DOCENTES'] || u.get('scope', {}).get('programs', []).hasAny(['*', program])); }
+  match /ciclos/{id} {
+    allow read: if module('ciclos', false) || module('asignaciones', false) || module('dashboard', false);
+    allow create: if module('ciclos', true) && capability('MANAGE_CYCLES') && inCycle(request.resource.data.code);
+    allow update: if module('ciclos', true) && capability('MANAGE_CYCLES') && inCycle(resource.data.code) && inCycle(request.resource.data.code) && delegatedFields();
+    allow delete: if module('ciclos', true) && capability('MANAGE_CYCLES') && inCycle(resource.data.code);
+  }
+  match /programas/{id} {
+    allow read: if catalogRead('nomenclaturas', id);
+    allow create, update: if systems() && module('nomenclaturas', true) && inProgram(id);
+    allow delete: if systems() && module('nomenclaturas', true) && inProgram(id);
+  }
+  match /nomenclaturas_programas/{id} {
+    allow read: if catalogRead('nomenclaturas', resource.data.get('programCode', ''));
+    allow create: if systems() && module('nomenclaturas', true) && inProgram(request.resource.data.programCode);
+    allow update: if systems() && module('nomenclaturas', true) && inProgram(resource.data.programCode) && inProgram(request.resource.data.programCode);
+    allow delete: if systems() && module('nomenclaturas', true) && inProgram(resource.data.programCode);
+  }
+  match /grupos/{id} {
+    allow read: if catalogRead('grupos', resource.data.get('programAbbreviation', ''));
+    allow create: if systems() && module('grupos', true) && inProgram(request.resource.data.programAbbreviation) && inCycle(request.resource.data.cycleCode);
+    allow update: if systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inProgram(request.resource.data.programAbbreviation) && inCycle(resource.data.cycleCode) && inCycle(request.resource.data.cycleCode);
+    allow delete: if systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inCycle(resource.data.cycleCode);
+  }
+  function teacherScope(d, teacherId) { return general() || (delegated() && within('teachers', teacherId)) || (module('docentes', true) && (d.get('createdBy', '') == request.auth.uid || (user().get('baseRole', '') != 'ALTA_DOCENTES' && d.get('assignedCoordinatorIds', []).hasAny([request.auth.uid])))); }
+  function teacherFields() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherCode', 'fullName', 'normalizedName', 'phone', 'paymentType', 'category', 'location', 'notes', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
+  function teacherUpdate(id) {
+    let u = user(); let role = u.get('baseRole', ''); let keys = request.resource.data.diff(resource.data).affectedKeys(); let s = u.get('scope', {});
+    let own = resource.data.get('createdBy', '') == request.auth.uid || (role != 'ALTA_DOCENTES' && resource.data.get('assignedCoordinatorIds', []).hasAny([request.auth.uid]));
+    let adminScope = role == 'ADMIN_GENERAL' || (role == 'ADMIN_OPERATIVO' && grantActive(u) && s.get('teachers', []).hasAny(['*', id]));
+    let ordinary = hasModule(u, 'docentes', true) && (adminScope || (role != 'ADMIN_OPERATIVO' && own)) && (role != 'ADMIN_OPERATIVO' || s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))) && resource.data.get('status', '') in ['PENDIENTE', 'VALIDADO'] && teacherFields();
+    let sensitive = hasModule(u, 'docentes', true) && adminScope && (role == 'ADMIN_GENERAL' || (u.get('capabilities', []).hasAny(['VALIDATE_TEACHERS']) && (s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))))) && keys.hasOnly(['status', 'lifecycleStatus', 'validatedBy', 'validatedAt', 'inactivatedBy', 'inactivatedAt', 'assignedCoordinatorIds', 'assignedCoordinatorNames', 'updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']);
+    return valid(u) && (ordinary || sensitive);
+  }
+  match /docentes/{id} {
+    allow read: if (module('docentes', false) && (general() || academic() || user().get('baseRole', '') == 'ALTA_DOCENTES')) || (module('docentes', false) && (within('teachers', id) || resource.data.get('createdBy', '') == request.auth.uid || resource.data.get('assignedCoordinatorIds', []).hasAny([request.auth.uid])));
+    allow create: if module('docentes', true) && request.resource.data.normalizedMoodleUser == id
+      && request.resource.data.createdBy == request.auth.uid
+      && (general() || (request.resource.data.status == 'PENDIENTE' && request.resource.data.origin == 'MANUAL' && request.resource.data.get('assignedCoordinatorIds', []).hasOnly([request.auth.uid])));
+    allow update: if teacherUpdate(id);
+    allow delete: if (capability('VALIDATE_TEACHERS') && within('teachers', id) && resource.data.status == 'INACTIVO') || (module('docentes', true) && resource.data.createdBy == request.auth.uid && resource.data.status == 'PENDIENTE' && resource.data.lifecycleStatus == 'NUEVO');
+  }
+  match /asignaturas/{id} {
+    allow read: if module('asignaturas', false);
+    allow create: if systems() && module('asignaturas', true) && within('programs', '*') && request.resource.data.subjectId == id;
+    allow update: if systems() && module('asignaturas', true) && within('programs', '*') && request.resource.data.subjectId == resource.data.subjectId;
+    allow delete: if systems() && module('asignaturas', true) && within('programs', '*');
+  }
+  function assignmentRead() { return module('asignaciones', false) && (academic() || general() || (inProgram(resource.data.program) && inCycle(resource.data.cycle))); }
+  function ordinaryAssignmentFields() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherMoodleUser', 'teacherName', 'group', 'program', 'shared', 'sharedGroups', 'sharedPrograms', 'studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
+  function enrollmentsOnly() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
+  function loadedIdentity(d, n) { return !(d.get('status', '') in ['CARGADO_MOODLE', 'VALIDADO']) || !n.diff(d).affectedKeys().hasAny(['moodleId', 'normalizedMoodleId', 'subjectId', 'subjectName']); }
+  function assignmentUpdate() {
+    let u = user(); let role = u.get('baseRole', ''); let s = u.get('scope', {}); let d = resource == null ? {} : resource.data; let n = request.resource.data;
+    let keys = n.diff(d).affectedKeys();
+    let programs = s.get('programs', []);
+    let own = programs.hasAny(['*', d.get('program', '')]) && programs.hasAny(['*', n.get('program', '')]) && s.get('cycles', []).hasAny(['*', d.get('cycle', '')]);
+    let ordinary = keys.hasOnly(['teacherMoodleUser', 'teacherName', 'group', 'program', 'shared', 'sharedGroups', 'sharedPrograms', 'studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']);
+    let administrative = role == 'ADMIN_GENERAL' || (role == 'ADMIN_OPERATIVO' && own && s.get('cycles', []).hasAny(['*', n.get('cycle', '')]) && (s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))) && (!(d.get('status', '') in ['CARGADO_MOODLE', 'VALIDADO']) || u.get('capabilities', []).hasAny(['OPERATE_EXCEPTIONAL_CHANGE'])) && (!keys.hasAny(['status']) || u.get('capabilities', []).hasAny(['CONFIRM_MOODLE_UPDATE'])));
+    return hasModule(u, 'asignaciones', true) && loadedIdentity(d, n) && n.get('moodleId', '') == n.get('normalizedMoodleId', '') && n.get('createdBy', '') == d.get('createdBy', '') && n.get('createdAt', '') == d.get('createdAt', '')
+      && (administrative || (role != 'ADMIN_OPERATIVO' && ((own && ordinary) || (role == 'COORDINACION_ACADEMICA' && s.get('cycles', []).hasAny(['*', d.get('cycle', '')]) && enrollmentsOnly()))));
+  }
+  match /asignaciones/{id} {
+    allow read: if assignmentRead();
+    allow create: if module('asignaciones', true) && inProgram(request.resource.data.program) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && request.resource.data.moodleId == request.resource.data.normalizedMoodleId && request.resource.data.cycle is string && request.resource.data.group is string && request.resource.data.subjectId is string && request.resource.data.teacherMoodleUser is string && (general() || request.resource.data.status == 'EN_CAPTURA');
+    allow update: if resource != null && assignmentUpdate();
+    allow delete: if systems() && capability('OPERATE_EXCEPTIONAL_CHANGE') && inProgram(resource.data.program) && inCycle(resource.data.cycle);
+  }
+  function requestScope(d) { return general() || (module('solicitudes', false) && (inProgram(d.get('sourceProgram', '')) || inProgram(d.get('destinationProgram', '')) || d.requestedBy == request.auth.uid)); }
+  match /solicitudes_compartidas/{id} {
+    allow read: if requestScope(resource.data);
+    allow create: if module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE' && inProgram(request.resource.data.destinationProgram);
+    allow update: if module('solicitudes', true) && (general() || inProgram(resource.data.sourceProgram) || (resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'CANCELADA'))
+      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'responseObservations', 'respondedBy', 'respondedByName', 'respondedByRole', 'respondedAt', 'updatedAt', 'createdEntityId'])
+      && request.resource.data.respondedBy == request.auth.uid;
+    allow delete: if false;
+  }
+  match /solicitudes_sistemas/{id} {
+    allow read: if general() || (systems() && module('solicitudes', false) && within('programs', '*')) || (module('solicitudes', false) && resource.data.requestedBy == request.auth.uid);
+    allow create: if module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE';
+    allow update: if (general() || (systems() && module('solicitudes', true) && within('programs', '*'))) && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.requestedBy == resource.data.requestedBy;
+    allow delete: if general() || (systems() && module('solicitudes', true) && within('programs', '*'));
+  }
+  match /bitacora/{id} {
+    allow read: if general() || (delegated() && module('bitacora', false) && within('programs', '*'));
+    allow create: if active() && request.resource.data.source == 'CLIENTE' && request.resource.data.integrity == 'NO_VERIFICADO' && request.resource.data.createdAt is string;
+    allow update, delete: if false;
+  }
+  function validMeet(id) { let d = request.resource.data; return d.assignmentId == id && d.assignmentId is string && d.cycle is string && d.meetUrl is string && d.status in ['PENDIENTE', 'REVISADA', 'GENERADA'] && d.observations is string && d.createdBy is string && d.createdByName is string && d.createdByRole is string && d.createdAt is string && d.updatedBy == request.auth.uid && d.updatedByName is string && d.updatedByRole is string && d.updatedAt is string; }
+  match /ligas_meet/{id} {
+    allow read: if module('ligasMeet', false) && (academic() || within('programs', '*') || inCycle(resource.data.cycle));
+    allow create: if systems() && module('ligasMeet', true) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && validMeet(id);
+    allow update: if systems() && module('ligasMeet', true) && inCycle(resource.data.cycle) && inCycle(request.resource.data.cycle) && validMeet(id) && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdAt == resource.data.createdAt;
+    allow delete: if systems() && module('ligasMeet', true) && inCycle(resource.data.cycle);
+  }
+  match /moodle_categorias/{id} {
+    allow read: if systems() && module('moodle', false) && (within('programs', '*') || inProgram(resource.data.programCode));
+    allow create: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(request.resource.data.programCode) && request.resource.data.categoryNumber is string && request.resource.data.programName is string && request.resource.data.status in ['Activo', 'Inactivo'];
+    allow update: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(resource.data.programCode) && inProgram(request.resource.data.programCode) && request.resource.data.categoryNumber is string && request.resource.data.programName is string && request.resource.data.status in ['Activo', 'Inactivo'] && delegatedFields();
+    allow delete: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(resource.data.programCode);
+  }
+  match /moodle_plantillas/{id} {
+    allow read: if systems() && module('moodle', false) && (within('programs', '*') || inProgram(resource.data.programCode));
+    allow create: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(request.resource.data.programCode) && request.resource.data.templateCourse is string && request.resource.data.name is string && request.resource.data.modality is string && request.resource.data.status in ['Activo', 'Inactivo'];
+    allow update: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(resource.data.programCode) && inProgram(request.resource.data.programCode) && request.resource.data.templateCourse is string && request.resource.data.name is string && request.resource.data.modality is string && request.resource.data.status in ['Activo', 'Inactivo'] && delegatedFields();
+    allow delete: if module('moodle', true) && capability('MANAGE_MOODLE_TEMPLATES') && inProgram(resource.data.programCode);
+  }
+  match /configuracion/{id} {
+    allow read: if (id == 'docentes' && module('docentes', false)) || (id == 'notificaciones_asignaciones' && systems() && module('bitacora', false));
+    allow create, update: if (id == 'docentes' && module('docentes', true) && request.resource.data.keys().hasOnly(['lastMoodleTeacherNumber', 'updatedAt', 'updatedBy', 'updatedByName']) && request.resource.data.lastMoodleTeacherNumber is int)
+      || (id == 'notificaciones_asignaciones' && general() && request.resource.data.updatedBy == request.auth.uid);
+    allow delete: if false;
+  }
+  match /notificaciones/{id} {
+    allow read: if general() || (delegated() && within('programs', '*')) || (active() && resource.data.get('targetUserId', '') == request.auth.uid);
+    allow create: if active() && request.resource.data.actorId == request.auth.uid && request.resource.data.type in ['DOCENTE_NUEVO', 'DOCENTE_VALIDADO', 'ASIGNACIONES_HITO', 'CLASE_COMPARTIDA', 'SOLICITUD_SISTEMAS', 'AGENDA_EQUIPO', 'ASIGNACION_MODIFICADA'] && (request.resource.data.target == 'SISTEMAS' || general());
+    allow update: if (general() || (active() && resource.data.get('targetUserId', '') == request.auth.uid)) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
+    allow delete: if false;
+  }
+  match /agenda_operativa_equipo/{id} {
+    allow read: if systems() && module('dashboard', false);
+    allow create: if systems() && module('dashboard', true) && request.resource.data.createdBy == request.auth.uid && request.resource.data.scope == 'EQUIPO' && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
+    allow update: if systems() && module('dashboard', true) && request.resource.data.scope == 'EQUIPO' && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt && delegatedFields();
+    allow delete: if systems() && module('dashboard', true);
+  }
+  match /agenda_operativa_privada/{owner}/actividades/{id} {
+    allow read: if systems() && module('dashboard', false) && owner == request.auth.uid;
+    allow create: if systems() && module('dashboard', true) && owner == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == request.auth.uid && request.resource.data.createdBy == request.auth.uid && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
+    allow update: if systems() && module('dashboard', true) && owner == request.auth.uid && resource.data.ownerId == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == resource.data.ownerId && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt;
+    allow delete: if systems() && module('dashboard', true) && owner == request.auth.uid && resource.data.ownerId == request.auth.uid;
+  }
+  match /{document=**} { allow read, write: if false; }
+ }
 }

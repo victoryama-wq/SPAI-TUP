@@ -1,5 +1,7 @@
 # Etapa 1 — Evidencia, hallazgos e integración continua
 
+> Evidencia histórica de Etapa 1. El contrato vigente es [Etapa 2 v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md); ver [trazabilidad E2-R01](E2-R01-SEGURIDAD-PERMISOS.md). D2 y D3 ya tienen definición en v0.4. El contenido histórico inferior no se reescribe.
+
 ## Estado de entrega
 
 Etapa 1 completada en su alcance de documentación, pruebas base y configuración

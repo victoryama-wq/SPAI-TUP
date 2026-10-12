@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { UserSessionService } from '../auth/user-session.service';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
+import { AppUser } from '../../features/users/data/users.repository';
 
 export interface SystemNotification {
   id: string;
@@ -21,7 +22,7 @@ export interface SystemNotification {
   message: string;
   target: 'SISTEMAS' | 'COORDINACION_ACADEMICA';
   targetUserId?: string;
-  type: 'DOCENTE_NUEVO' | 'DOCENTE_VALIDADO' | 'ASIGNACIONES_HITO' | 'CLASE_COMPARTIDA' | 'SOLICITUD_SISTEMAS' | 'AGENDA_EQUIPO' | 'ASIGNACION_MODIFICADA';
+  type: 'SEGURIDAD' | 'DOCENTE_NUEVO' | 'DOCENTE_VALIDADO' | 'ASIGNACIONES_HITO' | 'CLASE_COMPARTIDA' | 'SOLICITUD_SISTEMAS' | 'AGENDA_EQUIPO' | 'ASIGNACION_MODIFICADA';
   entity: string;
   entityId: string;
   actorId: string;
@@ -57,7 +58,8 @@ export class SystemNotificationsRepository {
   private readonly notificationsSignal = signal<SystemNotification[]>([]);
   private readonly locallyReadNotificationIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly notifications = this.notificationsSignal.asReadonly();
+  private readonly securityNotifications = signal<SystemNotification[]>([]);
+  readonly notifications = computed(() => [...this.notificationsSignal(), ...this.securityNotifications()]);
   readonly unreadCount = computed(() => {
     const session = this.userSessionService.session();
     const appUser = session?.appUser;
@@ -74,12 +76,21 @@ export class SystemNotificationsRepository {
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
 
-      if (!session || appUser?.status !== 'Activo') {
+      this.securityNotifications.set([]);
+      this.locallyReadNotificationIds.set(new Set());
+      if (!session || appUser?.status !== 'Activo' || appUser.permissionSchemaVersion !== 2 || appUser.identityAliasOf) {
         this.notificationsSignal.set([]);
         return;
       }
 
-      const notificationsQuery = this.isSystemsUser(appUser.role)
+      const securityUnsubscribe = onSnapshot(query(collection(this.firestore, 'avisos_seguridad'), where('recipient', '==', session.authUid), limit(100)), snapshot => {
+        this.securityNotifications.set(snapshot.docs.map(item => {
+          const data = item.data();
+          return { id: `security:${item.id}`, title: 'Cambio administrativo', message: `${data['action']}: ${data['reviewIds']?.length ?? 0} revisiones de roles. Consulta Usuarios.`, type: 'SEGURIDAD', target: 'SISTEMAS', entity: 'usuarios', entityId: data['eventId'], actorId: data['actor'].uid, actorName: data['actor'].name, actorRole: data['actor'].role, readBy: data['read'] ? [session.authUid] : [], createdAt: data['createdAt'] };
+        }));
+      }, () => this.securityNotifications.set([]));
+      onCleanup(securityUnsubscribe);
+      const notificationsQuery = this.isSystemsUser(appUser)
         ? query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
             orderBy('createdAt', 'desc'),
@@ -187,6 +198,7 @@ export class SystemNotificationsRepository {
   }
 
   markAsRead(notificationId: string): Promise<void> | void {
+    if (notificationId.startsWith('security:')) return updateDoc(doc(this.firestore, 'avisos_seguridad', notificationId.slice(9)), { read: true });
     const session = this.userSessionService.session();
     const appUser = session?.appUser;
 
@@ -240,18 +252,18 @@ export class SystemNotificationsRepository {
     return this.wasReadByCurrentUser(notification, appUserId, authUid);
   }
 
-  private isSystemsUser(role: string): boolean {
-    return this.normalizeRole(role).includes('sistemas');
+  private isSystemsUser(user: AppUser): boolean {
+    return user.baseRole === 'ADMIN_GENERAL' || (user.baseRole === 'ADMIN_OPERATIVO' && Boolean(user.scope?.programs.includes('*')) && Boolean(user.capabilities?.length));
   }
 
   private canSeeNotification(
     notification: SystemNotification,
     authUid: string,
     email: string,
-    appUser: { id: string; authUid: string | null; email: string; role: string; assignedPrograms: string[] },
+    appUser: AppUser,
   ): boolean {
     if (notification.target === 'SISTEMAS') {
-      return this.isSystemsUser(appUser.role);
+      return this.isSystemsUser(appUser);
     }
 
     return notification.target === 'COORDINACION_ACADEMICA'
@@ -263,16 +275,7 @@ export class SystemNotificationsRepository {
     email: string,
     appUser: { id: string; authUid: string | null; email: string; assignedPrograms: string[] },
   ): string[] {
-    const assignedProgramTargets = (Array.isArray(appUser.assignedPrograms) ? appUser.assignedPrograms : [])
-      .map((program) => program.trim().toUpperCase())
-      .filter(Boolean);
-
-    return Array.from(new Set([
-      authUid,
-      email.trim().toLowerCase(),
-      appUser.email.trim().toLowerCase(),
-      ...assignedProgramTargets,
-    ].map((value) => value.trim()).filter(Boolean))).slice(0, 10);
+    return [authUid];
   }
 
   private wasReadByCurrentUser(notification: SystemNotification, appUserId: string, authUid: string): boolean {

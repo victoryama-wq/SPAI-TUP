@@ -15,8 +15,8 @@ export const routes: Routes = [
   },
   {
     path: 'usuarios',
-    loadComponent: () => import('./features/users/pages/users-page.component')
-      .then((module) => module.UsersPageComponent),
+    loadComponent: () => import('./features/users/components/security-console.component')
+      .then((module) => module.SecurityConsoleComponent),
     title: 'Usuarios y roles | SPAI TUP',
   },
   {

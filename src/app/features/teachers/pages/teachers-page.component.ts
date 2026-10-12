@@ -1,3 +1,4 @@
+import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -144,34 +145,23 @@ export class TeachersPageComponent {
     () => this.activeTeacherRecords().filter((teacher) => teacher.status === 'INACTIVO').length,
   );
 
-  readonly canManageTeachers = computed(() => {
-    const appUser = this.session()?.appUser;
-    return appUser?.status === 'Activo'
-      && this.modulePermissionService.canEditModule(appUser, 'docentes')
-      && (appUser.role.includes('Sistemas')
-        || (appUser.role === 'Auxiliar de Sistemas' && appUser.access?.docentes));
-  });
+  readonly canManageTeachers = computed(() => hasCapability(this.session()?.appUser, 'VALIDATE_TEACHERS') && hasAccess(this.session()?.appUser, 'docentes', true));
 
   readonly canDownloadTeacherReport = computed(() => {
     const appUser = this.session()?.appUser;
-    return appUser?.status === 'Activo' && Boolean(appUser.access?.docentes || this.canManageTeachers());
+    return hasAccess(appUser, 'docentes');
   });
 
-  readonly canDownloadPendingTeachersMoodleCsv = computed(() => {
-    const appUser = this.session()?.appUser;
-    return appUser?.status === 'Activo'
-      && appUser.role.includes('Sistemas')
-      && this.modulePermissionService.canEditModule(appUser, 'docentes');
-  });
+  readonly canDownloadPendingTeachersMoodleCsv = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'docentes', true));
 
   readonly showTeacherActionsColumn = computed(() =>
     this.canManageTeachers()
-    || this.visiblePanelTeachers().some((teacher) => this.canDeleteOwnPendingNewTeacher(teacher)),
+    || this.visiblePanelTeachers().some((teacher) => this.canEditTeacher(teacher) || this.canDeleteOwnPendingNewTeacher(teacher)),
   );
 
   readonly isAcademicCoordination = computed(() => {
     const appUser = this.session()?.appUser;
-    return appUser?.status === 'Activo' && appUser.role.toLowerCase().includes('acad');
+    return appUser?.status === 'Activo' && appUser.baseRole === 'COORDINACION_ACADEMICA';
   });
 
   readonly currentUserName = computed(() => {
@@ -359,8 +349,14 @@ export class TeachersPageComponent {
     this.resetManualForm();
   }
 
+  canEditTeacher(teacher: Teacher): boolean {
+    const user = this.session()?.appUser;
+    return hasAccess(user, 'docentes', true) && ['PENDIENTE', 'VALIDADO'].includes(teacher.status)
+      && (user?.baseRole === 'ADMIN_GENERAL' || (user?.baseRole === 'ADMIN_OPERATIVO' && (user.scope?.teachers ?? []).some(id => id === '*' || id === teacher.id)) || teacher.createdBy === user?.id || (user?.baseRole !== 'ALTA_DOCENTES' && (teacher.assignedCoordinatorIds ?? []).includes(user?.id ?? '')));
+  }
+
   openEditModal(teacher: Teacher): void {
-    if (!this.canManageTeachers()) {
+    if (!this.canEditTeacher(teacher)) {
       return;
     }
 
@@ -399,7 +395,7 @@ export class TeachersPageComponent {
   async saveTeacherDetails(): Promise<void> {
     const teacher = this.editModalTeacher;
 
-    if (!teacher || !this.canManageTeachers()) {
+    if (!teacher || !this.canEditTeacher(teacher)) {
       return;
     }
 
@@ -428,7 +424,7 @@ export class TeachersPageComponent {
     try {
       await Promise.all([
         this.teachersRepository.updateTeacherDetails(teacher, this.editForm),
-        this.teachersRepository.updateCoordinatorAssignments(teacher, selectedCoordinators),
+        ...(this.canManageTeachers() ? [this.teachersRepository.updateCoordinatorAssignments(teacher, selectedCoordinators)] : []),
       ]);
       this.auditLogRepository.register({
         module: 'Docentes',
@@ -851,7 +847,7 @@ export class TeachersPageComponent {
       return false;
     }
 
-    if (!appUser.access?.docentes && !this.modulePermissionService.canEditModule(appUser, 'docentes')) {
+    if (!this.modulePermissionService.canEditModule(appUser, 'docentes')) {
       return false;
     }
 

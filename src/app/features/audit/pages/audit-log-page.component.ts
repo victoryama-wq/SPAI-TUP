@@ -56,7 +56,7 @@ export class AuditLogPageComponent {
   readonly canManageAssignmentChangeNotifications = computed(() => {
     const appUser = this.userSessionService.session()?.appUser;
 
-    return appUser?.status === 'Activo' && appUser.role.includes('Sistemas');
+    return appUser?.status === 'Activo' && appUser.baseRole === 'ADMIN_GENERAL';
   });
 
   readonly sortedEntries = computed(() =>

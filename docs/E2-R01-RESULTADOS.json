@@ -1,0 +1,296 @@
+{
+  "delivery": "E2-R01",
+  "status": "VALIDADA_LOCAL",
+  "date": "2026-10-12",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "baseCommit": "894be730cd96c94b15b8077c53ed55ccc9610550",
+  "mainUnchanged": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2",
+  "contractVersion": "E2 v0.4",
+  "mappingVersion": "E2-R01-v0.4-1",
+  "node": "22.23.2",
+  "environment": "demo-spai-tup / loopback only / synthetic fixtures",
+  "unit": {
+    "r01": 8,
+    "local": 8,
+    "failed": 0
+  },
+  "integration": {
+    "testedAt": "2026-10-12T22:41:53.135Z",
+    "completed": true,
+    "passed": 32,
+    "cases": [
+      {
+        "name": "Lectura denegada anonymous",
+        "status": "PASS"
+      },
+      {
+        "name": "Lectura denegada r01-inactive",
+        "status": "PASS"
+      },
+      {
+        "name": "Lectura denegada r01-legacy",
+        "status": "PASS"
+      },
+      {
+        "name": "Lectura denegada r01-person",
+        "status": "PASS"
+      },
+      {
+        "name": "Directorio callable exige Auth y Administración",
+        "status": "PASS"
+      },
+      {
+        "name": "VIEW consulta ámbito propio y rechaza ámbito ajeno/escritura",
+        "status": "PASS"
+      },
+      {
+        "name": "EDIT ficha propia sin identidad ni ajenas",
+        "status": "PASS"
+      },
+      {
+        "name": "Asignaciones propias y excepción global de matrículas sin complejidad",
+        "status": "PASS"
+      },
+      {
+        "name": "Identidad de asignación Moodle protegida incluso para administrador",
+        "status": "PASS"
+      },
+      {
+        "name": "Autoservicio no permite modificar, añadir o eliminar privilegios",
+        "status": "PASS"
+      },
+      {
+        "name": "Perfil inactivo conserva vinculación sin activarse",
+        "status": "PASS"
+      },
+      {
+        "name": "Cliente no fabrica roles, delegaciones, auditoría ni eventos",
+        "status": "PASS"
+      },
+      {
+        "name": "Administrador crea rol y delegación explícita",
+        "status": "PASS"
+      },
+      {
+        "name": "Auxiliar asigna preaprobado con procedencia y destinatarios filtrados",
+        "status": "PASS"
+      },
+      {
+        "name": "Auxiliar no administra definiciones, usuarios, delegaciones ni terceros superiores",
+        "status": "PASS"
+      },
+      {
+        "name": "Rol de nombre inocuo no permite superar capacidades ni ámbito",
+        "status": "PASS"
+      },
+      {
+        "name": "Reintento devuelve mismo resultado sin duplicar auditoría/evento",
+        "status": "PASS"
+      },
+      {
+        "name": "Revocar conserva roles activos, ignora retirados y notifica a todos los administradores",
+        "status": "PASS"
+      },
+      {
+        "name": "Sesión abierta revocada pierde acceso directo y operaciones preparadas",
+        "status": "PASS"
+      },
+      {
+        "name": "Nueva delegación no reutiliza identidad ni resuelve revisión anterior",
+        "status": "PASS"
+      },
+      {
+        "name": "Dos administradores no sobrescriben resolución de revisión",
+        "status": "PASS"
+      },
+      {
+        "name": "Asignación concurrente con revocación nunca queda sin seguimiento",
+        "status": "PASS"
+      },
+      {
+        "name": "Migración muestra ausencias y preserva revocaciones explícitas",
+        "status": "PASS"
+      },
+      {
+        "name": "Vista previa obsoleta no restaura permisos ni produce efectos",
+        "status": "PASS"
+      },
+      {
+        "name": "Identidad técnica vincula UID sin activar ni copiar autoridad de duplicados",
+        "status": "PASS"
+      },
+      {
+        "name": "Alta de Docentes consulta catálogo y edita solo ficha propia",
+        "status": "PASS"
+      },
+      {
+        "name": "Capacidad sensible y ámbitos de ciclo, docente y campos se exigen por separado",
+        "status": "PASS"
+      },
+      {
+        "name": "Sustitución revisada no reactiva retirados ni mezcla ámbitos",
+        "status": "PASS"
+      },
+      {
+        "name": "Fallo de persistencia de auditoría revierte también cambio y evento",
+        "status": "PASS"
+      },
+      {
+        "name": "Cambio, bitácora y evento tienen actor real y efecto idempotente",
+        "status": "PASS"
+      },
+      {
+        "name": "Dos desactivaciones concurrentes conservan al menos un administrador",
+        "status": "PASS"
+      },
+      {
+        "name": "Todas las conexiones observadas permanecen en loopback",
+        "status": "PASS"
+      }
+    ]
+  },
+  "browser": {
+    "testedAt": "2026-10-12T22:50:58.007Z",
+    "expected": 3,
+    "unexpected": 0,
+    "skipped": 0
+  },
+  "regression": {
+    "rules": {
+      "cases": 52,
+      "characterizationPassed": 52,
+      "contractPassed": 44,
+      "knownContractFailures": 8,
+      "decisionsPending": 0
+    },
+    "logic": {
+      "cases": 20,
+      "characterizationPassed": 20,
+      "contractPassed": 10,
+      "knownContractFailures": 10,
+      "decisionsPending": 0
+    },
+    "openContracts": [
+      {
+        "id": "REQUEST-TERMINAL-REWRITE",
+        "finding": "F07",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-WRITE-Preparacion",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-CREATE-Preparacion",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-WRITE-Captura cerrada",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-CREATE-Captura cerrada",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-WRITE-Cerrado",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-CREATE-Cerrado",
+        "finding": "F04",
+        "stage": 3
+      },
+      {
+        "id": "MOODLE-STATUS-RESET-ALLOWED",
+        "finding": "F08",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-MULTIPLE-OPERATIVE",
+        "finding": "F05",
+        "stage": 3
+      },
+      {
+        "id": "CYCLE-SELECTION-ORDER",
+        "finding": "F05",
+        "stage": 3
+      },
+      {
+        "id": "REQUEST-CREATE-AWAITS",
+        "finding": "F06",
+        "stage": 3
+      },
+      {
+        "id": "REQUEST-RESOLVE-AWAITS",
+        "finding": "F06",
+        "stage": 3
+      },
+      {
+        "id": "REQUEST-DUPLICATE-CREATE",
+        "finding": "F07",
+        "stage": 3
+      },
+      {
+        "id": "UI-PREMATURE-SUCCESS",
+        "finding": "F06",
+        "stage": 3
+      },
+      {
+        "id": "SHARE-PRESERVES-MOODLE",
+        "finding": "F08",
+        "stage": 3
+      },
+      {
+        "id": "SHARE-PARTIAL-AND-SUCCESS",
+        "finding": "F07",
+        "stage": 3
+      },
+      {
+        "id": "REQUEST-DOUBLE-ACCEPT",
+        "finding": "F07",
+        "stage": 3
+      },
+      {
+        "id": "SHARE-CONCURRENT-LOST-GROUP",
+        "finding": "F07",
+        "stage": 3
+      }
+    ]
+  },
+  "checks": {
+    "functionsSyntax": "PASS (4 files)",
+    "localBuild": "PASS",
+    "productionBuild": "PASS",
+    "productionInitialBundleKB": 766.94,
+    "productionBudgetWarningKB": 750,
+    "actionlint": "PASS",
+    "diffCheck": "PASS",
+    "offline": "PASS",
+    "reset": "PASS",
+    "contractsExit": 1,
+    "privateSnapshotAndSelection": "SHA256 unchanged",
+    "remoteCI": "NOT_RUN",
+    "push": "NOT_RUN",
+    "merge": "NOT_RUN",
+    "deploy": "NOT_RUN",
+    "manualOwnerAcceptance": "PENDING"
+  },
+  "sha256": {
+    "firestore.rules": "82a825493e4573838f16dd6ab3065463fe7491eb85dc97f94228827d97ce4ff0",
+    "functions/index.js": "fb8f17900b41aafa662361a605006bf407a21743f5f09afe35679deaf3d0f8d4",
+    "functions/security/policy.js": "ffa2453db775c32cf1d3e2996d9d4fe37001638cfa31cea405275dfbe21913dc",
+    "functions/security/service.js": "9efbc8e86b1bd759360a826a25c12c1fb2cefe62fada3a59ff66cb6d95984538",
+    "src/app/core/data/authorized-query.ts": "9ac93aa875627cce3b587deb2f4e788a53c7a08c24d6992d356085e706d6f355",
+    "src/app/features/users/components/security-console.component.ts": "0c5b5c9e465d720f242d545b5d247a5c5356079f8d1a85bbd05bf0889e259a8a",
+    "src/app/features/users/components/security-console.component.html": "ac5208971dc56ad8c84636a7c3ae32ed43dc158d2f161e288ea6fdbc7c061899",
+    "src/app/features/assignments/pages/assignments-page.component.ts": "b87d881263d524962c4097a08caa2654c99c5c241d349b1d4d8b2557c9f274d6",
+    "tools/e2-r01/integration.mjs": "763a316750e5b479d5f7a4fa69a36233e879b5bcfad4a1847af027f21310b266",
+    "tools/e2-r01/ui.spec.mjs": "620a01cfe5b58b7a81bbc040a11a8ac8f47b09e8bc3b86facf0eecd4a5bf0df9"
+  }
+}

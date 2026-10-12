@@ -1,0 +1,7 @@
+:host { display:block; color:#15334c; }
+.security-panel { background:white; border-radius:14px; padding:24px; }
+h2,h3 { color:#12416a; } fieldset { margin:16px 0; padding:16px; border:1px solid #bacbd5; }
+label { display:block; margin:10px 0; } input:not([type=checkbox]),select { display:block; min-height:38px; width:min(100%,600px); padding:6px; }
+button { padding:8px 12px; margin:4px; cursor:pointer; } .permission-row { display:flex; gap:24px; align-items:center; flex-wrap:wrap; } .permission-row strong { width:150px; }
+.table-scroll { overflow:auto; } table { border-collapse:collapse; width:100%; } td,th { padding:10px; text-align:left; border-bottom:1px solid #ccd9e2; min-width:110px; } [role=alert] { color:#9a2020; } [role=status] { color:#176039; }
+@media(max-width:600px) { .security-panel {padding:12px;} .permission-row {gap:8px;} }
