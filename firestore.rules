@@ -2,11 +2,18 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn() { return request.auth != null; }
+  function legacyMapping(u, legacy) {
+    let path = /databases/$(database)/documents/mapeos_permisos/$(request.auth.uid);
+    let mapping = exists(path) ? get(path).data : {};
+    return mapping.get('status', '') == 'ACTIVE' && mapping.get('version', '') == 'E2-R01-v0.4-1'
+      && mapping.get('approvedBy', '') != '' && mapping.get('revision', -1) == legacy.get('mappingRevision', -2)
+      && mapping.get('profileRevision', -1) == u.get('revision', 0) && mapping.get('baseRole', '') == legacy.get('baseRole', '_none');
+  }
   function user() {
     let u = signedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data : {};
     let legacy = u.get('legacyAuthorization', {});
     return u.get('permissionSchemaVersion', 0) == 2 ? u :
-      (u.get('status', '') == 'Activo' && u.get('identityAliasOf', null) == null && legacy.get('mappingVersion', '') == 'E2-R01-v0.4-1' && legacy.get('profileRevision', -1) == u.get('revision', 0) && legacy.get('expiresAtMillis', 0) > request.time.toMillis() ? legacy : {});
+      (u.get('status', '') == 'Activo' && u.get('identityAliasOf', null) == null && legacy.get('mappingVersion', '') == 'E2-R01-v0.4-1' && legacy.get('profileRevision', -1) == u.get('revision', 0) && legacy.get('expiresAtMillis', 0) > request.time.toMillis() && legacyMapping(u, legacy) ? legacy : {});
   }
   function valid(u) { return signedIn() && u.get('status', '') == 'Activo' && u.get('permissionSchemaVersion', 0) == 2 && u.get('identityAliasOf', null) == null; }
   function active() { return valid(user()); }
@@ -52,6 +59,7 @@ service cloud.firestore {
   match /asignaciones_roles/{id} { allow read: if general() || (active() && resource.data.userId == request.auth.uid); allow write: if false; }
   match /revisiones_roles/{id} { allow read: if general(); allow write: if false; }
   match /previews_permisos/{id} { allow read: if general(); allow write: if false; }
+  match /mapeos_permisos/{uid} { allow get: if signedIn() && (uid == request.auth.uid || general()); allow write: if false; }
   match /eventos_seguridad/{id} { allow read: if general(); allow write: if false; }
   match /avisos_seguridad/{id} {
     allow read: if active() && resource.data.recipient == request.auth.uid;
@@ -107,7 +115,10 @@ service cloud.firestore {
     allow update: if systems() && module('asignaturas', true) && within('programs', '*') && request.resource.data.subjectId == resource.data.subjectId;
     allow delete: if systems() && module('asignaturas', true) && within('programs', '*');
   }
-  function assignmentRead() { return module('asignaciones', false) && (academic() || general() || (inProgram(resource.data.program) && inCycle(resource.data.cycle))); }
+  function assignmentRead() {
+    let u = user(); let s = u.get('scope', {});
+    return hasModule(u, 'asignaciones', false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA'] || (s.get('programs', []).hasAny(['*', resource.data.get('program', '')]) && s.get('cycles', []).hasAny(['*', resource.data.get('cycle', '')])));
+  }
   function ordinaryAssignmentFields() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherMoodleUser', 'teacherName', 'group', 'program', 'shared', 'sharedGroups', 'sharedPrograms', 'studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
   function enrollmentsOnly() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
   function loadedIdentity(d, n) { return !(d.get('status', '') in ['CARGADO_MOODLE', 'VALIDADO']) || !n.diff(d).affectedKeys().hasAny(['moodleId', 'normalizedMoodleId', 'subjectId', 'subjectName']); }
@@ -125,7 +136,7 @@ service cloud.firestore {
     allow read: if assignmentRead();
     allow create: if module('asignaciones', true) && inProgram(request.resource.data.program) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && request.resource.data.moodleId == request.resource.data.normalizedMoodleId && request.resource.data.cycle is string && request.resource.data.group is string && request.resource.data.subjectId is string && request.resource.data.teacherMoodleUser is string && (general() || request.resource.data.status == 'EN_CAPTURA');
     allow update: if resource != null && assignmentUpdate();
-    allow delete: if systems() && capability('OPERATE_EXCEPTIONAL_CHANGE') && inProgram(resource.data.program) && inCycle(resource.data.cycle);
+    allow delete: if systems() && module('asignaciones', true) && capability('OPERATE_EXCEPTIONAL_CHANGE') && inProgram(resource.data.program) && inCycle(resource.data.cycle);
   }
   function requestScope(d) { return general() || (module('solicitudes', false) && (inProgram(d.get('sourceProgram', '')) || inProgram(d.get('destinationProgram', '')) || d.requestedBy == request.auth.uid)); }
   match /solicitudes_compartidas/{id} {

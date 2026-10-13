@@ -6,8 +6,8 @@
   <button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>
   @if (directory(); as data) {
     @if (general()) {
-      <button type="button" (click)="open('user')">Nuevo perfil institucional</button>
-      <button type="button" (click)="open('role')">Definir rol personalizado</button>
+      <button type="button" [disabled]="busy" (click)="open('user')">Nuevo perfil institucional</button>
+      <button type="button" [disabled]="busy" (click)="openRoles()">Administrar roles personalizados</button>
     }
     <label>Motivo del cambio <input [(ngModel)]="reason" maxlength="1000" placeholder="Explica la autorización o revisión" /></label>
     <div class="table-scroll"><table>
@@ -17,58 +17,17 @@
         <tr><td>{{ user.name }}<br>{{ user.email }}</td><td>{{ roleLabels[user.baseRole ?? ''] || 'Heredado: requiere revisión' }}</td><td>{{ user.status }}</td>
         <td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td>
         <td>@if (general()) {
-          <button type="button" (click)="open('user', user)">Editar perfil</button>
-          @if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" (click)="open('delegation', user)">Otorgar delegación nueva</button> }
+          <button type="button" [disabled]="busy" (click)="open('user', user)">Editar perfil</button>
+          @if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" [disabled]="busy" (click)="open('delegation', user)">Otorgar delegación nueva</button> }
         }</td></tr>
       }</tbody>
     </table></div>
-    @if (mode) {
-      <form (ngSubmit)="save()">
-        <h3>{{ mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
-        @if (mode !== 'delegation') { <label>Nombre <input name="name" [(ngModel)]="name" required /></label> }
-        @if (mode === 'user') {
-          <label>Correo institucional <input name="email" type="email" [(ngModel)]="email" required /></label>
-          <label>Área institucional real <input name="area" [(ngModel)]="area" required maxlength="160" /></label>
-          <label>Perfil <select name="baseRole" [(ngModel)]="baseRole">@for (role of baseRoles; track role) { <option [value]="role">{{ roleLabels[role] }}</option> }</select></label>
-          <label>Estado <select name="status" [(ngModel)]="status"><option>Activo</option><option>Inactivo</option></select></label>
-          <p>El auxiliar obtiene sus facultades mediante una delegación separada. Administración General tiene alcance institucional.</p>
-        }
-        <fieldset><legend>Ámbito explícito</legend>
-          <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
-          <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
-          <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
-          @if (mode === 'delegation') { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
-          <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
-        </fieldset>
-        <fieldset><legend>Módulos</legend>
-          <button type="button" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" (click)="quickPermissions(false)">Quitar todos</button>
-          @for (module of modules; track module) {
-            <div class="permission-row"><strong>{{ module }}</strong>
-              <label><input type="checkbox" [checked]="permissions[module] === 'VIEW' || permissions[module] === 'EDIT'" (change)="setPermission(module, false, $any($event.target).checked)" />Consultar</label>
-              <label><input type="checkbox" [checked]="permissions[module] === 'EDIT'" (change)="setPermission(module, true, $any($event.target).checked)" />Editar</label>
-            </div>
-          }
-          <p>Los catálogos reservados y los módulos administrativos no se conceden mediante roles personalizados. El servidor rechaza una configuración incompatible.</p>
-        </fieldset>
-        @if (mode !== 'user') {
-          <fieldset><legend>Acciones sensibles (independientes de Editar)</legend>
-            @for (cap of capabilities; track cap) {
-              @if (mode === 'delegation' || cap === 'REQUEST_TEACHER_MOODLE_IDENTITY') {
-                <label><input type="checkbox" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
-              }
-            }
-          </fieldset>
-        }
-        <p>Revisa persona, ámbitos y módulos anteriores antes de confirmar. La cuenta de Authentication no se crea desde este formulario.</p>
-        <button type="submit" [disabled]="busy">Revisar y confirmar</button><button type="button" (click)="mode = null">Cancelar</button>
-      </form>
-    }
     <h3>Asignar un rol preaprobado</h3>
     <label>Persona<select [(ngModel)]="selectedUserId" (ngModelChange)="preview = null"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }} — {{ user.email }}</option> }</select></label>
     <label>Rol<select [(ngModel)]="selectedRoleId"><option value="">Seleccionar</option>@for (role of data.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label>
     <button type="button" (click)="assign()" [disabled]="busy">Revisar asignación</button>
     @for (role of data.roles_personalizados; track role.id) { @if (general() && role.status === 'ACTIVE') {
-      <p>{{ role.name }} <button (click)="open('role', role)">Editar definición sin asignaciones vigentes</button><button (click)="action('deleteRole', role)">Retirar definición</button></p>
+      <p>{{ role.name }} <button [disabled]="busy" (click)="open('role', role)">Editar definición sin asignaciones vigentes</button><button (click)="action('deleteRole', role)">Retirar definición</button></p>
     } }
     <h3>Asignaciones vigentes y revisiones</h3>
     @for (assignment of data.asignaciones_roles; track assignment.id) {
@@ -102,3 +61,70 @@
     }
   } @else { <p>Sin directorio autorizado. Un administrador debe revisar el perfil. Los permisos heredados no se activan automáticamente.</p> }
 </section>
+
+<dialog #editorDialog class="security-dialog" aria-labelledby="security-editor-title" (cancel)="closeEditor()">
+  <header class="editor-heading">
+    <h3 id="security-editor-title">{{ roleDirectory ? 'Directorio de roles personalizados' : mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
+    <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy">Cerrar</button>
+  </header>
+  @if (roleDirectory) {
+    <div class="editor-body role-directory">
+      <button type="button" [disabled]="busy" (click)="open('role')">Crear rol</button>
+      @for (role of directory()?.roles_personalizados; track role.id) {
+        <article><h4>{{ role.name }}</h4><p>{{ role.status }}</p>
+          @if (role.status === 'ACTIVE') { <button type="button" [disabled]="busy" (click)="open('role', role)">Editar</button> }
+        </article>
+      } @empty { <p>No hay definiciones disponibles.</p> }
+    </div>
+  }
+    @if (mode) {
+      <form id="security-editor" (ngSubmit)="save()" #editorForm="ngForm">
+        <div class="editor-body">
+        @if (error) { <p role="alert">{{ error }}</p> }
+        <fieldset><legend>Datos de acceso</legend>
+        @if (mode !== 'delegation') { <label>Nombre <input name="name" [(ngModel)]="name" required /></label> }
+        @if (mode === 'user') {
+          <label>Correo institucional <input name="email" type="email" [(ngModel)]="email" required /></label>
+          <label>Área institucional real <input name="area" [(ngModel)]="area" required maxlength="160" /></label>
+          <label>Perfil <select name="baseRole" [(ngModel)]="baseRole">@for (role of baseRoles; track role) { <option [value]="role">{{ roleLabels[role] }}</option> }</select></label>
+          <label>Saludo <select name="greetingGender" [(ngModel)]="greetingGender"><option>Femenino</option><option>Masculino</option></select></label>
+          <label>Estado <select name="status" [(ngModel)]="status"><option>Activo</option><option>Inactivo</option></select></label>
+          <p>El auxiliar obtiene sus facultades mediante una delegación separada. Administración General tiene alcance institucional.</p>
+        }
+        </fieldset>
+        <fieldset><legend>Alcance académico</legend>
+          <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
+          <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
+          <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
+          @if (mode === 'delegation') { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
+          <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
+        </fieldset>
+        <fieldset class="modules-block"><legend>Módulos disponibles</legend>
+          <button type="button" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" (click)="quickPermissions(false)">Quitar todos</button>
+          @for (module of modules; track module) {
+            <div class="permission-row"><strong>{{ module }}</strong>
+              <label><input type="checkbox" [checked]="permissions[module] === 'VIEW' || permissions[module] === 'EDIT'" (change)="setPermission(module, false, $any($event.target).checked)" />Consultar</label>
+              <label><input type="checkbox" [checked]="permissions[module] === 'EDIT'" (change)="setPermission(module, true, $any($event.target).checked)" />Editar</label>
+            </div>
+          }
+          <p>Los catálogos reservados y los módulos administrativos no se conceden mediante roles personalizados. El servidor rechaza una configuración incompatible.</p>
+        </fieldset>
+        @if (mode !== 'user') {
+          <fieldset><legend>Acciones sensibles (independientes de Editar)</legend>
+            @for (cap of capabilities; track cap) {
+              @if (mode === 'delegation' || cap === 'REQUEST_TEACHER_MOODLE_IDENTITY') {
+                <label><input type="checkbox" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
+              }
+            }
+          </fieldset>
+        }
+        <p>Revisa persona, ámbitos y módulos anteriores antes de confirmar. La cuenta de Authentication no se crea desde este formulario.</p>
+        <label>Motivo del cambio <input name="reason" [(ngModel)]="reason" required minlength="4" maxlength="1000" /></label>
+        </div>
+        <footer class="editor-actions">
+          @if (mode === 'role') { <button type="button" (click)="openRoles()" [disabled]="busy">Volver al directorio</button> }
+          <button type="submit" [disabled]="busy || editorForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>
+        </footer>
+      </form>
+    }
+</dialog>

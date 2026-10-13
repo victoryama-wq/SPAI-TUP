@@ -8,7 +8,7 @@ const revision = doc => doc?.revision ?? 0;
 const id = value => { P.assert(typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value), 'Identificador inválido.', 'invalid-argument'); return value; };
 const requireRevision = (doc, expected, message = 'La revisión cambió. Actualiza antes de confirmar.') => P.assert(revision(doc) === expected, message, 'aborted');
 
-function createSecurityService(db) {
+function createSecurityService(db, { nowMillis = Date.now } = {}) {
   async function execute(auth, data) {
     P.assert(auth?.uid, 'Inicia sesión.', 'unauthenticated');
     P.assert(data && typeof data === 'object' && typeof data.action === 'string', 'Operación inválida.', 'invalid-argument');
@@ -24,7 +24,7 @@ function createSecurityService(db) {
       const state = Object.fromEntries(COLLECTIONS.map((c, i) => [c, Object.fromEntries(snapshots[i].docs.map(d => [d.id, { ...d.data(), id: d.id }]))]));
       const beforeState = structuredClone(state);
       const profile = state.usuarios[auth.uid];
-      const actor = P.effective(profile, state.delegaciones[profile?.delegationId]);
+      const actor = P.effective(profile, state.delegaciones[profile?.delegationId], { mapping: state.mapeos_permisos[auth.uid], nowMillis: nowMillis() });
       P.assert(actor.active, actor.revoked ? 'PERMISO_REVOCADO' : 'Perfil no autorizado.');
       const required = {
         saveUser: 'MANAGE_USERS', deleteUser: 'MANAGE_USERS', saveRole: 'MANAGE_CUSTOM_ROLE_DEFINITIONS', deleteRole: 'MANAGE_CUSTOM_ROLE_DEFINITIONS',
@@ -41,7 +41,8 @@ function createSecurityService(db) {
       }
       const reason = String(data.reason ?? '').trim();
       P.assert(reason.length >= 4 && reason.length <= 1000, 'Indica un motivo (4–1000 caracteres).', 'invalid-argument');
-      const now = new Date().toISOString();
+      const serverMillis = nowMillis();
+      const now = new Date(serverMillis).toISOString();
       const targetId = id(data.targetId);
       const target = state.usuarios[targetId];
       const write = (collection, key, value) => { state[collection][key] = { ...value, id: key, revision: revision(state[collection][key]) + 1, updatedAt: now }; };
@@ -197,10 +198,10 @@ function createSecurityService(db) {
         case 'approveMapping': {
           P.assert(target && ['COORDINACION_ACADEMICA', 'ALTA_DOCENTES'].includes(data.baseRole), 'Correspondencia no verificable.', 'invalid-argument');
           requireRevision(target, data.expectedRevision);
-          const mapping = { baseRole: data.baseRole, version: P.MAPPING_VERSION, approvedBy: auth.uid };
+          const mapping = { baseRole: data.baseRole, version: P.MAPPING_VERSION, approvedBy: auth.uid, status: 'ACTIVE', profileRevision: revision(target) + (target.permissionSchemaVersion === 2 ? 0 : 1) };
           if (target.permissionSchemaVersion !== 2) {
             const proposed = P.legacyProposal(target, mapping);
-            write('usuarios', targetId, { ...target, legacyAuthorization: { mappingVersion: P.MAPPING_VERSION, profileRevision: revision(target) + 1, expiresAtMillis: Date.now() + 7 * 86400000, permissionSchemaVersion: 2, baseRole: proposed.baseRole, permissions: proposed.permissions, scope: proposed.scope, capabilities: [], status: target.status } });
+            write('usuarios', targetId, { ...target, legacyAuthorization: { mappingVersion: P.MAPPING_VERSION, mappingRevision: revision(state.mapeos_permisos[targetId]) + 1, profileRevision: revision(target) + 1, issuedAtMillis: serverMillis, expiresAtMillis: serverMillis + 7 * 86400000, permissionSchemaVersion: 2, baseRole: proposed.baseRole, permissions: proposed.permissions, scope: proposed.scope, capabilities: [], status: target.status } });
           }
           write('mapeos_permisos', targetId, { ...mapping, profileHash: hash(state.usuarios[targetId]), reason });
           break;
@@ -215,6 +216,10 @@ function createSecurityService(db) {
         }
         case 'applyMigration': {
           P.assert(preview?.userId === targetId && !preview.appliedAt && preview.profileHash === hash(target) && preview.delegationHash === hash(state.delegaciones[target?.delegationId] ?? null) && preview.mappingHash === hash(state.mapeos_permisos[targetId] ?? null), 'MIGRATION_PREVIEW_OBSOLETE', 'aborted');
+          // A preview made during the temporary grant cannot confirm it after expiry.
+          // An administrator must obtain a fresh preview and review the explicit levels.
+          const expiry = target.legacyAuthorization?.expiresAtMillis;
+          P.assert(target.permissionSchemaVersion === 2 || !expiry || Date.parse(preview.generatedAt) >= expiry || nowMillis() < expiry, 'LEGACY_AUTHORIZATION_EXPIRED: solicita una nueva vista previa a Administración General.', 'failed-precondition');
           P.assert(targetId !== auth.uid && !['ADMIN_GENERAL', 'ADMIN_OPERATIVO'].includes(target.baseRole), 'Los perfiles administrativos requieren revisión explícita.');
           const proposal = preview.proposed;
           write('usuarios', targetId, { ...target, permissionSchemaVersion: 2, baseRole: proposal.baseRole, permissions: proposal.permissions, basePermissions: proposal.permissions, migrationDenials: proposal.explicitDenials, capabilities: [], baseCapabilities: [], scope: proposal.scope, baseScope: proposal.scope, migrationStatus: proposal.status, migrationVersion: P.MAPPING_VERSION });
@@ -243,7 +248,8 @@ function createSecurityService(db) {
     return db.runTransaction(async tx => {
       const profile = (await tx.get(db.doc(`usuarios/${auth.uid}`))).data();
       const grant = profile?.delegationId ? (await tx.get(db.doc(`delegaciones/${profile.delegationId}`))).data() : null;
-      const actor = P.effective(profile, grant);
+      const mapping = profile?.permissionSchemaVersion !== 2 ? (await tx.get(db.doc(`mapeos_permisos/${auth.uid}`))).data() : null;
+      const actor = P.effective(profile, grant, { mapping, nowMillis: nowMillis() });
       P.requireCapability(actor, 'MANAGE_CUSTOM_ROLES');
       const docs = await Promise.all(COLLECTIONS.slice(0, 5).map(c => tx.get(db.collection(c).limit(201))));
       P.assert(docs.every(s => s.size <= 200), 'Directorio excede el límite local.', 'resource-exhausted');

@@ -1,6 +1,6 @@
 # E2-R01 — Ficha y evidencia local
 
-Fecha: 2026-10-12. Estado: **VALIDADA_LOCAL**.
+Fecha inicial: 2026-10-12. Revisión: 2026-10-13. Estado: **VALIDADA_LOCAL**.
 
 Alcance aprobado: C01, C01.1, C01.2, C09 administrativo y C11 aplicable de [v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md). [Matriz, modelo, mapeo y límites](E2-R01-SEGURIDAD-PERMISOS.md).
 
@@ -19,7 +19,7 @@ Alcance aprobado: C01, C01.1, C01.2, C09 administrativo y C11 aplicable de [v0.4
 | Interfaz legítima y revocación visible | Chromium: Consultar/Editar, guardar rol, consulta académica, directorio retirado con sesión abierta |
 | Regresión y aislamiento | 52 casos Rules y 20 lógica E1; reset y SDKs sin emuladores; conexiones observadas exclusivamente loopback |
 
-## Comandos y resultados
+## Evidencia inicial del commit 7b22264 (histórica)
 
 Entorno: Node **22.23.2**, Microsoft OpenJDK **25.0.2**, Firebase CLI **15.30.0**, proyecto exclusivo `demo-spai-tup`. Se antepuso al PATH el directorio del Node 22 disponible localmente. Los comandos siguientes se ejecutaron desde la raíz de SPAI-TUP; `npm run test:r01:full` queda como alias reproducible de la ejecución completa.
 
@@ -56,7 +56,7 @@ npm run local:emulators
 
 En la segunda terminal, misma carpeta y Node 22: `npm start`. Abrir `http://127.0.0.1:4200/` y seleccionar **Sistemas DEMO** en el inicio local. Si ocurre el cierre de sesión único ya documentado en E1, ingresar nuevamente; ese comportamiento previo queda fuera de esta entrega.
 
-1. Usuarios → definir rol; probar Editar/Consultar y quitar Consultar. Preparar un rol con grupos VIEW, programa ADM y sin módulos reservados; indicar motivo y confirmar.
+1. Usuarios → Administrar roles personalizados → Crear rol; probar Editar/Consultar y quitar Consultar. Preparar un rol con grupos VIEW, programa ADM y sin módulos reservados; indicar motivo y confirmar.
 2. Crear un perfil CUSTOM ficticio, área real de prueba, programa ADM, módulos vacíos. No se crea una cuenta Auth desde ese formulario.
 3. Editar Auxiliar DEMO para confirmar su ámbito institucional ADM; otorgar delegación nueva con grupos VIEW y MANAGE_CUSTOM_ROLES, programa ADM. Como auxiliar, asignar el rol preaprobado al perfil ficticio.
 4. Mantener esa sesión auxiliar abierta. En otra sesión de Sistemas DEMO revocar la delegación: desaparece la administración del auxiliar; el rol del destinatario permanece ACTIVE con revisión pendiente. Como AG conservar, retirar o sustituir con motivo.
@@ -87,6 +87,49 @@ Para deshacer experimentos de datos ficticios, reiniciar emuladores con `SPAI_LO
 
 - **R02:** 8 fallos E1 de ciclo (escrituras/altas fuera de captura, más de un ciclo operativo y selección por orden). D1 sigue siendo requisito de esa entrega; R01 no declara corregido el cierre funcional.
 - **R03:** 10 fallos de solicitudes/compartición (reapertura de terminal, promesas no esperadas, duplicación, éxito prematuro, escritura parcial, concurrencia y conservación de estado Moodle). C08 ya está definido en v0.4, pendiente de implementar.
-- **R04–R08:** recuperación/depuración, paginación/importadores/catálogos, flujos completos de docentes e identidad Moodle, conciliación y Meet. SAEKO pendiente.
+- **R04:** recuperación/depuración. **R05:** paginación/importadores/catálogos y Ligas Meet. **R06:** docentes e identidad. **R07:** calidad transversal. **R08:** SAEKO. Conciliación operativa permanece en R03.
 - **CI remota:** workflow preparado y validado estáticamente; no ejecutado en GitHub porque no se publicó la rama. El job estricto de contratos seguirá rojo por los 18 casos posteriores.
 - **Producción:** no probada, migrada ni desplegada. Límite administrativo local de 200 documentos y límites de consultas descritos en la matriz. El presupuesto del bundle genera advertencia. La prueba UI automatizada y la inspección de su captura no equivalen a aceptación manual del propietario.
+
+
+## Revisión complementaria sobre 7b22264
+
+Esta revisión se limita a R01 y deja un commit local adicional, sin amend. Árbol inicial limpio; rama y SHA base verificados. `main` y la referencia local `origin/main` no cambian. El SHA adicional se obtiene con `git log -1` y se entrega en el cierre; no se incorpora un hash autorreferente a estos documentos.
+
+- [Comportamiento exacto del límite, transición y criterio de producción](E2-R01-REVISION-COMPLEMENTARIA.md).
+- [Inventario operativo y tabla requisito → implementación → prueba → estado](CO-INVENTARIO-R01.md).
+- Contrato operativo v1.0 incorporado desde el archivo proporcionado: solo se normalizaron dos finales de línea Markdown para pasar el control de whitespace. Contenido y adjunto original intactos; v0.4 permanece intacto.
+- Correcciones: eliminación de asignaciones exige EDIT para auxiliares; lectura sin filtros se deniega por política explícita; mapeo vigente vinculado por revisión; preview preparada no confirma después de vencer; mensaje de caducidad; modal CO-11, directorio/editor, saludo y disposición adaptable.
+- Se corrigió además la carrera de la consola que permitía reabrir un perfil con el directorio anterior mientras terminaba la recarga: ahora la confirmación visible espera la recarga y los botones de edición permanecen deshabilitados mientras está ocupada. La traza mostró que el saludo sí se persistía; el dato obsoleto estaba en la vista.
+
+Las capturas `.local/test-results/r01-review-desktop.png` (1366×900), `r01-review-mobile.png` (390×844) y `r01-review-view.png` contienen exclusivamente fixtures. Inspección del agente: modal sobre navegación, títulos y acciones legibles, cuerpo desplazable y una columna móvil. La geometría, foco, permisos y flujo se comprueban también automáticamente. **La aceptación manual del propietario sigue pendiente.**
+
+La evidencia inicial anterior se conserva como histórica. Las ejecuciones complementarias y sus resultados definitivos se detallan en el bloque siguiente y en el JSON; no se sustituyen fallos anteriores por afirmaciones de éxito sin repetir la comprobación afectada.
+
+
+### Resultados complementarios ejecutados
+
+Mismo entorno Node 22.23.2 / emuladores `demo-spai-tup`; ningún dato privado importado.
+
+| Comprobación | Resultado real |
+|---|---|
+| `node --test tools/e2-r01/policy.test.mjs` | **9/9**. Incluye frontera temporal determinista y dashboard real por módulos concedidos |
+| `node tools/local/run.mjs --test --r01 --stage1 --ui` | **37/37 integración R01**, **52/52 Rules + 20/20 lógica E1**, reset correcto. Esa ejecución terminó exit 1 por una prueba UI; se conserva ese resultado, no se presenta como full verde |
+| `node tools/local/run.mjs --test --ui` (repetición final) | **Exit 0**, **6/6 Chromium**, **8/8 unitarias locales originales**, integración local, reset y offline aprobados. Corrige y vuelve a ensayar la interacción que falló |
+| Gate `node tools/stage1/contracts.mjs` | **Exit 1 esperado: los mismos 18 IDs**, 8 de Rules y 10 de lógica; 0 decisiones pendientes. No cambiaron casos, expectativas ni código de E1 |
+| `node --check` sobre los 4 archivos Functions y `review.mjs` | PASS |
+| `ng build --configuration local` con Node 22 | PASS después de la corrección final de consola |
+| `ng build` con Node 22 | PASS; bundle inicial **768.85 kB**, advertencia de **750 kB** intacta |
+| `.local/actionlint/actionlint.exe .github/workflows/stage1.yml` | Exit 0; validación estática local, no ejecución de CI remota |
+| `git diff --check` | PASS |
+| Copia privada, selección y contrato v0.4 | SHA-256 idénticos antes/después; contrato operativo con contenido equivalente línea por línea, salvo dos espacios Markdown finales normalizados |
+
+R01 pasa de 32 a 37 escenarios integrados por cinco casos nuevos: CUSTOM VIEW en Asignaciones; auxiliar VIEW y excepción académica; reloj/preview vencida; Rules/callables y mapeo; límites 199/200/201 con atomicidad. Unitarias de 8 a 9 por dashboard. Chromium de 3 a 6 por CO-11, CUSTOM VIEW y caducidad/mapeo con sesión abierta. Estos aumentos no reducen ninguno de los 18 incumplimientos de R02/R03.
+
+Historial de diagnóstico conservado en `.local/`: `r01-review-full.log` agotó el plazo de arranque antes de R01; `full-2` detectó una comprobación inferior de tiempo innecesaria para listeners y se retiró conservando la caducidad superior; `full-3` detectó la evaluación de campo ausente en consulta sin filtros; `full-4` completó servidor/E1 pero falló un selector UI. `r01-review-ui-2.log` identificó lectura obsoleta del directorio al reabrir; `r01-review-ui-3.log` pasó completo después de corregirla. No se ocultaron esos intentos ni se debilitaron expectativas.
+
+Logs finales: `.local/r01-review-unit.log`, `.local/r01-review-full-4.log`, `.local/r01-review-ui-3.log`, `.local/r01-review-build-local-final.log`, `.local/r01-review-build-production.log`, `.local/r01-review-contracts.log`. Reportes detallados: `.local/test-results/e2-r01.json`, `r01-ui.json`, `stage1-rules.json`, `stage1-logic.json`. Resumen público sin datos reales: `E2-R01-RESULTADOS.json`.
+
+Estado mantenido: **VALIDADA_LOCAL**, exclusivamente para el alcance R01 ensayado. **Producción impedida por el límite administrativo** y los demás requisitos de la revisión complementaria. CI remota, despliegue y aceptación manual del propietario: **no realizados / pendientes**. La inspección visual del agente no es una aprobación del propietario. En la captura CO-02 se aprecia una columna de ID Moodle larga con poco espacio respecto a Materia; su ajuste general de tabla queda en R05/R07, sin rediseñar Asignaciones en R01.
+
+La reversión de esta revisión es un `git revert` del nuevo SHA local, después de conservar cualquier trabajo posterior y detener servicios. No revierte datos reales ni restaura el respaldo privado. Los mapeos temporales emitidos por el commit anterior carecen de los nuevos vínculos de revisión: requieren revisión/aprobación explícita de AG antes de usarse con este código; no hay renovación ni migración automática. No se aplicó este cambio a ningún perfil real.

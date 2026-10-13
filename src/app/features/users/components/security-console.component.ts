@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
@@ -31,13 +31,19 @@ export class SecurityConsoleComponent {
   preview: MigrationPreview | null = null;
   private pendingRequest: Record<string, unknown> | null = null;
   area = '';
+  greetingGender: AppUser['greetingGender'] = 'Femenino';
+  roleDirectory = false;
+  readonly editorDialog = viewChild<ElementRef<HTMLDialogElement>>('editorDialog');
+  showDialog(): void { setTimeout(() => { const dialog = this.editorDialog()?.nativeElement; if ((this.mode || this.roleDirectory) && dialog && !dialog.open) dialog.showModal(); }); }
+  closeEditor(): void { this.editorDialog()?.nativeElement.close(); this.mode = null; this.roleDirectory = false; }
+  openRoles(): void { this.mode = null; this.roleDirectory = true; this.showDialog(); }
   private sessionGeneration = 0;
   private directoryRequest = 0;
   constructor() {
     effect(() => {
       const user = this.session.session()?.appUser;
       this.sessionGeneration++;
-      this.directory.set(null); this.preview = null; this.mode = null;
+      this.directory.set(null); this.preview = null; this.closeEditor();
       if (user?.status === 'Activo' && (user.baseRole === 'ADMIN_GENERAL' || user.capabilities?.includes('MANAGE_CUSTOM_ROLES'))) void this.reload();
     });
   }
@@ -50,9 +56,10 @@ export class SecurityConsoleComponent {
   userName(id?: string): string { const user = this.directory()?.usuarios.find(u => u.id === id); return user ? `${user.name} (${user.email})` : 'Perfil fuera de esta vista'; }
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
-    this.mode = mode; this.targetId = record?.id ?? crypto.randomUUID(); this.expectedRevision = record?.revision ?? 0;
+    this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? crypto.randomUUID(); this.expectedRevision = record?.revision ?? 0;
     this.name = record?.name ?? ''; this.email = (record as AppUser)?.email ?? '';
     this.area = (record as AppUser)?.area ?? '';
+    this.greetingGender = (record as AppUser)?.greetingGender ?? 'Femenino';
     this.baseRole = (record as AppUser)?.baseRole ?? 'COORDINACION_ACADEMICA'; this.status = record?.status ?? 'Activo';
     this.permissions = { ...(record?.permissions ?? {}) }; this.selectedCapabilities = [...(record?.capabilities ?? [])];
     this.programs = record?.scope?.programs.join(', ') ?? (record as AppUser)?.assignedPrograms?.join(', ') ?? '';
@@ -68,7 +75,7 @@ export class SecurityConsoleComponent {
   private values(value: string): string[] { return [...new Set(value.split(',').map(v => v.trim()).filter(Boolean))]; }
   async save(): Promise<void> {
     const scope = { programs: this.values(this.programs), cycles: this.values(this.cycles), teachers: this.values(this.teachers), fields: this.values(this.fields) };
-    await this.run({ action: this.mode === 'user' ? 'saveUser' : this.mode === 'role' ? 'saveRole' : 'grantDelegation', targetId: this.targetId, expectedRevision: this.expectedRevision, value: { area: this.area.trim(), name: this.name, email: this.email.trim().toLowerCase(), role: this.roleLabels[this.baseRole ?? 'CUSTOM'], baseRole: this.baseRole, status: this.status, permissions: this.permissions, capabilities: this.selectedCapabilities, scope, assignedPrograms: scope.programs } });
+    await this.run({ action: this.mode === 'user' ? 'saveUser' : this.mode === 'role' ? 'saveRole' : 'grantDelegation', targetId: this.targetId, expectedRevision: this.expectedRevision, value: { greetingGender: this.greetingGender, area: this.area.trim(), name: this.name, email: this.email.trim().toLowerCase(), role: this.roleLabels[this.baseRole ?? 'CUSTOM'], baseRole: this.baseRole, status: this.status, permissions: this.permissions, capabilities: this.selectedCapabilities, scope, assignedPrograms: scope.programs } });
   }
   async assign(): Promise<void> {
     const user = this.directory()?.usuarios.find(u => u.id === this.selectedUserId); const role = this.directory()?.roles_personalizados.find(r => r.id === this.selectedRoleId);
@@ -93,7 +100,9 @@ export class SecurityConsoleComponent {
     if (this.reason.trim().length < 4) { this.error = 'Escribe un motivo antes de revisar y confirmar.'; return; }
     const command = { ...request, reason: this.reason.trim() };
     const generation = this.sessionGeneration;
-    if (!await this.confirm.confirm({ title: 'Confirmar cambio de acceso', message: `Operación: ${request['action']}. Motivo: ${this.reason}. Se comprobarán nuevamente permisos y revisiones en servidor.`, confirmLabel: 'Confirmar', cancelLabel: 'Volver' })) return;
+    const editorWasOpen = Boolean(this.editorDialog()?.nativeElement.open);
+    this.editorDialog()?.nativeElement.close();
+    if (!await this.confirm.confirm({ title: 'Confirmar cambio de acceso', message: `Operación: ${request['action']}. Motivo: ${this.reason}. Se comprobarán nuevamente permisos y revisiones en servidor.`, confirmLabel: 'Confirmar', cancelLabel: 'Volver' })) { if (editorWasOpen) this.showDialog(); return; }
     const serialized = JSON.stringify(command);
     if (!this.pendingRequest || this.pendingRequest['draft'] !== serialized) this.pendingRequest = { draft: serialized, operationId: crypto.randomUUID() };
     this.busy = true; this.error = ''; this.message = '';
@@ -101,8 +110,8 @@ export class SecurityConsoleComponent {
       const result = await this.service.command({ ...command, operationId: this.pendingRequest['operationId'] });
       if (generation !== this.sessionGeneration) return;
       this.preview = result.preview ?? (request['action'] === 'applyMigration' ? null : this.preview);
-      this.pendingRequest = null; this.mode = null; this.message = 'Operación confirmada y auditada.'; await this.reload();
-    } catch (e) { this.error = this.errorText(e); }
+      this.pendingRequest = null; this.closeEditor(); await this.reload(); this.message = 'Operación confirmada y auditada.';
+    } catch (e) { this.error = this.errorText(e); if (editorWasOpen) this.showDialog(); }
     finally { this.busy = false; }
   }
   private errorText(e: unknown): string { return e instanceof Error ? e.message : 'No se confirmó la operación. Conserva los datos y vuelve a consultar.'; }

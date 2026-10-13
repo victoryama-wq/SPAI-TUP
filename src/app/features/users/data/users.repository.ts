@@ -33,7 +33,8 @@ export interface AppUser {
   revision?: number;
   delegationId?: string;
   identityAliasOf?: string;
-  legacyAuthorization?: { mappingVersion: string; profileRevision: number; expiresAtMillis: number; permissionSchemaVersion: number; baseRole: AppUser['baseRole']; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[] };
+  authorizationNotice?: string;
+  legacyAuthorization?: { mappingVersion: string; mappingRevision: number; profileRevision: number; issuedAtMillis: number; expiresAtMillis: number; permissionSchemaVersion: number; baseRole: AppUser['baseRole']; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[] };
   id: string;
   authUid: string | null;
   name: string;

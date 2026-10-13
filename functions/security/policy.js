@@ -29,9 +29,18 @@ function scope(value = {}) {
 }
 function subset(values, ceiling) { return ceiling.includes('*') || values.every(v => ceiling.includes(v)); }
 function isGeneral(profile) { return !profile?.identityAliasOf && profile?.status === 'Activo' && profile.permissionSchemaVersion === 2 && profile.baseRole === 'ADMIN_GENERAL'; }
-function effective(profile, delegation) {
+function legacyValid(profile, mapping, nowMillis = Date.now()) {
   const legacy = profile?.legacyAuthorization;
-  if (profile?.permissionSchemaVersion !== 2 && legacy?.mappingVersion === MAPPING_VERSION && legacy.profileRevision === profile.revision && legacy.expiresAtMillis > Date.now() && !profile.identityAliasOf && profile.status === 'Activo') profile = { ...profile, ...legacy, permissionSchemaVersion: 2 };
+  return profile?.permissionSchemaVersion !== 2 && profile?.status === 'Activo' && !profile.identityAliasOf
+    && legacy?.mappingVersion === MAPPING_VERSION && legacy.profileRevision === profile.revision
+    && legacy.expiresAtMillis > nowMillis
+    && mapping?.status === 'ACTIVE' && mapping.version === MAPPING_VERSION
+    && mapping.revision === legacy.mappingRevision && mapping.baseRole === legacy.baseRole
+    && mapping.profileRevision === profile.revision && Boolean(mapping.approvedBy);
+}
+function effective(profile, delegation, { mapping, nowMillis = Date.now() } = {}) {
+  const legacy = profile?.legacyAuthorization;
+  if (legacyValid(profile, mapping, nowMillis)) profile = { ...profile, ...legacy, permissionSchemaVersion: 2 };
   const none = { permissions: levels(), capabilities: [], scope: scope(), baseRole: profile?.baseRole ?? 'PENDING', active: false };
   if (profile?.status !== 'Activo' || profile.permissionSchemaVersion !== 2 || profile.identityAliasOf) return none;
   if (isGeneral(profile)) return { permissions: levels(Object.fromEntries(MODULES.map(k => [k, 'EDIT']))), capabilities: [...DELEGABLE, ...NON_DELEGABLE, REQUEST_CAPABILITY], scope: scope({ programs: ['*'], cycles: ['*'], teachers: ['*'], fields: ['*'] }), baseRole: profile.baseRole, active: true };
@@ -74,7 +83,7 @@ const LEGACY_MAPPING = {
   ALTA_DOCENTES: { dashboard: 'VIEW', docentes: 'EDIT' },
 };
 function legacyProposal(profile, verifiedMapping) {
-  const recognized = verifiedMapping?.version === MAPPING_VERSION && verifiedMapping?.approvedBy && LEGACY_MAPPING[verifiedMapping.baseRole];
+  const recognized = verifiedMapping?.status === 'ACTIVE' && verifiedMapping?.version === MAPPING_VERSION && verifiedMapping?.approvedBy && LEGACY_MAPPING[verifiedMapping.baseRole];
   const proposed = levels(); const unresolved = [];
   for (const module of MODULES) {
     const explicit = profile.permissions?.[module];
@@ -86,4 +95,4 @@ function legacyProposal(profile, verifiedMapping) {
   const explicitDenials = MODULES.filter(key => String(profile.permissions?.[key]).toUpperCase() === 'NONE' || (profile.permissions?.[key] === undefined && profile.access?.[key] === false));
   return { mappingVersion: MAPPING_VERSION, baseRole: recognized ? verifiedMapping.baseRole : 'CUSTOM', permissions: proposed, explicitDenials, capabilities: [], scope: scope(profile.scope ?? { programs: list(profile.assignedPrograms) }), unresolved, status: unresolved.length ? 'LEGACY_UNRESOLVED' : 'READY' };
 }
-module.exports = { MODULES, BASE_ROLES, DELEGABLE, NON_DELEGABLE, REQUEST_CAPABILITY, MAPPING_VERSION, RANK, fail, assert, list, levels, scope, subset, isGeneral, effective, requireCapability, customDefinition, canAssign, legacyProposal };
+module.exports = { MODULES, BASE_ROLES, DELEGABLE, NON_DELEGABLE, REQUEST_CAPABILITY, MAPPING_VERSION, RANK, fail, assert, list, levels, scope, subset, isGeneral, legacyValid, effective, requireCapability, customDefinition, canAssign, legacyProposal };

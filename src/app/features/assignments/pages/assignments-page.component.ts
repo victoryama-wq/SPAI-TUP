@@ -1525,11 +1525,11 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   catalogScopeLabel(): string {
     if (this.canSeeAllAssignments()) {
-      return 'Vista Sistemas - Catalogo global';
+      return this.session()?.appUser?.baseRole === 'ADMIN_GENERAL' ? 'Vista Sistemas - Catalogo global' : 'Vista auxiliar - Ámbito delegado';
     }
 
     if (this.usesGlobalCatalogOnly()) {
-      return 'Vista de consulta - Catalogo global';
+      return 'Vista de consulta - Catálogo dentro del ámbito concedido';
     }
 
     return this.catalogScope() === 'GLOBAL'

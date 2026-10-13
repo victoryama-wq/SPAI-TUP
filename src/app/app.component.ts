@@ -63,6 +63,7 @@ export class AppComponent {
   private readonly captureCloseAlertStoragePrefix = 'spai:capture-close-alert:';
 
   readonly isAuthenticated = this.authService.isAuthenticated;
+  readonly authorizationNotice = computed(() => this.userSessionService.session()?.appUser?.authorizationNotice);
   readonly hasActiveAccess = computed(
     () => { const user = this.userSessionService.session()?.appUser; return this.isAuthenticated() && user?.status === 'Activo' && user.permissionSchemaVersion === 2 && !user.identityAliasOf; },
   );

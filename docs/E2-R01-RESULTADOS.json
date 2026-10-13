@@ -1,7 +1,7 @@
 {
   "delivery": "E2-R01",
   "status": "VALIDADA_LOCAL",
-  "date": "2026-10-12",
+  "date": "2026-10-13",
   "branch": "codex/e2-r01-seguridad-permisos",
   "baseCommit": "894be730cd96c94b15b8077c53ed55ccc9610550",
   "mainUnchanged": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2",
@@ -10,14 +10,14 @@
   "node": "22.23.2",
   "environment": "demo-spai-tup / loopback only / synthetic fixtures",
   "unit": {
-    "r01": 8,
+    "r01": 9,
     "local": 8,
     "failed": 0
   },
   "integration": {
-    "testedAt": "2026-10-12T22:41:53.135Z",
+    "testedAt": "2026-10-13T17:53:12.234Z",
     "completed": true,
-    "passed": 32,
+    "passed": 37,
     "cases": [
       {
         "name": "Lectura denegada anonymous",
@@ -140,6 +140,26 @@
         "status": "PASS"
       },
       {
+        "name": "CO-02 CUSTOM VIEW Asignaciones: consultas por programa/ciclo y toda escritura denegada",
+        "status": "PASS"
+      },
+      {
+        "name": "CO-02 excepción académica no se extiende al auxiliar VIEW aun con capacidad sensible",
+        "status": "PASS"
+      },
+      {
+        "name": "Transición: siete días exactos de servidor y preview anterior no confirma al vencer",
+        "status": "PASS"
+      },
+      {
+        "name": "Rules y callables: autorización temporal vigente, vencida, cambiada o revocada",
+        "status": "PASS"
+      },
+      {
+        "name": "Límite 199/200/201: operaciones críticas, directorio y rechazo totalmente atómico",
+        "status": "PASS"
+      },
+      {
         "name": "Dos desactivaciones concurrentes conservan al menos un administrador",
         "status": "PASS"
       },
@@ -150,10 +170,11 @@
     ]
   },
   "browser": {
-    "testedAt": "2026-10-12T22:50:58.007Z",
-    "expected": 3,
+    "testedAt": "2026-10-13T18:04:00.415Z",
+    "expected": 6,
     "unexpected": 0,
-    "skipped": 0
+    "skipped": 0,
+    "flaky": 0
   },
   "regression": {
     "rules": {
@@ -264,10 +285,10 @@
     ]
   },
   "checks": {
-    "functionsSyntax": "PASS (4 files)",
+    "functionsSyntax": "PASS (4 Functions files and review.mjs)",
     "localBuild": "PASS",
     "productionBuild": "PASS",
-    "productionInitialBundleKB": 766.94,
+    "productionInitialBundleKB": 768.85,
     "productionBudgetWarningKB": 750,
     "actionlint": "PASS",
     "diffCheck": "PASS",
@@ -279,18 +300,81 @@
     "push": "NOT_RUN",
     "merge": "NOT_RUN",
     "deploy": "NOT_RUN",
-    "manualOwnerAcceptance": "PENDING"
+    "manualOwnerAcceptance": "PENDING",
+    "fullRun": "Backend and E1 PASS; initial UI failed. Final UI-only runner exit 0 after correction.",
+    "visualAgentInspection": "Desktop 1366x900, mobile 390x844, scoped assignments screenshot inspected; not owner acceptance"
   },
   "sha256": {
-    "firestore.rules": "82a825493e4573838f16dd6ab3065463fe7491eb85dc97f94228827d97ce4ff0",
+    "firestore.rules": "ad56ea9067c177ac87eaef85359711916655cff74e1d8269cdc698bdc9197656",
     "functions/index.js": "fb8f17900b41aafa662361a605006bf407a21743f5f09afe35679deaf3d0f8d4",
-    "functions/security/policy.js": "ffa2453db775c32cf1d3e2996d9d4fe37001638cfa31cea405275dfbe21913dc",
-    "functions/security/service.js": "9efbc8e86b1bd759360a826a25c12c1fb2cefe62fada3a59ff66cb6d95984538",
+    "functions/security/policy.js": "72b0875cb4b822411395028835135d05c325d128843dc8007b91b81c2a1fe6f7",
+    "functions/security/service.js": "b8f57977aa7088a4e55fd42f3cfcb7fba14a216390cb05e9283032b91d44b5be",
     "src/app/core/data/authorized-query.ts": "9ac93aa875627cce3b587deb2f4e788a53c7a08c24d6992d356085e706d6f355",
-    "src/app/features/users/components/security-console.component.ts": "0c5b5c9e465d720f242d545b5d247a5c5356079f8d1a85bbd05bf0889e259a8a",
-    "src/app/features/users/components/security-console.component.html": "ac5208971dc56ad8c84636a7c3ae32ed43dc158d2f161e288ea6fdbc7c061899",
-    "src/app/features/assignments/pages/assignments-page.component.ts": "b87d881263d524962c4097a08caa2654c99c5c241d349b1d4d8b2557c9f274d6",
-    "tools/e2-r01/integration.mjs": "763a316750e5b479d5f7a4fa69a36233e879b5bcfad4a1847af027f21310b266",
-    "tools/e2-r01/ui.spec.mjs": "620a01cfe5b58b7a81bbc040a11a8ac8f47b09e8bc3b86facf0eecd4a5bf0df9"
+    "src/app/features/users/components/security-console.component.ts": "14938ed4ee3b4f9723d26f4be82377f3063b9e0428af8c06e8bf443d7673980a",
+    "src/app/features/users/components/security-console.component.html": "5fef1fb67064dac456167bc5aa2b993e561ef0fe6acfae9ccc97fc3c680f8126",
+    "src/app/features/assignments/pages/assignments-page.component.ts": "2e8fe22704833ac7867ec5dce8347e39473ddad1b04ed2c325e430d88c085288",
+    "tools/e2-r01/integration.mjs": "727bcee4b025598597b6a473ec461e1e5e02b7b08a97fb841b3f1b8d476df784",
+    "tools/e2-r01/ui.spec.mjs": "ba78420b30e252c0dac294543015453f01d8fbe04f2d75f4fdade1d20fb403db",
+    "src/app/core/auth/user-session.service.ts": "2295041cbefff1ec0dd84aacecb411d7e5b0ef98acce0b63900adc95ca6d5d64",
+    "src/app/features/users/components/security-console.component.css": "6c1fc8a2ed16635f30ef20edc1e7e6bcfc733817c90bc7e3bad1f6224069bbe9",
+    "tools/e2-r01/review.mjs": "bdaf0f00d4f8cd2ca1a090b2b4263d2b4b13b7d82b99fbfa3290c1e8f46d9dca",
+    "tools/e2-r01/policy.test.mjs": "25f9efe18e6e1ab339e2ab42bf1d72757c5d2b37cc674bf8bbe44bb0bf5ba0fb",
+    "docs/ETAPA-2-CONTRATOS-ESTABILIZACION.md": "093b8d69601cd2b9557f16ec773df7b50b9eaca30d880ead5cd5418b0feca972",
+    "docs/CONTRATO-CAMBIOS-OPERATIVOS-SPAI.md": "e7d45d340897f541ee18fec559edd2d23304407c472b404dea87642ac5aed304"
+  },
+  "reviewBaseCommit": "7b22264d06c1d2925bf7c3c97058ad06112d9b39",
+  "initialValidation": {
+    "commit": "7b22264d06c1d2925bf7c3c97058ad06112d9b39",
+    "date": "2026-10-12",
+    "unit": {
+      "r01": 8,
+      "local": 8,
+      "failed": 0
+    },
+    "integrationPassed": 32,
+    "browser": {
+      "testedAt": "2026-10-12T22:50:58.007Z",
+      "expected": 3,
+      "unexpected": 0,
+      "skipped": 0
+    }
+  },
+  "administrativeLimit": {
+    "commandCombinedPreState": 200,
+    "collections": [
+      "usuarios",
+      "roles_personalizados",
+      "delegaciones",
+      "asignaciones_roles",
+      "revisiones_roles",
+      "mapeos_permisos"
+    ],
+    "directoryPerCollection": 200,
+    "directoryCollections": 5,
+    "postStateCanExceedLimit": true,
+    "blocksCriticalCommands": true,
+    "partialEffectsOnRejection": false,
+    "productionBlocker": true,
+    "scaleValidation": "NOT_PERFORMED"
+  },
+  "legacyTransition": {
+    "durationDays": 7,
+    "startsAt": "approveMapping server transaction issuedAtMillis",
+    "expiryComparison": "expiresAtMillis > server time",
+    "liveMappingRevisionRequired": true,
+    "preparedBeforeExpiryConfirmedAfter": "REJECTED_WITHOUT_WRITES",
+    "explicitPermissionsAndNonePreserved": true
+  },
+  "operationalCoverage": {
+    "inventory": "docs/CO-INVENTARIO-R01.md",
+    "CO02": "VERIFIED_LOCAL_WITH_CORRECTIONS",
+    "CO11": "VERIFIED_LOCAL_WITH_CORRECTIONS",
+    "MeetDelivery": "E2-R05",
+    "SaekoDelivery": "E2-R08",
+    "futureDeliveriesImplemented": false
+  },
+  "operationalContractSource": {
+    "sha256": "453635215b45ba947783b48b9c4fa826fcfe04940fe4c53255e023af688e6277",
+    "normalization": "Only two Markdown trailing-space line endings; semantic content unchanged"
   }
 }

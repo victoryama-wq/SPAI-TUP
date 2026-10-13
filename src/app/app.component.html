@@ -1,4 +1,5 @@
 @if (!hasActiveAccess()) {
+  @if (authorizationNotice(); as notice) { <p role="alert">{{ notice }}</p> }
   <spai-login-page />
 } @else {
   <div class="app-shell" data-build="hosting-2026-06-23-2" [class.header-collapsed]="isHeaderCollapsed()">

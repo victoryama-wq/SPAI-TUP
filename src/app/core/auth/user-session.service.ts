@@ -75,6 +75,9 @@ export class UserSessionService {
       const userRef = doc(this.firestore, USERS_COLLECTION, authUser.uid);
       let disposed = false;
       let legacyExpiry: ReturnType<typeof setTimeout> | undefined;
+      let lastProfile: DocumentSnapshot | undefined;
+      let mapping: DocumentData | undefined;
+      let mappingUnsubscribe: (() => void) | undefined;
 
       const setSession = (snapshot: DocumentSnapshot) => {
         if (disposed) return;
@@ -83,9 +86,13 @@ export class UserSessionService {
           : null;
         clearTimeout(legacyExpiry);
         const legacy = appUser?.legacyAuthorization;
-        if (appUser && appUser.permissionSchemaVersion !== 2 && !appUser.identityAliasOf && appUser.status === 'Activo' && legacy?.mappingVersion === 'E2-R01-v0.4-1' && legacy.profileRevision === appUser.revision && legacy.expiresAtMillis > Date.now()) {
+        if (appUser && appUser.permissionSchemaVersion !== 2 && !appUser.identityAliasOf && appUser.status === 'Activo' && legacy?.mappingVersion === 'E2-R01-v0.4-1' && legacy.profileRevision === appUser.revision && legacy.expiresAtMillis > Date.now() && mapping?.['status'] === 'ACTIVE' && mapping['version'] === legacy.mappingVersion && mapping['revision'] === legacy.mappingRevision && mapping['profileRevision'] === appUser.revision && mapping['baseRole'] === legacy.baseRole && mapping['approvedBy']) {
           appUser = { ...appUser, ...legacy };
           legacyExpiry = setTimeout(() => setSession(snapshot), legacy.expiresAtMillis - Date.now());
+        } else if (appUser && appUser.permissionSchemaVersion !== 2 && legacy) {
+          appUser = { ...appUser, authorizationNotice: legacy.expiresAtMillis <= Date.now()
+            ? 'La autorización temporal de siete días venció. Solicita a Administración General una nueva vista previa y la migración de tus permisos. Tus permisos explícitos se conservan.'
+            : 'La autorización temporal requiere revisión de Administración General: el perfil o su correspondencia cambiaron.' };
         }
 
         this.sessionSignal.set({
@@ -136,6 +143,12 @@ export class UserSessionService {
 
       let linking = false;
       const unsubscribe = onSnapshot(userRef, async snapshot => {
+        lastProfile = snapshot;
+        if (snapshot.exists() && snapshot.data()['permissionSchemaVersion'] !== 2 && !mappingUnsubscribe) {
+          mappingUnsubscribe = onSnapshot(doc(this.firestore, 'mapeos_permisos', authUser.uid), value => {
+            mapping = value.data(); if (lastProfile) setSession(lastProfile);
+          }, () => { mapping = undefined; if (lastProfile) setSession(lastProfile); });
+        }
         if (snapshot.exists()) { setSession(snapshot); return; }
         setUnauthenticatedAppSession();
         if (linking) return;
@@ -149,6 +162,7 @@ export class UserSessionService {
       onCleanup(() => {
         disposed = true;
         clearTimeout(legacyExpiry);
+        mappingUnsubscribe?.();
         unsubscribe();
       });
     });

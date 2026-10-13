@@ -14,13 +14,21 @@ test('VIEW nunca equivale a EDIT; desconocidos no se normalizan a acceso', () =>
 test('Nombre Sistemas no concede autoridad; inactivo y ausente no operan', () => {
   for (const p of [null, { role: 'Coordinación de Sistemas', status: 'Activo' }, { ...profile, status: 'Inactivo' }]) assert.equal(P.effective(p).active, false);
 });
-test('Alias y correspondencias caducadas no mantienen autoridad', () => {
+test('Caducidad determinista, revisión y mapeo vigente en política de servidor', () => {
   assert.equal(P.effective({...profile, identityAliasOf:'canonical'},grant).active,false);
-  const legacy={authUid:'legacy',status:'Activo',revision:3,legacyAuthorization:{mappingVersion:P.MAPPING_VERSION,profileRevision:3,expiresAtMillis:Date.now()+10000,baseRole:'COORDINACION_ACADEMICA',permissions:P.levels({docentes:'VIEW'}),scope:P.scope({programs:['ADM']})}};
-  assert.equal(P.effective(legacy).permissions.docentes,'VIEW');
-  assert.equal(P.effective({...legacy,revision:4}).active,false);
-  assert.equal(P.effective({...legacy,legacyAuthorization:{...legacy.legacyAuthorization,expiresAtMillis:0}}).active,false);
+  const mapping={status:'ACTIVE',version:P.MAPPING_VERSION,approvedBy:'admin',baseRole:'COORDINACION_ACADEMICA',revision:4,profileRevision:3};
+  const legacy={authUid:'legacy',status:'Activo',revision:3,legacyAuthorization:{mappingVersion:P.MAPPING_VERSION,mappingRevision:4,profileRevision:3,issuedAtMillis:1000,expiresAtMillis:1000+7*86400000,baseRole:'COORDINACION_ACADEMICA',permissions:P.levels({docentes:'VIEW',asignaciones:'NONE'}),scope:P.scope({programs:['ADM']})}};
+  const at=nowMillis=>({mapping,nowMillis}); const expiry=legacy.legacyAuthorization.expiresAtMillis;
+  assert.equal(P.effective(legacy,null,at(expiry-1)).permissions.docentes,'VIEW');
+  assert.equal(P.effective(legacy,null,at(expiry)).active,false);
+  assert.equal(P.effective(legacy,null,at(expiry+1)).active,false);
+  for(const change of [{revision:4},{status:'Inactivo'},{identityAliasOf:'other'}]) assert.equal(P.effective({...legacy,...change},null,at(2000)).active,false);
+  for(const change of [{revision:5},{status:'REVOKED'},{baseRole:'ALTA_DOCENTES'},{profileRevision:4}]) assert.equal(P.effective(legacy,null,{mapping:{...mapping,...change},nowMillis:2000}).active,false);
+  assert.equal(P.effective(legacy,null,{nowMillis:2000}).active,false);
+  assert.equal(legacy.legacyAuthorization.permissions.docentes,'VIEW');
+  assert.equal(legacy.legacyAuthorization.permissions.asignaciones,'NONE');
 });
+
 test('La delegación debe ser activa, propia y referida por el perfil', () => {
   assert.equal(P.effective(profile, grant).permissions.docentes, 'EDIT');
   for (const g of [null, { ...grant, status: 'REVOKED' }, { ...grant, userId: 'other' }, { ...grant, id: 'other' }]) assert.equal(P.effective(profile, g).active, false);
@@ -41,7 +49,7 @@ test('Auxiliar no puede asignarse, asignar a administradores o superar su techo'
   assert.throws(() => P.canAssign(actor,'helper','other',{baseRole:'CUSTOM'}, { ...role, permissions: P.levels({asignaciones:'EDIT'}) }));
 });
 test('Migración preserva NONE y false; ausente no concede; etiqueta no verifica rol', () => {
-  const mapping = { version: P.MAPPING_VERSION, approvedBy: 'admin', baseRole: 'COORDINACION_ACADEMICA' };
+  const mapping = { status: 'ACTIVE', version: P.MAPPING_VERSION, approvedBy: 'admin', baseRole: 'COORDINACION_ACADEMICA' };
   const input = { role: 'Coordinación de Sistemas', access: { docentes: true, asignaciones: false }, permissions: { docentes: 'NONE' }, assignedPrograms:['ADM'] };
   const result = P.legacyProposal(input,mapping);
   assert.equal(result.permissions.docentes,'NONE'); assert.equal(result.permissions.asignaciones,'NONE');
@@ -62,4 +70,12 @@ test('UI real permite EDIT personalizado propio, pero no VIEW ni ámbito ajeno',
   user.permissions.asignaciones='EDIT';user.baseRole='COORDINACION_ACADEMICA';assert.equal(ui.canEditAssignment({...assignment,program:'DER'}),true);
   user.baseRole='ADMIN_OPERATIVO';assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),false);
   user.capabilities=['OPERATE_EXCEPTIONAL_CHANGE'];assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),true);
+});
+
+test('CO-02 dashboard real solo enumera módulos explícitamente concedidos', () => {
+  const helpers=sourceFunctions('src/app/features/users/data/module-permission.service.ts',['hasAccess']);
+  const user={status:'Activo',permissionSchemaVersion:2,baseRole:'CUSTOM',permissions:{asignaciones:'VIEW'},scope:{programs:['ADM'],cycles:['27-1']}};
+  const dashboard=sourceMembers('src/app/features/dashboard/pages/dashboard-page.component.ts','DashboardPageComponent',['customRoleModules','hasModuleAccess'],{userSessionService:{session:()=>({appUser:user})}},helpers);
+  assert.deepEqual(Array.from(dashboard.customRoleModules(),m=>m.key),['asignaciones']);
+  user.permissions.asignaciones='NONE'; assert.equal(dashboard.customRoleModules().length,0);
 });

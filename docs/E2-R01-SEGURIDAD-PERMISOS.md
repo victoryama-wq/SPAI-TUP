@@ -1,6 +1,6 @@
 # E2-R01 — Seguridad y permisos
 
-Fecha: 2026-10-12. Entrega local sobre `894be730cd96c94b15b8077c53ed55ccc9610550`, rama `codex/e2-r01-seguridad-permisos`.
+Fecha inicial: 2026-10-12. Revisión complementaria: 2026-10-13. Entrega local sobre `894be730cd96c94b15b8077c53ed55ccc9610550`, rama `codex/e2-r01-seguridad-permisos`.
 
 Fuente: [contrato completo v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md). Incluye C01, C01.1, C01.2, C09 administrativo y C11 aplicable. El estado y los resultados finales se registran en [la evidencia de ejecución](E2-R01-VALIDACION.md).
 
@@ -25,7 +25,7 @@ En todas las filas se exige perfil activo y autoridad vigente al confirmar, exce
 | Conservar/retirar/sustituir asignación revisable | Solo AG | RESOLVE_AUX_ROLE_REVIEWS | Motivo; revisión vigente; no revivir retirados; sustitución con techo y ámbito compatible | Resolución concurrente: un ganador; KEEP conserva REMOVED |
 | Preview/aplicar transición heredada | Solo AG | MANAGE_USERS | Hash y revisión de perfil, permisos, delegación y correspondencia | Preview obsoleta aborta sin cambios, auditoría ni evento |
 | Vincular identidad técnica | Titular Auth con correo institucional verificado | Ninguna elevación | Solo vínculo canónico; conserva estado/privilegios, alias y referencias de seguridad; no elige duplicados por privilegio | Callable transaccional y allowlist estricta de campos técnicos; inactivo y duplicado |
-| Consultar módulos ordinarios | CA, ALTA_DOCENTES o CUSTOM con VIEW/EDIT; AUX según delegación | Ninguna por el nombre | Consultas de catálogo académico institucional; asignaciones académicas globales para matrícula; otros accesos por programas/docentes/ciclos según colección | Reglas + consultas filtradas; VIEW propio/ajeno y UI académica |
+| Consultar módulos ordinarios | CA, ALTA_DOCENTES o CUSTOM con VIEW/EDIT; AUX según delegación | Ninguna por el nombre | CA: asignaciones globales para matrícula; CUSTOM: solo programa/ciclo concedido; AUX: solo delegación; otros catálogos según colección | Reglas + consultas filtradas; VIEW propio/ajeno y UI académica |
 | Crear/editar catálogo de grupos/nomenclaturas/asignaturas | AG o AUX con EDIT | Sin facultad implícita por rol personalizado | Programa; grupos también ciclo; asignaturas sin programa requieren ámbito global | Reglas; catálogos personalizados solo VIEW |
 | Administrar ciclos | AG o AUX con EDIT | MANAGE_CYCLES | Ciclo y campos delegados | EDIT sin capacidad denegado; ciclo/campo ajenos denegados; positivo autorizado |
 | Editar ficha docente | EDIT docentes | Ninguna para ficha ordinaria | Propio/coordinador asignado; ALTA solo propio; AUX docente y campos delegados; allowlist de ficha | Reglas; no modificar identidad, procedencia ni validación mediante edición ordinaria |
@@ -35,7 +35,7 @@ En todas las filas se exige perfil activo y autoridad vigente al confirmar, exce
 | Eliminar asignación | AG o AUX | OPERATE_EXCEPTIONAL_CHANGE | Programa/ciclo; esta capacidad no implementa recuperación ni depuración | Regla restrictiva; nuevos flujos quedan en R04 |
 | Consultar/responder solicitudes | VIEW/EDIT solicitudes según acción | Sin elevación por texto de rol | Origen/destino/solicitante; actor autenticado al responder; solicitudes Sistemas propias o Sistemas institucional | Direct SDK y regresión E1; FSM/atomicidad académica siguen R03 |
 | Plantillas/categorías Moodle | AG o AUX, VIEW consulta / EDIT escritura | MANAGE_MOODLE_TEMPLATES para escribir | Programa y campos; conserva validación de forma | Reglas; conciliación/importación posteriores |
-| Ligas Meet | VIEW consulta; AG/AUX EDIT | Sin nuevos conectores | Ciclo autorizado; creador y fechas inmutables | Reglas; funcionalidad R08 no implementada |
+| Ligas Meet | VIEW consulta; AG/AUX EDIT | Sin nuevos conectores | Ciclo autorizado; creador y fechas inmutables | Reglas; funcionalidad R05 no implementada (R08 es SAEKO) |
 | Agenda operativa | Sistemas VIEW/EDIT dashboard | Sin acceso por etiqueta | Equipo o propietario privado; identidad del creador inmutable | Reglas y controles de UI/servicio |
 | Bitácora y notificaciones administrativas | AG; bitácora AUX con VIEW y ámbito institucional | Sin escritura verificada desde cliente | Actor/área leídos del perfil en servidor; avisos al destinatario; solo marca de lectura cliente | Cambio + bitácora + evento en una transacción; fallo de escritura revierte todos |
 
@@ -58,7 +58,7 @@ Implementación: `functions/security/policy.js`, versión `E2-R01-v0.4-1`. No ha
 
 Un nivel explícito válido prevalece. `NONE` y `access:false` sin nivel explícito conservan denegación. Un `true` sin correspondencia verificable o módulo reconocido no concede acceso. Ausentes/ambiguos quedan NONE y se listan `LEGACY_UNRESOLVED`. Los ámbitos se conservan, no se inventan. No se migra automáticamente a AG ni AUX.
 
-La correspondencia puede dar una proyección temporal comprobable durante siete días, vinculada a la revisión del perfil. La UI y Rules verifican su caducidad. La vista previa expone estado previo/propuesto y diferencias; aplicar comprueba nuevamente perfil, delegación y mapeo, autoridad y versión. Las denegaciones explícitas migradas permanecen fijadas al recomponer roles.
+La correspondencia puede dar una proyección temporal comprobable durante siete días, vinculada a la revisión del perfil. La UI, Rules y los consumidores de autorización en Functions verifican su caducidad y la revisión vigente del mapeo. La aplicación de una preview preparada antes del vencimiento se rechaza después del plazo. [Eventos, mensajes, pruebas y límites exactos](E2-R01-REVISION-COMPLEMENTARIA.md). La vista previa expone estado previo/propuesto y diferencias; aplicar comprueba nuevamente perfil, delegación y mapeo, autoridad y versión. Las denegaciones explícitas migradas permanecen fijadas al recomponer roles.
 
 ## Trazabilidad de Etapa 1
 
@@ -68,8 +68,12 @@ Los casos E1 de lógica y ciclos/solicitudes/estado Moodle de etapas posteriores
 
 ## Límites de esta entrega
 
-- Operaciones administrativas locales: máximo combinado de 200 documentos en las seis colecciones de seguridad consultadas; el exceso aborta explícitamente y requiere una futura migración por lotes. No se declara validación de escala productiva.
+- Comandos administrativos: máximo combinado de 200 documentos **antes** de ejecutar la operación. El directorio aplica un límite diferente: 200 por cada una de cinco colecciones. El exceso bloquea incluso operaciones críticas y es un **impedimento para producción**; [detalle, errores y criterio de resolución](E2-R01-REVISION-COMPLEMENTARIA.md). No se aumentó el límite ni se declara escala productiva.
 - Las consultas Firestore con ámbitos mayores que sus límites fallan con explicación; no se recortan silenciosamente. La paginación general pertenece a R05.
 - No se migra el respaldo privado ni se cambia `.local/data-source.json`. Las validaciones usan exclusivamente `demo-spai-tup` y fixtures ficticios.
 - La activación inicial de un AG productivo requerirá verificar una identidad institucional mediante un procedimiento autorizado antes de un futuro despliegue. No se deduce un AG de perfiles históricos ni se ofrece un bootstrap público privilegiado.
 - Cierres de captura, unicidad de ciclo, transacciones académicas, cambios especiales, identidad docente, recuperación, depuración, importadores y Meet conservan pendientes de R02–R08. No hay SAEKO ni servicios reales.
+
+## Trazabilidad operativa complementaria
+
+[Inventario CO-01–CO-12 y cobertura CO-02/CO-11](CO-INVENTARIO-R01.md). Conserva existentes y registra pendientes sin implementar las entregas futuras. Ligas Meet corresponde a R05; R08 corresponde a SAEKO.

@@ -9,6 +9,7 @@ import { httpsCallable } from 'firebase/functions';
 import { root, config, password, localEnvironment, verifyHub } from '../local/config.mjs';
 import { runtime, localConfig } from '../local/tests/runtime.mjs';
 import { guardNetwork } from '../local/tests/network-guard.mjs';
+import { reviewTests } from './review.mjs';
 if (process.env.SPAI_LOCAL_SYNTHETIC !== 'true') throw new Error('Solo fixtures sintéticos mediante test:r01.');
 const network=guardNetwork(); await verifyHub(); Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json'));
@@ -266,6 +267,7 @@ try {
   await notices.docs[0].ref.update({read:true});await processNotification(db,eventId,true);
   assert.equal((await notices.docs[0].ref.get()).data().read,true);
  });
+ await reviewTests({ db, P, clients, check, denied, command, read, rev, profile, createSecurityService, processNotification });
  await check('Dos desactivaciones concurrentes conservan al menos un administrador',async()=>{
   // Remove only the synthetic seed administrator for this isolated race.
   await db.doc('usuarios/demo-sistemas').update({status:'Inactivo'});
