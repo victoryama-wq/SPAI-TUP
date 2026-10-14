@@ -376,5 +376,367 @@
   "operationalContractSource": {
     "sha256": "453635215b45ba947783b48b9c4fa826fcfe04940fe4c53255e023af688e6277",
     "normalization": "Only two Markdown trailing-space line endings; semantic content unchanged"
+  },
+  "historicalEvidenceNote": "Los campos de nivel superior fechados 2026-10-13 y sus hashes se conservan como evidencia histórica. acceptanceReview contiene la revisión actual.",
+  "acceptanceReview": {
+    "date": "2026-10-14",
+    "baseCommit": "ef82fc60d02a2eee8e158f04e1104b8110a4b9a5",
+    "status": "VALIDADA_LOCAL",
+    "manualOwnerAcceptance": "PENDING",
+    "physicalSecondComputerFullWalkthrough": "PENDING",
+    "commitIdentity": "Commit que incorpora docs/HALLAZGOS-PRUEBA-MANUAL-E2-R01.md; recibo posterior .local/acceptance/commit-validation.json",
+    "environment": "Windows / Node 22.23.2 / demo-spai-tup / synthetic isolated emulators; LAN demo preserved",
+    "browser": "Chromium 153.0.8010.12",
+    "viewports": [
+      [
+        1366,
+        900
+      ],
+      [
+        768,
+        1024
+      ],
+      [
+        1032,
+        1376
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "unit": {
+      "local": 10,
+      "r01": 9,
+      "authentication": 3,
+      "passed": 22,
+      "failed": 0
+    },
+    "integration": {
+      "testedAt": "2026-10-14T21:56:25.338Z",
+      "completed": true,
+      "passed": 37,
+      "cases": [
+        {
+          "name": "Lectura denegada anonymous",
+          "status": "PASS"
+        },
+        {
+          "name": "Lectura denegada r01-inactive",
+          "status": "PASS"
+        },
+        {
+          "name": "Lectura denegada r01-legacy",
+          "status": "PASS"
+        },
+        {
+          "name": "Lectura denegada r01-person",
+          "status": "PASS"
+        },
+        {
+          "name": "Directorio callable exige Auth y Administración",
+          "status": "PASS"
+        },
+        {
+          "name": "VIEW consulta ámbito propio y rechaza ámbito ajeno/escritura",
+          "status": "PASS"
+        },
+        {
+          "name": "EDIT ficha propia sin identidad ni ajenas",
+          "status": "PASS"
+        },
+        {
+          "name": "Asignaciones propias y excepción global de matrículas sin complejidad",
+          "status": "PASS"
+        },
+        {
+          "name": "Identidad de asignación Moodle protegida incluso para administrador",
+          "status": "PASS"
+        },
+        {
+          "name": "Autoservicio no permite modificar, añadir o eliminar privilegios",
+          "status": "PASS"
+        },
+        {
+          "name": "Perfil inactivo conserva vinculación sin activarse",
+          "status": "PASS"
+        },
+        {
+          "name": "Cliente no fabrica roles, delegaciones, auditoría ni eventos",
+          "status": "PASS"
+        },
+        {
+          "name": "Administrador crea rol y delegación explícita",
+          "status": "PASS"
+        },
+        {
+          "name": "Auxiliar asigna preaprobado con procedencia y destinatarios filtrados",
+          "status": "PASS"
+        },
+        {
+          "name": "Auxiliar no administra definiciones, usuarios, delegaciones ni terceros superiores",
+          "status": "PASS"
+        },
+        {
+          "name": "Rol de nombre inocuo no permite superar capacidades ni ámbito",
+          "status": "PASS"
+        },
+        {
+          "name": "Reintento devuelve mismo resultado sin duplicar auditoría/evento",
+          "status": "PASS"
+        },
+        {
+          "name": "Revocar conserva roles activos, ignora retirados y notifica a todos los administradores",
+          "status": "PASS"
+        },
+        {
+          "name": "Sesión abierta revocada pierde acceso directo y operaciones preparadas",
+          "status": "PASS"
+        },
+        {
+          "name": "Nueva delegación no reutiliza identidad ni resuelve revisión anterior",
+          "status": "PASS"
+        },
+        {
+          "name": "Dos administradores no sobrescriben resolución de revisión",
+          "status": "PASS"
+        },
+        {
+          "name": "Asignación concurrente con revocación nunca queda sin seguimiento",
+          "status": "PASS"
+        },
+        {
+          "name": "Migración muestra ausencias y preserva revocaciones explícitas",
+          "status": "PASS"
+        },
+        {
+          "name": "Vista previa obsoleta no restaura permisos ni produce efectos",
+          "status": "PASS"
+        },
+        {
+          "name": "Identidad técnica vincula UID sin activar ni copiar autoridad de duplicados",
+          "status": "PASS"
+        },
+        {
+          "name": "Alta de Docentes consulta catálogo y edita solo ficha propia",
+          "status": "PASS"
+        },
+        {
+          "name": "Capacidad sensible y ámbitos de ciclo, docente y campos se exigen por separado",
+          "status": "PASS"
+        },
+        {
+          "name": "Sustitución revisada no reactiva retirados ni mezcla ámbitos",
+          "status": "PASS"
+        },
+        {
+          "name": "Fallo de persistencia de auditoría revierte también cambio y evento",
+          "status": "PASS"
+        },
+        {
+          "name": "Cambio, bitácora y evento tienen actor real y efecto idempotente",
+          "status": "PASS"
+        },
+        {
+          "name": "CO-02 CUSTOM VIEW Asignaciones: consultas por programa/ciclo y toda escritura denegada",
+          "status": "PASS"
+        },
+        {
+          "name": "CO-02 excepción académica no se extiende al auxiliar VIEW aun con capacidad sensible",
+          "status": "PASS"
+        },
+        {
+          "name": "Transición: siete días exactos de servidor y preview anterior no confirma al vencer",
+          "status": "PASS"
+        },
+        {
+          "name": "Rules y callables: autorización temporal vigente, vencida, cambiada o revocada",
+          "status": "PASS"
+        },
+        {
+          "name": "Límite 199/200/201: operaciones críticas, directorio y rechazo totalmente atómico",
+          "status": "PASS"
+        },
+        {
+          "name": "Dos desactivaciones concurrentes conservan al menos un administrador",
+          "status": "PASS"
+        },
+        {
+          "name": "Todas las conexiones observadas permanecen en loopback",
+          "status": "PASS"
+        }
+      ]
+    },
+    "ui": {
+      "startTime": "2026-10-14T22:09:31.004Z",
+      "duration": 56516.691,
+      "expected": 13,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "regression": {
+      "rules": {
+        "cases": 52,
+        "characterizationPassed": 52,
+        "contractPassed": 44,
+        "knownContractFailures": 8,
+        "decisionsPending": 0
+      },
+      "logic": {
+        "cases": 20,
+        "characterizationPassed": 20,
+        "contractPassed": 10,
+        "knownContractFailures": 10,
+        "decisionsPending": 0
+      },
+      "contractsExit": 1,
+      "openContractsUnchanged": 18,
+      "strictGate": [
+        "CONTRACT_FAIL REQUEST-TERMINAL-REWRITE F07 etapa 3",
+        "CONTRACT_FAIL CYCLE-WRITE-Preparacion F04 etapa 3",
+        "CONTRACT_FAIL CYCLE-CREATE-Preparacion F04 etapa 3",
+        "CONTRACT_FAIL CYCLE-WRITE-Captura cerrada F04 etapa 3",
+        "CONTRACT_FAIL CYCLE-CREATE-Captura cerrada F04 etapa 3",
+        "CONTRACT_FAIL CYCLE-WRITE-Cerrado F04 etapa 3",
+        "CONTRACT_FAIL CYCLE-CREATE-Cerrado F04 etapa 3",
+        "CONTRACT_FAIL MOODLE-STATUS-RESET-ALLOWED F08 etapa 3",
+        "CONTRACT_FAIL CYCLE-MULTIPLE-OPERATIVE F05 etapa 3",
+        "CONTRACT_FAIL CYCLE-SELECTION-ORDER F05 etapa 3",
+        "CONTRACT_FAIL REQUEST-CREATE-AWAITS F06 etapa 3",
+        "CONTRACT_FAIL REQUEST-RESOLVE-AWAITS F06 etapa 3",
+        "CONTRACT_FAIL REQUEST-DUPLICATE-CREATE F07 etapa 3",
+        "CONTRACT_FAIL UI-PREMATURE-SUCCESS F06 etapa 3",
+        "CONTRACT_FAIL SHARE-PRESERVES-MOODLE F08 etapa 3",
+        "CONTRACT_FAIL SHARE-PARTIAL-AND-SUCCESS F07 etapa 3",
+        "CONTRACT_FAIL REQUEST-DOUBLE-ACCEPT F07 etapa 3",
+        "CONTRACT_FAIL SHARE-CONCURRENT-LOST-GROUP F07 etapa 3"
+      ]
+    },
+    "builds": {
+      "local": "PASS",
+      "lan": "PASS",
+      "production": "PASS",
+      "productionInitialKB": 768.66,
+      "warningBudgetKB": 750
+    },
+    "functionsAndToolsSyntax": "PASS",
+    "T09": {
+      "technical": "PASS",
+      "account": "demo.r01.consulta@tecplayacar.edu.mx",
+      "role": "PRUEBA-R01-Consulta",
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ]
+      },
+      "modules": {
+        "asignaciones": "VIEW"
+      },
+      "evidence": "docs/evidence/r01-acceptance/t09.json"
+    },
+    "T10": {
+      "technical": "PASS",
+      "cycleState": "Captura",
+      "actorsBefore": "docs/evidence/r01-acceptance/t10-actors-before.json",
+      "academicGlobalEnrollment": "ALLOWED",
+      "academicForeignTeacher": "DENIED",
+      "customAndAuxiliaryForeignEnrollment": "DENIED"
+    },
+    "T11": {
+      "technical": "PASS",
+      "reportedTwoLaptops": "PRESERVED_USER_REPORT_NOT_OBSERVED_BY_CODEX",
+      "evidence": "docs/evidence/r01-acceptance/t11.json"
+    },
+    "LAN": {
+      "status": "PASS",
+      "base": "http://192.168.41.254:4201",
+      "checks": [
+        {
+          "email": "demo.sistemas@tecplayacar.edu.mx",
+          "route": "/usuarios",
+          "reload": true
+        },
+        {
+          "email": "demo.r01.consulta@tecplayacar.edu.mx",
+          "route": "/asignaciones",
+          "reload": true
+        }
+      ],
+      "browser": "153.0.8010.12",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "requests": 154,
+      "origins": [
+        "http://192.168.41.254:4201"
+      ],
+      "services": [
+        {
+          "path": "identitytoolkit.googleapis.com",
+          "observed": true
+        },
+        {
+          "path": "google.firestore.v1.Firestore",
+          "observed": true
+        },
+        {
+          "path": "demo-spai-tup/us-central1",
+          "observed": true
+        }
+      ],
+      "administration": "not published",
+      "pageErrors": [],
+      "physicalSecondComputer": false
+    },
+    "rulesDiagnostics": "El emulador incluye diagnósticos preliminares; cada allow aplicable debe retornar false explícito en la misma línea. Error aislado, catch-all solo, límite de expresiones o INTERNAL/UNAVAILABLE no acreditan rechazo. Rules sin cambios.",
+    "corrections": [
+      "Estilos institucionales Usuarios/Roles y una columna hasta 800 px",
+      "Identidad CUSTOM explícita en Auth Emulator",
+      "Guard DEMO exige emulador; production sin lista DEMO",
+      "Ensayos aislados sin reiniciar demo compartida",
+      "Conservación e integración del trabajo LAN previo",
+      "Reporte manual y matriz corregidos"
+    ],
+    "preserved": {
+      "privateSnapshotSha256": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+      "privateSelectionSha256": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+      "contractV04Sha256": "093b8d69601cd2b9557f16ec773df7b50b9eaca30d880ead5cd5418b0feca972",
+      "sourceManualReportSha256": "448ca346d99538e5a6be434f3fd8510dda8bb0db819fa6ce51e5b52289ed7da6",
+      "main": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2"
+    },
+    "pending": [
+      "T01 recorrido completo en segunda computadora física",
+      "Aceptación manual del propietario",
+      "Límite administrativo >200: impedimento productivo",
+      "18 incumplimientos R02/R03 sin modificación",
+      "Responsive previo Asignaciones R05/R07",
+      "CI remota, migración/rollback y acceso institucional real en ventana autorizada"
+    ],
+    "remoteCI": "NOT_RUN",
+    "push": "NOT_RUN",
+    "merge": "NOT_RUN",
+    "deploy": "NOT_RUN",
+    "productionCalls": "NOT_RUN",
+    "moodleSaekoCalls": "NOT_RUN",
+    "realEmails": "NOT_SENT",
+    "sha256": {
+      "firestore.rules": "ad56ea9067c177ac87eaef85359711916655cff74e1d8269cdc698bdc9197656",
+      "functions/local-runtime.js": "5d7128b18a52c11e8b583048e9ea0a828779eaa6ebb89e65b286ff4d99b7965a",
+      "src/app/core/auth/auth.service.ts": "edb0444f29e43f17c9406c718287c787bff060a00733c1cb006e2aced7ef4279",
+      "src/app/core/firebase/firebase.runtime.ts": "d288079ba66111612f79011c42cd418cd6221db53d5b761124e6cb65c7ff9941",
+      "src/app/features/users/components/security-console.component.css": "c1a0bff5ec6d8f29c94cc62501962e04b3ca7683dc8151ce175130009fac8b46",
+      "src/app/features/users/components/security-console.component.ts": "9f6aacd2a8e949cc6b452e5c773bfb13eed2f3033e6930a40745be9853da22e6",
+      "src/environments/environment.prod.ts": "e8c6ec9a8ee0aa7f679d0f6bb39727453a1c8676f9cca810c4cf38f7c4ae9704",
+      "src/environments/local-review-accounts.json": "6851d969d5928defeaf9dfe3ac8a24f5a206de57010274556f45755497bdb875",
+      "tools/e2-r01/acceptance.spec.mjs": "dcedf310243d734528833614c63b8de6e7f796c8c3e89d066cc718e8ba85cab2",
+      "tools/e2-r01/auth-config.test.mjs": "c12a6b3e16276b0830e4eb696bd8cf05c980f5b226c26322e0f618e70e2987ba",
+      "tools/e2-r01/prepare-demo.mjs": "c6942dab2cb2e73345265670ebd29f801ab1d972695b7f89de4705b0778c3d8d",
+      "tools/local/lan.mjs": "4b2ebe7008d53e336dc046a2c3e15a35bbae0e194520f946c293fdb94dd7d895"
+    }
   }
 }

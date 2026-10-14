@@ -77,3 +77,7 @@ Los casos E1 de lógica y ciclos/solicitudes/estado Moodle de etapas posteriores
 ## Trazabilidad operativa complementaria
 
 [Inventario CO-01–CO-12 y cobertura CO-02/CO-11](CO-INVENTARIO-R01.md). Conserva existentes y registra pendientes sin implementar las entregas futuras. Ligas Meet corresponde a R05; R08 corresponde a SAEKO.
+
+## Ajuste de aceptación del 14 de octubre
+
+[Seguimiento del reporte manual](HALLAZGOS-PRUEBA-MANUAL-E2-R01.md): presentación institucional de Usuarios/Roles, identidad CUSTOM explícita en Authentication Emulator, aislamiento de ensayos respecto a la demo LAN, y evidencia T09/T10/T11. Rules y la política de autorización no se modifican en este ajuste. [Uso de la demo LAN](DEMO-LAN.md). El acceso institucional Google permanece separado; `signInWithLocalAccount` exige también conexión efectiva al emulador. La aceptación del propietario y el recorrido T01 desde una segunda computadora física siguen pendientes.

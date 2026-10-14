@@ -1,8 +1,11 @@
 import emulators from './local-emulators.json';
+import accounts from './local-accounts.json';
+import reviewAccounts from './local-review-accounts.json';
 
 export const environment = {
   mode: 'local' as 'local' | 'production',
   production: false,
+  demoAccounts: [...accounts, ...reviewAccounts],
   emulators,
   firebase: {
     apiKey: 'demo-spai-tup-not-a-real-key',

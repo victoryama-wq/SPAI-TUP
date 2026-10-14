@@ -2,7 +2,6 @@ import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserSessionService } from '../../../../core/auth/user-session.service';
 import { environment } from '../../../../../environments/environment';
-import localAccounts from '../../../../../environments/local-accounts.json';
 
 type LoginState = 'loading' | 'signedOut' | 'preparing' | 'pending';
 type MascotPose = 'base' | 'saludo';
@@ -14,8 +13,8 @@ type MascotPose = 'base' | 'saludo';
 })
 export class LoginPageComponent implements OnDestroy {
   readonly isLocal = environment.mode === 'local';
-  readonly localAccounts = localAccounts;
-  localEmail = localAccounts[0].email;
+  readonly localAccounts = environment.demoAccounts;
+  localEmail = this.localAccounts[0]?.email ?? '';
   private readonly authService = inject(AuthService);
   private readonly userSessionService = inject(UserSessionService);
   private readonly busySignal = signal(false);

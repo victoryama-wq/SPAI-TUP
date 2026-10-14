@@ -43,3 +43,18 @@ Los estados siguientes corresponden a la evidencia ejecutada de [la ficha](E2-R0
 «Catálogo global» es una etiqueta de presentación, no un permiso institucional. CUSTOM nunca hereda la excepción de CA. AUX sigue su delegación incluso cuando la UI presenta el catálogo completo dentro de ese ámbito. No se amplió el acceso de ninguno de estos actores.
 
 Corrección de trazabilidad: **Ligas Meet pertenece a R05; R08 es SAEKO**. Ambas funcionalidades siguen fuera de esta revisión.
+
+## Seguimiento de aceptación 2026-10-14
+
+Se conserva el inventario anterior. Esta revisión modifica únicamente el ajuste visual CO-11 y el soporte DEMO necesario para acreditar CO-02/R01; no implementa los CO de otras entregas.
+
+| Requisito | Implementación / cambio | Evidencia nueva | Estado técnico |
+|---|---|---|---|
+| CO-02 identidad CUSTOM auténtica en emulador | `local-review-accounts.json`, `prepare-demo.mjs`, selector por environment | `acceptance.spec.mjs` T09: inicio, ADM/27-1, lecturas ajenas/sin filtro, escrituras SDK/REST y rutas; `t09.json` | Verificado local |
+| CO-02 excepción de matrícula global de CA | Rules sin cambios; ciclo ficticio en Captura | T10: perfiles y delegación efectiva registrados antes; matrícula ajena admitida, docente ajeno denegado | Verificado local, cierre sigue R02 |
+| CO-02 auxiliar limitado por delegación | Sin ampliar capacidades ni ámbito | T10: auxiliar EDIT ADM/27-1 sin campos extraordinarios no hereda matrícula global; T11: revocación y siguientes operaciones | Verificado local |
+| CO-11 estilo institucional y campos completos | CSS propio de `security-console.component`, controles 44 px y una columna hasta 800 px | Cuatro pruebas de viewport: 1366×900, 768×1024, 1032×1376, 390×844; foco a todos los campos y geometría | Corregido en esta revisión |
+| CO-11 dos pasos, Consultar/Editar, modal sobre navegación | Lógica conservada | Regresiones originales más capturas de Usuarios/Roles inspeccionadas por Codex; Escape/foco/cancelación | Verificado local |
+| Aceptación humana | [Reporte y guion](HALLAZGOS-PRUEBA-MANUAL-E2-R01.md) | T01 requiere segunda computadora física; propietario debe repetir revisión de ajustes | Pendiente |
+
+Las imágenes originales de Asignaciones se clasifican separadamente como defecto previo R05/R07. No son evidencia del formulario de Usuarios. No se ejecutó validación integral de funcionalidades futuras.

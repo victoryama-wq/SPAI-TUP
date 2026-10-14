@@ -66,7 +66,7 @@ export class AuthService {
   }
 
   async signInWithLocalAccount(email: string): Promise<void> {
-    if (environment.mode !== 'local' || this.auth.app.options.projectId !== 'demo-spai-tup') {
+    if (environment.mode !== 'local' || this.auth.app.options.projectId !== 'demo-spai-tup' || !this.auth.emulatorConfig) {
       throw new Error('El acceso DEMO solo esta disponible con Authentication Emulator.');
     }
     this.redirectErrorSignal.set('');

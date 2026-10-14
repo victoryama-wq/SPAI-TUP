@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { randomId } from '../../../core/utils/random-id';
 import { Component, computed, effect, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
@@ -56,7 +57,7 @@ export class SecurityConsoleComponent {
   userName(id?: string): string { const user = this.directory()?.usuarios.find(u => u.id === id); return user ? `${user.name} (${user.email})` : 'Perfil fuera de esta vista'; }
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
-    this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? crypto.randomUUID(); this.expectedRevision = record?.revision ?? 0;
+    this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? randomId(); this.expectedRevision = record?.revision ?? 0;
     this.name = record?.name ?? ''; this.email = (record as AppUser)?.email ?? '';
     this.area = (record as AppUser)?.area ?? '';
     this.greetingGender = (record as AppUser)?.greetingGender ?? 'Femenino';
@@ -104,7 +105,7 @@ export class SecurityConsoleComponent {
     this.editorDialog()?.nativeElement.close();
     if (!await this.confirm.confirm({ title: 'Confirmar cambio de acceso', message: `Operación: ${request['action']}. Motivo: ${this.reason}. Se comprobarán nuevamente permisos y revisiones en servidor.`, confirmLabel: 'Confirmar', cancelLabel: 'Volver' })) { if (editorWasOpen) this.showDialog(); return; }
     const serialized = JSON.stringify(command);
-    if (!this.pendingRequest || this.pendingRequest['draft'] !== serialized) this.pendingRequest = { draft: serialized, operationId: crypto.randomUUID() };
+    if (!this.pendingRequest || this.pendingRequest['draft'] !== serialized) this.pendingRequest = { draft: serialized, operationId: randomId() };
     this.busy = true; this.error = ''; this.message = '';
     try {
       const result = await this.service.command({ ...command, operationId: this.pendingRequest['operationId'] });

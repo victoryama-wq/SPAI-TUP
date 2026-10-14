@@ -1,15 +1,50 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { createRequire } from 'node:module';
 import vm from 'node:vm';
-import { config, root, localEnvironment, assertLocalConfig, accounts } from '../config.mjs';
+import ts from 'typescript';
+import { config, root, localEnvironment, assertLocalConfig, accounts, cliConfigFile } from '../config.mjs';
 import { fixtures } from '../fixtures.mjs';
 import { runtime, localConfig } from './runtime.mjs';
 
 const require = createRequire(import.meta.url);
 const { resolveLocalRuntime } = require('../../../functions/local-runtime.js');
+
+test('UUID fallback uses secure random bytes on HTTP LAN and preserves UUID v4 format', () => {
+  const source = readFileSync(resolve(root, 'src/app/core/utils/random-id.ts'), 'utf8');
+  const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const exported = {};
+  vm.runInNewContext(code, { exports: exported });
+  let calls = 0;
+  const fallback = { getRandomValues: (bytes) => { calls++; return globalThis.crypto.getRandomValues(bytes); } };
+  const ids = Array.from({ length: 100 }, () => exported.randomId(fallback));
+  assert.equal(calls, 100);
+  assert.equal(new Set(ids).size, 100);
+  for (const id of ids) assert.match(id, /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/);
+  assert.equal(exported.randomId({ randomUUID: () => 'native-path' }), 'native-path');
+  assert.throws(() => exported.randomId({}));
+});
+
+test('LAN is opt-in, private, same-host and only demo-spai-tup through port 4201', () => {
+  const before = globalThis.window;
+  try {
+    globalThis.window = { location: { hostname: '192.168.41.254', protocol: 'http:', port: '4201' } };
+    const lan = { ...localConfig, demoLan: true, emulators: { ...config, host: '192.168.41.254', auth: 4201, firestore: 4201, functions: 4201, storage: 4201 } };
+    assert.doesNotThrow(() => runtime.validateFirebaseConfig(lan));
+    assert.throws(() => runtime.validateFirebaseConfig(localConfig));
+    for (const bad of [
+      { ...lan, demoLan: false }, { ...lan, mode: 'production' },
+      { ...lan, emulators: { ...lan.emulators, host: '8.8.8.8' } },
+      { ...lan, emulators: { ...lan.emulators, host: '192.168.41.253' } },
+      { ...lan, emulators: { ...lan.emulators, firestore: 8080 } },
+      { ...lan, firebase: { ...lan.firebase, projectId: 'real-project' } },
+    ]) assert.throws(() => runtime.validateFirebaseConfig(bad));
+  } finally {
+    if (before === undefined) delete globalThis.window; else globalThis.window = before;
+  }
+});
 
 test('Local rejects real projects, remote hosts and incomplete endpoints before creating an app', () => {
   assert.doesNotThrow(() => runtime.validateFirebaseConfig(localConfig));
@@ -30,16 +65,21 @@ test('Functions reject missing emulator configuration and never mix live project
     assert.throws(() => resolveLocalRuntime({ ...env, [key]: undefined }));
   }
   assert.throws(() => resolveLocalRuntime({ ...env, GCLOUD_PROJECT: 'production-example' }));
+  const isolated = { ...env, FIRESTORE_EMULATOR_HOST:'127.0.0.1:18080', FIREBASE_AUTH_EMULATOR_HOST:'127.0.0.1:19099', FIREBASE_STORAGE_EMULATOR_HOST:'127.0.0.1:19199' };
+  assert.equal(resolveLocalRuntime(isolated).projectId, 'demo-spai-tup');
+  for (const [key, normal] of Object.entries({FIRESTORE_EMULATOR_HOST:'127.0.0.1:8080', FIREBASE_AUTH_EMULATOR_HOST:'127.0.0.1:9099', FIREBASE_STORAGE_EMULATOR_HOST:'127.0.0.1:9199'})) {
+    assert.throws(() => resolveLocalRuntime({...isolated,[key]:normal}));
+  }
 });
 
 test('Angular, Firebase CLI and scripts share endpoints; rules remain the original files', () => {
-  const cli = JSON.parse(readFileSync(resolve(root, 'firebase.local.json')));
+  const cli = JSON.parse(readFileSync(cliConfigFile));
   for (const key of ['auth', 'firestore', 'functions', 'storage', 'hub', 'ui']) {
     assert.equal(cli.emulators[key].host, config.host);
     assert.equal(cli.emulators[key].port, config[key]);
   }
-  assert.equal(cli.firestore.rules, 'firestore.rules');
-  assert.equal(cli.storage.rules, 'storage.rules');
+  assert.equal(resolve(dirname(cliConfigFile), cli.firestore.rules), resolve(root,'firestore.rules'));
+  assert.equal(resolve(dirname(cliConfigFile), cli.storage.rules), resolve(root,'storage.rules'));
   const html = readFileSync(resolve(root, 'src/index.local.html'), 'utf8');
   assert.match(html, /Content-Security-Policy/);
   assert.doesNotMatch(html, /googleapis|gstatic|spai-6ef68/);

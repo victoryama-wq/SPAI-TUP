@@ -80,7 +80,7 @@ test('Una sesión auxiliar abierta pierde el directorio al revocar su delegació
     await command({ action: 'revokeDelegation', targetId: result.data.delegationId, expectedRevision: 1 });
     await expect(page.getByRole('heading', { name: 'Asignar un rol preaprobado' })).toHaveCount(0);
     await expect(page.locator('nav').getByText('Usuarios', { exact: true })).toHaveCount(0);
-    await expect(page).toHaveURL('http://127.0.0.1:4200/');
+    await expect(page).toHaveURL(new URL('/',test.info().project.use.baseURL).href);
     await expect(page.locator('.security-panel')).toHaveCount(0);
     await page.screenshot({ path: '.local/test-results/r01-ui-revocacion.png', fullPage: true });
   } finally { await terminate(client.db); await deleteApp(client.app); await deleteAdmin(admin); }

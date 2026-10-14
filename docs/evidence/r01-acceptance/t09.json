@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "actor": "demo-r01-consulta",
+  "scope": {
+    "programs": [
+      "ADM"
+    ],
+    "cycles": [
+      "27-1"
+    ]
+  },
+  "writes": "denied",
+  "directReadsOutside": "denied",
+  "ui": "one module; no write controls",
+  "browser": "Chromium"
+}

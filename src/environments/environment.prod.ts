@@ -1,6 +1,7 @@
 export const environment = {
   mode: 'production' as 'local' | 'production',
   production: true,
+  demoAccounts: [] as { uid: string; email: string; name: string }[],
   firebase: {
     apiKey: 'AIzaSyDEwZ9KmHu4G5EimzZunaFg-NDp-TSBUno',
     authDomain: 'spai-6ef68.firebaseapp.com',

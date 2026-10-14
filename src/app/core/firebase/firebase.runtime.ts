@@ -6,24 +6,32 @@ import { connectStorageEmulator, getStorage } from 'firebase/storage';
 
 export interface FirebaseRuntimeConfig {
   mode: 'local' | 'production';
+  demoLan?: boolean;
   firebase: FirebaseOptions;
   emulators?: { projectId: string; host: string; auth: number; firestore: number; functions: number; storage: number };
 }
 
 export function validateFirebaseConfig(config: FirebaseRuntimeConfig): void {
   if (config.mode === 'production') {
-    if (config.firebase.projectId?.startsWith('demo-') || config.emulators) {
+    if (config.firebase.projectId?.startsWith('demo-') || config.emulators || config.demoLan) {
       throw new Error('Configuracion de produccion incompatible con emuladores.');
     }
     return;
   }
   const local = config.emulators;
+  const octets = local?.host.split('.').map(Number) ?? [];
+  const privateHost = octets.length === 4 && octets.every((n) => Number.isInteger(n) && n >= 0 && n <= 255)
+    && (octets[0] === 10 || (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) || (octets[0] === 192 && octets[1] === 168));
+  const lan = config.demoLan === true && privateHost && local?.projectId === 'demo-spai-tup'
+    && typeof window !== 'undefined' && window.location.hostname === local.host
+    && window.location.protocol === 'http:' && window.location.port === '4201'
+    && [local.auth, local.firestore, local.functions, local.storage].every((port) => port === 4201);
   if (config.mode !== 'local' || !local || !local.projectId.startsWith('demo-')
-    || config.firebase.projectId !== local.projectId || local.host !== '127.0.0.1'
+    || config.firebase.projectId !== local.projectId || (config.demoLan ? !lan : local.host !== '127.0.0.1')
     || ![local.auth, local.firestore, local.functions, local.storage].every((port) => Number.isInteger(port) && port > 0 && port < 65536)) {
-    throw new Error('Modo local requiere proyecto demo- y todos los emuladores en 127.0.0.1.');
+    throw new Error('Modo local requiere emuladores de prueba en loopback o la pasarela LAN explicita.');
   }
-  if (typeof window !== 'undefined' && !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
+  if (!lan && typeof window !== 'undefined' && !['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
     throw new Error('La compilacion local solo puede ejecutarse en este equipo.');
   }
 }

@@ -1,4 +1,4 @@
-:host { display:block; color:#15334c; }
+:host { display:block; min-width:0; color:#15334c; }
 .security-panel { background:white; border-radius:14px; padding:24px; }
 h2,h3 { color:#12416a; } fieldset { margin:16px 0; padding:16px; border:1px solid #bacbd5; }
 label { display:block; margin:10px 0; } input:not([type=checkbox]),select { display:block; min-height:38px; width:min(100%,600px); padding:6px; }
@@ -20,3 +20,48 @@ button { padding:8px 12px; margin:4px; cursor:pointer; } .permission-row { displ
 .editor-actions { flex-wrap:wrap; border-top:1px solid #bacbd5; }
 button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #087bba; outline-offset:2px; }
 @media(max-width:600px) { .security-dialog {width:calc(100vw - 16px); max-height:calc(100dvh - 16px);} #security-editor .editor-body {grid-template-columns:minmax(0,1fr);} .editor-heading,.editor-actions,.editor-body {padding:12px;} }
+
+/* Keep the R01 editor aligned with the institutional user forms. These styles
+   are scoped to this component; Asignaciones and the application shell retain
+   their own layout. */
+.security-panel { border:1px solid #d7e4f8; box-shadow:0 14px 32px rgb(15 35 83 / 9%); }
+.security-panel h2 { color:#06174a; margin-top:0; }
+.security-panel p,.editor-body p { line-height:1.5; overflow-wrap:anywhere; }
+button { border:1px solid #b8cbe5; border-radius:8px; min-height:44px; font:inherit; font-weight:700; background:#edf4ff; color:#173d78; white-space:normal; }
+button:hover:not(:disabled) { background:#dceaff; border-color:#2563ad; }
+button:disabled { cursor:not-allowed; opacity:.65; }
+button[type=submit] { background:linear-gradient(180deg,#244a9b,#1e3a8a); color:#fff; border-color:#1e3a8a; }
+button[type=submit]:hover:not(:disabled) { background:#16326e; }
+input:not([type=checkbox]),select { box-sizing:border-box; border:1px solid #b8cbe5; border-radius:8px; background:#f8fbff; color:#15334c; min-height:44px; font:inherit; padding:10px 12px; max-width:100%; }
+input[type=checkbox] { width:20px; height:20px; flex:0 0 auto; accent-color:#244a9b; }
+label { font-weight:600; line-height:1.45; overflow-wrap:anywhere; }
+fieldset { border-radius:10px; background:#fff; }
+legend { color:#173d78; font-weight:800; padding:0 8px; max-width:100%; overflow-wrap:anywhere; }
+.security-dialog { box-sizing:border-box; background:#f5f8fd; }
+.editor-heading { background:linear-gradient(120deg,#06174a,#244a9b); color:#fff; }
+.editor-heading h3 { color:inherit; font-size:1.2rem; line-height:1.35; }
+.editor-heading button { flex:0 0 auto; }
+.editor-actions { background:#fff; }
+#security-editor .editor-body { grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; }
+.editor-body > p,.editor-body > label,.editor-body > [role=alert] { grid-column:1 / -1; }
+.editor-body > [role=alert] { padding:12px; background:#fff0f0; border-left:4px solid #a52222; }
+.permission-row { display:grid; grid-template-columns:minmax(120px,1fr) minmax(100px,auto) minmax(90px,auto); gap:12px; padding:8px 0; border-bottom:1px solid #e1e9f5; }
+.permission-row strong { width:auto; overflow-wrap:anywhere; }
+.permission-row label { display:flex; align-items:center; gap:8px; margin:0; min-height:44px; }
+.role-directory article { padding:16px; margin-top:12px; border:1px solid #d7e4f8; border-radius:10px; background:#fff; overflow-wrap:anywhere; }
+.role-directory h4 { margin:0 0 8px; color:#06174a; }
+.table-scroll { max-width:100%; }
+td { overflow-wrap:anywhere; }
+@media(max-width:800px) {
+  #security-editor .editor-body { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:480px) {
+  .security-panel {padding:12px;}
+  .editor-heading {gap:8px;}
+  .editor-heading h3 {font-size:1.1rem;}
+  .editor-actions {gap:8px;}
+  .editor-actions button {margin:0; flex:1 1 135px;}
+  .permission-row {grid-template-columns:1fr 1fr; gap:4px 12px;}
+  .permission-row strong {grid-column:1 / -1;}
+  .editor-body fieldset {padding:12px;}
+}

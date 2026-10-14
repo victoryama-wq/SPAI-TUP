@@ -1,14 +1,23 @@
 import { createServer as createHttpServer } from 'node:http';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { config, root, sessionFile, localEnvironment, verifyHub } from './config.mjs';
+import { config, root, sessionFile, localEnvironment, verifyHub, isolatedTest, cliConfigFile, loggingPort, websocketPort } from './config.mjs';
 import { seed } from './seed.mjs';
 
 const testMode = process.argv.includes('--test');
+if (isolatedTest && !testMode) throw new Error('El preset aislado solo admite ensayos sintéticos; no modifica la demo compartida.');
+if (isolatedTest) {
+  const cli = JSON.parse(readFileSync(resolve(root, 'firebase.local.json'), 'utf8'));
+  for (const key of ['auth','firestore','functions','storage','hub','ui']) cli.emulators[key].port = config[key];
+  cli.emulators.logging.port = loggingPort; cli.emulators.firestore.websocketPort = websocketPort;
+  cli.emulators.eventarc = {host:config.host, port:19299};
+  cli.emulators.tasks = {host:config.host, port:19499};
+  mkdirSync(resolve(root, '.local'), {recursive:true}); writeFileSync(cliConfigFile, JSON.stringify(cli,null,2));
+}
 // Environment tests always use fixtures; never ingest the owner's local copy.
 if (testMode) process.env.SPAI_LOCAL_SYNTHETIC = 'true';
 const token = randomBytes(32).toString('hex');
@@ -25,7 +34,7 @@ async function assertFree(port) {
 
 function saveSession() {
   mkdirSync(resolve(root, '.local'), { recursive: true });
-  writeFileSync(sessionFile, JSON.stringify({ projectId: config.projectId, pid: process.pid, emulatorPid: child?.pid, token }));
+  writeFileSync(sessionFile, JSON.stringify({ projectId: config.projectId, pid: process.pid, emulatorPid: child?.pid, token, synthetic: process.env.SPAI_LOCAL_SYNTHETIC === 'true' }));
 }
 
 async function runNode(args) {
@@ -50,8 +59,8 @@ async function stopEmulators() {
 }
 
 async function startEmulators() {
-  for (const port of [config.auth, config.firestore, config.functions, config.storage, config.hub, config.ui, 4500, 9150]) await assertFree(port);
-  const args = ['node_modules/firebase-tools/lib/bin/firebase.js', 'emulators:start', '--project', config.projectId, '--config', 'firebase.local.json', '--only', 'auth,firestore,functions,storage', '--non-interactive'];
+  for (const port of [config.auth, config.firestore, config.functions, config.storage, config.hub, config.ui, loggingPort, websocketPort]) await assertFree(port);
+  const args = ['node_modules/firebase-tools/lib/bin/firebase.js', 'emulators:start', '--project', config.projectId, '--config', cliConfigFile, '--only', 'auth,firestore,functions,storage', '--non-interactive'];
   child = spawn(process.execPath, args, { cwd: root, env: localEnvironment(), stdio: 'inherit', windowsHide: true, detached: process.platform !== 'win32' });
   child.once('error', (error) => { console.error(error); });
   saveSession();
@@ -75,7 +84,7 @@ async function startEmulators() {
   if (!servicesReady) throw new Error(`Emuladores no disponibles: ${lastError?.message}`);
   await seed(); // Fail once on a data error; never retry a partially loaded snapshot.
   ready = true;
-  console.log('DEMO listo. UI http://127.0.0.1:4000 — web: npm start — detener: npm run local:stop');
+  console.log(`DEMO listo. UI http://127.0.0.1:${config.ui}${isolatedTest ? ' — ensayo aislado; cierre automatico al terminar' : ' — web: npm start — detener: npm run local:stop'}`);
 }
 
 const server = createHttpServer(async (request, response) => {
@@ -122,7 +131,10 @@ try {
       await runNode(['tools/stage1/rules.mjs']);
     }
     await runNode(['tools/local/tests/reset.mjs']);
-    if (process.argv.includes('--ui')) await runNode(['node_modules/@playwright/test/cli.js', 'test', '--config', 'tools/e2-r01/playwright.config.mjs']);
+    if (process.argv.includes('--ui')) {
+      if (isolatedTest) await runNode(['tools/e2-r01/prepare-demo.mjs']);
+      await runNode(['node_modules/@playwright/test/cli.js', 'test', '--config', 'tools/e2-r01/playwright.config.mjs']);
+    }
     await stopEmulators();
     await runNode(['tools/local/tests/offline.mjs']);
     await shutdown();
