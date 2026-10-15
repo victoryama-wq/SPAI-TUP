@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
+import { moduleAccessGuard } from './core/auth/module-route-access';
 
-export const routes: Routes = [
+const moduleRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./features/dashboard/pages/dashboard-page.component')
@@ -73,8 +74,10 @@ export const routes: Routes = [
       .then((module) => module.AuditLogPageComponent),
     title: 'Bitacora | SPAI TUP',
   },
-  {
-    path: '**',
-    redirectTo: '',
-  },
+];
+export const routes: Routes = [
+  { path: 'acceso-restringido', loadComponent: () => import('./core/auth/access-restricted.component').then(m => m.AccessRestrictedComponent), title: 'Acceso restringido | SPAI TUP' },
+  ...moduleRoutes.map(route => ({ ...route, canActivate: [moduleAccessGuard] })),
+  { path: 'dashboard', redirectTo: '', pathMatch: 'full' },
+  { path: '**', redirectTo: '' },
 ];

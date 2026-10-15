@@ -4,6 +4,8 @@ Fecha inicial: 2026-10-12. Revisión complementaria: 2026-10-13. Entrega local s
 
 Fuente: [contrato completo v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md). Incluye C01, C01.1, C01.2, C09 administrativo y C11 aplicable. El estado y los resultados finales se registran en [la evidencia de ejecución](E2-R01-VALIDACION.md).
 
+Actualización 2026-10-15: [hallazgos H001/H002/H003 y nueva evidencia](E2-R01-ACEPTACION-2026-10-15.md). Las rutas exigen autorización resuelta en servidor antes de construir su componente; sin módulos se presenta Acceso restringido. El directorio directo de usuarios (`list`) queda reservado a Administración General y el perfil propio sigue mediante `get`. Las dependencias académicas reutilizan ese perfil resuelto. Se limpian datos y listeners al cambiar identidad o permisos; no se concede Dashboard a Consulta. Se mantienen v0.4, la transición heredada y el límite administrativo sin ampliarlos.
+
 ## Autoridad y modelo
 
 `permissionSchemaVersion: 2`; roles base con claves estables; `role` es únicamente una etiqueta. Los módulos tienen `NONE`, `VIEW` o `EDIT`. Solo `EDIT` permite escritura; incluye consulta. `access` es una proyección compatible, no la fuente de autoridad. Perfil inactivo, alias histórico o autorización heredada no verificada no opera datos. El perfil propio puede consultarse para informar su estado.

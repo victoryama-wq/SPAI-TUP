@@ -7,7 +7,10 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
   const module = MODULES[path];
   const general = user.baseRole === 'ADMIN_GENERAL';
   const academic = user.baseRole === 'COORDINACION_ACADEMICA';
-  if (!general && module && !hasAccess(user, module) && !(path === 'usuarios' || (path === 'ciclos' && (hasAccess(user, 'dashboard') || hasAccess(user, 'asignaciones'))))) return null;
+  // The own profile is already resolved by UserSessionService through get.
+  // The administrative directory is never queried by other actors.
+  if (path === 'usuarios' && !general) return null;
+  if (!general && module && !hasAccess(user, module) && !(path === 'ciclos' && (hasAccess(user, 'dashboard') || hasAccess(user, 'asignaciones')))) return null;
   const ref = collection(db, path);
   if (general) return constraints.length ? query(ref, ...constraints) : query(ref);
   const programs = user.scope?.programs ?? [];
@@ -18,8 +21,7 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
   };
   // Fail visibly rather than silently dropping a scope beyond Firestore's query bound.
   if (programs.length > 14 && !programs.includes('*')) throw new Error('El ámbito requiere consultas paginadas por programas. Contacta a Administración; no se ha reducido tu acceso.');
-  if (path === 'usuarios') filter = where(documentId(), '==', user.id);
-  else if (path === 'roles_personalizados') return null;
+  if (path === 'roles_personalizados') return null;
   else if (path === 'solicitudes_compartidas' && !programs.includes('*')) filter = or(where('requestedBy', '==', user.id), scoped('sourceProgram'), scoped('destinationProgram'));
   else if (path === 'solicitudes_sistemas' && !programs.includes('*')) filter = where('requestedBy', '==', user.id);
   else if (path === 'docentes' && !academic && user.baseRole !== 'ALTA_DOCENTES' && !(user.scope?.teachers ?? []).includes('*')) filter = or(where('createdBy','==',user.id), where('assignedCoordinatorIds','array-contains',user.id), scoped(documentId(), user.scope?.teachers ?? []));

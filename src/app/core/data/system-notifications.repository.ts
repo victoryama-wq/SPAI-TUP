@@ -12,7 +12,7 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { UserSessionService } from '../auth/user-session.service';
+import { UserSession, UserSessionService } from '../auth/user-session.service';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
 import { AppUser } from '../../features/users/data/users.repository';
 
@@ -59,7 +59,8 @@ export class SystemNotificationsRepository {
   private readonly locallyReadNotificationIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly securityNotifications = signal<SystemNotification[]>([]);
-  readonly notifications = computed(() => [...this.notificationsSignal(), ...this.securityNotifications()]);
+  private readonly dataOwner = signal<UserSession | null>(null);
+  readonly notifications = computed(() => this.dataOwner() === this.userSessionService.session() ? [...this.notificationsSignal(), ...this.securityNotifications()] : []);
   readonly unreadCount = computed(() => {
     const session = this.userSessionService.session();
     const appUser = session?.appUser;
@@ -75,8 +76,10 @@ export class SystemNotificationsRepository {
     effect((onCleanup) => {
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
+      this.dataOwner.set(session);
 
       this.securityNotifications.set([]);
+      this.notificationsSignal.set([]);
       this.locallyReadNotificationIds.set(new Set());
       if (!session || appUser?.status !== 'Activo' || appUser.permissionSchemaVersion !== 2 || appUser.identityAliasOf) {
         this.notificationsSignal.set([]);
@@ -84,12 +87,12 @@ export class SystemNotificationsRepository {
       }
 
       const securityUnsubscribe = onSnapshot(query(collection(this.firestore, 'avisos_seguridad'), where('recipient', '==', session.authUid), limit(100)), snapshot => {
+        if (session !== this.userSessionService.session()) return;
         this.securityNotifications.set(snapshot.docs.map(item => {
           const data = item.data();
           return { id: `security:${item.id}`, title: 'Cambio administrativo', message: `${data['action']}: ${data['reviewIds']?.length ?? 0} revisiones de roles. Consulta Usuarios.`, type: 'SEGURIDAD', target: 'SISTEMAS', entity: 'usuarios', entityId: data['eventId'], actorId: data['actor'].uid, actorName: data['actor'].name, actorRole: data['actor'].role, readBy: data['read'] ? [session.authUid] : [], createdAt: data['createdAt'] };
         }));
       }, () => this.securityNotifications.set([]));
-      onCleanup(securityUnsubscribe);
       const notificationsQuery = this.isSystemsUser(appUser)
         ? query(
             collection(this.firestore, SYSTEM_NOTIFICATIONS_COLLECTION),
@@ -105,6 +108,7 @@ export class SystemNotificationsRepository {
       const unsubscribe = onSnapshot(
         notificationsQuery,
         (snapshot) => {
+          if (session !== this.userSessionService.session()) return;
           this.notificationsSignal.set(
             snapshot.docs
               .map((item) => ({ id: item.id, ...item.data() }) as SystemNotification)
@@ -118,7 +122,7 @@ export class SystemNotificationsRepository {
         },
       );
 
-      onCleanup(unsubscribe);
+      onCleanup(() => { securityUnsubscribe(); unsubscribe(); this.notificationsSignal.set([]); this.securityNotifications.set([]); });
     });
   }
 

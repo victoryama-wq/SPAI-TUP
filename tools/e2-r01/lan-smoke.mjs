@@ -5,20 +5,22 @@ import {chromium,expect} from '@playwright/test';
 import {root,sessionFile,verifyHub} from '../local/config.mjs';
 await verifyHub();assert.equal(JSON.parse(readFileSync(sessionFile)).synthetic,true);
 const lan=JSON.parse(readFileSync(resolve(root,'.local/lan-session.json')));const base=`http://${lan.host}:4201`;
-const output=resolve(root,'.local/acceptance');mkdirSync(output,{recursive:true});
+const output=resolve(root,'.local/acceptance-2');mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true});const attempts=[];const errors=[];const checks=[];
 try{
  for(const [email,route] of [['demo.sistemas@tecplayacar.edu.mx','/usuarios'],['demo.r01.consulta@tecplayacar.edu.mx','/asignaciones']]){
   const page=await browser.newPage({viewport:{width:1366,height:900}});page.setDefaultTimeout(15000);
   await page.route('**/*',r=>{const url=new URL(r.request().url());attempts.push({origin:url.origin,path:url.pathname});return url.origin===base?r.continue():r.abort();});
   page.on('pageerror',e=>errors.push(e.message));
-  await page.addInitScript(()=>localStorage.setItem('spai.session.release','2026-08-03-operational-dashboard'));
   await page.goto(base);await page.getByLabel('Cuenta ficticia del emulador').selectOption(email);await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();
+  await expect(page).toHaveURL(base+(route==='/usuarios'?'/':'/asignaciones'));
   await page.goto(base+route);await page.reload();
   if(route==='/usuarios'){
    await page.getByRole('button',{name:'Administrar roles personalizados',exact:true}).click();await expect(page.getByRole('heading',{name:'Directorio de roles personalizados'})).toBeVisible();
    await page.getByRole('button',{name:'Crear rol',exact:true}).click();await expect(page.getByLabel('Nombre',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Cancelar',exact:true}).click();
   }else{
+   await expect(page.locator('.dashboard-overview,.metric-card')).toHaveCount(0);
+   await page.goto(base+'/dashboard');await expect(page).toHaveURL(base+'/asignaciones');
    await expect(page.locator('.table-panel tbody')).toContainText('27-1 ADM');await expect(page.locator('.table-panel tbody')).not.toContainText('DER');
    await expect(page.getByRole('button',{name:/Editar asignacion|Eliminar asignacion|^Asignacion$/})).toHaveCount(0);
   }

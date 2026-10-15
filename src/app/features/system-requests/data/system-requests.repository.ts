@@ -1,7 +1,8 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, QueryConstraint, setDoc, updateDoc, where } from 'firebase/firestore';
-import { UserSessionService } from '../../../core/auth/user-session.service';
+import { UserSession, UserSessionService } from '../../../core/auth/user-session.service';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
+import { hasAccess } from '../../users/data/module-permission.service';
 
 export type SystemRequestType = 'REABRIR_CAPTURA' | 'ALTA_GRUPO' | 'CAMBIAR_ID_ASIGNATURA' | 'DOCENTE_NUEVO';
 export type SystemRequestStatus = 'PENDIENTE' | 'EN_PROCESO' | 'ATENDIDA' | 'RECHAZADA';
@@ -51,12 +52,15 @@ export class SystemRequestsRepository {
   private readonly userSessionService = inject(UserSessionService);
   private readonly requestsSignal = signal<SystemRequest[]>([]);
 
-  readonly requests = this.requestsSignal.asReadonly();
+  private readonly dataOwner = signal<UserSession | null>(null);
+  readonly requests = computed(() => this.dataOwner() === this.userSessionService.session() ? this.requestsSignal() : []);
 
   constructor() {
     effect((onCleanup) => {
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
+      this.dataOwner.set(session);
+      this.requestsSignal.set([]);
 
       if (!session) {
         this.requestsSignal.set([]);
@@ -67,7 +71,7 @@ export class SystemRequestsRepository {
         return;
       }
 
-      if (appUser.status !== 'Activo') {
+      if (!hasAccess(appUser, 'solicitudes')) {
         this.requestsSignal.set([]);
         return;
       }
@@ -79,6 +83,7 @@ export class SystemRequestsRepository {
       const unsubscribe = onSnapshot(
         requestsQuery,
         (snapshot) => {
+          if (session !== this.userSessionService.session()) return;
           this.requestsSignal.set(
             snapshot.docs
               .map((item) => ({ id: item.id, ...item.data() }) as SystemRequest)
@@ -86,10 +91,10 @@ export class SystemRequestsRepository {
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
           );
         },
-        () => undefined,
+        () => this.requestsSignal.set([]),
       );
 
-      onCleanup(unsubscribe);
+      onCleanup(() => { unsubscribe(); this.requestsSignal.set([]); });
     });
   }
 

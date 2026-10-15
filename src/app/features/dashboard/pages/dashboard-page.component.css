@@ -2372,3 +2372,12 @@
 
 .coordination-welcome .welcome-meta div { min-width: 0; }
 .coordination-welcome .welcome-meta strong { font-size: 12px; }
+
+/* R01-H003: intrinsic height for all authorized greetings, including long names.
+   Text stays complete; the metadata follows it in normal flow. */
+.dashboard-overview .welcome-panel { display:flex; flex-direction:column; height:auto; min-height:0; min-width:0; gap:16px; }
+.dashboard-overview .welcome-copy { flex:0 0 auto; min-width:0; width:100%; height:auto; max-height:none; }
+.dashboard-overview .welcome-copy h2 { height:auto; max-height:none; white-space:normal; overflow-wrap:anywhere; line-height:1.25; }
+.dashboard-overview .welcome-meta { position:static; flex:0 0 auto; height:auto; min-width:0; width:100%; margin:0; }
+.dashboard-overview .welcome-meta div { min-width:0; max-width:100%; }
+.dashboard-overview .welcome-meta strong { overflow-wrap:anywhere; white-space:normal; }

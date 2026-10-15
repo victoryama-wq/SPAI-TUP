@@ -1,0 +1,278 @@
+{
+  "url": "http://192.168.41.254:4201/",
+  "metrics": [
+    "1Usuarios activosColeccion usuarios",
+    "4Ciclos registradosColeccion ciclos",
+    "27-1Ciclo activoCaptura - Cierre de Captura 30 sep 2026",
+    "0Roles personalizadosColeccion roles_personalizados",
+    "1Asignaciones registradasCatalogo global de asignaciones"
+  ],
+  "nav": [
+    "Asignaciones"
+  ],
+  "targets": [
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-r01-consulta"
+        ]
+      },
+      "targetId": 1002
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "ciclos"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1004
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "avisos_seguridad"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "recipient"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-r01-consulta"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 100
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1006
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "notificaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "target"
+                    },
+                    "op": "EQUAL",
+                    "value": {
+                      "stringValue": "COORDINACION_ACADEMICA"
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "targetUserId"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "demo-r01-consulta"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 25
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1008
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "solicitudes_sistemas"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "requestedBy"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-r01-consulta"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1010
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "usuarios"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "op": "EQUAL",
+              "value": {
+                "referenceValue": "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-r01-consulta"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1012
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "asignaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "program"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "ADM"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "cycle"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "27-1"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "updatedAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1014
+    }
+  ]
+}

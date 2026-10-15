@@ -2,6 +2,7 @@ import { computed, inject, Injectable } from '@angular/core';
 import { orderBy } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
+import { UserSessionService } from '../../../core/auth/user-session.service';
 
 export type UserRole = string;
 export type UserStatus = 'Activo' | 'Inactivo';
@@ -94,7 +95,12 @@ export const ACADEMIC_COORDINATION_ACCESS: ModuleAccess = {
 
 @Injectable({ providedIn: 'root' })
 export class UsersRepository extends FirestoreRepository<AppUser> {
-  readonly users = computed(() => this.items().filter(user => !user.identityAliasOf));
+  private readonly sessionService = inject(UserSessionService);
+  readonly users = computed(() => {
+    const user = this.sessionService.session()?.appUser;
+    if (!user || user.status !== 'Activo' || user.permissionSchemaVersion !== 2 || user.identityAliasOf) return [];
+    return user.baseRole === 'ADMIN_GENERAL' ? this.items().filter(item => !item.identityAliasOf) : [user];
+  });
   readonly usersReadError = this.readError;
 
   constructor() {

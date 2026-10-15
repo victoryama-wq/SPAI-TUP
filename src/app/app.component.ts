@@ -1,6 +1,9 @@
 import { hasAccess } from './features/users/data/module-permission.service';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
+import { canAccessModulePath, firstAuthorizedPath } from './core/auth/module-route-access';
 import { AuthService } from './core/auth/auth.service';
 import { InactivityLogoutService } from './core/auth/inactivity-logout.service';
 import {
@@ -61,6 +64,9 @@ export class AppComponent {
   private readonly isNotificationsMenuOpenSignal = signal(false);
   private readonly captureCloseAlertDismissedSignal = signal(false);
   private readonly captureCloseAlertStoragePrefix = 'spai:capture-close-alert:';
+  private readonly currentPath = toSignal(this.router.events.pipe(filter(event => event instanceof NavigationEnd), map(event => event.urlAfterRedirects)), { initialValue: window.location.pathname });
+  readonly authorizationReady = this.userSessionService.authorizationReady;
+  readonly canRenderRoute = computed(() => this.authorizationReady() && canAccessModulePath(this.currentPath(), this.userSessionService.session()?.appUser));
 
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly authorizationNotice = computed(() => this.userSessionService.session()?.appUser?.authorizationNotice);
@@ -177,16 +183,22 @@ export class AppComponent {
 
   constructor() {
     void this.inactivityLogoutService;
-
+    let previousUid: string | undefined;
     effect(() => {
-      const appUser = this.userSessionService.session()?.appUser;
+      const session = this.userSessionService.session();
+      const appUser = session?.appUser;
+      const path = this.currentPath();
 
       if (appUser?.status !== 'Activo') {
+        previousUid = undefined;
         return;
       }
 
-      if (!this.canAccessPath(this.router.url, appUser)) {
-        void this.router.navigate(['/']);
+      const identityChanged = previousUid !== session?.authUid;
+      previousUid = session?.authUid;
+      if (identityChanged || !this.canAccessPath(path, appUser)) {
+        const destination = this.canAccessPath(path, appUser) ? path : firstAuthorizedPath(appUser);
+        void this.router.navigateByUrl(destination, { replaceUrl: true, onSameUrlNavigation: 'reload' });
       }
     });
   }
@@ -496,14 +508,7 @@ export class AppComponent {
   }
 
   private canAccessPath(url: string, appUser: AppUser): boolean {
-    const path = url.split('?')[0].replace(/\/+$/, '') || '/';
-    const navItem = this.navItems.find((item) => item.path === path);
-
-    if (!navItem) {
-      return true;
-    }
-
-    return hasAccess(appUser, navItem.moduleKey);
+    return canAccessModulePath(url, appUser);
   }
 
   private canAcademicCoordinatorAccessModule(moduleKey: keyof ModuleAccess): boolean {

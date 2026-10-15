@@ -49,7 +49,8 @@ service cloud.firestore {
   }
   match /usuarios/{uid} {
     allow get: if signedIn() && (uid == request.auth.uid || general());
-    allow list: if signedIn() && (uid == request.auth.uid || general());
+    // Own profile uses get; listing the directory requires institutional authority.
+    allow list: if general();
     allow create: if bootstrap(uid);
     allow update: if signedIn() && protectedIdentity();
     allow delete: if false;

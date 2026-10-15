@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "base": "http://192.168.41.254:4201",
+  "checks": [
+    {
+      "email": "demo.sistemas@tecplayacar.edu.mx",
+      "route": "/usuarios",
+      "reload": true
+    },
+    {
+      "email": "demo.r01.consulta@tecplayacar.edu.mx",
+      "route": "/asignaciones",
+      "reload": true
+    }
+  ],
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1366,
+    "height": 900
+  },
+  "requests": 171,
+  "origins": [
+    "http://192.168.41.254:4201"
+  ],
+  "services": [
+    {
+      "path": "identitytoolkit.googleapis.com",
+      "observed": true
+    },
+    {
+      "path": "google.firestore.v1.Firestore",
+      "observed": true
+    },
+    {
+      "path": "demo-spai-tup/us-central1",
+      "observed": true
+    }
+  ],
+  "administration": "not published",
+  "pageErrors": [],
+  "physicalSecondComputer": false
+}

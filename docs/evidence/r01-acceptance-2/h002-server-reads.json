@@ -1,0 +1,31 @@
+{
+  "outcomes": [
+    {
+      "collection": "usuarios",
+      "status": "permission-denied",
+      "diagnostic": "\nevaluation error at L53:20 for 'list' @ L53, false for 'list' @ L205, false for 'list' @ L53, false for 'list' @ L205"
+    },
+    {
+      "collection": "roles_personalizados",
+      "status": "permission-denied",
+      "diagnostic": "\nevaluation error at L58:53 for 'list' @ L58, false for 'list' @ L205, false for 'list' @ L58, false for 'list' @ L205"
+    },
+    {
+      "collection": "solicitudes_sistemas",
+      "status": "permission-denied",
+      "diagnostic": "\nevaluation error at L152:20 for 'list' @ L152, false for 'list' @ L205, false for 'list' @ L152, false for 'list' @ L205"
+    },
+    {
+      "collection": "agenda_operativa_equipo",
+      "status": "permission-denied",
+      "diagnostic": "\nevaluation error at L194:20 for 'list' @ L194, false for 'list' @ L205, false for 'list' @ L194, false for 'list' @ L205"
+    },
+    {
+      "collection": "asignaciones",
+      "status": "permission-denied",
+      "diagnostic": "\nevaluation error at L137:20 for 'list' @ L137, false for 'list' @ L205, false for 'list' @ L137, false for 'list' @ L205"
+    }
+  ],
+  "ownProfile": "allowed",
+  "cycles": "allowed assignment dependency"
+}

@@ -1,5 +1,7 @@
 # E2-R01 — Ficha y evidencia local
 
+> Ejecución complementaria vigente: [correcciones del 15/10/2026](E2-R01-ACEPTACION-2026-10-15.md), añadida al final. Se preservan los resultados históricos; T01 físico, T07 funcional y T11 físico quedan confirmados por el nuevo reporte humano, sin atribuir su ejecución a Codex.
+
 Fecha inicial: 2026-10-12. Revisión: 2026-10-13. Estado: **VALIDADA_LOCAL**.
 
 Alcance aprobado: C01, C01.1, C01.2, C09 administrativo y C11 aplicable de [v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md). [Matriz, modelo, mapeo y límites](E2-R01-SEGURIDAD-PERMISOS.md).
@@ -165,3 +167,32 @@ El intento UI 3 añadió una comprobación diagnóstica REST que suponía que Co
 El build production conserva el literal ficticio histórico dentro del método protegido, pero no la lista de personas DEMO. Se verificó el bloqueo antes de cualquier llamada para production, proyecto real o SDK sin emulador, incluso con parámetros de URL que pidan DEMO. Google institucional se comprobó mediante mocks y comparación histórica; no se inició una sesión real ni se contactó producción. CI remota, producción, Moodle, SAEKO y correos reales: NO ejecutados.
 
 **Estado: VALIDADA_LOCAL para el alcance técnico R01 ensayado; aceptación manual PENDIENTE.** Se mantienen el impedimento administrativo >200, los 18 contratos de R02/R03, el defecto previo responsive de Asignaciones R05/R07, migración/rollback y validación remota pendiente. Ningún resultado local acredita capacidad productiva.
+
+## Segunda ejecución de hallazgos — 2026-10-15
+
+Responsable técnico: **Codex**. Base comprobada `96b4c991a3e04c61f09a75eeb478ae5730e666df`, misma rama R01, un commit local adicional identificado por `git log -1 --format=%H -- docs/E2-R01-ACEPTACION-2026-10-15.md`. [Causas, solución, severidad y tabla humana](E2-R01-ACEPTACION-2026-10-15.md). [Capturas comparables y resultados ficticios](evidence/r01-acceptance-2/README.md).
+
+| Comprobación ejecutada | Resultado | Evidencia |
+|---|---|---|
+| Unitarias locales/política/autenticación/ciclo de suscripciones | **26/26**, 10+9+3+4 | `tools/e2-r01/run-acceptance.mjs`; `.local/acceptance-2/full-tests-final.log` y `session-lifecycle-final.log` |
+| Integración R01 de servidor | **37/37** | Mismo log y `.local/test-results/e2-r01.json`; umbrales 199/200/201, atomicidad, caducidad heredada conservados |
+| Caracterizaciones E1 | **72/72**, 52 Rules + 20 lógica | Mismo log; no equivalen a cumplimiento del objetivo |
+| Gate estricto de contratos objetivo | **Salida 1, los mismos 18 incumplimientos** | `.local/acceptance-2/contracts.log`; lista comparada exactamente con ejecución anterior, sin diferencias ni expectativas modificadas |
+| Chromium original y aceptación ampliada | **20/20** | `.local/acceptance-2/ui-final.log`, `.local/test-results/r01-ui.json` |
+| H002 recorrido inicial real | PASS sin precargar marca de sesión: Consulta → Asignaciones; `/`, `/dashboard`, recarga, historial, cambio Sistemas→Consulta | `navigation.spec.mjs`, observador de inserciones DOM y consultas Firestore; cero inserciones del contenido protegido |
+| H002 perfil pendiente / revocación / sin módulos | PASS: ningún componente ni consulta derivada mientras se retiene el perfil; caché y escrituras optimistas pendientes no autorizan; retiro al revocar y estado restringido sin bucle | Navegador y unitarias del servicio compilado/cleanup/callbacks atrasados; una sesión persistida antigua se invalida, el primer login nuevo no requiere doble ingreso |
+| H002 lecturas directas de servidor | PASS con criterio explícito documentado abajo | `h002-server-reads.json`: directorios, solicitudes, agenda y asignaciones sin filtro denegados, perfil ajeno denegado; perfil propio/ciclos admitidos |
+| T10 aislado, matrícula ajena | PASS **SDK y guardado desde UI**; CA permitida, CUSTOM/auxiliar rechazados fuera de ámbito | `t10.json`, `t10-actors-before.json`, capturas; campos protegidos sin cambio |
+| Preparación humana T10 | Arrancó y mostró «T10 listo»; detenida al terminar la comprobación | `.local/acceptance-2/t10-review-start.log`, `run.mjs --review`; no cambió la LAN |
+| H001 visual / H003 nombre largo autorizado | PASS técnico en 1366×900, 768×1024, 1032×1376, 390×844 | Capturas y mediciones; inspección visual Codex, no aceptación del propietario |
+| Compilaciones local, LAN, production | PASS; production advierte **774,83 kB / 750 kB** | `.local/acceptance-2/build-{local,lan,production}.log`; no despliegue |
+| Sintaxis Functions/herramientas y diff | PASS en código y documentos generados; excepción de formato de la fuente recibida | `node --check`, `.local/acceptance-2/syntax.log`; `git diff --cached --check -- . ':(exclude)docs/evidence/r01-acceptance-2/reporte-recibido.md'`. La copia íntegra recibida conserva ocho finales de línea con doble espacio Markdown, señalados por el chequeo sin exclusión; no se altera su hash |
+| LAN actualizada, emuladores compartidos conservados | PASS anfitrión: login real Sistemas/Consulta, recarga, URL Dashboard, un origen LAN, sin errores de página | `lan-smoke.json`, `.local/acceptance-2/lan-install.json`; frontend reemplazado conservando chunks anteriores; no reset/seed compartido |
+| SDKs sin emuladores | PASS: fallan/no confirman, siete intentos solo loopback | Final del runner; no fallback a producción |
+| Respaldo privado, selección y v0.4 | SHA-256 conservados | `manualFindingsReview.preserved` en RESULTADOS.json |
+
+**Diagnósticos de la revisión:** el primer ensayo tuvo 15/19 UI: límite de 30 s de un caso extenso, consultas duplicadas al perfil propio desde `UsersRepository`, y rechazo del listado con `Null value`. Se amplió el tiempo total del caso a 60 s sin relajar aserciones; el perfil propio ahora se reutiliza y el listado es administrativo. El siguiente ensayo tuvo 17/19: el fixture de matrícula UI esperaba minúsculas, aunque el formulario ya normaliza a mayúsculas; se usa un identificador ficticio en mayúsculas y se conserva esa política. La otra expectativa exigía ausencia absoluta de preevaluaciones. Una simplificación experimental de `general()` no eliminó esos diagnósticos y se descartó: esa función conserva su implementación previa. La suite completa siguiente pasó 19/19. Finalmente se retiró la precarga artificial de versión de los nuevos recorridos, se corrigió el primer ingreso y se añadió la regresión de sesión antigua: **20/20** sobre el código final.
+
+**Criterio de denegación:** los mensajes del emulador pueden incluir `evaluation error` preliminar junto a `false` final. La prueba exige `permission-denied` y, para cada preevaluación, `false` explícito en la **misma línea y operación de la regla aplicable**; el catch-all o un error aislado no bastan. `Null value`, límites de expresiones, INTERNAL y UNAVAILABLE se rechazan. Los mensajes se conservan en JSON y se comprueban positivos legítimos. No se declara que los logs estén libres de errores preliminares. Los UNAVAILABLE del ensayo offline son esperados al apagar únicamente sus emuladores, y no se cuentan como pruebas negativas de permisos.
+
+**Estado técnico: VALIDADA_LOCAL.** H001/H002/H003 corregidos y verificados técnicamente; confirmación humana de ajustes pendiente. T10 técnico PASS / humano PENDIENTE. T01 físico, T07 funcional y T11 físico están confirmados por el reporte de la propietaria. Totales humanos: 7 correctas, 2 con hallazgo, 1 fallida, 1 pendiente; T09b debe repetirse. No se declara aceptación del propietario, CI remota, validación remota ni productiva. Permanecen el límite administrativo de 200, los 18 incumplimientos R02/R03 y los demás impedimentos documentados.

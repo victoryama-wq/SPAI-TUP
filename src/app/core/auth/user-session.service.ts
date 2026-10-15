@@ -1,4 +1,5 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import type { User } from 'firebase/auth';
 import { Router } from '@angular/router';
 import {
   collection,
@@ -53,14 +54,24 @@ export class UserSessionService {
   );
   private readonly sessionSignal = signal<UserSession | null>(null);
 
-  readonly session = this.sessionSignal.asReadonly();
+  private readonly profileOwner = signal<User | null>(null);
+  // A previous identity's profile is never visible while a new Auth identity
+  // waits for its server snapshot, even before effects have cleaned up.
+  readonly session = computed(() => this.authService.user() && this.profileOwner() === this.authService.user() ? this.sessionSignal() : null);
+  readonly authorizationReady = computed(() => !this.authService.loading() && (!this.authService.user() || this.session() !== null));
 
   constructor() {
     effect((onCleanup) => {
       const authUser = this.authService.user();
+      this.sessionSignal.set(null);
+      this.profileOwner.set(null);
 
       if (!authUser?.email) {
         this.sessionSignal.set(null);
+        // A confirmed signed-out browser has no old session to invalidate.
+        // Acknowledge the release before its first interactive sign-in; an
+        // authenticated persisted session still follows the forced logout below.
+        if (!this.authService.loading()) this.requiresReleaseSignOut();
         return;
       }
 
@@ -101,6 +112,7 @@ export class UserSessionService {
           displayName: authUser.displayName ?? authUser.email ?? 'Usuario SPAI',
           appUser,
         });
+        this.profileOwner.set(authUser);
       };
 
       const setUnauthenticatedAppSession = () => {
@@ -111,6 +123,7 @@ export class UserSessionService {
           displayName: authUser.displayName ?? authUser.email ?? 'Usuario SPAI',
           appUser: null,
         });
+        this.profileOwner.set(authUser);
       };
 
       const bootstrapUser = async () => {
@@ -142,10 +155,12 @@ export class UserSessionService {
       };
 
       let linking = false;
-      const unsubscribe = onSnapshot(userRef, async snapshot => {
+      const unsubscribe = onSnapshot(userRef, { includeMetadataChanges: true }, async snapshot => {
+        if (disposed || snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
         lastProfile = snapshot;
         if (snapshot.exists() && snapshot.data()['permissionSchemaVersion'] !== 2 && !mappingUnsubscribe) {
-          mappingUnsubscribe = onSnapshot(doc(this.firestore, 'mapeos_permisos', authUser.uid), value => {
+          mappingUnsubscribe = onSnapshot(doc(this.firestore, 'mapeos_permisos', authUser.uid), { includeMetadataChanges: true }, value => {
+            if (disposed || value.metadata.fromCache || value.metadata.hasPendingWrites) return;
             mapping = value.data(); if (lastProfile) setSession(lastProfile);
           }, () => { mapping = undefined; if (lastProfile) setSession(lastProfile); });
         }

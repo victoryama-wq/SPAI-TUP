@@ -9,6 +9,7 @@ import {httpsCallable} from 'firebase/functions';
 import {doc,collection,query,where,getDocFromServer,getDocsFromServer,updateDoc,setDoc,deleteDoc,terminate} from 'firebase/firestore';
 import {config,root,isolatedTest,localEnvironment,verifyHub,password} from '../local/config.mjs';
 import {runtime,localConfig} from '../local/tests/runtime.mjs';
+import {createT10Assignment} from './t10-fixture.mjs';
 
 const evidence=resolve(root,'.local/acceptance'); mkdirSync(evidence,{recursive:true});
 test.beforeEach(async({page})=>{
@@ -63,7 +64,7 @@ test('T09 identidad CUSTOM autenticable: UI, ámbitos y rechazos directos de ser
   await restWriteDenied(c,'asignaciones/demo-asignacion-a',null,'delete');
   await restWriteDenied(c,'asignaciones/acceptance-create-denied',{...before,createdBy:c.auth.currentUser.uid},'create');
   expect((await db.doc('asignaciones/demo-asignacion-a').get()).data()).toEqual(before);
-  await login(page,'demo.r01.consulta@tecplayacar.edu.mx');await page.goto('/asignaciones');
+  await login(page,'demo.r01.consulta@tecplayacar.edu.mx');await expect(page).toHaveURL(/\/asignaciones$/);
   await expect(page.locator('.table-panel tbody')).toContainText('27-1 ADM');await expect(page.locator('.table-panel tbody')).not.toContainText('DER');
   await expect(page.locator('nav a')).toHaveCount(1);
   await expect(page.getByRole('button',{name:/Editar asignacion|Eliminar asignacion|^Asignacion$/})).toHaveCount(0);
@@ -80,8 +81,7 @@ test('T10 excepción académica global en Captura; CUSTOM y auxiliar conservan s
   const actors=[];
   for(const c of [academic,custom,aux]){const u=(await db.doc(`usuarios/${c.auth.currentUser.uid}`).get()).data();const d=u.delegationId?(await db.doc(`delegaciones/${u.delegationId}`).get()).data():null;actors.push({uid:c.auth.currentUser.uid,profile:u,delegation:d,effective:P.effective(u,d)});}
   writeFileSync(resolve(evidence,'t10-actors-before.json'),JSON.stringify(actors,null,2));
-  const original=(await db.doc('asignaciones/demo-asignacion-a').get()).data();
-  await db.doc('asignaciones/acceptance-foreign').set({...original,program:'DER',group:'27-1 DER 11 01',moodleId:'acceptance-foreign',normalizedMoodleId:'acceptance-foreign',createdBy:'demo-coord-b',studentEnrollments:''});
+  await createT10Assignment(db);
   try{
    const a=doc(academic.db,'asignaciones/acceptance-foreign');expect((await getDocFromServer(a)).exists()).toBe(true);
    await updateDoc(a,{studentEnrollments:'demo-adicional-001'});
@@ -96,6 +96,14 @@ test('T10 excepción académica global en Captura; CUSTOM y auxiliar conservan s
    await foreignRow.getByRole('button',{name:'Editar asignacion',exact:true}).click();
    await expect(page.getByRole('button',{name:'Guardar cambios',exact:true})).toBeVisible();
    await page.screenshot({path:resolve(evidence,'t10-academic.png'),fullPage:true});
+   const beforeUi=(await db.doc('asignaciones/acceptance-foreign').get()).data();
+   await page.locator('.additional-enrollments-only-field textarea').fill('DEMO-T10-UI-002');
+   await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+   await expect(page.getByRole('button',{name:'Guardar cambios',exact:true})).toHaveCount(0);
+   await expect.poll(async()=>(await db.doc('asignaciones/acceptance-foreign').get()).data().studentEnrollments).toBe('DEMO-T10-UI-002');
+   const afterUi=(await db.doc('asignaciones/acceptance-foreign').get()).data();
+   for(const key of ['program','cycle','teacherName','teacherMoodleUser','group','sharedGroups','moodleId','subjectId','status'])expect(afterUi[key]).toEqual(beforeUi[key]);
+   writeFileSync(resolve(evidence,'t10.json'),JSON.stringify({status:'PASS',cycle:'27-1',state:'Captura',foreign:'acceptance-foreign DER',academic:'SDK and UI enrollments allowed; teacher denied; protected fields unchanged',custom:'foreign read/write denied',auxiliary:'foreign read/write denied; own read allowed',humanAcceptance:'PENDING'},null,2));
    const other=await browser.newPage();await other.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
    await other.addInitScript(()=>localStorage.setItem('spai.session.release','2026-08-03-operational-dashboard'));
    try {await other.goto(test.info().project.use.baseURL);await other.getByLabel('Cuenta ficticia del emulador').selectOption('demo.auxiliar@tecplayacar.edu.mx');await other.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(other.locator('nav')).toBeVisible();await other.goto(`${test.info().project.use.baseURL}/asignaciones`);await expect(other.locator('.table-panel tbody')).toContainText('27-1 ADM');await expect(other.locator('.table-panel tbody')).not.toContainText('27-1 DER');await other.screenshot({path:resolve(evidence,'t10-auxiliary.png'),fullPage:true});}finally{await other.close();}
@@ -128,7 +136,9 @@ test('T11 revocación: siguientes operaciones denegadas y rol del destinatario a
 });
 for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`CO-11 formulario y roles accesibles ${width}x${height}`,async({page})=>{
  await page.setViewportSize({width,height});await login(page,'demo.sistemas@tecplayacar.edu.mx');await page.goto('/usuarios');
- const opener=page.getByRole('button',{name:'Nuevo perfil institucional',exact:true});await opener.click();const dialog=page.getByRole('dialog');
+ const opener=page.getByRole('button',{name:'Nuevo perfil institucional',exact:true});await expect(opener).toBeVisible();
+ await page.screenshot({path:resolve(evidence,`directorio-usuarios-after-${width}.png`),fullPage:true});
+ await opener.click();const dialog=page.getByRole('dialog');
  for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Ciclos (códigos separados por coma)','Docentes (identidades verificadas, separadas por coma)','Motivo del cambio']){
   const field=['Perfil','Saludo','Estado'].includes(label)?dialog.getByRole('combobox',{name:label,exact:true}):dialog.getByLabel(label,{exact:true});await field.focus();await expect(field).toBeFocused();await expect(field).toBeInViewport();
  }
@@ -139,6 +149,7 @@ for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`
  await page.screenshot({path:resolve(evidence,`usuarios-after-${width}.png`),fullPage:true});
  await page.keyboard.press('Escape');await expect(opener).toBeFocused();
  await page.getByRole('button',{name:'Administrar roles personalizados',exact:true}).click();await expect(dialog.locator('form')).toHaveCount(0);
+ await page.screenshot({path:resolve(evidence,`directorio-roles-after-${width}.png`),fullPage:true});
  await dialog.getByRole('button',{name:'Crear rol',exact:true}).click();await dialog.getByLabel('Nombre',{exact:true}).fill('Solo inspección; cancelar');
  const row=dialog.locator('.permission-row').filter({hasText:'asignaciones'});
  await row.getByLabel('Editar',{exact:true}).check();await expect(row.getByLabel('Consultar',{exact:true})).toBeChecked();await row.getByLabel('Consultar',{exact:true}).uncheck();await expect(row.getByLabel('Editar',{exact:true})).not.toBeChecked();

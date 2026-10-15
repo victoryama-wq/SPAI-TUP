@@ -1,0 +1,328 @@
+[
+  {
+    "uid": "demo-coord-a",
+    "profile": {
+      "createdAt": "2026-09-01T15:00:00.000Z",
+      "updatedAt": "2026-09-01T15:00:00.000Z",
+      "permissionSchemaVersion": 2,
+      "revision": 1,
+      "area": "Académica DEMO",
+      "baseRole": "COORDINACION_ACADEMICA",
+      "permissions": {
+        "dashboard": "VIEW",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "VIEW",
+        "grupos": "VIEW",
+        "docentes": "EDIT",
+        "asignaturas": "VIEW",
+        "asignaciones": "EDIT",
+        "solicitudes": "EDIT",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "*"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "authUid": "demo-coord-a",
+      "name": "Coordinación A DEMO",
+      "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+      "role": "Coordinación Académica",
+      "greetingGender": "Femenino",
+      "assignedPrograms": [
+        "ADM"
+      ],
+      "access": {
+        "dashboard": true,
+        "usuarios": false,
+        "ciclos": false,
+        "nomenclaturas": true,
+        "grupos": true,
+        "docentes": true,
+        "asignaturas": true,
+        "asignaciones": true,
+        "solicitudes": true,
+        "ligasMeet": false,
+        "moodle": false,
+        "bitacora": false
+      },
+      "status": "Activo"
+    },
+    "delegation": null,
+    "effective": {
+      "permissions": {
+        "dashboard": "VIEW",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "VIEW",
+        "grupos": "VIEW",
+        "docentes": "EDIT",
+        "asignaturas": "VIEW",
+        "asignaciones": "EDIT",
+        "solicitudes": "EDIT",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "capabilities": [],
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "*"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "baseRole": "COORDINACION_ACADEMICA",
+      "active": true
+    }
+  },
+  {
+    "uid": "demo-r01-consulta",
+    "profile": {
+      "area": "Aceptación ficticia R01",
+      "name": "Consulta R01 DEMO",
+      "email": "demo.r01.consulta@tecplayacar.edu.mx",
+      "role": "Acceso personalizado",
+      "greetingGender": "Femenino",
+      "baseRole": "CUSTOM",
+      "status": "Activo",
+      "permissionSchemaVersion": 2,
+      "assignedPrograms": [
+        "ADM"
+      ],
+      "permissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "VIEW",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "basePermissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "NONE",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "baseScope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "baseCapabilities": [],
+      "capabilities": [],
+      "createdAt": "2026-10-15T19:03:25.138Z",
+      "id": "demo-r01-consulta",
+      "revision": 3,
+      "updatedAt": "2026-10-15T19:03:25.394Z",
+      "access": {
+        "dashboard": false,
+        "usuarios": false,
+        "ciclos": false,
+        "nomenclaturas": false,
+        "grupos": false,
+        "docentes": false,
+        "asignaturas": false,
+        "asignaciones": true,
+        "solicitudes": false,
+        "ligasMeet": false,
+        "moodle": false,
+        "bitacora": false
+      },
+      "authUid": "demo-r01-consulta"
+    },
+    "delegation": null,
+    "effective": {
+      "permissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "VIEW",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "capabilities": [],
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "baseRole": "CUSTOM",
+      "active": true
+    }
+  },
+  {
+    "uid": "demo-auxiliar",
+    "profile": {
+      "createdAt": "2026-09-01T15:00:00.000Z",
+      "updatedAt": "2026-10-15T19:04:34.116Z",
+      "permissionSchemaVersion": 2,
+      "revision": 2,
+      "area": "Sistemas DEMO",
+      "baseRole": "ADMIN_OPERATIVO",
+      "permissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "EDIT",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "authUid": "demo-auxiliar",
+      "name": "Auxiliar DEMO",
+      "email": "demo.auxiliar@tecplayacar.edu.mx",
+      "role": "Auxiliar de Sistemas",
+      "greetingGender": "Femenino",
+      "assignedPrograms": [],
+      "access": {
+        "dashboard": false,
+        "usuarios": false,
+        "ciclos": false,
+        "nomenclaturas": false,
+        "grupos": false,
+        "docentes": false,
+        "asignaturas": false,
+        "asignaciones": true,
+        "solicitudes": false,
+        "ligasMeet": false,
+        "moodle": false,
+        "bitacora": false
+      },
+      "status": "Activo",
+      "id": "demo-auxiliar",
+      "delegationId": "3766e073-4c03-4a93-98cd-6e4a4dcaf2af",
+      "capabilities": []
+    },
+    "delegation": {
+      "userId": "demo-auxiliar",
+      "status": "ACTIVE",
+      "permissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "EDIT",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "capabilities": [],
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "grantedBy": "demo-sistemas",
+      "previousDelegationId": null,
+      "createdAt": "2026-10-15T19:04:34.116Z",
+      "id": "3766e073-4c03-4a93-98cd-6e4a4dcaf2af",
+      "revision": 1,
+      "updatedAt": "2026-10-15T19:04:34.116Z"
+    },
+    "effective": {
+      "permissions": {
+        "dashboard": "NONE",
+        "usuarios": "NONE",
+        "ciclos": "NONE",
+        "nomenclaturas": "NONE",
+        "grupos": "NONE",
+        "docentes": "NONE",
+        "asignaturas": "NONE",
+        "asignaciones": "EDIT",
+        "solicitudes": "NONE",
+        "ligasMeet": "NONE",
+        "moodle": "NONE",
+        "bitacora": "NONE"
+      },
+      "capabilities": [],
+      "scope": {
+        "programs": [
+          "ADM"
+        ],
+        "cycles": [
+          "27-1"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "baseRole": "ADMIN_OPERATIVO",
+      "active": true
+    }
+  }
+]

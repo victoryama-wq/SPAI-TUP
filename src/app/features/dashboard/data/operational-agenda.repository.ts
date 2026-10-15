@@ -9,7 +9,7 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
-import { UserSessionService } from '../../../core/auth/user-session.service';
+import { UserSession, UserSessionService } from '../../../core/auth/user-session.service';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
 export type AgendaScope = 'EQUIPO' | 'PRIVADA';
@@ -55,10 +55,11 @@ export class OperationalAgendaRepository {
   private readonly teamItemsSignal = signal<OperationalAgendaItem[]>([]);
   private readonly privateItemsSignal = signal<OperationalAgendaItem[]>([]);
   private readonly errorSignal = signal('');
+  private readonly dataOwner = signal<UserSession | null>(null);
 
   readonly items = computed(() =>
-    [...this.teamItemsSignal(), ...this.privateItemsSignal()]
-      .sort((first, second) => second.updatedAt.localeCompare(first.updatedAt)),
+    this.dataOwner() === this.userSessionService.session() ? [...this.teamItemsSignal(), ...this.privateItemsSignal()]
+      .sort((first, second) => second.updatedAt.localeCompare(first.updatedAt)) : [],
   );
   readonly readError = this.errorSignal.asReadonly();
 
@@ -66,6 +67,8 @@ export class OperationalAgendaRepository {
     effect((onCleanup) => {
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
+      this.dataOwner.set(session);
+      this.teamItemsSignal.set([]); this.privateItemsSignal.set([]); this.errorSignal.set('');
 
       if (!session || !appUser || appUser.status !== 'Activo' || !isSystems(appUser) || !hasAccess(appUser, 'dashboard')) {
         this.teamItemsSignal.set([]);
@@ -75,6 +78,7 @@ export class OperationalAgendaRepository {
       }
 
       const handleError = (error: Error) => {
+        if (session !== this.userSessionService.session()) return;
         console.error('No se pudo cargar la agenda operativa.', error);
         this.teamItemsSignal.set([]); this.privateItemsSignal.set([]);
         this.errorSignal.set('No se pudo actualizar la agenda. Verifica tu conexión y permisos.');
@@ -82,6 +86,7 @@ export class OperationalAgendaRepository {
       const unsubscribeTeam = onSnapshot(
         collection(this.firestore, TEAM_AGENDA_COLLECTION),
         (snapshot) => {
+          if (session !== this.userSessionService.session()) return;
           this.errorSignal.set('');
           this.teamItemsSignal.set(snapshot.docs.map((item) => this.mapAgendaItem(item.id, item.data())));
         },
@@ -90,6 +95,7 @@ export class OperationalAgendaRepository {
       const unsubscribePrivate = onSnapshot(
         collection(this.firestore, PRIVATE_AGENDA_COLLECTION, session.authUid, 'actividades'),
         (snapshot) => {
+          if (session !== this.userSessionService.session()) return;
           this.errorSignal.set('');
           this.privateItemsSignal.set(snapshot.docs.map((item) => this.mapAgendaItem(item.id, item.data())));
         },
@@ -99,6 +105,7 @@ export class OperationalAgendaRepository {
       onCleanup(() => {
         unsubscribeTeam();
         unsubscribePrivate();
+        this.teamItemsSignal.set([]); this.privateItemsSignal.set([]);
       });
     });
   }

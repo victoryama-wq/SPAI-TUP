@@ -1,5 +1,7 @@
 # Seguimiento de aceptación E2-R01 — 14 de octubre de 2026
 
+> **Actualización vigente: 15/10/2026.** La sección inicial conserva la ejecución histórica. El nuevo reporte humano confirma **T01 físico, T07 funcional y T11 físico**; no están pendientes. T09 se separa en consulta limitada correcta y Dashboard fallido; T10 humano sigue pendiente. Véase [la nueva ejecución, causas, totales y guion](E2-R01-ACEPTACION-2026-10-15.md). Total humano vigente: **7 correctas, 2 con hallazgo, 1 fallida, 1 pendiente**. La validación técnica no firma aceptación del propietario.
+
 Estado técnico y aceptación del propietario se registran por separado. Este documento corrige la trazabilidad del reporte recibido; no firma ni concede aceptación en nombre del propietario.
 
 ## Fuente y conservación

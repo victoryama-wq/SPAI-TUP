@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "cycle": "27-1",
+  "state": "Captura",
+  "foreign": "acceptance-foreign DER",
+  "academic": "SDK and UI enrollments allowed; teacher denied; protected fields unchanged",
+  "custom": "foreign read/write denied",
+  "auxiliary": "foreign read/write denied; own read allowed",
+  "humanAcceptance": "PENDING"
+}

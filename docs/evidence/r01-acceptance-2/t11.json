@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "auxiliary": "demo-auxiliar",
+  "delegation": "c351bb25-7d9c-4d7b-afea-c16aabb0a8e0",
+  "assignment": {
+    "userId": "acceptance-recipient",
+    "roleId": "demo-r01-role-consulta",
+    "roleRevision": 1,
+    "permissions": {
+      "dashboard": "NONE",
+      "usuarios": "NONE",
+      "ciclos": "NONE",
+      "nomenclaturas": "NONE",
+      "grupos": "NONE",
+      "docentes": "NONE",
+      "asignaturas": "NONE",
+      "asignaciones": "VIEW",
+      "solicitudes": "NONE",
+      "ligasMeet": "NONE",
+      "moodle": "NONE",
+      "bitacora": "NONE"
+    },
+    "capabilities": [],
+    "scope": {
+      "programs": [
+        "ADM"
+      ],
+      "cycles": [
+        "27-1"
+      ],
+      "teachers": [],
+      "fields": []
+    },
+    "status": "ACTIVE",
+    "reviewStatus": "REQUIERE_REVISION_ADMIN_GENERAL",
+    "assignedBy": "demo-auxiliar",
+    "assignedByDelegationId": "c351bb25-7d9c-4d7b-afea-c16aabb0a8e0",
+    "createdAt": "2026-10-15T19:04:52.674Z",
+    "id": "f74548c6-4c40-4bee-be44-f280879de571",
+    "revision": 2,
+    "updatedAt": "2026-10-15T19:04:58.062Z"
+  },
+  "reviewId": "c351bb25-7d9c-4d7b-afea-c16aabb0a8e0_f74548c6-4c40-4bee-be44-f280879de571",
+  "followingOperations": "read/update/directory/removeRole denied",
+  "physicalDevices": "not tested by Codex"
+}

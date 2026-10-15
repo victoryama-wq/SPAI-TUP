@@ -1,6 +1,8 @@
 <section class="security-panel">
+  <header class="security-heading"><span>Administración institucional</span>
   <h2>Control de accesos — Seguridad y permisos</h2>
   <p>Los cambios se confirman en servidor con motivo, autor y revisión. El nombre de un rol no concede permisos.</p>
+  </header>
   @if (error) { <p role="alert">{{ error }}</p> }
   @if (message) { <p role="status">{{ message }}</p> }
   <button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>

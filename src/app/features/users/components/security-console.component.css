@@ -1,4 +1,4 @@
-:host { display:block; min-width:0; color:#15334c; }
+:host { display:block; min-width:0; color:#07163c; font-family:Inter,Roboto,Arial,sans-serif; }
 .security-panel { background:white; border-radius:14px; padding:24px; }
 h2,h3 { color:#12416a; } fieldset { margin:16px 0; padding:16px; border:1px solid #bacbd5; }
 label { display:block; margin:10px 0; } input:not([type=checkbox]),select { display:block; min-height:38px; width:min(100%,600px); padding:6px; }
@@ -24,22 +24,31 @@ button:focus-visible,input:focus-visible,select:focus-visible { outline:3px soli
 /* Keep the R01 editor aligned with the institutional user forms. These styles
    are scoped to this component; Asignaciones and the application shell retain
    their own layout. */
-.security-panel { border:1px solid #d7e4f8; box-shadow:0 14px 32px rgb(15 35 83 / 9%); }
+.security-panel { border:1px solid #d7e4f8; border-radius:8px; box-shadow:0 14px 32px rgb(15 35 83 / 9%); }
+.security-heading { position:relative; padding:18px 22px; margin-bottom:22px; border-left:4px solid #1d4ed8; background:linear-gradient(90deg,rgb(29 78 216 / 8%),transparent 72%),#f8fbff; border-radius:8px; }
+.security-heading > span { color:#1d4ed8; font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+.security-heading h2 { font-size:clamp(22px,2.4vw,30px); margin:6px 0 10px; }
+.security-heading p { margin:0; font-size:14px; font-weight:500; }
+.security-panel > h3 { color:#06174a; border-top:1px solid #d7e4f8; padding-top:22px; margin-top:26px; }
+.table-scroll { border:1px solid #d7e4f8; border-radius:8px; margin:22px 0; }
+caption { padding:14px; text-align:left; color:#06174a; font-weight:900; background:#f8fbff; }
+th { color:#fff; background:#0b357f; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+td { font-size:14px; line-height:1.5; }
 .security-panel h2 { color:#06174a; margin-top:0; }
 .security-panel p,.editor-body p { line-height:1.5; overflow-wrap:anywhere; }
-button { border:1px solid #b8cbe5; border-radius:8px; min-height:44px; font:inherit; font-weight:700; background:#edf4ff; color:#173d78; white-space:normal; }
+button { border:1px solid #c9d9ef; border-radius:8px; min-height:48px; font:inherit; font-size:14px; font-weight:900; background:#edf4ff; color:#1e3a8a; white-space:normal; }
 button:hover:not(:disabled) { background:#dceaff; border-color:#2563ad; }
 button:disabled { cursor:not-allowed; opacity:.65; }
 button[type=submit] { background:linear-gradient(180deg,#244a9b,#1e3a8a); color:#fff; border-color:#1e3a8a; }
 button[type=submit]:hover:not(:disabled) { background:#16326e; }
-input:not([type=checkbox]),select { box-sizing:border-box; border:1px solid #b8cbe5; border-radius:8px; background:#f8fbff; color:#15334c; min-height:44px; font:inherit; padding:10px 12px; max-width:100%; }
+input:not([type=checkbox]),select { box-sizing:border-box; border:1px solid #c9d9ef; border-radius:8px; background:#f9fbff; color:#07163c; min-height:48px; font:inherit; font-weight:400; padding:10px 14px; max-width:100%; margin-top:8px; }
 input[type=checkbox] { width:20px; height:20px; flex:0 0 auto; accent-color:#244a9b; }
-label { font-weight:600; line-height:1.45; overflow-wrap:anywhere; }
-fieldset { border-radius:10px; background:#fff; }
-legend { color:#173d78; font-weight:800; padding:0 8px; max-width:100%; overflow-wrap:anywhere; }
+label { color:#06174a; font-size:14px; font-weight:900; line-height:1.45; overflow-wrap:anywhere; }
+fieldset { border-radius:8px; border-color:#d7e4f8; background:#fff; padding:18px; }
+legend { color:#06174a; font-size:14px; font-weight:900; padding:0 8px; max-width:100%; overflow-wrap:anywhere; }
 .security-dialog { box-sizing:border-box; background:#f5f8fd; }
-.editor-heading { background:linear-gradient(120deg,#06174a,#244a9b); color:#fff; }
-.editor-heading h3 { color:inherit; font-size:1.2rem; line-height:1.35; }
+.editor-heading { background:linear-gradient(135deg,#071d4f,#0b357f); color:#fff; padding:18px 24px; }
+.editor-heading h3 { color:inherit; font-size:clamp(22px,2.4vw,28px); line-height:1.35; }
 .editor-heading button { flex:0 0 auto; }
 .editor-actions { background:#fff; }
 #security-editor .editor-body { grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; }

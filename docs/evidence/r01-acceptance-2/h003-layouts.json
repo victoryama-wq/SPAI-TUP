@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1366,
+    "height": 900,
+    "title": "Bienvenida, María Fernanda de los Ángeles Hernández Rodríguez DEMO",
+    "titleBottom": 371.5,
+    "copyBottom": 413.875,
+    "metaTop": 429.875,
+    "overflow": false,
+    "fontSize": 24.588
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "title": "Bienvenida, María Fernanda de los Ángeles Hernández Rodríguez DEMO",
+    "titleBottom": 350.0625,
+    "copyBottom": 374.25,
+    "metaTop": 390.25,
+    "overflow": false,
+    "fontSize": 21
+  },
+  {
+    "width": 1032,
+    "height": 1376,
+    "title": "Bienvenida, María Fernanda de los Ángeles Hernández Rodríguez DEMO",
+    "titleBottom": 350.0625,
+    "copyBottom": 392.4375,
+    "metaTop": 408.4375,
+    "overflow": false,
+    "fontSize": 21
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "title": "Bienvenida, María Fernanda de los Ángeles Hernández Rodríguez DEMO",
+    "titleBottom": 416,
+    "copyBottom": 458.375,
+    "metaTop": 474.375,
+    "overflow": false,
+    "fontSize": 21
+  }
+]

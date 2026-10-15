@@ -317,7 +317,8 @@
           </div>
         }
 
-        <router-outlet />
+        @if (canRenderRoute()) { <router-outlet /> }
+        @else { <p role="status">Resolviendo acceso autorizado…</p> }
       </div>
     </main>
 

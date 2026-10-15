@@ -1,6 +1,6 @@
-import { UserSessionService } from '../auth/user-session.service';
+import { UserSession, UserSessionService } from '../auth/user-session.service';
 import { authorizedQuery } from './authorized-query';
-import { effect, inject, signal } from '@angular/core';
+import { computed, effect, inject, signal } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -29,8 +29,9 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   private collectionQuery: Query | null = null;
   private readonly userSession = inject(UserSessionService);
   private generation = 0;
+  private readonly dataOwner = signal<UserSession | null>(null);
 
-  readonly items = this.itemsSignal.asReadonly();
+  readonly items = computed(() => this.dataOwner() === this.userSession.session() ? this.itemsSignal() : []);
   readonly readError = this.readErrorSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
 
@@ -41,6 +42,8 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   ) {
     effect((onCleanup) => {
       const generation = ++this.generation;
+      const owner = this.userSession.session();
+      this.dataOwner.set(owner);
       this.itemsSignal.set([]);
       try { this.collectionQuery = authorizedQuery(this.firestore, this.collectionPath, constraints, this.userSession.session()?.appUser); }
       catch (error) { this.collectionQuery = null; this.loadingSignal.set(false); this.readErrorSignal.set(error instanceof Error ? error.message : 'Consulta no disponible.'); return; }
@@ -62,7 +65,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       const unsubscribe = onSnapshot(
         this.collectionQuery,
         (snapshot) => {
-          if (generation !== this.generation) return;
+          if (generation !== this.generation || owner !== this.userSession.session()) return;
           clearTimeout(initialLoadTimeout);
           this.readErrorSignal.set('');
           this.loadingSignal.set(false);
@@ -72,7 +75,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
           );
         },
         (error) => {
-          if (generation !== this.generation) return;
+          if (generation !== this.generation || owner !== this.userSession.session()) return;
           clearTimeout(initialLoadTimeout);
           this.itemsSignal.set([]);
           console.error(`No se pudo leer ${this.collectionPath}`, error);
@@ -82,6 +85,9 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       );
 
       onCleanup(() => {
+        ++this.generation;
+        this.collectionQuery = null;
+        this.itemsSignal.set([]);
         clearTimeout(initialLoadTimeout);
         unsubscribe();
       });
@@ -90,7 +96,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
 
   refreshFromServer(): Promise<void> {
     const generation = this.generation;
-    if (!this.collectionQuery) return Promise.reject(new Error('PERMISO_REVOCADO o módulo sin autorización vigente.'));
+    if (!this.collectionQuery || this.dataOwner() !== this.userSession.session()) return Promise.reject(new Error('PERMISO_REVOCADO o módulo sin autorización vigente.'));
     this.loadingSignal.set(true);
 
     return this.withReadTimeout(

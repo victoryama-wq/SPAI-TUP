@@ -1,0 +1,192 @@
+{
+  "date": "2026-10-15",
+  "responsible": "Codex",
+  "status": "VALIDADA_LOCAL",
+  "baseCommit": "96b4c991a3e04c61f09a75eeb478ae5730e666df",
+  "commitIdentity": "git log -1 --format=%H -- docs/E2-R01-ACEPTACION-2026-10-15.md; literal post-commit receipt in .local/acceptance-2/commit-validation.json",
+  "humanOwnerAcceptance": "PENDING",
+  "humanSource": {
+    "file": "evidence/r01-acceptance-2/reporte-recibido.md",
+    "sha256": "c39a82cfd2e459221bdb3fb396c82d6ce17af4761d5969060edb883be6182d87",
+    "declaredDate": "2026-10-14",
+    "reportedBy": "Propietaria; encabezado Codex no acredita presencia del agente",
+    "totals": {
+      "planned": 11,
+      "correct": 7,
+      "withFindings": 2,
+      "failed": 1,
+      "pending": 1
+    },
+    "confirmed": [
+      "T01 physical second computer",
+      "T07 functional accessibility",
+      "T11 physical live revocation"
+    ],
+    "T09": {
+      "limitedQuery": "CORRECTA",
+      "dashboardRestriction": "FALLÓ; repeat after technical correction"
+    },
+    "T10": "PENDIENTE"
+  },
+  "findings": {
+    "H001": {
+      "severity": "MEDIA",
+      "technical": "CORREGIDO_Y_VERIFICADO_LOCAL",
+      "owner": "PENDIENTE_VISUAL"
+    },
+    "H002": {
+      "severity": "MEDIA",
+      "priority": "SEGURIDAD_R01",
+      "technical": "CORREGIDO_Y_VERIFICADO_LOCAL",
+      "owner": "PENDIENTE_REPETIR",
+      "confirmedUnauthorizedRead": false,
+      "confirmedVisualExposure": true,
+      "baselineUserListDiagnostic": "Null value; no valid final policy denial at the applicable allow",
+      "finalDenialCriterion": "permission-denied plus final false at the same allow line/operation for each preliminary evaluation diagnostic; no Null value/limit/service errors"
+    },
+    "H003": {
+      "severity": "BAJA",
+      "technical": "CORREGIDO_Y_VERIFICADO_LOCAL",
+      "owner": "PENDIENTE_VISUAL"
+    }
+  },
+  "unit": {
+    "local": 10,
+    "policy": 9,
+    "auth": 3,
+    "sessionLifecycle": 4,
+    "total": 26,
+    "failed": 0
+  },
+  "server": {
+    "passed": 37,
+    "testedAt": "2026-10-15T18:46:48.311Z"
+  },
+  "browser": {
+    "startTime": "2026-10-15T19:03:29.280Z",
+    "duration": 212804.644,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "passed": 20,
+    "engine": "153.0.8010.12",
+    "freshLoginWithoutStorageSetup": true,
+    "initialFlow": "Consulta -> /asignaciones",
+    "versionInvalidationPreserved": true,
+    "protectedTransientInsertions": 0
+  },
+  "regression": {
+    "characterizations": 72,
+    "rules": 52,
+    "logic": 20,
+    "strictGateExit": 1,
+    "openContracts": 18,
+    "strictGate": [
+      "CONTRACT_FAIL REQUEST-TERMINAL-REWRITE F07 etapa 3",
+      "CONTRACT_FAIL CYCLE-WRITE-Preparacion F04 etapa 3",
+      "CONTRACT_FAIL CYCLE-CREATE-Preparacion F04 etapa 3",
+      "CONTRACT_FAIL CYCLE-WRITE-Captura cerrada F04 etapa 3",
+      "CONTRACT_FAIL CYCLE-CREATE-Captura cerrada F04 etapa 3",
+      "CONTRACT_FAIL CYCLE-WRITE-Cerrado F04 etapa 3",
+      "CONTRACT_FAIL CYCLE-CREATE-Cerrado F04 etapa 3",
+      "CONTRACT_FAIL MOODLE-STATUS-RESET-ALLOWED F08 etapa 3",
+      "CONTRACT_FAIL CYCLE-MULTIPLE-OPERATIVE F05 etapa 3",
+      "CONTRACT_FAIL CYCLE-SELECTION-ORDER F05 etapa 3",
+      "CONTRACT_FAIL REQUEST-CREATE-AWAITS F06 etapa 3",
+      "CONTRACT_FAIL REQUEST-RESOLVE-AWAITS F06 etapa 3",
+      "CONTRACT_FAIL REQUEST-DUPLICATE-CREATE F07 etapa 3",
+      "CONTRACT_FAIL UI-PREMATURE-SUCCESS F06 etapa 3",
+      "CONTRACT_FAIL SHARE-PRESERVES-MOODLE F08 etapa 3",
+      "CONTRACT_FAIL SHARE-PARTIAL-AND-SUCCESS F07 etapa 3",
+      "CONTRACT_FAIL REQUEST-DOUBLE-ACCEPT F07 etapa 3",
+      "CONTRACT_FAIL SHARE-CONCURRENT-LOST-GROUP F07 etapa 3"
+    ],
+    "expectationsChanged": false
+  },
+  "builds": {
+    "local": "PASS",
+    "lan": "PASS",
+    "production": "PASS_WITH_WARNING",
+    "productionInitialBundle": "774.83 kB / 750 kB budget"
+  },
+  "T10": {
+    "technical": "PASS SDK + UI",
+    "human": "PENDING",
+    "reviewPreparation": "--review started and prepared successfully in isolated ports; then stopped",
+    "fixture": "t10-fixture.mjs, shared with automated test",
+    "sharedDemoScenarioChanged": false
+  },
+  "LAN": {
+    "status": "PASS",
+    "base": "http://192.168.41.254:4201",
+    "checks": [
+      {
+        "email": "demo.sistemas@tecplayacar.edu.mx",
+        "route": "/usuarios",
+        "reload": true
+      },
+      {
+        "email": "demo.r01.consulta@tecplayacar.edu.mx",
+        "route": "/asignaciones",
+        "reload": true
+      }
+    ],
+    "browser": "153.0.8010.12",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "requests": 171,
+    "origins": [
+      "http://192.168.41.254:4201"
+    ],
+    "services": [
+      {
+        "path": "identitytoolkit.googleapis.com",
+        "observed": true
+      },
+      {
+        "path": "google.firestore.v1.Firestore",
+        "observed": true
+      },
+      {
+        "path": "demo-spai-tup/us-central1",
+        "observed": true
+      }
+    ],
+    "administration": "not published",
+    "pageErrors": [],
+    "physicalSecondComputer": false,
+    "frontendUpdated": true,
+    "emulatorsRestarted": false,
+    "sharedDataReset": false,
+    "install": {
+      "at": "2026-10-15T19:07:21.594Z",
+      "indexSha256": "cce8c68f8a59e6ccc67bd0019850503e4c4a8aa77f964474b6b9950351bc4406",
+      "emulatorsRestarted": false,
+      "sharedDataWritten": false,
+      "oldChunksPreserved": true
+    }
+  },
+  "preserved": {
+    "privateBackupSha256": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+    "dataSelectionSha256": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+    "contractSha256": "093b8d69601cd2b9557f16ec773df7b50b9eaca30d880ead5cd5418b0feca972",
+    "main": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2"
+  },
+  "pending": [
+    "Owner confirmation H001/H002/H003 and T10",
+    "Administrative >200 production blocker unchanged",
+    "18 R02/R03 strict contract failures",
+    "Previous Asignaciones responsive issue R05/R07",
+    "Remote CI, migration/rollback, remote and production validation"
+  ],
+  "remoteCI": "NOT_RUN",
+  "push": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "deploy": "NOT_RUN",
+  "productionCalls": "NOT_RUN",
+  "moodleSaekoCalls": "NOT_RUN",
+  "realEmails": "NOT_SENT"
+}

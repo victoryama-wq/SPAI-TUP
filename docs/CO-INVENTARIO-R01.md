@@ -1,5 +1,7 @@
 # Inventario operativo y cobertura R01
 
+> Seguimiento vigente de aceptación: [15/10/2026](E2-R01-ACEPTACION-2026-10-15.md). El inventario CO-01 a CO-12 y las ejecuciones previas se conservan. T01 físico, T07 funcional y T11 físico están confirmados por la propietaria; los pendientes históricos no sustituyen ese nuevo resultado.
+
 Revisión complementaria del 2026-10-13, sobre `7b22264d06c1d2925bf7c3c97058ad06112d9b39`.
 Fuentes: [contrato operativo v1.0](CONTRATO-CAMBIOS-OPERATIVOS-SPAI.md) y [Etapa 2 v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md), que prevalece en seguridad.
 No existía un inventario CO-01–CO-12 versionado. Se incorpora mediante inspección de código; únicamente CO-02/CO-11 reciben implementación y pruebas de esta revisión. «Existente» no certifica producción ni las etapas futuras.
@@ -58,3 +60,18 @@ Se conserva el inventario anterior. Esta revisión modifica únicamente el ajust
 | Aceptación humana | [Reporte y guion](HALLAZGOS-PRUEBA-MANUAL-E2-R01.md) | T01 requiere segunda computadora física; propietario debe repetir revisión de ajustes | Pendiente |
 
 Las imágenes originales de Asignaciones se clasifican separadamente como defecto previo R05/R07. No son evidencia del formulario de Usuarios. No se ejecutó validación integral de funcionalidades futuras.
+
+## Segunda revisión de aceptación — 2026-10-15
+
+| Requisito aplicable | Implementación | Prueba posterior | Estado |
+|---|---|---|---|
+| CO-02 VIEW Asignaciones ADM/27-1 | `module-route-access.ts`, guard, shell, perfil resuelto desde servidor | `navigation.spec.mjs`: ingreso real sin precargar versión, URL Dashboard, recarga, historial, cero inserciones protegidas | Corregido en esta revisión; confirmación humana T09b pendiente |
+| CO-02 retiro de facultades/datos | Repositorios asociados al propietario de sesión; cleanup y respuesta atrasada descartada | Navegador Sistemas→Consulta y revocación; `session-lifecycle.test.mjs` | Verificado local |
+| CO-02 directorio reservado / perfil propio | Rules `list` administrativo; `get` propio; UsersRepository reutiliza la sesión | Lecturas negativas directas y positivas propias; negativos exigen false final de la regla aplicable, no errores aislados | Corregido en esta revisión |
+| CO-02 matrícula global solo CA | Operación de matrícula existente, sin ampliar autoridad | T10 SDK y UI ajena DER/27-1 Captura, campos protegidos intactos | Verificado local; T10 humano pendiente |
+| CO-02 auxiliar según delegación | EDIT Asignaciones ADM/27-1, sin capacidades adicionales | T10 niega matrícula/lectura ajena; T11 revoca y conserva revisión | Verificado local; T11 físico ya confirmado |
+| CO-11 estilo Usuarios/Roles | Patrones institucionales de campos, botones, tarjetas, encabezados y espaciado | Capturas comparables en cuatro tamaños e inspección visual Codex | Corregido en esta revisión; confirmación visual humana pendiente |
+| CO-11 estructura/modal/accesibilidad/dependencias | Sin cambio de flujo | Regresiones de foco, encabezado/acciones, columnas, dos pasos y Consultar/Editar | Verificado local; T07 funcional humano conservado |
+| H003 nombre largo en Dashboard autorizado | Altura intrínseca y metadatos en flujo normal | Geometría y capturas con Sistemas autorizado, cuatro tamaños | Corregido en esta revisión; confirmación humana pendiente |
+
+No se implementan CO de otras entregas. El Dashboard personalizado sigue exigiendo permiso explícito: CO-10 no concede acceso implícito a Consulta. Los 18 incumplimientos R02/R03 y el impedimento de 200 documentos permanecen. Ligas Meet R05; SAEKO R08.
