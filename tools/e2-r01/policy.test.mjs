@@ -62,14 +62,16 @@ test('UI real permite EDIT personalizado propio, pero no VIEW ni ámbito ajeno',
   const helpers=sourceFunctions('src/app/features/users/data/module-permission.service.ts',['hasAccess','isSystems','hasCapability']);
   const assignment={program:'ADM',cycle:'27-1',status:'EN_CAPTURA'};
   const user={status:'Activo',permissionSchemaVersion:2,baseRole:'CUSTOM',permissions:{asignaciones:'EDIT'},scope:{programs:['ADM'],cycles:['27-1']}};
-  const ui=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canEditAssignment','canModifyAssignment'],{session:()=>({appUser:user})},helpers);
+  const ui=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canEditAssignment','canModifyAssignment'],{session:()=>({appUser:user}),assignmentsReady:()=>true},helpers);
   assert.equal(ui.canEditAssignment(assignment),true);
   assert.equal(ui.canEditAssignment({...assignment,program:'DER'}),false);
   assert.equal(ui.canEditAssignment({...assignment,cycle:'26-3'}),false);
   user.permissions.asignaciones='VIEW';assert.equal(ui.canEditAssignment(assignment),false);
   user.permissions.asignaciones='EDIT';user.baseRole='COORDINACION_ACADEMICA';assert.equal(ui.canEditAssignment({...assignment,program:'DER'}),true);
   user.baseRole='ADMIN_OPERATIVO';assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),false);
-  user.capabilities=['OPERATE_EXCEPTIONAL_CHANGE'];assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),true);
+  user.capabilities=['OPERATE_EXCEPTIONAL_CHANGE'];assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),false,'Una capacidad no concede campos ausentes');
+  user.scope.fields=['*'];assert.equal(ui.canEditAssignment({...assignment,status:'CARGADO_MOODLE'}),true);
+  ui.assignmentsReady=()=>false;assert.equal(ui.canEditAssignment(assignment),false,'Lectura no confirmada no habilita edición');
 });
 
 test('CO-02 dashboard real solo enumera módulos explícitamente concedidos', () => {

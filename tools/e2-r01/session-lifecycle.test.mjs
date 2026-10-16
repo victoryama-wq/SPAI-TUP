@@ -10,14 +10,24 @@ function harness(path,name,args=[]){
  let session=null,cleanup=[];const effects=[],listeners=[];
  const signal=initial=>{let value=initial;const read=()=>value;read.set=v=>value=v;read.asReadonly=()=>read;return read;};
  const core={signal,computed:f=>f,Injectable:()=>c=>c,effect:f=>effects.push(f),inject:t=>t==='session'?{session:()=>session}:t==='auth'?{isAuthenticated:()=>Boolean(session)}:{}};
- const firestore=new Proxy({onSnapshot:(...args)=>{const callback=args.find(a=>typeof a==='function');const item={callback,stopped:false};listeners.push(item);return()=>item.stopped=true;}},{get:(target,key)=>target[key]??((...args)=>({kind:key,args}))});
+ const firestore=new Proxy({onSnapshot:(...args)=>{const callbacks=args.filter(a=>typeof a==='function');const item={callback:callbacks[0],error:callbacks[1],stopped:false};listeners.push(item);return()=>item.stopped=true;}},{get:(target,key)=>target[key]??((...args)=>({kind:key,args}))});
  const compile=(file,dependencies)=>{const exports={};vm.runInNewContext(ts.transpileModule(readFileSync(resolve(root,file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,experimentalDecorators:true}}).outputText,{exports,require:dependencies,console,setTimeout,clearTimeout});return exports;};
  const permissions=compile('src/app/features/users/data/module-permission.service.ts',()=>core);
  const exports=compile(path,id=>id==='@angular/core'?core:id==='firebase/firestore'?firestore:id.endsWith('/user-session.service')?{UserSessionService:'session'}:id.endsWith('/auth.service')?{AuthService:'auth'}:id.endsWith('/module-permission.service')?permissions:id==='./authorized-query'?{authorizedQuery:(_db,_path,_constraints,u)=>permissions.hasAccess(u,'asignaciones')?{}:null}:{});
  const repo=new exports[name](...args);
- return {repo,listeners,setSession:s=>session=s,flush(){cleanup.forEach(f=>f());cleanup=[];effects.forEach(f=>f(c=>cleanup.push(c)));},emit(listener,data){listener.callback({docs:[{id:'fictional',data:()=>data}]});}};
+ return {repo,listeners,setSession:s=>session=s,flush(){cleanup.forEach(f=>f());cleanup=[];effects.forEach(f=>f(c=>cleanup.push(c)));},emit(listener,data){listener.callback({metadata:{fromCache:false,hasPendingWrites:false},docs:[{id:'fictional',data:()=>data}]});}};
 }
 const actor=(uid,permissions,baseRole='CUSTOM')=>({authUid:uid,email:`${uid}@example.invalid`,appUser:{id:uid,name:uid,status:'Activo',permissionSchemaVersion:2,baseRole,permissions,scope:{programs:['ADM'],cycles:['27-1']}}});
+
+test('Consulta vacía confirmada, carga, denegación y fallo técnico no se confunden',()=>{
+ const h=harness('src/app/core/data/firestore.repository.ts','FirestoreRepository',[{},'asignaciones']);
+ h.setSession(actor('a',{asignaciones:'VIEW'}));h.flush();assert.equal(h.repo.readState(),'loading');
+ h.listeners[0].callback({metadata:{fromCache:true},docs:[]});assert.equal(h.repo.readState(),'loading');
+ h.listeners[0].callback({metadata:{fromCache:false,hasPendingWrites:false},docs:[]});assert.equal(h.repo.ready(),true);assert.equal(h.repo.items().length,0);
+ h.listeners[0].error({code:'permission-denied',message:'Null value diagnostic'});assert.equal(h.repo.readState(),'denied');assert.ok(!h.repo.readError().includes('Null value'));assert.equal(h.repo.ready(),false);
+ h.listeners[0].error({code:'unavailable',message:'technical diagnostic'});assert.equal(h.repo.readState(),'error');assert.match(h.repo.readMessage(),/Reintenta/);
+ h.setSession(null);h.flush();assert.equal(h.repo.readState(),'restricted');
+});
 
 test('Perfil vigente ignora caché y escrituras optimistas no confirmadas; una identidad nueva no hereda autorización',()=>{
  let authUser={uid:'consulta',email:'consulta@example.invalid'},callback,cleanup;const effects=[];

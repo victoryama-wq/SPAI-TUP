@@ -119,6 +119,20 @@ export class MoodlePageComponent {
   readonly templates = this.templatesRepository.templates;
   readonly categoriesReadError = this.categoriesRepository.categoriesReadError;
   readonly templatesReadError = this.templatesRepository.templatesReadError;
+  readonly categoriesReady = this.categoriesRepository.ready;
+  readonly templatesReady = this.templatesRepository.ready;
+  readonly categoriesReadState = this.categoriesRepository.readState;
+  readonly templatesReadState = this.templatesRepository.readState;
+  readonly categoriesReadMessage = this.categoriesRepository.readMessage;
+  readonly templatesReadMessage = this.templatesRepository.readMessage;
+  readonly assignmentsReady = this.assignmentsRepository.ready;
+  readonly assignmentsReadMessage = this.assignmentsRepository.readMessage;
+  retryCategories(): void { void this.categoriesRepository.refreshFromServer().catch(() => undefined); }
+  retryTemplates(): void { void this.templatesRepository.refreshFromServer().catch(() => undefined); }
+  readonly canManageCategories = computed(() => this.categoriesReady() && hasAccess(this.session()?.appUser, 'moodle', true) && hasCapability(this.session()?.appUser, 'MANAGE_MOODLE_TEMPLATES'));
+  readonly canManageTemplates = computed(() => this.templatesReady() && hasAccess(this.session()?.appUser, 'moodle', true) && hasCapability(this.session()?.appUser, 'MANAGE_MOODLE_TEMPLATES'));
+  readonly canExportBatch = computed(() => hasAccess(this.session()?.appUser, 'moodle') && hasAccess(this.session()?.appUser, 'asignaciones') && this.assignmentsReady() && this.categoriesReady() && this.templatesReady());
+  readonly canConfirmBatch = computed(() => this.canExportBatch() && hasAccess(this.session()?.appUser, 'asignaciones', true) && hasAccess(this.session()?.appUser, 'moodle', true) && hasCapability(this.session()?.appUser, 'CONFIRM_MOODLE_UPDATE'));
   readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly session = this.userSessionService.session;
 
@@ -515,6 +529,7 @@ export class MoodlePageComponent {
 
 
   openCategoryModal(category?: MoodleCategory): void {
+    if (!this.canManageCategories()) return;
     this.dismissMessages();
     this.activeModal = 'categoria';
     this.editingCategoryId = category?.id ?? null;
@@ -533,6 +548,7 @@ export class MoodlePageComponent {
   }
 
   openTemplateModal(template?: MoodleCourseTemplate): void {
+    if (!this.canManageTemplates()) return;
     this.dismissMessages();
     this.activeModal = 'plantilla';
     this.editingTemplateId = template?.id ?? null;
@@ -689,6 +705,7 @@ export class MoodlePageComponent {
   }
 
   async saveCategory(): Promise<void> {
+    if (!this.canManageCategories()) return;
     const actor = this.actorData();
 
     if (!actor || !this.canManageMoodle()) {
@@ -737,6 +754,7 @@ export class MoodlePageComponent {
   }
 
   async saveTemplate(): Promise<void> {
+    if (!this.canManageTemplates()) return;
     const actor = this.actorData();
 
     if (!actor || !this.canManageMoodle()) {
@@ -779,6 +797,7 @@ export class MoodlePageComponent {
   }
 
   async deleteCategory(category: MoodleCategory): Promise<void> {
+    if (!this.canManageCategories()) return;
     if (!this.canManageMoodle()) {
       this.showMessage('No tienes permisos para eliminar categorias Moodle.', 'error');
       return;
@@ -793,6 +812,7 @@ export class MoodlePageComponent {
   }
 
   async deleteTemplate(template: MoodleCourseTemplate): Promise<void> {
+    if (!this.canManageTemplates()) return;
     if (!this.canManageMoodle()) {
       this.showMessage('No tienes permisos para eliminar plantillas Moodle.', 'error');
       return;
@@ -807,6 +827,7 @@ export class MoodlePageComponent {
   }
 
   importCategoriesCsv(event: Event): void {
+    if (!this.canManageCategories()) return;
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -848,6 +869,7 @@ export class MoodlePageComponent {
   }
 
   importTemplatesCsv(event: Event): void {
+    if (!this.canManageTemplates()) return;
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -876,6 +898,7 @@ export class MoodlePageComponent {
   }
 
   async confirmTemplateCsvImport(): Promise<void> {
+    if (!this.canManageTemplates()) return;
     if (!this.templateCsvPreview.length) {
       return;
     }
@@ -953,6 +976,7 @@ export class MoodlePageComponent {
   }
 
   exportSelectedCsv(): void {
+    if (!this.canExportBatch()) return;
     const selectedRows = this.selectedMoodleAssignments();
 
     if (!selectedRows.length) {
@@ -991,6 +1015,7 @@ export class MoodlePageComponent {
   }
 
   async exportGroupEnrollmentCsv(): Promise<void> {
+    if (!this.canExportBatch()) return;
     let loadedRows: AcademicAssignment[];
 
     try {
@@ -1035,6 +1060,7 @@ export class MoodlePageComponent {
   }
 
   async exportSelectedGroupEnrollmentCsv(): Promise<void> {
+    if (!this.canExportBatch()) return;
     const selectedIds = new Set(this.selectedAssignments());
 
     if (!selectedIds.size) {
@@ -1088,6 +1114,7 @@ export class MoodlePageComponent {
   }
 
   async exportStudentEnrollmentCsv(scope: 'all' | 'recent' = 'all'): Promise<void> {
+    if (!this.canExportBatch()) return;
     let loadedRows: AcademicAssignment[];
 
     try {
@@ -1152,6 +1179,7 @@ export class MoodlePageComponent {
   }
 
   async updateAssignmentStatus(assignment: AcademicAssignment, status: AssignmentStatus): Promise<void> {
+    if (!this.canConfirmBatch()) return;
     const actor = this.actorData();
 
     if (!actor || !this.canManageMoodle()) {
@@ -1174,6 +1202,7 @@ export class MoodlePageComponent {
   }
 
   async markReviewedBatchAsLoaded(): Promise<void> {
+    if (!this.canConfirmBatch()) return;
     const actor = this.actorData();
 
     if (!actor || !this.canManageMoodle()) {
@@ -1235,7 +1264,7 @@ export class MoodlePageComponent {
   private async sendAssignmentsToReview(assignments: AcademicAssignment[]): Promise<string[]> {
     const actor = this.actorData();
 
-    if (!actor || !this.canManageMoodle()) {
+    if (!actor || !this.canExportBatch()) {
       this.showMessage('No tienes permisos para enviar asignaciones a revision.', 'error');
       return [];
     }
@@ -1244,6 +1273,10 @@ export class MoodlePageComponent {
 
     if (!assignmentsInCapture.length) {
       return assignments.map((assignment) => assignment.id);
+    }
+    if (!this.canConfirmBatch()) {
+      this.showMessage('Pasar a revisión requiere la capacidad de confirmar cambios Moodle.', 'error');
+      return assignments.filter(assignment => assignment.status !== 'EN_CAPTURA').map(assignment => assignment.id);
     }
 
     const results = await Promise.allSettled(

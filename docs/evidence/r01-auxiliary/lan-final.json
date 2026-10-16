@@ -1,0 +1,57 @@
+{
+  "at": "2026-10-16T17:48:32.513Z",
+  "base": "http://192.168.41.254:4201",
+  "baseCommit": "ce8590df65e0aad93df67477bf000053676d2b09",
+  "indexSha256": "226374e89510f48984f6eb07568eef795fdfe8ee2dd2bca1c4e722c0ba6d7231",
+  "rules": {
+    "before": "5e0d348e7bf2730d0abed816506d7b4fae4d6827c31dca6bb76b679ef9da853f",
+    "after": "b0e0972c0e051ed53f99e70e3894695d29db163cc22bf844f72ae3b9e78bf30a",
+    "loadedSourceVerified": true
+  },
+  "privateSelection": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+  "privateBackup": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+  "sharedCollectionsUnchanged": [
+    "usuarios",
+    "delegaciones",
+    "roles_personalizados",
+    "asignaciones_roles",
+    "revisiones_roles",
+    "docentes",
+    "asignaciones",
+    "ciclos",
+    "moodle_categorias",
+    "moodle_plantillas"
+  ],
+  "sharedDocuments": 25,
+  "emulatorPid": 16224,
+  "gatewayPid": 3316,
+  "emulatorsRestarted": false,
+  "sharedDataWritten": false,
+  "oldChunksPreserved": true,
+  "observations": [
+    {
+      "actor": "auxiliar",
+      "module": "docentes",
+      "url": "http://192.168.41.254:4201/docentes",
+      "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\nAD\nAuxiliar DEMO\nAuxiliar de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nCATALOGO GLOBAL\nDocentes\n\nAlta manual, validacion por Sistemas y vista de base de Docentes.\n\n—\nRegistrados\n—\nActivos\n—\nPendientes\n—\nInactivos\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nCONTROL OPERATIVO\nCatalogo global\nBUSCAR\nESTATUS\nTodos\nPendiente\nActivo\nInactivo\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nDOCENTE\tUSUARIO MOODLE\tTIPO DE PAGO\tCATEGORIA\tTELEFONO\tUBICACION\tESTATUS\tORIGEN\tCOORDINACION ASIGNADA\tALTA POR\tCORREO\tACTUALIZACION\n\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nLos datos todavía no están disponibles."
+    },
+    {
+      "actor": "auxiliar",
+      "module": "asignaciones",
+      "url": "http://192.168.41.254:4201/asignaciones",
+      "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\nAD\nAuxiliar DEMO\nAuxiliar de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nPLANEACION ACADEMICA\nAsignaciones academicas\n\nRelaciona grupos del ciclo activo con asignaturas, docentes e ID Moodle para revision institucional.\n\nVista auxiliar - Ámbito delegado\nÁMBITO DELEGADO\nCICLO ACTIVO\n27-1\nBUSQUEDA\nESTADO\nTodos\nEn captura\nEn revision\nCargado en Moodle\nSEGUIMIENTO\nEstado de captura\n\nPendiente de una consulta autorizada y completada.\n\n—\nEN CAPTURA\n—\nEN REVISION\n—\nCARGADO EN MOODLE\nREPORTE EXCEL\nESCOLARIZADO\nEJECUTIVO\nVIRTUAL\nSALUD\nPOSGRADOS\nESPECIALES\nINGLÉS\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nLos datos todavía no están disponibles; no se ha confirmado un resultado vacío."
+    },
+    {
+      "actor": "auxiliar",
+      "module": "moodle",
+      "url": "http://192.168.41.254:4201/moodle",
+      "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\nAD\nAuxiliar DEMO\nAuxiliar de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nCATÁLOGOS MOODLE\nLOTES MOODLE\nOPERACIÓN MOODLE\nPanel Moodle\n\nConfigura categorías, plantillas y lotes para crear cursos.\n\nCATALOGO MOODLE\nCategorias\n\nRelaciona la categoria Moodle con el programa correspondiente.\n\nCSV\nPLANTILLA\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nCAT. MOODLE\tPROGRAMA\tACC.\n\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nSolo se muestran datos confirmados dentro de tu ámbito.\nBASE MOODLE\nPlantillas de curso\n\nDefine el nombre corto Moodle y el tipo de plantilla que se usara para replicar cursos.\n\nBUSCAR PLANTILLA\nTIPO\nPLANTILLA CSV\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nNOMBRE CORTO MOODLE\tTIPO\tPROGRAMA\tACCIONES\n\nSin ámbito de consulta concedido. Solicita revisión a Administración General.\nSolo se muestran datos confirmados dentro de tu ámbito."
+    },
+    {
+      "actor": "sistemas",
+      "module": "asignaciones",
+      "url": "http://192.168.41.254:4201/asignaciones",
+      "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n5\nSD\nSistemas DEMO\nCoordinación de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nPLANEACION ACADEMICA\nAsignaciones academicas\n\nRelaciona grupos del ciclo activo con asignaturas, docentes e ID Moodle para revision institucional.\n\nVista Sistemas - Catalogo global\nCATALOGO GLOBAL\nCICLO ACTIVO\n27-1\nAsignacion\nBUSQUEDA\nESTADO\nTodos\nEn captura\nEn revision\nCargado en Moodle\nSEGUIMIENTO\nEstado de captura\n\nHay asignaciones en captura; confirma ID Moodle, materia, docente y grupo antes de enviarlas a revision.\n\n1\nEN CAPTURA\n0\nEN REVISION\n1\nCARGADO EN MOODLE\nREPORTE EXCEL\nESCOLARIZADO\nEJECUTIVO\nVIRTUAL\nSALUD\nPOSGRADOS\nESPECIALES\nINGLÉS\nID MOODLE\tMATERIA\tDOCENTE\tCARRERA\tGRUPO\tCOMPARTIDA\tOBSERVACIONES\tESTADO\tACCIONES\ndemo-asignacion-b\t\nINTRODUCCION DEMO\n\t\nDOCENTE FICTICIO 1\ndemo-docente-1\n\tDER\t\n27-1 DER 11 01\nMatricula(s): demo-estudiante-001\n\tNO\t\nFicticia\n\tCARGADO EN MOODLE\t\n\ndemo-asignacion-a\t\nINTRODUCCION DEMO\n\t\nDOCENTE FICTICIO 1\ndemo-docente-1\n\tADM\t\n27-1 ADM 11 01\nMatricula(s): demo-estudiante-001\n\tNO\t\nFicticia\n\tEN CAPTURA\t\nMostrando 1-2 de 2 asignaciones\nPOR PAGINA\n10\n25\n50\nAnterior\n1 / 1\nSiguiente"
+    }
+  ]
+}

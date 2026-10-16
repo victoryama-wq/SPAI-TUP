@@ -33,6 +33,8 @@ export interface AppUser {
   scope?: { programs: string[]; cycles: string[]; teachers: string[]; fields: string[] };
   revision?: number;
   delegationId?: string;
+  /** Resolved from the live delegation by UserSessionService; never persisted by the client. */
+  delegationActive?: boolean;
   identityAliasOf?: string;
   authorizationNotice?: string;
   legacyAuthorization?: { mappingVersion: string; mappingRevision: number; profileRevision: number; issuedAtMillis: number; expiresAtMillis: number; permissionSchemaVersion: number; baseRole: AppUser['baseRole']; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[] };

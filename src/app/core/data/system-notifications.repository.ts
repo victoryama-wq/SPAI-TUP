@@ -81,7 +81,7 @@ export class SystemNotificationsRepository {
       this.securityNotifications.set([]);
       this.notificationsSignal.set([]);
       this.locallyReadNotificationIds.set(new Set());
-      if (!session || appUser?.status !== 'Activo' || appUser.permissionSchemaVersion !== 2 || appUser.identityAliasOf) {
+      if (!session || appUser?.status !== 'Activo' || appUser.permissionSchemaVersion !== 2 || appUser.identityAliasOf || appUser.delegationActive === false) {
         this.notificationsSignal.set([]);
         return;
       }

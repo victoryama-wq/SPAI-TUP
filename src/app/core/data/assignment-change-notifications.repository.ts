@@ -1,4 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, effect } from '@angular/core';
+import { UserSessionService } from '../auth/user-session.service';
+import { hasAccess, isSystems } from '../../features/users/data/module-permission.service';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
 
@@ -20,6 +22,7 @@ export const ASSIGNMENT_CHANGE_NOTIFICATIONS_CONFIG_ID = 'notificaciones_asignac
 @Injectable({ providedIn: 'root' })
 export class AssignmentChangeNotificationsRepository {
   private readonly firestore = inject(FIREBASE_DB);
+  private readonly session = inject(UserSessionService);
   private readonly configSignal = signal<AssignmentChangeNotificationsConfig>({ enabled: true });
   private readonly readErrorSignal = signal('');
 
@@ -28,9 +31,15 @@ export class AssignmentChangeNotificationsRepository {
   readonly readError = this.readErrorSignal.asReadonly();
 
   constructor() {
-    onSnapshot(
+    effect(onCleanup => {
+    const owner = this.session.session();
+    this.configSignal.set({ enabled: true }); this.readErrorSignal.set('');
+    if (!isSystems(owner?.appUser) || !hasAccess(owner?.appUser, 'bitacora')) return;
+    let disposed = false;
+    const unsubscribe = onSnapshot(
       doc(this.firestore, 'configuracion', ASSIGNMENT_CHANGE_NOTIFICATIONS_CONFIG_ID),
       (snapshot) => {
+        if (disposed || owner !== this.session.session()) return;
         const data = snapshot.data();
 
         this.configSignal.set({
@@ -42,10 +51,13 @@ export class AssignmentChangeNotificationsRepository {
         this.readErrorSignal.set('');
       },
       (error) => {
+        if (disposed || owner !== this.session.session()) return;
         console.error('No se pudo leer la configuracion de alertas de asignaciones.', error);
         this.readErrorSignal.set('No se pudo consultar el estado de las alertas.');
       },
     );
+    onCleanup(() => { disposed = true; unsubscribe(); this.configSignal.set({enabled:true}); });
+    });
   }
 
   setEnabled(payload: UpdateAssignmentChangeNotificationsPayload): Promise<void> {

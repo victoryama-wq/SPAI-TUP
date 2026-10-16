@@ -14,6 +14,11 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
   const ref = collection(db, path);
   if (general) return constraints.length ? query(ref, ...constraints) : query(ref);
   const programs = user.scope?.programs ?? [];
+  if (path === 'bitacora' && !programs.includes('*')) return null;
+  const programCollections = ['programas', 'nomenclaturas_programas', 'grupos', 'asignaciones', 'moodle_categorias', 'moodle_plantillas'];
+  if (!academic && programCollections.includes(path) && !programs.length) return null;
+  if (!academic && path === 'asignaciones' && !user.scope?.cycles?.length) return null;
+  if (path === 'docentes' && user.baseRole === 'ADMIN_OPERATIVO' && !user.scope?.teachers?.length) return null;
   let filter: QueryFilterConstraint | undefined;
   const scoped = (field: string | FieldPath, values = programs): QueryFilterConstraint => {
     if (values.length > (path === 'docentes' ? 28 : 30)) throw new Error('El ámbito supera el límite de esta consulta. Requiere paginación; no se ha reducido tu autorización.');
@@ -24,7 +29,11 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
   if (path === 'roles_personalizados') return null;
   else if (path === 'solicitudes_compartidas' && !programs.includes('*')) filter = or(where('requestedBy', '==', user.id), scoped('sourceProgram'), scoped('destinationProgram'));
   else if (path === 'solicitudes_sistemas' && !programs.includes('*')) filter = where('requestedBy', '==', user.id);
-  else if (path === 'docentes' && !academic && user.baseRole !== 'ALTA_DOCENTES' && !(user.scope?.teachers ?? []).includes('*')) filter = or(where('createdBy','==',user.id), where('assignedCoordinatorIds','array-contains',user.id), scoped(documentId(), user.scope?.teachers ?? []));
+  else if (path === 'docentes' && user.baseRole === 'ADMIN_OPERATIVO' && !(user.scope?.teachers ?? []).includes('*')) filter = scoped(documentId(), user.scope?.teachers ?? []);
+  else if (path === 'docentes' && !academic && user.baseRole !== 'ALTA_DOCENTES' && !(user.scope?.teachers ?? []).includes('*')) {
+    const own = [where('createdBy','==',user.id), where('assignedCoordinatorIds','array-contains',user.id)];
+    filter = or(...own, ...(user.scope?.teachers?.length ? [scoped(documentId(), user.scope.teachers)] : []));
+  }
   else if (!programs.includes('*') && !academic) {
     const fields: Record<string, string | FieldPath> = { programas:documentId(), nomenclaturas_programas:'programCode', grupos:'programAbbreviation', asignaciones:'program', moodle_categorias:'programCode', moodle_plantillas:'programCode' };
     if (fields[path]) filter = scoped(fields[path]);

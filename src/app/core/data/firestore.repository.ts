@@ -26,12 +26,19 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   private readonly itemsSignal = signal<T[]>([]);
   private readonly readErrorSignal = signal('');
   private readonly loadingSignal = signal(false);
+  private readonly stateSignal = signal<'loading' | 'ready' | 'restricted' | 'denied' | 'error'>('loading');
   private collectionQuery: Query | null = null;
   private readonly userSession = inject(UserSessionService);
   private generation = 0;
   private readonly dataOwner = signal<UserSession | null>(null);
 
-  readonly items = computed(() => this.dataOwner() === this.userSession.session() ? this.itemsSignal() : []);
+  readonly items = computed(() => this.dataOwner() === this.userSession.session() && this.stateSignal() === 'ready' ? this.itemsSignal() : []);
+  readonly readState = computed(() => this.dataOwner() === this.userSession.session() ? this.stateSignal() : 'loading');
+  readonly ready = computed(() => this.readState() === 'ready');
+  readonly readMessage = computed(() => ({ loading: 'Cargando datos autorizados…', ready: '',
+    restricted: 'Sin ámbito de consulta concedido. Solicita revisión a Administración General.',
+    denied: 'Acceso denegado o revocado. Solicita revisión de tus permisos a Administración General.',
+    error: 'No se pudo completar la consulta. Reintenta o recarga la página.' })[this.readState()]);
   readonly readError = this.readErrorSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
 
@@ -45,12 +52,15 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       const owner = this.userSession.session();
       this.dataOwner.set(owner);
       this.itemsSignal.set([]);
+      this.readErrorSignal.set('');
+      this.stateSignal.set('loading');
       try { this.collectionQuery = authorizedQuery(this.firestore, this.collectionPath, constraints, this.userSession.session()?.appUser); }
-      catch (error) { this.collectionQuery = null; this.loadingSignal.set(false); this.readErrorSignal.set(error instanceof Error ? error.message : 'Consulta no disponible.'); return; }
+      catch (error) { console.error(`Consulta no disponible: ${this.collectionPath}`, error); this.collectionQuery = null; this.loadingSignal.set(false); this.stateSignal.set('error'); this.readErrorSignal.set('Consulta no disponible. Solicita revisión del ámbito a Administración General.'); return; }
       if (!this.authService.isAuthenticated() || !this.collectionQuery) {
         this.itemsSignal.set([]);
         this.readErrorSignal.set('');
         this.loadingSignal.set(false);
+        this.stateSignal.set('restricted');
         return;
       }
 
@@ -58,17 +68,20 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       const initialLoadTimeout = setTimeout(() => {
         if (this.loadingSignal()) {
           this.loadingSignal.set(false);
+          this.stateSignal.set('error');
           this.readErrorSignal.set(`La consulta de ${this.collectionPath} tardo demasiado. Intenta recargar la vista.`);
         }
       }, FIRESTORE_READ_TIMEOUT_MS);
 
       const unsubscribe = onSnapshot(
-        this.collectionQuery,
+        this.collectionQuery, { includeMetadataChanges: true },
         (snapshot) => {
           if (generation !== this.generation || owner !== this.userSession.session()) return;
+          if (snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
           clearTimeout(initialLoadTimeout);
           this.readErrorSignal.set('');
           this.loadingSignal.set(false);
+          this.stateSignal.set('ready');
           this.itemsSignal.set(
             snapshot.docs
               .map((item) => ({ id: item.id, ...item.data() }) as T),
@@ -79,7 +92,8 @@ export abstract class FirestoreRepository<T extends { id: string }> {
           clearTimeout(initialLoadTimeout);
           this.itemsSignal.set([]);
           console.error(`No se pudo leer ${this.collectionPath}`, error);
-          this.readErrorSignal.set(error.message);
+          this.stateSignal.set(error.code === 'permission-denied' ? 'denied' : 'error');
+          this.readErrorSignal.set(this.readMessage());
           this.loadingSignal.set(false);
         },
       );
@@ -98,6 +112,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
     const generation = this.generation;
     if (!this.collectionQuery || this.dataOwner() !== this.userSession.session()) return Promise.reject(new Error('PERMISO_REVOCADO o módulo sin autorización vigente.'));
     this.loadingSignal.set(true);
+    this.stateSignal.set('loading');
 
     return this.withReadTimeout(
       getDocsFromServer(this.collectionQuery),
@@ -106,6 +121,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
       .then((snapshot) => {
         if (generation !== this.generation) return;
         this.readErrorSignal.set('');
+        this.stateSignal.set('ready');
         this.itemsSignal.set(
           snapshot.docs
             .map((item) => ({ id: item.id, ...item.data() }) as T),
@@ -115,12 +131,23 @@ export abstract class FirestoreRepository<T extends { id: string }> {
         if (generation !== this.generation) return;
         this.itemsSignal.set([]);
         console.error(`No se pudo actualizar ${this.collectionPath} desde servidor`, error);
-        this.readErrorSignal.set(error.message);
+        this.stateSignal.set(error.code === 'permission-denied' ? 'denied' : 'error');
+        this.readErrorSignal.set(this.readMessage());
         throw error;
       })
       .finally(() => {
         if (generation === this.generation) this.loadingSignal.set(false);
       });
+  }
+
+  /** One-shot reads use the same scope as subscriptions and cannot cross sessions. */
+  protected async readAuthorized(...constraints: QueryConstraint[]) {
+    const owner = this.userSession.session();
+    const target = authorizedQuery(this.firestore, this.collectionPath, constraints, owner?.appUser);
+    if (!target || !owner) throw new Error('Acceso denegado o revocado para esta consulta.');
+    const snapshot = await getDocsFromServer(target);
+    if (owner !== this.userSession.session()) throw new Error('La sesión o sus permisos cambiaron. Repite la consulta.');
+    return snapshot;
   }
 
   private withReadTimeout<T>(operation: Promise<T>, message: string): Promise<T> {

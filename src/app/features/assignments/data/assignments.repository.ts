@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { collection, doc, getDocFromServer, getDocsFromServer, orderBy, query, setDoc, waitForPendingWrites, where } from 'firebase/firestore';
+import { doc, getDocFromServer, orderBy, setDoc, waitForPendingWrites, where } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
 
@@ -192,13 +192,8 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
   }
 
   async countActiveAssignmentsByCreator(cycle: string, createdBy: string): Promise<number> {
-    const assignmentsQuery = query(
-      collection(this.firestore, this.collectionPath),
-      where('cycle', '==', cycle.trim()),
-      where('createdBy', '==', createdBy),
-    );
     const snapshot = await this.withFirestoreTimeout(
-      getDocsFromServer(assignmentsQuery),
+      this.readAuthorized(where('cycle', '==', cycle.trim()), where('createdBy', '==', createdBy)),
       ASSIGNMENT_VERIFY_TIMEOUT_MS,
       'Firestore no respondio al calcular el avance de asignaciones.',
     );
@@ -257,10 +252,7 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
     }
 
     const snapshot = await this.withFirestoreTimeout(
-      getDocsFromServer(query(
-        collection(this.firestore, this.collectionPath),
-        where('cycle', '==', normalizedCycle),
-      )),
+      this.readAuthorized(where('cycle', '==', normalizedCycle)),
       ASSIGNMENT_VERIFY_TIMEOUT_MS,
       'Firestore no respondio al confirmar las asignaciones para matriculacion Moodle.',
     );
@@ -467,11 +459,11 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
   ): Promise<AcademicAssignment | null> {
     try {
       const snapshot = await this.withFirestoreTimeout(
-        getDocsFromServer(query(
-          collection(this.firestore, this.collectionPath),
+        this.readAuthorized(
           where('cycle', '==', payload.cycle),
           where('group', '==', payload.group),
-        )),
+          where('program', '==', payload.program),
+        ),
         ASSIGNMENT_VERIFY_TIMEOUT_MS,
         'No se pudo revisar si la asignacion ya existia.',
       );
@@ -482,7 +474,7 @@ export class AssignmentsRepository extends FirestoreRepository<AcademicAssignmen
       );
     } catch (error) {
       console.warn('No se pudo revisar duplicados de asignacion antes de guardar.', error);
-      return null;
+      throw new Error('No se pudo completar la comprobación autorizada de asignaciones. Reintenta antes de guardar.');
     }
   }
 

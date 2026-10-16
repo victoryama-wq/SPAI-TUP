@@ -1,0 +1,143 @@
+{
+  "at": "2026-10-16T17:05:57.054Z",
+  "head": "ce8590df65e0aad93df67477bf000053676d2b09",
+  "indexSha256": "36ad4848bfacae2c2426e04293cf7a8d90ae3475ab0831813e9b522411b0b5be",
+  "rulesFileSha256": "7efcddaee5a332493dc2b4c94bb60682ac32b7f4cbc55135cd2a3b2f1a1e4dfc",
+  "privateSelection": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+  "privateBackup": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+  "aux": {
+    "id": "demo-auxiliar",
+    "createdAt": "2026-09-01T15:00:00.000Z",
+    "updatedAt": "2026-10-16T16:43:42.455Z",
+    "permissionSchemaVersion": 2,
+    "revision": 2,
+    "area": "Sistemas DEMO",
+    "baseRole": "ADMIN_OPERATIVO",
+    "permissions": {
+      "dashboard": "EDIT",
+      "usuarios": "EDIT",
+      "ciclos": "EDIT",
+      "nomenclaturas": "EDIT",
+      "grupos": "EDIT",
+      "docentes": "EDIT",
+      "asignaturas": "EDIT",
+      "asignaciones": "EDIT",
+      "solicitudes": "EDIT",
+      "ligasMeet": "EDIT",
+      "moodle": "EDIT",
+      "bitacora": "EDIT"
+    },
+    "scope": {
+      "programs": [],
+      "cycles": [
+        "*"
+      ],
+      "teachers": [],
+      "fields": []
+    },
+    "authUid": "demo-auxiliar",
+    "name": "Auxiliar DEMO",
+    "email": "demo.auxiliar@tecplayacar.edu.mx",
+    "role": "Auxiliar de Sistemas",
+    "greetingGender": "Femenino",
+    "assignedPrograms": [],
+    "access": {
+      "dashboard": true,
+      "usuarios": true,
+      "ciclos": true,
+      "nomenclaturas": true,
+      "grupos": true,
+      "docentes": true,
+      "asignaturas": true,
+      "asignaciones": true,
+      "solicitudes": true,
+      "ligasMeet": true,
+      "moodle": true,
+      "bitacora": true
+    },
+    "status": "Activo",
+    "delegationId": "05c945fa-3940-4896-a5f6-8243617959a4",
+    "capabilities": [
+      "MANAGE_CUSTOM_ROLES",
+      "VALIDATE_TEACHERS",
+      "MANAGE_CYCLES",
+      "CONFIRM_MOODLE_UPDATE",
+      "MANAGE_MOODLE_TEMPLATES",
+      "RECOVER_DELETED_RECORDS",
+      "PURGE_CYCLE",
+      "OPERATE_EXCEPTIONAL_CHANGE",
+      "REQUEST_TEACHER_MOODLE_IDENTITY"
+    ]
+  },
+  "delegations": [
+    {
+      "id": "05c945fa-3940-4896-a5f6-8243617959a4",
+      "userId": "demo-auxiliar",
+      "status": "ACTIVE",
+      "permissions": {
+        "dashboard": "EDIT",
+        "usuarios": "EDIT",
+        "ciclos": "EDIT",
+        "nomenclaturas": "EDIT",
+        "grupos": "EDIT",
+        "docentes": "EDIT",
+        "asignaturas": "EDIT",
+        "asignaciones": "EDIT",
+        "solicitudes": "EDIT",
+        "ligasMeet": "EDIT",
+        "moodle": "EDIT",
+        "bitacora": "EDIT"
+      },
+      "capabilities": [
+        "MANAGE_CUSTOM_ROLES",
+        "VALIDATE_TEACHERS",
+        "MANAGE_CYCLES",
+        "CONFIRM_MOODLE_UPDATE",
+        "MANAGE_MOODLE_TEMPLATES",
+        "RECOVER_DELETED_RECORDS",
+        "PURGE_CYCLE",
+        "OPERATE_EXCEPTIONAL_CHANGE",
+        "REQUEST_TEACHER_MOODLE_IDENTITY"
+      ],
+      "scope": {
+        "programs": [],
+        "cycles": [
+          "*"
+        ],
+        "teachers": [],
+        "fields": []
+      },
+      "grantedBy": "demo-sistemas",
+      "previousDelegationId": null,
+      "createdAt": "2026-10-16T16:43:42.455Z",
+      "revision": 1,
+      "updatedAt": "2026-10-16T16:43:42.455Z"
+    }
+  ],
+  "assignments": [
+    {
+      "id": "demo-asignacion-a",
+      "program": "ADM",
+      "cycle": "27-1",
+      "createdBy": "demo-coord-a"
+    },
+    {
+      "id": "demo-asignacion-b",
+      "program": "DER",
+      "cycle": "27-1",
+      "createdBy": "demo-coord-b"
+    },
+    {
+      "id": "demo-asignacion-cerrada",
+      "program": "ADM",
+      "cycle": "26-3",
+      "createdBy": "demo-coord-a"
+    },
+    {
+      "id": "demo-asignacion-historica",
+      "program": "DER",
+      "cycle": "26-2",
+      "createdBy": "demo-coord-b"
+    }
+  ]
+}

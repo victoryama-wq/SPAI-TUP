@@ -16,7 +16,7 @@ const permission = sourceMembers('src/app/features/users/data/module-permission.
 const aux = { id: 'aux-off', role: 'Auxiliar de Sistemas', status: 'Activo', permissionSchemaVersion: 2, baseRole: 'ADMIN_OPERATIVO', permissions: { docentes:'NONE' }, access: { docentes: false } };
 const view = { ...aux, baseRole:'CUSTOM', permissions:{docentes:'VIEW'}, role: 'Consulta Sistemas', access: { docentes: true } };
 for (const [id, user, baseline, expected] of [['UI-AUX-OFF', aux, true, false], ['UI-CUSTOM-VIEW', view, false, false]]) {
-  const page = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canManageTeachers'], { session: () => ({ appUser: user }), modulePermissionService: permission }, helpers);
+  const page = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canManageTeachers'], { session: () => ({ appUser: user }), modulePermissionService: permission, teachersReady: () => true }, helpers);
   report.check(id, 'F01', 2, page.canManageTeachers(), baseline, expected, 'TeachersPageComponent.canManageTeachers + ModulePermissionService');
 }
 const requestUi = (program) => sourceMembers(requestFile, 'RequestsPageComponent', ['canAccessRequest', 'canRespondRequest', 'canCancelRequest'], {

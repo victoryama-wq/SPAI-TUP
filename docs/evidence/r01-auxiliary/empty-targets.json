@@ -1,0 +1,568 @@
+{
+  "targets": [
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-auxiliar"
+        ]
+      },
+      "targetId": 1002
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/delegaciones/aux-regression"
+        ]
+      },
+      "targetId": 1004
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "ciclos"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1006
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "avisos_seguridad"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "recipient"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-auxiliar"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 100
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1008
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "notificaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "target"
+                    },
+                    "op": "EQUAL",
+                    "value": {
+                      "stringValue": "COORDINACION_ACADEMICA"
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "targetUserId"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "demo-auxiliar"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 25
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1010
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-auxiliar"
+        ]
+      },
+      "targetId": 1002
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/delegaciones/aux-regression"
+        ]
+      },
+      "targetId": 1004
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "ciclos"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1006
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "avisos_seguridad"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "recipient"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-auxiliar"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 100
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1008
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "notificaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "target"
+                    },
+                    "op": "EQUAL",
+                    "value": {
+                      "stringValue": "COORDINACION_ACADEMICA"
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "targetUserId"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "demo-auxiliar"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 25
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1010
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-auxiliar"
+        ]
+      },
+      "targetId": 1002
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/delegaciones/aux-regression"
+        ]
+      },
+      "targetId": 1004
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "ciclos"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1006
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "avisos_seguridad"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "recipient"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-auxiliar"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 100
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1008
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "notificaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "target"
+                    },
+                    "op": "EQUAL",
+                    "value": {
+                      "stringValue": "COORDINACION_ACADEMICA"
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "targetUserId"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "demo-auxiliar"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 25
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1010
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "asignaturas"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "subjectId"
+              },
+              "direction": "ASCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1012
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-auxiliar"
+        ]
+      },
+      "targetId": 1002
+    },
+    {
+      "documents": {
+        "documents": [
+          "projects/demo-spai-tup/databases/(default)/documents/delegaciones/aux-regression"
+        ]
+      },
+      "targetId": 1004
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "ciclos"
+            }
+          ],
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "createdAt"
+              },
+              "direction": "DESCENDING"
+            },
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "DESCENDING"
+            }
+          ]
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1006
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "avisos_seguridad"
+            }
+          ],
+          "where": {
+            "fieldFilter": {
+              "field": {
+                "fieldPath": "recipient"
+              },
+              "op": "EQUAL",
+              "value": {
+                "stringValue": "demo-auxiliar"
+              }
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 100
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1008
+    },
+    {
+      "query": {
+        "structuredQuery": {
+          "from": [
+            {
+              "collectionId": "notificaciones"
+            }
+          ],
+          "where": {
+            "compositeFilter": {
+              "op": "AND",
+              "filters": [
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "target"
+                    },
+                    "op": "EQUAL",
+                    "value": {
+                      "stringValue": "COORDINACION_ACADEMICA"
+                    }
+                  }
+                },
+                {
+                  "fieldFilter": {
+                    "field": {
+                      "fieldPath": "targetUserId"
+                    },
+                    "op": "IN",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "demo-auxiliar"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "orderBy": [
+            {
+              "field": {
+                "fieldPath": "__name__"
+              },
+              "direction": "ASCENDING"
+            }
+          ],
+          "limit": 25
+        },
+        "parent": "projects/demo-spai-tup/databases/(default)/documents"
+      },
+      "targetId": 1010
+    }
+  ],
+  "errors": [
+    "No se pudieron leer las notificaciones del sistema FirebaseError: \nevaluation error at L231:20 for 'list' @ L231, false for 'list' @ L248, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L231, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L248",
+    "No se pudieron leer las notificaciones del sistema FirebaseError: \nevaluation error at L231:20 for 'list' @ L231, false for 'list' @ L248, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L231, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L248",
+    "No se pudieron leer las notificaciones del sistema FirebaseError: \nevaluation error at L231:20 for 'list' @ L231, false for 'list' @ L248, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L231, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L248"
+  ]
+}

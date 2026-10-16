@@ -83,6 +83,11 @@ export class TeachersPageComponent {
   readonly teachers = this.teachersRepository.teachers;
   readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly teachersReadError = this.teachersRepository.teachersReadError;
+  readonly teachersReady = this.teachersRepository.ready;
+  readonly teachersReadState = this.teachersRepository.readState;
+  readonly teachersReadMessage = this.teachersRepository.readMessage;
+  retryTeachers(): void { void this.teachersRepository.refreshFromServer().catch(() => undefined); }
+  readonly canCreateTeacher = computed(() => hasAccess(this.session()?.appUser, 'docentes', true) && this.teachersReady() && (this.session()?.appUser?.baseRole !== 'ADMIN_OPERATIVO' || Boolean(this.session()?.appUser?.scope?.teachers?.includes('*'))));
   readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
   readonly activeTeacherRecords = computed(() => this.teachers().filter((teacher) => this.isRealTeacherRecord(teacher)));
@@ -145,17 +150,18 @@ export class TeachersPageComponent {
     () => this.activeTeacherRecords().filter((teacher) => teacher.status === 'INACTIVO').length,
   );
 
-  readonly canManageTeachers = computed(() => hasCapability(this.session()?.appUser, 'VALIDATE_TEACHERS') && hasAccess(this.session()?.appUser, 'docentes', true));
+  readonly canManageTeachers = computed(() => this.teachersReady() && hasCapability(this.session()?.appUser, 'VALIDATE_TEACHERS') && hasAccess(this.session()?.appUser, 'docentes', true) && (this.session()?.appUser?.baseRole !== 'ADMIN_OPERATIVO' || Boolean(this.session()?.appUser?.scope?.fields?.includes('*'))));
 
   readonly canDownloadTeacherReport = computed(() => {
     const appUser = this.session()?.appUser;
-    return hasAccess(appUser, 'docentes');
+    return this.teachersReady() && hasAccess(appUser, 'docentes');
   });
 
-  readonly canDownloadPendingTeachersMoodleCsv = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'docentes', true));
+  readonly canDownloadPendingTeachersMoodleCsv = computed(() => this.teachersReady() && isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'docentes', true));
 
   readonly showTeacherActionsColumn = computed(() =>
     this.canManageTeachers()
+    || this.canChangeTeacherStatus('VALIDADO') || this.canChangeTeacherStatus('INACTIVO')
     || this.visiblePanelTeachers().some((teacher) => this.canEditTeacher(teacher) || this.canDeleteOwnPendingNewTeacher(teacher)),
   );
 
@@ -233,6 +239,7 @@ export class TeachersPageComponent {
   );
 
   visiblePanelTeachers(): Teacher[] {
+    if (this.session()?.appUser?.baseRole === 'ADMIN_OPERATIVO') return this.applyTableFilters(this.activeTeacherRecords());
     if (!this.canManageTeachers()) {
       return this.applyTableFilters(
         this.academicShowsGlobalTeachers ? this.activeTeacherRecords() : this.myTeachers(),
@@ -336,6 +343,7 @@ export class TeachersPageComponent {
   }
 
   openManualModal(): void {
+    if (!this.canCreateTeacher()) return;
     this.formMessage = '';
     this.formErrors = [];
     this.resetManualForm();
@@ -351,8 +359,19 @@ export class TeachersPageComponent {
 
   canEditTeacher(teacher: Teacher): boolean {
     const user = this.session()?.appUser;
+    if (!this.teachersReady() || (user?.baseRole === 'ADMIN_OPERATIVO' && !user.scope?.fields?.length)) return false;
     return hasAccess(user, 'docentes', true) && ['PENDIENTE', 'VALIDADO'].includes(teacher.status)
       && (user?.baseRole === 'ADMIN_GENERAL' || (user?.baseRole === 'ADMIN_OPERATIVO' && (user.scope?.teachers ?? []).some(id => id === '*' || id === teacher.id)) || teacher.createdBy === user?.id || (user?.baseRole !== 'ALTA_DOCENTES' && (teacher.assignedCoordinatorIds ?? []).includes(user?.id ?? '')));
+  }
+
+  canEditTeacherField(field: string): boolean {
+    const user = this.session()?.appUser;
+    return user?.baseRole !== 'ADMIN_OPERATIVO' || Boolean(user.scope?.fields?.includes('*') || user.scope?.fields?.includes(field));
+  }
+
+  canChangeTeacherStatus(status: TeacherStatus): boolean {
+    const fields = status === 'VALIDADO' ? ['status','validatedBy','validatedAt'] : ['status','inactivatedBy','inactivatedAt'];
+    return this.teachersReady() && hasAccess(this.session()?.appUser, 'docentes', true) && hasCapability(this.session()?.appUser, 'VALIDATE_TEACHERS') && fields.every(field => this.canEditTeacherField(field));
   }
 
   openEditModal(teacher: Teacher): void {
@@ -751,6 +770,7 @@ export class TeachersPageComponent {
   }
 
   async updateTeacherStatus(teacher: Teacher, status: TeacherStatus): Promise<void> {
+    if (!this.canChangeTeacherStatus(status)) return;
     const actor = this.actorData();
 
     try {

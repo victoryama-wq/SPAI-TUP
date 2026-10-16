@@ -66,6 +66,7 @@ export class AppComponent {
   private readonly captureCloseAlertStoragePrefix = 'spai:capture-close-alert:';
   private readonly currentPath = toSignal(this.router.events.pipe(filter(event => event instanceof NavigationEnd), map(event => event.urlAfterRedirects)), { initialValue: window.location.pathname });
   readonly authorizationReady = this.userSessionService.authorizationReady;
+  readonly routeSession = this.userSessionService.session;
   readonly canRenderRoute = computed(() => this.authorizationReady() && canAccessModulePath(this.currentPath(), this.userSessionService.session()?.appUser));
 
   readonly isAuthenticated = this.authService.isAuthenticated;

@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-16T17:48:43.994Z",
+  "responsible": "Codex",
+  "baseCommit": "ce8590df65e0aad93df67477bf000053676d2b09",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "status": "VALIDADA_LOCAL",
+  "ownerAcceptance": "PENDIENTE",
+  "unit": {
+    "local": 10,
+    "policy": 9,
+    "auth": 3,
+    "session": 5,
+    "passed": 27
+  },
+  "server": {
+    "r01": 37,
+    "auxiliary": 9,
+    "failed": 0
+  },
+  "browser": {
+    "startTime": "2026-10-16T17:41:01.006Z",
+    "duration": 126301.02,
+    "expected": 26,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "characterizations": {
+    "rules": 52,
+    "logic": 20,
+    "passed": 72
+  },
+  "strictGate": {
+    "exitCode": 1,
+    "open": 18,
+    "ids": [
+      "REQUEST-TERMINAL-REWRITE",
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "CYCLE-MULTIPLE-OPERATIVE",
+      "CYCLE-SELECTION-ORDER",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ]
+  },
+  "builds": {
+    "local": "PASS",
+    "lan": "PASS",
+    "production": "PASS",
+    "warning": "initial bundle 778.03 kB > 750 kB"
+  },
+  "lan": {
+    "url": "http://192.168.41.254:4201",
+    "sharedDataUnchanged": true,
+    "sharedDocuments": 25,
+    "emulatorsRestarted": false,
+    "privateBackup": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+    "privateSelection": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+    "rules": {
+      "before": "5e0d348e7bf2730d0abed816506d7b4fae4d6827c31dca6bb76b679ef9da853f",
+      "after": "b0e0972c0e051ed53f99e70e3894695d29db163cc22bf844f72ae3b9e78bf30a",
+      "loadedSourceVerified": true
+    },
+    "indexSha256": "226374e89510f48984f6eb07568eef795fdfe8ee2dd2bca1c4e722c0ba6d7231"
+  },
+  "human": {
+    "T01": "CONFIRMADO_FISICO",
+    "T07": "CONFIRMADO_FUNCIONAL",
+    "T11": "CONFIRMADO_FISICO",
+    "T10": "PENDIENTE",
+    "correct": 7,
+    "withFindings": 2,
+    "failed": 1,
+    "pending": 1
+  },
+  "logs": {
+    "full-verified.log": {
+      "sha256": "c37e56be54794b63adf0829d1aebcf1e38e3894dcefb45beb6f9e2d49215c51c",
+      "path": ".local/aux-review/full-verified.log"
+    },
+    "contracts.log": {
+      "sha256": "9683e162cbb6ed3c3d42c666d2f3796845ffdb6e5d302057da2914758c0cce4e",
+      "path": ".local/aux-review/contracts.log"
+    },
+    "build-local-final.log": {
+      "sha256": "180f91a7555fa3fe8c2a87bf54f9dacb38768715a04849dcdb8cbbc45bf1bab1",
+      "path": ".local/aux-review/build-local-final.log"
+    },
+    "build-lan-final.log": {
+      "sha256": "b0f70a02036b1b5448eca28be8b027d62dd54bbc6555ab9fbdbf39cabf228eaf",
+      "path": ".local/aux-review/build-lan-final.log"
+    },
+    "build-production-final.log": {
+      "sha256": "5c47baaa5919561721bd8b4909ae7b80b7d02ea09755901b5c27580c3e2df459",
+      "path": ".local/aux-review/build-production-final.log"
+    }
+  }
+}

@@ -143,6 +143,11 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   readonly assignments = this.assignmentsRepository.assignments;
   readonly assignmentsReadError = this.assignmentsRepository.readError;
+  readonly assignmentsReady = this.assignmentsRepository.ready;
+  readonly assignmentsReadState = this.assignmentsRepository.readState;
+  readonly assignmentsReadMessage = this.assignmentsRepository.readMessage;
+  retryAssignments(): void { void this.assignmentsRepository.refreshFromServer().catch(() => undefined); }
+  readonly creationDataReady = computed(() => this.assignmentsReady() && this.cyclesRepository.ready() && this.groupsRepository.ready() && this.subjectsRepository.ready() && this.teachersRepository.ready());
   readonly assignmentsById = computed(() => {
     const assignmentsById = new Map<string, AcademicAssignment>();
 
@@ -276,11 +281,12 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.clearFormMessageTimeout();
   }
 
+  // All rows returned by the scoped repository, never institutional authority.
   readonly canSeeAllAssignments = computed(() => isSystems(this.session()?.appUser) && hasAccess(this.session()?.appUser, 'asignaciones'));
 
   readonly canViewAssignments = computed(() => hasAccess(this.session()?.appUser, 'asignaciones'));
 
-  readonly canManageAssignments = computed(() => hasAccess(this.session()?.appUser, 'asignaciones', true));
+  readonly canManageAssignments = computed(() => hasAccess(this.session()?.appUser, 'asignaciones', true) && this.assignmentsReady() && (this.session()?.appUser?.baseRole === 'ADMIN_GENERAL' || Boolean(this.session()?.appUser?.scope?.programs?.length)));
 
   readonly canReviewAssignments = computed(() => hasCapability(this.session()?.appUser, 'CONFIRM_MOODLE_UPDATE'));
 
@@ -694,6 +700,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly moodleLoadedCount = computed(() => this.visibleAssignmentSummary().moodleLoaded);
 
   readonly nextAssignmentAction = computed(() => {
+    if (!this.assignmentsReady()) return 'Pendiente de una consulta autorizada y completada.';
     if (this.reviewCount() > 0) {
       return 'Hay asignaciones en revision listas para seguimiento desde el panel Moodle.';
     }
@@ -710,6 +717,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly emptyAssignmentsTitle = computed(() => {
+    if (!this.assignmentsReady()) return this.assignmentsReadMessage();
     if (!this.canViewAssignments()) {
       return 'Sin permisos para consultar asignaciones';
     }
@@ -719,9 +727,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (!this.catalogAssignmentsForActiveCycle().length) {
-      return this.isGlobalCatalogVisible()
-        ? 'Sin asignaciones en el catalogo global'
-        : 'Sin asignaciones propias';
+      return 'Sin asignaciones en tu ámbito para este ciclo';
     }
 
     if (!this.assignmentsForCurrentTab().length) {
@@ -732,6 +738,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly emptyAssignmentsMessage = computed(() => {
+    if (!this.assignmentsReady()) return 'Los datos todavía no están disponibles; no se ha confirmado un resultado vacío.';
     const activeCycleCode = this.activeCycleCode();
 
     if (!this.canViewAssignments()) {
@@ -743,9 +750,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (!this.catalogAssignmentsForActiveCycle().length) {
-      return this.isGlobalCatalogVisible()
-        ? `No hay asignaciones registradas en el ciclo ${activeCycleCode}.`
-        : `No hay asignaciones propias en el ciclo ${activeCycleCode}. Activa Catalogo global para consultar las demas coordinaciones.`;
+      return `Consulta completada dentro de tus permisos para el ciclo ${activeCycleCode}.`;
     }
 
     if (!this.assignmentsForCurrentTab().length) {
@@ -792,6 +797,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   openAssignmentModal(): void {
+    if (!this.canManageAssignments() || !this.creationDataReady()) return;
     const activeCycle = this.activeCycle();
     if (!this.canCaptureAssignments()) {
       this.formMessage = this.captureBlockedMessage();
@@ -1476,6 +1482,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   downloadAssignmentsReport(): void {
+    if (!this.assignmentsReady() || !this.canViewAssignments()) return;
     const assignments = this.reportAssignments();
 
     if (!assignments.length) {
@@ -2169,12 +2176,14 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
+    if (!this.assignmentsReady()) return false;
     const user = this.session()?.appUser;
     if (!hasAccess(user, 'asignaciones', true)) return false;
     if (user?.baseRole === 'ADMIN_GENERAL') return true;
     if (!(user?.scope?.cycles ?? []).some(cycle => cycle === '*' || cycle === assignment.cycle)) return false;
     if (user?.baseRole === 'COORDINACION_ACADEMICA') return true;
     if (!this.canModifyAssignment(assignment)) return false;
+    if (user?.baseRole === 'ADMIN_OPERATIVO' && !user.scope?.fields?.length) return false;
     return user?.baseRole !== 'ADMIN_OPERATIVO' || !['CARGADO_MOODLE', 'VALIDADO'].includes(assignment.status) || hasCapability(user, 'OPERATE_EXCEPTIONAL_CHANGE');
   }
 

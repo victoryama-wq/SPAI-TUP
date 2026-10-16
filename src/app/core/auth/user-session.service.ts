@@ -89,12 +89,26 @@ export class UserSessionService {
       let lastProfile: DocumentSnapshot | undefined;
       let mapping: DocumentData | undefined;
       let mappingUnsubscribe: (() => void) | undefined;
+      let grantUnsubscribe: (() => void) | undefined;
+      let grantId: string | undefined;
+      let grant: DocumentData | undefined;
+      let grantReady = false;
 
       const setSession = (snapshot: DocumentSnapshot) => {
         if (disposed) return;
         let appUser = snapshot.exists()
           ? ({ id: snapshot.id, ...snapshot.data() } as AppUser)
           : null;
+        if (appUser?.baseRole === 'ADMIN_OPERATIVO') {
+          if (!grantReady) { this.sessionSignal.set(null); return; }
+          const active = grant?.['status'] === 'ACTIVE' && grant['userId'] === authUser.uid && grantId === appUser.delegationId;
+          const rawScope = grant?.['scope'] ?? {};
+          const list = (key: string): string[] => Array.isArray(rawScope[key]) ? rawScope[key].filter((value: unknown) => typeof value === 'string') : [];
+          appUser = { ...appUser, delegationActive: active, permissions: active ? grant?.['permissions'] ?? {} : {},
+            capabilities: active ? grant?.['capabilities'] ?? [] : [],
+            scope: active ? {programs:list('programs'),cycles:list('cycles'),teachers:list('teachers'),fields:list('fields')} : {programs:[],cycles:[],teachers:[],fields:[]},
+            authorizationNotice: active ? undefined : 'PERMISO_REVOCADO: tu delegación no está vigente. Solicita revisión a Administración General.' };
+        }
         clearTimeout(legacyExpiry);
         const legacy = appUser?.legacyAuthorization;
         if (appUser && appUser.permissionSchemaVersion !== 2 && !appUser.identityAliasOf && appUser.status === 'Activo' && legacy?.mappingVersion === 'E2-R01-v0.4-1' && legacy.profileRevision === appUser.revision && legacy.expiresAtMillis > Date.now() && mapping?.['status'] === 'ACTIVE' && mapping['version'] === legacy.mappingVersion && mapping['revision'] === legacy.mappingRevision && mapping['profileRevision'] === appUser.revision && mapping['baseRole'] === legacy.baseRole && mapping['approvedBy']) {
@@ -158,6 +172,18 @@ export class UserSessionService {
       const unsubscribe = onSnapshot(userRef, { includeMetadataChanges: true }, async snapshot => {
         if (disposed || snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
         lastProfile = snapshot;
+        const nextGrantId = snapshot.data()?.['baseRole'] === 'ADMIN_OPERATIVO' ? snapshot.data()?.['delegationId'] : undefined;
+        if (nextGrantId !== grantId) {
+          grantUnsubscribe?.(); grant = undefined; grantReady = !nextGrantId; grantId = nextGrantId;
+          if (nextGrantId) {
+            const watchedId = nextGrantId;
+            grantUnsubscribe = onSnapshot(doc(this.firestore, 'delegaciones', nextGrantId), { includeMetadataChanges: true }, value => {
+              if (disposed || watchedId !== grantId || value.metadata.fromCache || value.metadata.hasPendingWrites) return;
+              grant = value.data(); grantReady = true; if (lastProfile) setSession(lastProfile);
+            }, () => { if (!disposed && watchedId === grantId) { grant = undefined; grantReady = true; if (lastProfile) setSession(lastProfile); } });
+          }
+        }
+        if (!nextGrantId) grantReady = true;
         if (snapshot.exists() && snapshot.data()['permissionSchemaVersion'] !== 2 && !mappingUnsubscribe) {
           mappingUnsubscribe = onSnapshot(doc(this.firestore, 'mapeos_permisos', authUser.uid), { includeMetadataChanges: true }, value => {
             if (disposed || value.metadata.fromCache || value.metadata.hasPendingWrites) return;
@@ -178,6 +204,7 @@ export class UserSessionService {
         disposed = true;
         clearTimeout(legacyExpiry);
         mappingUnsubscribe?.();
+        grantUnsubscribe?.();
         unsubscribe();
       });
     });
