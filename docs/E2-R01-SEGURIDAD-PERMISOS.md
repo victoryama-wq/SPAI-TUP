@@ -83,3 +83,8 @@ Los casos E1 de lógica y ciclos/solicitudes/estado Moodle de etapas posteriores
 ## Ajuste de aceptación del 14 de octubre
 
 [Seguimiento del reporte manual](HALLAZGOS-PRUEBA-MANUAL-E2-R01.md): presentación institucional de Usuarios/Roles, identidad CUSTOM explícita en Authentication Emulator, aislamiento de ensayos respecto a la demo LAN, y evidencia T09/T10/T11. Rules y la política de autorización no se modifican en este ajuste. [Uso de la demo LAN](DEMO-LAN.md). El acceso institucional Google permanece separado; `signInWithLocalAccount` exige también conexión efectiva al emulador. La aceptación del propietario y el recorrido T01 desde una segunda computadora física siguen pendientes.
+
+
+## Corrección de lecturas y consola — 16 de octubre de 2026
+
+[Informe vigente](E2-R01-CONTROL-ACCESOS-2026-10-16.md): helpers de lectura institucional de Rules equivalentes en autoridad, estados de consulta explícitos y consola por secciones con motivo asociado a destinatario/operación. Evidencia técnica local aprobada; aceptación del propietario pendiente. Las menciones históricas a T01 pendiente no son actuales: T01 físico, T07 funcional y T11 físico ya constan confirmados. T10 humano, 18 incumplimientos R02/R03 y límite administrativo de 200 permanecen abiertos.

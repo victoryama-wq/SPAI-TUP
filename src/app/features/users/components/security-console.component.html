@@ -1,52 +1,22 @@
 <section class="security-panel">
-  <header class="security-heading"><span>Administración institucional</span>
-  <h2>Control de accesos — Seguridad y permisos</h2>
-  <p>Los cambios se confirman en servidor con motivo, autor y revisión. El nombre de un rol no concede permisos.</p>
-  </header>
+  <header class="security-heading"><span>Administración institucional</span><h2>Control de accesos — Seguridad y permisos</h2><p>Cada cambio identifica su destinatario, motivo y revisión antes de confirmar.</p></header>
   @if (error) { <p role="alert">{{ error }}</p> }
   @if (message) { <p role="status">{{ message }}</p> }
-  <button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>
+  <div class="panel-actions"><button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>
+    @if (general()) { <button class="primary-action" type="button" (click)="open('user')" [disabled]="busy">Nuevo perfil institucional</button><button type="button" (click)="openRoles()" [disabled]="busy">Administrar roles personalizados</button> }
+  </div>
   @if (directory(); as data) {
-    @if (general()) {
-      <button type="button" [disabled]="busy" (click)="open('user')">Nuevo perfil institucional</button>
-      <button type="button" [disabled]="busy" (click)="openRoles()">Administrar roles personalizados</button>
-    }
-    <label>Motivo del cambio <input [(ngModel)]="reason" maxlength="1000" placeholder="Explica la autorización o revisión" /></label>
-    <div class="table-scroll"><table>
-      <caption>Perfiles y alcance vigente</caption>
-      <thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th>Programas</th><th>Acciones</th></tr></thead>
-      <tbody>@for (user of data.usuarios; track user.id) {
-        <tr><td>{{ user.name }}<br>{{ user.email }}</td><td>{{ roleLabels[user.baseRole ?? ''] || 'Heredado: requiere revisión' }}</td><td>{{ user.status }}</td>
-        <td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td>
-        <td>@if (general()) {
-          <button type="button" [disabled]="busy" (click)="open('user', user)">Editar perfil</button>
-          @if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" [disabled]="busy" (click)="open('delegation', user)">Otorgar delegación nueva</button> }
-        }</td></tr>
-      }</tbody>
-    </table></div>
-    <h3>Asignar un rol preaprobado</h3>
-    <label>Persona<select [(ngModel)]="selectedUserId" (ngModelChange)="preview = null"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }} — {{ user.email }}</option> }</select></label>
-    <label>Rol<select [(ngModel)]="selectedRoleId"><option value="">Seleccionar</option>@for (role of data.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label>
-    <button type="button" (click)="assign()" [disabled]="busy">Revisar asignación</button>
-    @for (role of data.roles_personalizados; track role.id) { @if (general() && role.status === 'ACTIVE') {
-      <p>{{ role.name }} <button [disabled]="busy" (click)="open('role', role)">Editar definición sin asignaciones vigentes</button><button (click)="action('deleteRole', role)">Retirar definición</button></p>
-    } }
-    <h3>Asignaciones vigentes y revisiones</h3>
-    @for (assignment of data.asignaciones_roles; track assignment.id) {
-      <p>{{ userName(assignment.userId) }} — {{ roleName(assignment.roleId) }} — {{ assignment.status }} — {{ assignment.reviewStatus }}
-      @if (assignment.status === 'ACTIVE') { <button (click)="action('removeRole', assignment)" [disabled]="busy">Retirar rol</button> }</p>
-    }
-    @if (general()) {
-      <h3>Delegaciones</h3>
-      @for (grant of data.delegaciones; track grant.id) { <p>{{ userName(grant.userId) }} — {{ grant.status }}
-        @if (grant.status === 'ACTIVE') { <button (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }
-      </p> }
-      <h3>Revisiones pendientes para Administración General</h3>
-      @for (review of data.revisiones_roles; track review.id) { @if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') {
-        <p>{{ userName(review.userId) }} — el rol conserva su estado efectivo hasta la decisión.
-        <button (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button (click)="replaceReview(review)" [disabled]="busy">Sustituir por el rol seleccionado</button></p>
-      } }
-      <h3>Transición de perfiles heredados</h3>
+    <nav class="section-navigation" aria-label="Secciones de control de accesos">
+      <button type="button" [attr.aria-pressed]="section === 'summary'" (click)="changeSection('summary')">Resumen de acceso</button>
+      <button type="button" [attr.aria-pressed]="section === 'assignments'" (click)="changeSection('assignments')">Roles asignados</button>
+      @if (general()) { <button type="button" [attr.aria-pressed]="section === 'delegations'" (click)="changeSection('delegations')">Delegaciones</button><button type="button" [attr.aria-pressed]="section === 'reviews'" (click)="changeSection('reviews')">Revisiones pendientes</button> }
+    </nav>
+    @if (section === 'summary') {
+      <h3>Resumen de acceso</h3>
+      <div class="table-scroll"><table><caption>Perfiles y ámbito registrado; el acceso efectivo depende también de la delegación vigente</caption><thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th>Programas</th><th>Acciones</th></tr></thead><tbody>
+      @for (user of data.usuarios; track user.id) { <tr><td>{{ user.name }}<br>{{ user.email }}</td><td>{{ roleLabels[user.baseRole ?? ''] || 'Requiere revisión' }}</td><td><span class="state-badge">{{ statusLabel(user.status) }}</span></td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td>@if (general()) { <button type="button" (click)="open('user', user)" [disabled]="busy">Editar perfil</button>@if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" (click)="open('delegation', user)" [disabled]="busy">Otorgar delegación nueva</button> } }</td></tr> }
+      </tbody></table></div>
+      @if (general()) { <details class="access-card"><summary>Transición de perfiles heredados</summary><label>Persona para revisión<select [(ngModel)]="selectedUserId" (ngModelChange)="selectionChanged()"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>      <h3>Transición de perfiles heredados</h3>
       <p>Selecciona la persona arriba. La correspondencia exige evidencia institucional; nunca se deduce del nombre del rol. Campos ausentes permanecen sin acceso.</p>
       <label>Correspondencia verificada<select [(ngModel)]="mappingRole"><option value="COORDINACION_ACADEMICA">Coordinación Académica</option><option value="ALTA_DOCENTES">Alta de Docentes</option></select></label>
       <button (click)="migration('approveMapping')" [disabled]="busy">Registrar correspondencia verificada</button>
@@ -59,27 +29,44 @@
         <p>Diferencias de módulos: {{ p.differences.join(', ') || 'Ninguna' }}.</p>
         <table><thead><tr><th>Módulo</th><th>Anterior explícito</th><th>Flag heredado</th><th>Propuesto</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ module }}</td><td>{{ p.previous.permissions?.[module] || 'Ausente; no concede acceso' }}</td><td>{{ p.previous.access?.[module] === true ? 'true (requiere correspondencia)' : p.previous.access?.[module] === false ? 'false (revocado)' : 'Ausente' }}</td><td>{{ p.proposed.permissions[module] }}</td></tr> }</tbody></table>
         <button (click)="migration('applyMigration')" [disabled]="busy">Revisar y aplicar esta vista previa</button>
-      }
+      }</details> }
     }
-  } @else { <p>Sin directorio autorizado. Un administrador debe revisar el perfil. Los permisos heredados no se activan automáticamente.</p> }
+    @if (section === 'assignments') {
+      <section class="access-card"><h3>Asignar un rol preaprobado</h3><div class="assignment-fields">
+        <label>Persona<select [(ngModel)]="selectedUserId" (ngModelChange)="selectionChanged()"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }} — {{ user.email }}</option> }</select></label>
+        <label>Rol<select [(ngModel)]="selectedRoleId" (ngModelChange)="selectionChanged()"><option value="">Seleccionar</option>@for (role of data.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label>
+      </div><button class="primary-action" type="button" (click)="assign()" [disabled]="busy || !selectedUserId || !selectedRoleId">Revisar asignación</button></section>
+      <h3>Roles asignados</h3><div class="record-grid">@for (assignment of data.asignaciones_roles; track assignment.id) { <article class="access-card"><h4>{{ userName(assignment.userId) }}</h4><p>{{ roleName(assignment.roleId) }}</p><p>Asignación: <span class="state-badge">{{ statusLabel(assignment.status) }}</span></p><p>Revisión: <span class="state-badge">{{ statusLabel(assignment.reviewStatus) }}</span></p>@if (assignment.status === 'ACTIVE') { <button type="button" (click)="action('removeRole', assignment)" [disabled]="busy">Retirar rol</button> }</article> } @empty { <p>No hay roles asignados en este directorio.</p> }</div>
+    }
+    @if (general() && section === 'delegations') { <h3>Delegaciones</h3><div class="record-grid">@for (grant of data.delegaciones; track grant.id) { <article class="access-card"><h4>{{ userName(grant.userId) }}</h4><p>Delegación: <span class="state-badge">{{ statusLabel(grant.status) }}</span></p><p>Programas: {{ grant.scope?.programs?.join(', ') || 'Sin ámbito' }}</p><p class="record-id">Referencia: {{ grant.id }}</p>@if (grant.status === 'ACTIVE') { <button type="button" (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button class="danger-action" type="button" (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }</article> } @empty { <p>No hay delegaciones registradas.</p> }</div> }
+    @if (general() && section === 'reviews') { <h3>Revisiones pendientes para Administración General</h3><div class="record-grid">@for (review of data.revisiones_roles; track review.id) { @if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') { <article class="access-card"><h4>{{ userName(review.userId) }}</h4><p>Revisión: <span class="state-badge">{{ statusLabel(review.status) }}</span></p><p>El rol conserva su estado efectivo hasta la decisión.</p><button type="button" (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button type="button" (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button type="button" (click)="replaceReview(review)" [disabled]="busy">Sustituir rol</button></article> } }</div> }
+  } @else { <p>Directorio sin confirmar. Espera la consulta o solicita revisión de tu perfil a Administración General.</p> }
 </section>
 
 <dialog #editorDialog class="security-dialog" aria-labelledby="security-editor-title" (cancel)="closeEditor()">
   <header class="editor-heading">
-    <h3 id="security-editor-title">{{ roleDirectory ? 'Directorio de roles personalizados' : mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
+    <h3 id="security-editor-title">{{ roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
     <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy">Cerrar</button>
   </header>
   @if (roleDirectory) {
     <div class="editor-body role-directory">
       <button type="button" [disabled]="busy" (click)="open('role')">Crear rol</button>
       @for (role of directory()?.roles_personalizados; track role.id) {
-        <article><h4>{{ role.name }}</h4><p>{{ role.status }}</p>
-          @if (role.status === 'ACTIVE') { <button type="button" [disabled]="busy" (click)="open('role', role)">Editar</button> }
+        <article><h4>{{ role.name }}</h4><p>Definición: <span class="state-badge">{{ statusLabel(role.status) }}</span></p>
+          @if (general() && role.status === 'ACTIVE') { <button type="button" [disabled]="busy || roleInUse(role.id)" (click)="open('role', role)">Editar</button><details class="danger-zone"><summary>Acción sensible sobre la definición</summary><p>Retirar impide nuevas asignaciones y conserva el historial. No se permite si hay asignaciones vigentes.</p><button type="button" class="danger-action" [disabled]="busy || roleInUse(role.id)" (click)="action('deleteRole', role)">Retirar definición</button>@if (roleInUse(role.id)) { <p>Definición en uso: primero deben revisarse sus asignaciones.</p> }</details> }
         </article>
       } @empty { <p>No hay definiciones disponibles.</p> }
     </div>
   }
-    @if (mode) {
+    @if (operation; as op) {
+      <form id="security-operation" (ngSubmit)="confirmOperation()" #operationForm="ngForm"><div class="editor-body">
+        <p><strong>Destinatario:</strong> {{ op.recipient }}</p><p>Operación: {{ op.title }}. Se validan nuevamente permisos y revisión en servidor.</p>
+        @if (error) { <p role="alert">{{ error }}</p> }
+        @if (op.replace) { <label>Rol de sustitución<select name="replacement" [(ngModel)]="selectedRoleId" (ngModelChange)="selectionChanged()" required><option value="">Seleccionar</option>@for (role of directory()?.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label> }
+        <label>Motivo del cambio<textarea name="reason" [(ngModel)]="reason" required minlength="4" maxlength="1000" rows="3"></textarea></label>
+      </div><footer class="editor-actions"><button type="submit" [disabled]="busy || operationForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()">Cancelar</button></footer></form>
+    }
+    @if (mode && mode !== 'operation') {
       <form id="security-editor" (ngSubmit)="save()" #editorForm="ngForm">
         <div class="editor-body">
         @if (error) { <p role="alert">{{ error }}</p> }

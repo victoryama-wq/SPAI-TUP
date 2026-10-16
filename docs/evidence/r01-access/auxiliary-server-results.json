@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-16T18:56:57.109Z",
+  "results": [
+    {
+      "name": "Consultas reales del repositorio recuperan positivos solo en el ámbito",
+      "status": "PASS",
+      "detail": {
+        "docentes": [
+          "demo-docente-1"
+        ],
+        "asignaciones": [
+          "demo-asignacion-a"
+        ],
+        "moodle_categorias": [
+          "demo-ADM",
+          "aux-ADM"
+        ],
+        "moodle_plantillas": [
+          "aux-ADM",
+          "demo-ADM"
+        ]
+      }
+    },
+    {
+      "name": "Fuera del programa/ciclo/docente: lectura y escritura denegadas",
+      "status": "PASS"
+    },
+    {
+      "name": "EDIT ordinario permitido; identidad y capacidades sensibles no inferidas",
+      "status": "PASS"
+    },
+    {
+      "name": "Capacidad plantillas no concede confirmación y respeta campos",
+      "status": "PASS"
+    },
+    {
+      "name": "VIEW rechaza escritura aunque el perfil conserve EDIT/capacidades",
+      "status": "PASS"
+    },
+    {
+      "name": "Consulta exitosa vacía se distingue de acceso fuera de ámbito",
+      "status": "PASS"
+    },
+    {
+      "name": "Opcionales ausentes/nulos y ámbito vacío: cierre seguro sin Null value",
+      "status": "PASS"
+    },
+    {
+      "name": "Revocación de grant sin cambiar proyección impide siguientes lecturas/escrituras",
+      "status": "PASS"
+    },
+    {
+      "name": "Sistemas mantiene las asignaciones ADM y DER del ciclo",
+      "status": "PASS",
+      "detail": [
+        "demo-asignacion-a",
+        "demo-asignacion-b"
+      ]
+    }
+  ]
+}

@@ -42,6 +42,12 @@ export class AuditLogPageComponent {
 
   readonly entries = this.auditLogRepository.entries;
   readonly readError = this.auditLogRepository.entriesReadError;
+  readonly ready = this.auditLogRepository.ready;
+  readonly readState = this.auditLogRepository.readState;
+  readonly readMessage = computed(() => this.readState() === 'restricted'
+    ? 'Sin ámbito institucional de Bitácora concedido. Solicita revisión a Administración General.'
+    : this.auditLogRepository.readMessage());
+  retry(): void { void this.auditLogRepository.refreshFromServer().catch(() => undefined); }
   readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly searchTerm = signal('');
   readonly selectedModule = signal('Todos');

@@ -75,3 +75,15 @@ Las imágenes originales de Asignaciones se clasifican separadamente como defect
 | H003 nombre largo en Dashboard autorizado | Altura intrínseca y metadatos en flujo normal | Geometría y capturas con Sistemas autorizado, cuatro tamaños | Corregido en esta revisión; confirmación humana pendiente |
 
 No se implementan CO de otras entregas. El Dashboard personalizado sigue exigiendo permiso explícito: CO-10 no concede acceso implícito a Consulta. Los 18 incumplimientos R02/R03 y el impedimento de 200 documentos permanecen. Ligas Meet R05; SAEKO R08.
+
+
+## Complemento Control de accesos — 2026-10-16
+
+| Requisito | Implementación | Evidencia | Estado |
+|---|---|---|---|
+| CO-02 lectura efectiva sin ampliación por ámbito vacío | Helpers institucionales de Rules; estados de Bitácora/Solicitudes y sesión | access-server.mjs: VIEW, ámbito explícito/propio/vacío, NONE, revocación; access.spec.mjs: cambio Sistemas→Auxiliar | Corregido y verificado local |
+| CO-02 lectura separada de acciones | EDIT institucional para operaciones existentes; VIEW rechazado en servidor; matrícula global CA y ámbito auxiliar sin cambios | 37 R01 + 9 Auxiliar + siete verificaciones nuevas; T10/T11 regresados | Verificado local; T10 humano pendiente |
+| CO-11 jerarquía y móvil | Resumen, roles asignados, delegaciones, revisiones; estilos institucionales; modal contextual | Tres viewports nuevos y cuatro regresiones CO-11; capturas inspeccionadas por Codex | Corregido local; aceptación visual humana pendiente |
+| CO-11 definiciones/dos pasos/dependencias/foco | Directorio/editor conservado; retiro separado e impedido en uso; motivo por operación y destinatario | UI de consola y callable directo AG/Auxiliar | Verificado local |
+
+[Evidencia y guion](E2-R01-CONTROL-ACCESOS-2026-10-16.md). No se implementan CO de otras entregas. Se mantienen 18 incumplimientos R02/R03, límite de 200 y aceptación humana pendiente; T01/T07 funcional/T11 físico conservados.

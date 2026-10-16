@@ -99,6 +99,10 @@ export class RequestsPageComponent {
   readonly programs = this.programsRepository.programs;
   readonly requests = this.sharedRequestsRepository.requests;
   readonly systemRequests = this.systemRequestsRepository.requests;
+  readonly systemRequestsReady = this.systemRequestsRepository.ready;
+  readonly systemReadState = this.systemRequestsRepository.readState;
+  readonly systemReadMessage = this.systemRequestsRepository.readMessage;
+  retrySystemRequests(): void { this.systemRequestsRepository.retry(); }
   readonly subjects = this.subjectsRepository.subjects;
   readonly teachers = this.teachersRepository.teachers;
   readonly session = this.userSessionService.session;
@@ -438,6 +442,7 @@ export class RequestsPageComponent {
   );
 
   readonly nextSystemAction = computed(() => {
+    if (!this.systemRequestsReady()) return this.systemReadMessage();
     if (this.pendingSystemRequestsCount() > 0) {
       return 'Revisa primero las solicitudes pendientes y marca en proceso las que ya estes atendiendo.';
     }
@@ -794,7 +799,7 @@ export class RequestsPageComponent {
     const session = this.session();
     const appUser = session?.appUser;
 
-    if (!request || !appUser || !session) {
+    if (!request || !appUser || !session || !this.canRespondSystemRequest(request)) {
       this.responseErrors = ['No se encontro la solicitud seleccionada.'];
       return;
     }
@@ -1143,11 +1148,11 @@ export class RequestsPageComponent {
   }
 
   canRespondSystemRequest(request: SystemRequest): boolean {
-    return this.canUseRequests() && this.canSeeAllRequests() && !['ATENDIDA', 'RECHAZADA'].includes(request.status);
+    return this.systemRequestsReady() && this.canUseRequests() && this.canSeeAllRequests() && !['ATENDIDA', 'RECHAZADA'].includes(request.status);
   }
 
   canDeleteSystemRequest(): boolean {
-    return this.canUseRequests() && this.canSeeAllRequests();
+    return this.systemRequestsReady() && this.canUseRequests() && this.canSeeAllRequests();
   }
 
   statusClass(status: SharedRequestStatus): string {

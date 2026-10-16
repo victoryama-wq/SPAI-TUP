@@ -1,0 +1,361 @@
+{
+  "suite": "stage1-logic",
+  "testedAt": "2026-10-16T18:56:34.596Z",
+  "summary": {
+    "cases": 20,
+    "characterizationPassed": 20,
+    "contractPassed": 10,
+    "knownContractFailures": 10,
+    "decisionsPending": 0
+  },
+  "cases": [
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-AUX-OFF",
+      "finding": "F01",
+      "stage": 2,
+      "actual": false,
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "TeachersPageComponent.canManageTeachers + ModulePermissionService"
+    },
+    {
+      "historicalBaseline": false,
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-CUSTOM-VIEW",
+      "finding": "F01",
+      "stage": 2,
+      "actual": false,
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "TeachersPageComponent.canManageTeachers + ModulePermissionService"
+    },
+    {
+      "historicalBaseline": [
+        true,
+        true
+      ],
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-REQUEST-ADM",
+      "finding": "F03",
+      "stage": 2,
+      "actual": [
+        true,
+        true
+      ],
+      "baseline": [
+        true,
+        true
+      ],
+      "expected": [
+        true,
+        true
+      ],
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "src/app/features/requests/pages/requests-page.component.ts#canAccessRequest/canRespondRequest"
+    },
+    {
+      "historicalBaseline": [
+        true,
+        false
+      ],
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-REQUEST-DER",
+      "finding": "F03",
+      "stage": 2,
+      "actual": [
+        true,
+        false
+      ],
+      "baseline": [
+        true,
+        false
+      ],
+      "expected": [
+        true,
+        false
+      ],
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "src/app/features/requests/pages/requests-page.component.ts#canAccessRequest/canRespondRequest"
+    },
+    {
+      "historicalBaseline": [
+        false,
+        false
+      ],
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-REQUEST-OTRO",
+      "finding": "F03",
+      "stage": 2,
+      "actual": [
+        false,
+        false
+      ],
+      "baseline": [
+        false,
+        false
+      ],
+      "expected": [
+        false,
+        false
+      ],
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "src/app/features/requests/pages/requests-page.component.ts#canAccessRequest/canRespondRequest"
+    },
+    {
+      "historicalBaseline": [
+        true,
+        false
+      ],
+      "contractVersion": "E2-v0.4-R01",
+      "id": "UI-TEACHER-OWNERSHIP",
+      "finding": "F02",
+      "stage": 2,
+      "actual": [
+        true,
+        false
+      ],
+      "baseline": [
+        true,
+        false
+      ],
+      "expected": [
+        true,
+        false
+      ],
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "TeachersPageComponent.canDeleteOwnPendingNewTeacher"
+    },
+    {
+      "historicalBaseline": "a",
+      "contractVersion": "E1",
+      "id": "CYCLE-CLOSED-CAPTURE-ACTIVE",
+      "finding": "F05",
+      "stage": 3,
+      "actual": "a",
+      "baseline": "a",
+      "expected": "a",
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "src/app/features/cycles/data/cycles.repository.ts#activeCycle"
+    },
+    {
+      "historicalBaseline": 2,
+      "contractVersion": "E1",
+      "id": "CYCLE-MULTIPLE-OPERATIVE",
+      "finding": "F05",
+      "stage": 3,
+      "actual": 2,
+      "baseline": 2,
+      "expected": 1,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "src/app/features/cycles/data/cycles.repository.ts#startCapture"
+    },
+    {
+      "historicalBaseline": "b",
+      "contractVersion": "E1",
+      "id": "CYCLE-SELECTION-ORDER",
+      "finding": "F05",
+      "stage": 3,
+      "actual": "b",
+      "baseline": "b",
+      "expected": "ERROR_AMBIGUOUS_CYCLE",
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "activeCycle chooses first; contract requires detecting ambiguity without selecting an arbitrary cycle"
+    },
+    {
+      "historicalBaseline": false,
+      "contractVersion": "E1",
+      "id": "UI-CAPTURE-CLOSED",
+      "finding": "F04",
+      "stage": 3,
+      "actual": false,
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "AssignmentsPageComponent.canCaptureAssignments"
+    },
+    {
+      "historicalBaseline": false,
+      "contractVersion": "E1",
+      "id": "REQUEST-CREATE-AWAITS",
+      "finding": "F06",
+      "stage": 3,
+      "actual": false,
+      "baseline": false,
+      "expected": true,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "src/app/features/requests/data/shared-requests.repository.ts#createRequest"
+    },
+    {
+      "historicalBaseline": false,
+      "contractVersion": "E1",
+      "id": "REQUEST-RESOLVE-AWAITS",
+      "finding": "F06",
+      "stage": 3,
+      "actual": false,
+      "baseline": false,
+      "expected": true,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "src/app/features/requests/data/shared-requests.repository.ts#resolveRequest"
+    },
+    {
+      "historicalBaseline": 2,
+      "contractVersion": "E1",
+      "id": "REQUEST-DUPLICATE-CREATE",
+      "finding": "F07",
+      "stage": 3,
+      "actual": 2,
+      "baseline": 2,
+      "expected": 1,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "Same request intent at two controlled milliseconds creates distinct documents"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E1",
+      "id": "UI-PREMATURE-SUCCESS",
+      "finding": "F06",
+      "stage": 3,
+      "actual": true,
+      "baseline": true,
+      "expected": false,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "src/app/features/requests/pages/requests-page.component.ts#createOperationalRequest"
+    },
+    {
+      "historicalBaseline": "EN_CAPTURA",
+      "contractVersion": "E1",
+      "id": "SHARE-PRESERVES-MOODLE",
+      "finding": "F08",
+      "stage": 3,
+      "actual": "EN_CAPTURA",
+      "baseline": "EN_CAPTURA",
+      "expected": "CARGADO_MOODLE",
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "src/app/features/requests/pages/requests-page.component.ts#acceptRequest"
+    },
+    {
+      "historicalBaseline": {
+        "assignmentWritten": true,
+        "modalClosed": true
+      },
+      "contractVersion": "E1",
+      "id": "SHARE-PARTIAL-AND-SUCCESS",
+      "finding": "F07",
+      "stage": 3,
+      "actual": {
+        "assignmentWritten": true,
+        "modalClosed": true
+      },
+      "baseline": {
+        "assignmentWritten": true,
+        "modalClosed": true
+      },
+      "expected": {
+        "assignmentWritten": false,
+        "modalClosed": false
+      },
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "Source assignment committed then request resolution fails; actual repository discards rejection"
+    },
+    {
+      "historicalBaseline": [
+        2,
+        2
+      ],
+      "contractVersion": "E1",
+      "id": "REQUEST-DOUBLE-ACCEPT",
+      "finding": "F07",
+      "stage": 3,
+      "actual": [
+        2,
+        2
+      ],
+      "baseline": [
+        2,
+        2
+      ],
+      "expected": [
+        1,
+        1
+      ],
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "Two concurrent acceptRequest calls with same pending request"
+    },
+    {
+      "historicalBaseline": 1,
+      "contractVersion": "E1",
+      "id": "SHARE-CONCURRENT-LOST-GROUP",
+      "finding": "F07",
+      "stage": 3,
+      "actual": 1,
+      "baseline": 1,
+      "expected": 2,
+      "baselineMatches": true,
+      "contractMatches": false,
+      "evidence": "Two accepted requests read same source; last write loses first group"
+    },
+    {
+      "historicalBaseline": false,
+      "contractVersion": "E1",
+      "id": "SHARE-FIRST-WRITE-FAILS",
+      "finding": "F06",
+      "stage": 3,
+      "actual": false,
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "First write rejects: acceptRequest does not close modal (caller saveResponse still discards promise)"
+    },
+    {
+      "historicalBaseline": [
+        false,
+        "permission-denied",
+        false
+      ],
+      "contractVersion": "E1",
+      "id": "UI-CYCLE-SAVE-ERROR",
+      "finding": "F06",
+      "stage": 3,
+      "actual": [
+        false,
+        "permission-denied",
+        false
+      ],
+      "baseline": [
+        false,
+        "permission-denied",
+        false
+      ],
+      "expected": [
+        false,
+        "permission-denied",
+        false
+      ],
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "CyclesPageComponent.saveCycle catches rejection and keeps form open"
+    }
+  ]
+}

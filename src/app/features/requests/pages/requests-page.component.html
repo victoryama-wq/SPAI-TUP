@@ -54,15 +54,15 @@
             <p>{{ nextSystemAction() }}</p>
             <div class="request-tracking-counts" aria-label="Resumen de solicitudes">
               <div>
-                <strong>{{ pendingSystemRequestsCount() }}</strong>
+                <strong>{{ systemRequestsReady() ? pendingSystemRequestsCount() : '—' }}</strong>
                 <span>Pendientes</span>
               </div>
               <div>
-                <strong>{{ inProgressSystemRequestsCount() }}</strong>
+                <strong>{{ systemRequestsReady() ? inProgressSystemRequestsCount() : '—' }}</strong>
                 <span>En proceso</span>
               </div>
               <div>
-                <strong>{{ closedSystemRequestsCount() }}</strong>
+                <strong>{{ systemRequestsReady() ? closedSystemRequestsCount() : '—' }}</strong>
                 <span>Cerradas</span>
               </div>
             </div>
@@ -70,6 +70,11 @@
         </aside>
       </section>
 
+  @if (!systemRequestsReady()) {
+    <div class="feedback" role="status" data-testid="requests-read-state">{{ systemReadMessage() }}
+      @if (systemReadState() === 'error' || systemReadState() === 'denied') { <button type="button" (click)="retrySystemRequests()">Reintentar consulta</button> }
+    </div>
+  } @else if (!canSeeAllRequests()) { <p class="feedback">Consulta limitada a tus solicitudes propias. Consultar no permite atender solicitudes de otras personas.</p> }
   <div class="request-status-tabs" aria-label="Estados de solicitudes">
     <button class="tab-pendiente" type="button" [class.active]="systemStatusFilter() === 'PENDIENTE'" (click)="systemStatusFilter.set('PENDIENTE')">
       <span>Pendientes</span>
@@ -176,8 +181,8 @@
         </article>
       } @empty {
         <div class="empty-state compact-empty">
-          <strong>Sin solicitudes a Sistemas</strong>
-          <span>Las solicitudes creadas desde el dashboard de coordinacion apareceran aqui.</span>
+          <strong>{{ systemRequestsReady() ? 'Sin solicitudes autorizadas que coincidan con esta vista' : systemReadMessage() }}</strong>
+          @if (systemRequestsReady()) { <span>Consulta confirmada por servidor dentro de tu acceso vigente.</span> }
         </div>
       }
     </section>

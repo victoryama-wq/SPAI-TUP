@@ -741,8 +741,8 @@
     "historicalExecution": true,
     "supersededHumanStatus": "manualFindingsReview.humanSource"
   },
-  "currentReview": "manualFindingsReview",
-  "currentReviewDate": "2026-10-15",
+  "currentReview": "accessControlReview",
+  "currentReviewDate": "2026-10-16",
   "manualFindingsReview": {
     "date": "2026-10-15",
     "responsible": "Codex",
@@ -1041,6 +1041,190 @@
       "build-production-final.log": {
         "sha256": "5c47baaa5919561721bd8b4909ae7b80b7d02ea09755901b5c27580c3e2df459",
         "path": ".local/aux-review/build-production-final.log"
+      }
+    }
+  },
+  "accessControlReview": {
+    "at": "2026-10-16T19:00:52.405Z",
+    "responsible": "Codex",
+    "status": "VALIDADA_LOCAL",
+    "humanAcceptance": "PENDIENTE",
+    "branch": "codex/e2-r01-seguridad-permisos",
+    "baseCommit": "4c52777024b5f7ca7e3a2b9d91ee7e05b704caaa",
+    "commitResolution": "git log -1 --format=%H -- docs/E2-R01-CONTROL-ACCESOS-2026-10-16.md",
+    "units": {
+      "passed": 28,
+      "authorizationSession": 18,
+      "local": 10
+    },
+    "server": {
+      "r01": 37,
+      "auxiliary": 9,
+      "access": 8,
+      "accessSecurityChecks": 7,
+      "baselineDefectCharacterization": 1
+    },
+    "ui": {
+      "startTime": "2026-10-16T18:57:06.345Z",
+      "duration": 140518.353,
+      "expected": 33,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "characterizations": {
+      "rules": 52,
+      "logic": 20,
+      "passed": 72
+    },
+    "strictGate": {
+      "exitCode": 1,
+      "open": 18,
+      "ids": [
+        "REQUEST-TERMINAL-REWRITE",
+        "CYCLE-WRITE-Preparacion",
+        "CYCLE-CREATE-Preparacion",
+        "CYCLE-WRITE-Captura cerrada",
+        "CYCLE-CREATE-Captura cerrada",
+        "CYCLE-WRITE-Cerrado",
+        "CYCLE-CREATE-Cerrado",
+        "MOODLE-STATUS-RESET-ALLOWED",
+        "CYCLE-MULTIPLE-OPERATIVE",
+        "CYCLE-SELECTION-ORDER",
+        "REQUEST-CREATE-AWAITS",
+        "REQUEST-RESOLVE-AWAITS",
+        "REQUEST-DUPLICATE-CREATE",
+        "UI-PREMATURE-SUCCESS",
+        "SHARE-PRESERVES-MOODLE",
+        "SHARE-PARTIAL-AND-SUCCESS",
+        "REQUEST-DOUBLE-ACCEPT",
+        "SHARE-CONCURRENT-LOST-GROUP"
+      ]
+    },
+    "builds": {
+      "local": "PASS",
+      "lan": "PASS",
+      "production": "PASS",
+      "warning": "initial bundle 779.10 kB > 750 kB"
+    },
+    "offline": {
+      "attempts": 7,
+      "hosts": "loopback only",
+      "productionFallback": false
+    },
+    "lan": {
+      "previousBuild": {
+        "commit": "4c52777024b5f7ca7e3a2b9d91ee7e05b704caaa",
+        "parent": "ce8590df65e0aad93df67477bf000053676d2b09",
+        "branch": "codex/e2-r01-seguridad-permisos",
+        "at": "2026-10-16T17:49:51.7649767Z",
+        "indexSha256": "226374e89510f48984f6eb07568eef795fdfe8ee2dd2bca1c4e722c0ba6d7231",
+        "rulesSha256": "b0e0972c0e051ed53f99e70e3894695d29db163cc22bf844f72ae3b9e78bf30a",
+        "synthetic": true,
+        "remoteDeployment": false,
+        "acceptedByOwner": false
+      },
+      "at": "2026-10-16T19:00:37.077Z",
+      "base": "http://192.168.41.254:4201",
+      "baseCommit": "4c52777024b5f7ca7e3a2b9d91ee7e05b704caaa",
+      "indexSha256": "b96db29a06f7d1bd36cd4a89e67f7adcc415feae850c09cb04a590de00dc2a72",
+      "rules": {
+        "before": "b0e0972c0e051ed53f99e70e3894695d29db163cc22bf844f72ae3b9e78bf30a",
+        "after": "ae649563b3ee7072cb02aa294f9625e68a479233055a7111e9a74f0d30f4ed67",
+        "loadedSourceVerified": true
+      },
+      "privateSelection": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+      "privateBackup": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+      "sharedCollectionsUnchanged": [
+        "usuarios",
+        "delegaciones",
+        "roles_personalizados",
+        "asignaciones_roles",
+        "revisiones_roles",
+        "docentes",
+        "asignaciones",
+        "ciclos",
+        "moodle_categorias",
+        "moodle_plantillas",
+        "bitacora",
+        "solicitudes_sistemas",
+        "solicitudes_compartidas"
+      ],
+      "sharedDocuments": 39,
+      "emulatorPid": 16224,
+      "gatewayPid": 3316,
+      "emulatorsRestarted": false,
+      "sharedDataWritten": false,
+      "oldChunksPreserved": true,
+      "observations": [
+        {
+          "actor": "auxiliar",
+          "module": "bitacora",
+          "url": "http://192.168.41.254:4201/bitacora",
+          "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n1\nAD\nAuxiliar DEMO\nAuxiliar de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nAUDITORIA OPERATIVA\nBitacora del sistema\n\nConsulta acciones, cambios y movimientos relevantes sin duplicar datos tecnicos.\n\n10\nEventos registrados\n10\nEventos de hoy\n2\nModulos con actividad\n2\nUsuarios con actividad\nREGISTRO INSTITUCIONAL\nMovimientos recientes\nLimpiar filtros\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nBUSCAR\nMODULO\nTodos\nAsignaciones\nUsuarios\nACCION\nTodas\nASIGNACION CREADA SERVIDOR\nAssignRole\nGrantDelegation\nRevokeDelegation\nSaveRole\nSaveUser\nPERIODO\nTodos\nHoy\nUltimos 7 dias\nUltimos 30 dias\nGRANTDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 12:55 p.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-auxiliar\nREVOKEDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 12:54 p.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: 05c945fa-3940-4896-a5f6-8243617959a4\nGRANTDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:43 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-auxiliar\nASSIGNROLE\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-consulta\nSAVEUSER\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-consulta\nSAVEROLE\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-role-consulta\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 26-2 DER 11 01.\n\nCoordinación B DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-historica\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 26-3 ADM 11 01.\n\nCoordinación A DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-cerrada\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 27-1 DER 11 01.\n\nCoordinación B DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-b\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 27-1 ADM 11 01.\n\nCoordinación A DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-a\nVer detalles tecnicos\nMostrando 1-10 de 10\nPOR PAGINA\n10\n15\n25\nAnterior\n1 / 1\nSiguiente\nSEGUIMIENTO\nUltima actividad\nUsuarios\n\nGrantDelegation por usuario no identificado.\n\n16 oct 2026, 12:55 p.m.\nPOR MODULO\n6\nUsuarios\n4\nAsignaciones\nPOR ACCION\n4\nASIGNACION CREADA SERVIDOR\n2\nGrantDelegation\n1\nRevokeDelegation\n1\nAssignRole\n1\nSaveUser\n1\nSaveRole"
+        },
+        {
+          "actor": "auxiliar",
+          "module": "solicitudes",
+          "url": "http://192.168.41.254:4201/solicitudes",
+          "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n1\nAD\nAuxiliar DEMO\nAuxiliar de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nBANDEJA DE SISTEMAS\nSolicitudes a Sistemas\n\nRevisa y atiende las solicitudes enviadas por las coordinaciones academicas.\n\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nBUSCAR\nTIPO\nTodos\nReabrir captura\nAlta de grupo\nCambiar ID de asignatura\nNuevo docente\nSEGUIMIENTO\nEstado de atencion\n\nRevisa primero las solicitudes pendientes y marca en proceso las que ya estes atendiendo.\n\n1\nPENDIENTES\n0\nEN PROCESO\n0\nCERRADAS\nPENDIENTES\nEN PROCESO\nATENDIDAS\nRECHAZADAS\nTODAS\nPENDIENTE\nReabrir captura\n\nPrueba ficticia; no aplicar a datos reales\n\nCiclo: 26-3\nSolicita: Coordinación A DEMO\nRol: Coordinación Académica\nFecha: 9/1/26, 10:00 AM"
+        },
+        {
+          "actor": "sistemas",
+          "module": "bitacora",
+          "url": "http://192.168.41.254:4201/bitacora",
+          "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n7\nSD\nSistemas DEMO\nCoordinación de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nAUDITORIA OPERATIVA\nBitacora del sistema\n\nConsulta acciones, cambios y movimientos relevantes sin duplicar datos tecnicos.\n\n10\nEventos registrados\n10\nEventos de hoy\n2\nModulos con actividad\n2\nUsuarios con actividad\nREGISTRO INSTITUCIONAL\nMovimientos recientes\nLimpiar filtros\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nBUSCAR\nMODULO\nTodos\nAsignaciones\nUsuarios\nACCION\nTodas\nASIGNACION CREADA SERVIDOR\nAssignRole\nGrantDelegation\nRevokeDelegation\nSaveRole\nSaveUser\nPERIODO\nTodos\nHoy\nUltimos 7 dias\nUltimos 30 dias\nGRANTDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 12:55 p.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-auxiliar\nREVOKEDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 12:54 p.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: 05c945fa-3940-4896-a5f6-8243617959a4\nGRANTDELEGATION\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:43 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-auxiliar\nASSIGNROLE\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-consulta\nSAVEUSER\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-consulta\nSAVEROLE\nUsuarios\nVERIFICADO POR SERVIDOR\n16-oct, 11:22 a.m.\n\nMovimiento registrado sin descripcion.\n\nUsuario no identificado\nRegistro: demo-r01-role-consulta\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 26-2 DER 11 01.\n\nCoordinación B DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-historica\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 26-3 ADM 11 01.\n\nCoordinación A DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-cerrada\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 27-1 DER 11 01.\n\nCoordinación B DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-b\nVer detalles tecnicos\nASIGNACION CREADA SERVIDOR\nAsignaciones\nVERIFICADO POR SERVIDOR\n16-oct, 11:21 a.m.\n\nEl servidor confirmo el alta de DEMO101 - INTRODUCCION DEMO para 27-1 ADM 11 01.\n\nCoordinación A DEMO\nCoordinación Académica\nasignaciones: demo-asignacion-a\nVer detalles tecnicos\nMostrando 1-10 de 10\nPOR PAGINA\n10\n15\n25\nAnterior\n1 / 1\nSiguiente\nCONTROL DE SISTEMAS\nAlertas de asignaciones\n\nAvisa al equipo cuando Coordinacion Academica cambie o retire un docente, modifique grupos o elimine una asignacion.\n\nALERTAS PAUSADAS\nActivar alertas\nSEGUIMIENTO\nUltima actividad\nUsuarios\n\nGrantDelegation por usuario no identificado.\n\n16 oct 2026, 12:55 p.m.\nPOR MODULO\n6\nUsuarios\n4\nAsignaciones\nPOR ACCION\n4\nASIGNACION CREADA SERVIDOR\n2\nGrantDelegation\n1\nRevokeDelegation\n1\nAssignRole\n1\nSaveUser\n1\nSaveRole"
+        },
+        {
+          "actor": "sistemas",
+          "module": "solicitudes",
+          "url": "http://192.168.41.254:4201/solicitudes",
+          "text": "DEMO LAN — Datos sintéticos compartidos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n7\nSD\nSistemas DEMO\nCoordinación de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nBANDEJA DE SISTEMAS\nSolicitudes a Sistemas\n\nRevisa y atiende las solicitudes enviadas por las coordinaciones academicas.\n\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\n30 SEP 2026\nBUSCAR\nTIPO\nTodos\nReabrir captura\nAlta de grupo\nCambiar ID de asignatura\nNuevo docente\nSEGUIMIENTO\nEstado de atencion\n\nRevisa primero las solicitudes pendientes y marca en proceso las que ya estes atendiendo.\n\n1\nPENDIENTES\n0\nEN PROCESO\n0\nCERRADAS\nPENDIENTES\nEN PROCESO\nATENDIDAS\nRECHAZADAS\nTODAS\nPENDIENTE\nReabrir captura\n\nPrueba ficticia; no aplicar a datos reales\n\nCiclo: 26-3\nSolicita: Coordinación A DEMO\nRol: Coordinación Académica\nFecha: 9/1/26, 10:00 AM"
+        }
+      ]
+    },
+    "human": {
+      "T01": "CONFIRMADO_FISICO",
+      "T07": "CONFIRMADO_FUNCIONAL",
+      "T11": "CONFIRMADO_FISICO",
+      "T10": "PENDIENTE",
+      "correct": 7,
+      "withFindings": 2,
+      "failed": 1,
+      "pending": 1
+    },
+    "logs": {
+      "full-verified.log": {
+        "path": ".local/access-review/full-verified.log",
+        "sha256": "b0369dd21319ebe06608df444e09384e0ca85a4867f4627a4889eb8bce3f191b"
+      },
+      "full-final.log": {
+        "path": ".local/access-review/full-final.log",
+        "sha256": "3f12ceced007b50db4e33afd8747690980ce215424c370e09fa79ab326518319"
+      },
+      "full-first.log": {
+        "path": ".local/access-review/full-first.log",
+        "sha256": "340db61c47f5a49f758f60a38ed3867b719942d37859ec2b16a4cba9c163eff0"
+      },
+      "contracts.log": {
+        "path": ".local/access-review/contracts.log",
+        "sha256": "9683e162cbb6ed3c3d42c666d2f3796845ffdb6e5d302057da2914758c0cce4e"
+      },
+      "build-local-final.log": {
+        "path": ".local/access-review/build-local-final.log",
+        "sha256": "cfee333e669938a29266fd719c4cf62788eb48d4cf8e79787b45bf189a3e0eea"
+      },
+      "build-lan-final.log": {
+        "path": ".local/access-review/build-lan-final.log",
+        "sha256": "082deef653e306d397e1a498fde4292508d44e9014ad84ced83ddbb29b1c821a"
+      },
+      "build-production-final.log": {
+        "path": ".local/access-review/build-production-final.log",
+        "sha256": "630fe52cb7e6f769712547f1bfdbcf053c2563fb39eb336800f06148d64b23ab"
+      },
+      "syntax.log": {
+        "path": ".local/access-review/syntax.log",
+        "sha256": "1ac2816a2bda347926b3209fd52cf9fc811932a43c84046d688d107220c8d5b2"
       }
     }
   }

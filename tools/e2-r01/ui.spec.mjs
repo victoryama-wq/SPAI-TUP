@@ -46,6 +46,7 @@ test('Administración configura Consultar/Editar y confirma un rol auditado', as
   await page.getByRole('button', { name: 'Revisar y confirmar', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Confirmar', exact: true }).click();
   await expect(page.locator('.security-panel').getByRole('status')).toHaveText('Operación confirmada y auditada.');
+  await page.getByRole('button', {name:'Roles asignados',exact:true}).click();
   await expect(page.getByRole('option', { name: 'Consulta sintética R01 UI' })).toHaveCount(1);
   await page.screenshot({ path: '.local/test-results/r01-ui-administracion.png', fullPage: true });
 });
@@ -75,6 +76,7 @@ test('Una sesión auxiliar abierta pierde el directorio al revocar su delegació
     const result = await command({ action: 'grantDelegation', targetId: 'demo-auxiliar', expectedRevision: helper.revision, value: { permissions: { grupos: 'VIEW' }, capabilities: ['MANAGE_CUSTOM_ROLES'], scope: { programs: ['ADM'] } } });
     await login(page, 'demo.auxiliar@tecplayacar.edu.mx');
     await page.goto('/usuarios');
+    await page.getByRole('button', {name:'Roles asignados',exact:true}).click();
     await expect(page.getByRole('heading', { name: 'Asignar un rol preaprobado' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Nuevo perfil institucional' })).toHaveCount(0);
     await command({ action: 'revokeDelegation', targetId: result.data.delegationId, expectedRevision: 1 });

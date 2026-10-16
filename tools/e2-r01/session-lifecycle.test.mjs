@@ -60,6 +60,15 @@ test('Solicitudes no inicia lectura sin módulo y cancela/limpia la sesión ante
  h.setSession(actor('consulta',{asignaciones:'VIEW'}));assert.equal(h.repo.requests().length,0);h.flush();assert.equal(h.listeners[0].stopped,true);h.emit(h.listeners[0],{createdAt:'2026-10-15'});assert.equal(h.repo.requests().length,0);
 });
 
+test('Solicitudes distingue caché, vacío confirmado, denegación y error técnico sin publicar diagnósticos',()=>{
+ const h=harness('src/app/features/system-requests/data/system-requests.repository.ts','SystemRequestsRepository');
+ h.setSession(actor('admin',{},'ADMIN_GENERAL'));h.flush();assert.equal(h.repo.readState(),'loading');
+ h.listeners[0].callback({metadata:{fromCache:true},docs:[]});assert.equal(h.repo.ready(),false);
+ h.listeners[0].callback({metadata:{fromCache:false,hasPendingWrites:false},docs:[]});assert.equal(h.repo.ready(),true);assert.equal(h.repo.requests().length,0);
+ h.listeners[0].error({code:'permission-denied',message:'Null value diagnostic'});assert.equal(h.repo.readState(),'denied');assert.ok(!h.repo.readMessage().includes('Null'));
+ h.listeners[0].error({code:'unavailable',message:'internal technical detail'});assert.equal(h.repo.readState(),'error');assert.match(h.repo.readMessage(),/Reintenta/);h.setSession(null);h.flush();
+});
+
 test('Agenda y notificaciones retiran datos al salir y descartan entregas de la identidad anterior',()=>{
  for(const [path,name,property] of [['src/app/features/dashboard/data/operational-agenda.repository.ts','OperationalAgendaRepository','items'],['src/app/core/data/system-notifications.repository.ts','SystemNotificationsRepository','notifications']]){
   const h=harness(path,name);h.setSession(actor('admin',{},'ADMIN_GENERAL'));h.flush();assert.equal(h.listeners.length,2);

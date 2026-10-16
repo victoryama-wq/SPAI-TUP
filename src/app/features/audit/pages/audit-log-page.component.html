@@ -9,27 +9,29 @@
     <div class="audit-summary-grid" aria-label="Resumen de bitacora">
       <article>
         <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"></path></svg></span>
-        <div><strong>{{ sortedEntries().length }}</strong><span>Eventos registrados</span></div>
+        <div><strong>{{ ready() ? sortedEntries().length : '—' }}</strong><span>Eventos registrados</span></div>
       </article>
       <article>
         <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
-        <div><strong>{{ todayCount() }}</strong><span>Eventos de hoy</span></div>
+        <div><strong>{{ ready() ? todayCount() : '—' }}</strong><span>Eventos de hoy</span></div>
       </article>
       <article>
         <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z"></path></svg></span>
-        <div><strong>{{ moduleOptions().length }}</strong><span>Modulos con actividad</span></div>
+        <div><strong>{{ ready() ? moduleOptions().length : '—' }}</strong><span>Modulos con actividad</span></div>
       </article>
       <article>
         <span class="audit-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M5 20c.8-4 3.1-6 7-6s6.2 2 7 6"></path></svg></span>
-        <div><strong>{{ activeUsersCount() }}</strong><span>Usuarios con actividad</span></div>
+        <div><strong>{{ ready() ? activeUsersCount() : '—' }}</strong><span>Usuarios con actividad</span></div>
       </article>
     </div>
   </header>
 
-  <p class="error-banner" *ngIf="readError()">
-    No se pudo leer la bitacora. Firestore rechazo la consulta o el usuario no tiene permiso.
-  </p>
-
+  @if (!ready()) {
+    <div class="error-banner" role="status" data-testid="audit-read-state">{{ readMessage() }}
+      @if (readState() === 'error' || readState() === 'denied') { <button type="button" (click)="retry()">Reintentar consulta</button> }
+    </div>
+  }
+  @if (ready()) {
   <section class="audit-workspace">
     <main class="audit-main-panel">
       <section class="audit-control-panel">
@@ -239,4 +241,5 @@
       </section>
     </aside>
   </section>
+  }
 </section>

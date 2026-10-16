@@ -118,7 +118,7 @@ test('T11 revocación: siguientes operaciones denegadas y rol del destinatario a
   await command(admin,{action:'saveUser',targetId:'acceptance-recipient',expectedRevision:0,value:{name:'Destinatario ficticio',email:'demo.destinatario@tecplayacar.edu.mx',area:'Pruebas R01',baseRole:'CUSTOM',status:'Activo',permissions:{},assignedPrograms:['ADM'],scope:P.scope({programs:['ADM'],cycles:['27-1']})}});
   const role=(await db.collection('roles_personalizados').where('name','==','PRUEBA-R01-Consulta').get()).docs[0];
   const assigned=await command(aux,{action:'assignRole',targetId:'acceptance-recipient',expectedRevision:(await db.doc('usuarios/acceptance-recipient').get()).data().revision,roleId:role.id,roleRevision:role.data().revision});
-  await login(page,'demo.auxiliar@tecplayacar.edu.mx');await page.goto('/usuarios');await expect(page.getByRole('heading',{name:'Asignar un rol preaprobado'})).toBeVisible();
+  await login(page,'demo.auxiliar@tecplayacar.edu.mx');await page.goto('/usuarios');await page.getByRole('button',{name:'Roles asignados',exact:true}).click();await expect(page.getByRole('heading',{name:'Asignar un rol preaprobado'})).toBeVisible();
   const revoked=await command(admin,{action:'revokeDelegation',targetId:grant.delegationId,expectedRevision:1});
   await expect(page.locator('.security-panel')).toHaveCount(0);
   await denied(()=>getDocFromServer(doc(aux.db,'asignaciones/demo-asignacion-a')));

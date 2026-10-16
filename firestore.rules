@@ -97,7 +97,7 @@ service cloud.firestore {
     allow delete: if module('ciclos', true) && capability('MANAGE_CYCLES') && inCycle(resource.data.code);
   }
   match /programas/{id} {
-    allow read: if catalogRead('nomenclaturas', id);
+    allow read: if resource != null && catalogRead('nomenclaturas', resource.get('id', ''));
     allow create, update: if systems() && module('nomenclaturas', true) && inProgram(id);
     allow delete: if systems() && module('nomenclaturas', true) && inProgram(id);
   }
@@ -176,13 +176,23 @@ service cloud.firestore {
     allow delete: if false;
   }
   match /solicitudes_sistemas/{id} {
-    allow read: if general() || (systems() && module('solicitudes', false) && within('programs', '*')) || (module('solicitudes', false) && resource.data.requestedBy == request.auth.uid);
+    allow read: if systemRequestRead();
     allow create: if module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE';
-    allow update: if (general() || (systems() && module('solicitudes', true) && within('programs', '*'))) && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.requestedBy == resource.data.requestedBy;
-    allow delete: if general() || (systems() && module('solicitudes', true) && within('programs', '*'));
+    allow update: if institutionalModule('solicitudes', true) && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.requestedBy == resource.data.requestedBy;
+    allow delete: if institutionalModule('solicitudes', true);
+  }
+  function institutionalModule(key, edit) {
+    let u = user();
+    return hasModule(u, key, edit) && (u.get('baseRole', '') == 'ADMIN_GENERAL' ||
+      (u.get('baseRole', '') == 'ADMIN_OPERATIVO' && safeList(safeMap(u, 'scope'), 'programs').hasAny(['*'])));
+  }
+  function systemRequestRead() {
+    let u = user(); let role = u.get('baseRole', '');
+    return hasModule(u, 'solicitudes', false) && (role == 'ADMIN_GENERAL' ||
+      (role == 'ADMIN_OPERATIVO' && safeList(safeMap(u, 'scope'), 'programs').hasAny(['*'])) || resource.data.get('requestedBy', '') == request.auth.uid);
   }
   match /bitacora/{id} {
-    allow read: if general() || (delegated() && module('bitacora', false) && within('programs', '*'));
+    allow read: if institutionalModule('bitacora', false);
     allow create: if active() && request.resource.data.source == 'CLIENTE' && request.resource.data.integrity == 'NO_VERIFICADO' && request.resource.data.createdAt is string;
     allow update, delete: if false;
   }

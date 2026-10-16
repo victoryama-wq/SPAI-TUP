@@ -51,12 +51,20 @@ export class SystemRequestsRepository {
   private readonly firestore = inject(FIREBASE_DB);
   private readonly userSessionService = inject(UserSessionService);
   private readonly requestsSignal = signal<SystemRequest[]>([]);
+  private readonly state = signal<'loading' | 'ready' | 'restricted' | 'denied' | 'error'>('loading');
+  private readonly retryVersion = signal(0);
+  readonly readState = computed(() => this.dataOwner() === this.userSessionService.session() ? this.state() : 'loading');
+  readonly ready = computed(() => this.readState() === 'ready');
+  readonly readMessage = computed(() => ({loading:'Cargando solicitudes autorizadas…',ready:'',restricted:'Sin permiso de consulta. Solicita revisión a Administración General.',denied:'Acceso denegado o revocado. Solicita revisión de tus permisos.',error:'No se pudo completar la consulta. Reintenta o recarga la página.'})[this.readState()]);
+  retry(): void { this.retryVersion.update(value => value + 1); }
 
   private readonly dataOwner = signal<UserSession | null>(null);
-  readonly requests = computed(() => this.dataOwner() === this.userSessionService.session() ? this.requestsSignal() : []);
+  readonly requests = computed(() => this.dataOwner() === this.userSessionService.session() && this.ready() ? this.requestsSignal() : []);
 
   constructor() {
     effect((onCleanup) => {
+      this.retryVersion();
+      this.state.set('restricted');
       const session = this.userSessionService.session();
       const appUser = session?.appUser;
       this.dataOwner.set(session);
@@ -80,10 +88,14 @@ export class SystemRequestsRepository {
         ? [orderBy('createdAt', 'desc')]
         : [where('requestedBy', '==', session.authUid)];
       const requestsQuery = query(collection(this.firestore, SYSTEM_REQUESTS_COLLECTION), ...constraints);
+      this.state.set('loading');
+      let disposed = false;
+      const timeout = setTimeout(() => { if (!disposed && session === this.userSessionService.session()) this.state.set('error'); }, 15000);
       const unsubscribe = onSnapshot(
-        requestsQuery,
+        requestsQuery, { includeMetadataChanges: true },
         (snapshot) => {
-          if (session !== this.userSessionService.session()) return;
+          if (disposed || session !== this.userSessionService.session() || snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
+          clearTimeout(timeout); this.state.set('ready');
           this.requestsSignal.set(
             snapshot.docs
               .map((item) => ({ id: item.id, ...item.data() }) as SystemRequest)
@@ -91,10 +103,15 @@ export class SystemRequestsRepository {
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
           );
         },
-        () => this.requestsSignal.set([]),
+        error => {
+          if (disposed || session !== this.userSessionService.session()) return;
+          clearTimeout(timeout); this.requestsSignal.set([]);
+          console.error('No se pudo leer solicitudes_sistemas', error);
+          this.state.set(error.code === 'permission-denied' ? 'denied' : 'error');
+        },
       );
 
-      onCleanup(() => { unsubscribe(); this.requestsSignal.set([]); });
+      onCleanup(() => { disposed = true; clearTimeout(timeout); unsubscribe(); this.requestsSignal.set([]); });
     });
   }
 
