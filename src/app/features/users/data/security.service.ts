@@ -6,6 +6,7 @@ import { AppUser, EffectiveLevel, ModuleAccess } from './users.repository';
 export const SECURITY_MODULES: (keyof ModuleAccess)[] = ['dashboard', 'usuarios', 'ciclos', 'nomenclaturas', 'grupos', 'docentes', 'asignaturas', 'asignaciones', 'solicitudes', 'ligasMeet', 'moodle', 'bitacora'];
 export interface SecurityRecord {
   id: string; revision: number; name?: string; userId?: string; roleId?: string;
+  expiresAtMillis?: number;
   status: string; reviewStatus?: string; assignmentId?: string; delegationId?: string;
   permissions?: Partial<Record<keyof ModuleAccess, EffectiveLevel>>;
   scope?: AppUser['scope']; capabilities?: string[];
@@ -18,7 +19,14 @@ export interface MigrationPreview {
   previewId: string; userId: string; profileRevision: number; delegationRevision: number;
   previous: Partial<AppUser>; proposed: { permissions: Record<keyof ModuleAccess, EffectiveLevel>; baseRole: string; status: string; unresolved: string[]; scope: AppUser['scope']; capabilities: string[] }; differences: string[];
 }
-export interface SecurityResult { preview?: MigrationPreview; operationId: string }
+export interface InheritancePreview {
+  previewId: string; sourceId: string; targetId: string; sourceName: string; targetName: string;
+  replace: boolean; expiresAtMillis: number; sourceRevision: number; targetRevision: number;
+  previous: { baseRole: string; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[]; status: string };
+  proposed: { baseRole: string; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[]; roles: {id:string;name:string;revision:number}[]; expiresAtMillis: number | null; denials: string[] };
+  retire: { assignments: {id:string;roleId:string}[]; delegations: string[] }; preserve: string;
+}
+export interface SecurityResult { preview?: MigrationPreview; inheritancePreview?: InheritancePreview; operationId: string }
 @Injectable({ providedIn: 'root' })
 export class SecurityService {
   private readonly functions = inject(FIREBASE_FUNCTIONS);

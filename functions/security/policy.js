@@ -38,6 +38,7 @@ function legacyValid(profile, mapping, nowMillis = Date.now()) {
     && mapping.revision === legacy.mappingRevision && mapping.baseRole === legacy.baseRole
     && mapping.profileRevision === profile.revision && Boolean(mapping.approvedBy);
 }
+function grantCurrent(grant, nowMillis = Date.now()) { return grant?.expiresAtMillis == null || (Number.isSafeInteger(grant.expiresAtMillis) && grant.expiresAtMillis > nowMillis); }
 function effective(profile, delegation, { mapping, nowMillis = Date.now() } = {}) {
   const legacy = profile?.legacyAuthorization;
   if (legacyValid(profile, mapping, nowMillis)) profile = { ...profile, ...legacy, permissionSchemaVersion: 2 };
@@ -45,7 +46,7 @@ function effective(profile, delegation, { mapping, nowMillis = Date.now() } = {}
   if (profile?.status !== 'Activo' || profile.permissionSchemaVersion !== 2 || profile.identityAliasOf) return none;
   if (isGeneral(profile)) return { permissions: levels(Object.fromEntries(MODULES.map(k => [k, 'EDIT']))), capabilities: [...DELEGABLE, ...NON_DELEGABLE, REQUEST_CAPABILITY], scope: scope({ programs: ['*'], cycles: ['*'], teachers: ['*'], fields: ['*'] }), baseRole: profile.baseRole, active: true };
   if (profile.baseRole === 'ADMIN_OPERATIVO') {
-    if (!delegation || delegation.status !== 'ACTIVE' || delegation.userId !== profile.authUid || delegation.id !== profile.delegationId) return { ...none, revoked: true };
+    if (!delegation || !grantCurrent(delegation, nowMillis) || delegation.status !== 'ACTIVE' || delegation.userId !== profile.authUid || delegation.id !== profile.delegationId) return { ...none, revoked: true };
     return { permissions: levels(delegation.permissions), capabilities: list(delegation.capabilities), scope: scope(delegation.scope), baseRole: profile.baseRole, active: true };
   }
   return { permissions: levels(profile.permissions), capabilities: list(profile.capabilities).filter(c => c === REQUEST_CAPABILITY), scope: scope(profile.scope), baseRole: profile.baseRole, active: true };
@@ -95,4 +96,4 @@ function legacyProposal(profile, verifiedMapping) {
   const explicitDenials = MODULES.filter(key => String(profile.permissions?.[key]).toUpperCase() === 'NONE' || (profile.permissions?.[key] === undefined && profile.access?.[key] === false));
   return { mappingVersion: MAPPING_VERSION, baseRole: recognized ? verifiedMapping.baseRole : 'CUSTOM', permissions: proposed, explicitDenials, capabilities: [], scope: scope(profile.scope ?? { programs: list(profile.assignedPrograms) }), unresolved, status: unresolved.length ? 'LEGACY_UNRESOLVED' : 'READY' };
 }
-module.exports = { MODULES, BASE_ROLES, DELEGABLE, NON_DELEGABLE, REQUEST_CAPABILITY, MAPPING_VERSION, RANK, fail, assert, list, levels, scope, subset, isGeneral, legacyValid, effective, requireCapability, customDefinition, canAssign, legacyProposal };
+module.exports = { grantCurrent, MODULES, BASE_ROLES, DELEGABLE, NON_DELEGABLE, REQUEST_CAPABILITY, MAPPING_VERSION, RANK, fail, assert, list, levels, scope, subset, isGeneral, legacyValid, effective, requireCapability, customDefinition, canAssign, legacyProposal };

@@ -1,0 +1,42 @@
+import {test,expect} from '@playwright/test';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {resolve} from 'node:path';
+import {mkdirSync} from 'node:fs';
+import {root,config,isolatedTest,localEnvironment,verifyHub} from '../local/config.mjs';
+let admin,db,original;
+const paths=['usuarios/inherit-ui-source','usuarios/inherit-ui-target'];
+test.beforeEach(async({page})=>{
+ assert.equal(isolatedTest,true);await verifyHub();Object.assign(process.env,localEnvironment());
+ const require=createRequire(resolve(root,'functions/package.json'));admin=require('firebase-admin/app').initializeApp({projectId:config.projectId},crypto.randomUUID());db=require('firebase-admin/firestore').getFirestore(admin);
+ original=Object.fromEntries(await Promise.all(paths.map(async p=>[p,(await db.doc(p).get()).data()??null])));
+ const P=require('./security/policy');const scope=P.scope({programs:['ADM'],cycles:['27-1']});
+ for(const [id,permissions,s] of [['source',{asignaciones:'VIEW'},scope],['target',{},P.scope()]])await db.doc('usuarios/inherit-ui-'+id).set({id:'inherit-ui-'+id,authUid:null,name:'Herencia ficticia '+id,email:'demo.herencia.'+id+'@tecplayacar.edu.mx',area:'Pruebas',greetingGender:'Masculino',role:'Consulta',baseRole:'CUSTOM',permissionSchemaVersion:2,status:'Activo',revision:1,permissions:P.levels(permissions),basePermissions:P.levels(permissions),capabilities:[],baseCapabilities:[],scope:s,baseScope:s,assignedPrograms:s.programs});
+ await page.route('**/*',r=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
+ await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();await page.goto('/usuarios');
+ mkdirSync(resolve(root,'.local/inheritance/screenshots'),{recursive:true});
+});
+test.afterEach(async()=>{for(const [p,v] of Object.entries(original))if(v)await db.doc(p).set(v);else await db.doc(p).delete();await createRequire(resolve(root,'functions/package.json'))('firebase-admin/app').deleteApp(admin);});
+for(const width of [320,390,768,1280])test('HERENCIA recorrido modal y cancelación '+width,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ const trigger=page.getByRole('button',{name:'Heredar acceso',exact:true});await trigger.click();const d=page.locator('dialog[open]');
+ await expect(d).toHaveCount(1);await expect(d.getByRole('combobox',{name:'Origen',exact:true})).toBeFocused();await d.getByRole('combobox',{name:'Origen',exact:true}).selectOption('inherit-ui-source');
+ await expect(d.getByRole('combobox',{name:'Destino',exact:true}).locator('option[value="inherit-ui-source"]')).toHaveJSProperty('disabled',true);await expect(d.getByRole('combobox',{name:'Destino',exact:true}).locator('option[value="demo-sistemas"]')).toHaveJSProperty('disabled',true);
+ await expect(d.getByLabel('Correspondencia verificada')).toHaveCount(0);
+ await d.getByRole('combobox',{name:'Destino',exact:true}).selectOption('inherit-ui-target');await d.getByRole('button',{name:'Consultar vista previa de herencia',exact:true}).click();
+ await expect(d.getByRole('heading',{name:'Resultado validado por servidor'})).toBeVisible();
+ await d.getByRole('button',{name:'Revisar herencia',exact:true}).click();await expect(d.getByLabel('Motivo del cambio')).toHaveValue('');await expect(d.getByRole('button',{name:'Confirmar',exact:true})).toBeDisabled();await d.getByLabel('Motivo del cambio').fill('Cancelación de herencia ficticia');
+ await expect(d.locator('.editor-heading')).toBeInViewport();await expect(d.locator('.editor-actions')).toBeInViewport();expect(await d.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);await page.keyboard.press('Tab');expect(await d.evaluate(el=>el.contains(document.activeElement))).toBe(true);
+ await page.screenshot({path:resolve(root,'.local/inheritance/screenshots','confirm-'+width+'.png')});
+ const before=(await db.doc('usuarios/inherit-ui-target').get()).data();await page.keyboard.press('Escape');await expect(trigger).toBeFocused();expect((await db.doc('usuarios/inherit-ui-target').get()).data()).toEqual(before);
+ await trigger.click();await expect(d.getByRole('combobox',{name:'Origen',exact:true})).toHaveValue('');await expect(d.getByRole('combobox',{name:'Destino',exact:true})).toHaveValue('');await expect(d.getByRole('heading',{name:'Resultado validado por servidor'})).toHaveCount(0);
+ await d.getByRole('combobox',{name:'Origen',exact:true}).selectOption('inherit-ui-source');await d.getByRole('combobox',{name:'Destino',exact:true}).selectOption('inherit-ui-target');await page.screenshot({path:resolve(root,'.local/inheritance/screenshots','inherit-'+width+'.png')});
+});
+test('HERENCIA confirmar, reemplazo explícito y preview obsoleta en recorrido real',async({page})=>{
+ const open=async()=>{await page.getByRole('button',{name:'Heredar acceso',exact:true}).click();await page.getByRole('combobox',{name:'Origen',exact:true}).selectOption('inherit-ui-source');await page.getByRole('combobox',{name:'Destino',exact:true}).selectOption('inherit-ui-target');};
+ const d=page.locator('dialog[open]');await open();await d.getByRole('button',{name:'Consultar vista previa de herencia',exact:true}).click();await d.getByRole('button',{name:'Revisar herencia',exact:true}).click();await d.getByLabel('Motivo del cambio').fill('Herencia ficticia con confirmación');await d.getByRole('button',{name:'Confirmar',exact:true}).click();await expect(d).toHaveCount(0);
+ expect((await db.doc('usuarios/inherit-ui-target').get()).data().permissions.asignaciones).toBe('VIEW');
+ await open();await d.getByRole('button',{name:'Consultar vista previa de herencia',exact:true}).click();await expect(d.getByRole('alert')).toContainText('Reemplazar acceso existente');
+ await d.getByLabel('Reemplazar acceso existente',{exact:true}).check();await d.getByRole('button',{name:'Consultar vista previa de herencia',exact:true}).click();await expect(d.getByRole('heading',{name:'Resultado validado por servidor'})).toBeVisible();await db.doc('usuarios/inherit-ui-source').update({revision:2});const before=(await db.doc('usuarios/inherit-ui-target').get()).data();
+ await d.getByRole('button',{name:'Revisar herencia',exact:true}).click();await d.getByLabel('Motivo del cambio').fill('Confirmación obsoleta debe rechazarse');await d.getByRole('button',{name:'Confirmar',exact:true}).click();await expect(d.getByRole('alert')).toContainText('HERENCIA_PREVIEW_OBSOLETA');expect((await db.doc('usuarios/inherit-ui-target').get()).data()).toEqual(before);
+});

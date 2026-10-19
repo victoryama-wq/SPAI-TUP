@@ -99,3 +99,14 @@ No se implementan CO de otras entregas. El Dashboard personalizado sigue exigien
 | Alcance y estados de métricas | Conteos canónicos, etiquetas de alcance, reserva AG, carga/error sin ceros y reintento | Dos pruebas `users-layout.spec.mjs` y BD ficticia | Verificado local |
 
 [Informe y evidencia](E2-R01-USUARIOS-VISUAL-2026-10-19.md). Se conserva el inventario anterior. No se implementan otras entregas ni se cambia el gate: 18 incumplimientos R02/R03 y límite de 200 abiertos; aceptación humana pendiente.
+
+## Directorio y herencia — 2026-10-19 (instrucción visual posterior)
+
+| Requisito | Implementación actual | Evidencia | Estado |
+|---|---|---|---|
+| CO-11 composición y modales | Directorio diario; ficha con roles/delegaciones; bandeja de revisiones; regularización separada; un diálogo con pasos | 42 Chromium; capturas a 320/390/768/1280; foco, teclado, cancelación | Verificado local; aceptación humana pendiente |
+| CO-11 editor y facultades | Datos, ámbitos, Consultar/Editar y nueve capacidades independientes; valores efectivos y conservación de aportes de roles | UI y caso servidor de edición seguida de retiro de rol | Corregido y verificado local |
+| CO-02 autoridad y aislamiento | Fuentes autorizadas; herencia solo ADMIN_GENERAL; auxiliar limitado por delegación; scopes y expiración en Rules/servidor/sesión | 37 R01, 9 Auxiliar, 8 Control de accesos, 21 herencia | Verificado local; T10 humano pendiente |
+| Herencia autorizada en este encargo | Preview de servidor, reemplazo explícito, trazabilidad, plazo, atomicidad, idempotencia | inheritance-server.mjs e inheritance.spec.mjs | Implementado y validado local; no aceptación del propietario |
+
+[Informe y contrato del flujo](E2-R01-HERENCIA-ACCESO-2026-10-19.md). Se conservan las filas históricas como evidencia de su entrega; esta nueva composición las sustituye por instrucción expresa. No se implementan CO de otras entregas. Siguen abiertos el límite de 200 y los mismos 18 incumplimientos R02/R03.

@@ -27,13 +27,13 @@ async function login(page, email) {
 test('Administración configura Consultar/Editar y confirma un rol auditado', async ({ page }) => {
   await login(page, 'demo.sistemas@tecplayacar.edu.mx');
   await page.goto('/usuarios');
-  await page.getByRole('button', { name: 'Administrar roles personalizados', exact: true }).click();
+  await page.getByRole('button', { name: 'Roles personalizados', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('heading', {name:'Directorio de roles personalizados'})).toBeVisible();
   await expect(page.getByRole('dialog').locator('form')).toHaveCount(0);
   await page.getByRole('button', { name: 'Crear rol', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('button', {name:'Crear rol',exact:true})).toHaveCount(0);
   await page.getByLabel('Nombre', { exact: true }).fill('Consulta sintética R01 UI');
-  const row = page.locator('.permission-row').filter({ has: page.locator('strong', { hasText: /^docentes$/ }) });
+  const row = page.locator('.permission-row').filter({ has: page.locator('strong', { hasText: /^Docentes$/ }) });
   await row.getByLabel('Editar', { exact: true }).check();
   await expect(row.getByLabel('Consultar', { exact: true })).toBeChecked();
   await row.getByLabel('Editar', { exact: true }).uncheck();
@@ -42,11 +42,11 @@ test('Administración configura Consultar/Editar y confirma un rol auditado', as
   await expect(row.getByLabel('Editar', { exact: true })).not.toBeChecked();
   await row.getByLabel('Consultar', { exact: true }).check();
   await page.getByLabel('Programas (claves separadas por coma)').fill('ADM');
-  await page.getByRole('dialog').getByLabel('Motivo del cambio').fill('Verificación sintética de controles R01');
   await page.getByRole('button', { name: 'Revisar y confirmar', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Motivo del cambio').fill('Verificación sintética de controles R01');
   await page.getByRole('dialog').getByRole('button', { name: 'Confirmar', exact: true }).click();
   await expect(page.locator('.security-panel').getByRole('status')).toHaveText('Operación confirmada y auditada.');
-  await page.getByRole('button', {name:'Roles asignados',exact:true}).click();
+  await page.getByRole('row').filter({hasText:'demo.coordinacion.a@'}).getByRole('button',{name:'Ver acceso',exact:true}).click();
   await expect(page.getByRole('option', { name: 'Consulta sintética R01 UI' })).toHaveCount(1);
   await page.screenshot({ path: '.local/test-results/r01-ui-administracion.png', fullPage: true });
 });
@@ -56,7 +56,7 @@ test('Coordinación consulta sus módulos y no abre el directorio administrativo
   await page.goto('/grupos');
   await expect(page.getByText('27-1 ADM 11 01', { exact: true }).first()).toBeVisible();
   await page.goto('/usuarios');
-  await expect(page.getByRole('button', { name: 'Nuevo perfil institucional' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Nuevo usuario' })).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('demo.inactivo@tecplayacar.edu.mx');
 });
 
@@ -76,9 +76,9 @@ test('Una sesión auxiliar abierta pierde el directorio al revocar su delegació
     const result = await command({ action: 'grantDelegation', targetId: 'demo-auxiliar', expectedRevision: helper.revision, value: { permissions: { grupos: 'VIEW' }, capabilities: ['MANAGE_CUSTOM_ROLES'], scope: { programs: ['ADM'] } } });
     await login(page, 'demo.auxiliar@tecplayacar.edu.mx');
     await page.goto('/usuarios');
-    await page.getByRole('button', {name:'Roles asignados',exact:true}).click();
+    await page.getByRole('row').filter({hasText:'demo.coordinacion.a@'}).getByRole('button',{name:'Ver acceso',exact:true}).click();
     await expect(page.getByRole('heading', { name: 'Asignar un rol preaprobado' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Nuevo perfil institucional' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Nuevo usuario' })).toHaveCount(0);
     await command({ action: 'revokeDelegation', targetId: result.data.delegationId, expectedRevision: 1 });
     await expect(page.getByRole('heading', { name: 'Asignar un rol preaprobado' })).toHaveCount(0);
     await expect(page.locator('nav').getByText('Usuarios', { exact: true })).toHaveCount(0);
@@ -100,7 +100,7 @@ async function withSyntheticDb(work) {
 
 test('CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritorio y móvil', async ({page}) => {
   await login(page,'demo.sistemas@tecplayacar.edu.mx'); await page.goto('/usuarios');
-  await page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true}).click();
+  await page.locator('.panel-actions').getByRole('button',{name:'Nuevo usuario',exact:true}).click();
   const dialog=page.getByRole('dialog');
   for(const name of ['Datos de acceso','Alcance académico','Módulos disponibles']) await expect(dialog.getByRole('group',{name,exact:true})).toBeVisible();
   await expect(dialog.getByRole('combobox',{name:'Saludo',exact:true})).toHaveValue('Femenino');
@@ -120,18 +120,18 @@ test('CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritori
     await page.screenshot({path:`.local/test-results/r01-review-${label}.png`});
   }
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
-  await expect(page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true})).toBeFocused();
+  await expect(page.locator('.panel-actions').getByRole('button',{name:'Nuevo usuario',exact:true})).toBeFocused();
   await page.setViewportSize({width:1366,height:900});
-  await page.getByRole('row').filter({hasText:'demo.inactivo@tecplayacar.edu.mx'}).getByRole('button',{name:'Editar perfil',exact:true}).click();
+  await page.getByRole('row').filter({hasText:'demo.inactivo@tecplayacar.edu.mx'}).getByRole('button',{name:'Editar',exact:true}).click();
   await dialog.getByRole('combobox',{name:'Saludo',exact:true}).selectOption('Masculino');
-  await dialog.getByLabel('Motivo del cambio').fill('Conservar saludo del perfil ficticio');
   await dialog.getByRole('button',{name:'Revisar y confirmar',exact:true}).click();
+  await dialog.getByLabel('Motivo del cambio').fill('Conservar saludo del perfil ficticio');
   await page.getByRole('dialog').getByRole('button',{name:'Confirmar',exact:true}).click();
   await expect(page.locator('.security-panel').getByRole('status')).toHaveText('Operación confirmada y auditada.');
-  await page.getByRole('row').filter({hasText:'demo.inactivo@tecplayacar.edu.mx'}).getByRole('button',{name:'Editar perfil',exact:true}).click();
+  await page.getByRole('row').filter({hasText:'demo.inactivo@tecplayacar.edu.mx'}).getByRole('button',{name:'Editar',exact:true}).click();
   await expect(dialog.getByRole('combobox',{name:'Saludo',exact:true})).toHaveValue('Masculino');
   await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();
-  await page.getByRole('button',{name:'Administrar roles personalizados'}).click();
+  await page.getByRole('button',{name:'Roles personalizados'}).click();
   await dialog.getByRole('article').filter({hasText:'Consulta sintética R01 UI'}).getByRole('button',{name:'Editar',exact:true}).click();
   await expect(dialog.getByLabel('Nombre',{exact:true})).toHaveValue('Consulta sintética R01 UI');
   await dialog.getByRole('button',{name:'Volver al directorio'}).click();

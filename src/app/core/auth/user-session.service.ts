@@ -99,9 +99,11 @@ export class UserSessionService {
         let appUser = snapshot.exists()
           ? ({ id: snapshot.id, ...snapshot.data() } as AppUser)
           : null;
+        clearTimeout(legacyExpiry);
         if (appUser?.baseRole === 'ADMIN_OPERATIVO') {
           if (!grantReady) { this.sessionSignal.set(null); return; }
-          const active = grant?.['status'] === 'ACTIVE' && grant['userId'] === authUser.uid && grantId === appUser.delegationId;
+          const active = grant?.['status'] === 'ACTIVE' && grant['userId'] === authUser.uid && grantId === appUser.delegationId && (grant['expiresAtMillis'] == null || Number.isSafeInteger(grant['expiresAtMillis']) && grant['expiresAtMillis'] > Date.now());
+          if (active && grant?.['expiresAtMillis']) legacyExpiry = setTimeout(() => setSession(snapshot), Math.min(2147483647, grant['expiresAtMillis'] - Date.now()));
           const rawScope = grant?.['scope'] ?? {};
           const list = (key: string): string[] => Array.isArray(rawScope[key]) ? rawScope[key].filter((value: unknown) => typeof value === 'string') : [];
           appUser = { ...appUser, delegationActive: active, permissions: active ? grant?.['permissions'] ?? {} : {},
@@ -109,7 +111,6 @@ export class UserSessionService {
             scope: active ? {programs:list('programs'),cycles:list('cycles'),teachers:list('teachers'),fields:list('fields')} : {programs:[],cycles:[],teachers:[],fields:[]},
             authorizationNotice: active ? undefined : 'PERMISO_REVOCADO: tu delegación no está vigente. Solicita revisión a Administración General.' };
         }
-        clearTimeout(legacyExpiry);
         const legacy = appUser?.legacyAuthorization;
         if (appUser && appUser.permissionSchemaVersion !== 2 && !appUser.identityAliasOf && appUser.status === 'Activo' && legacy?.mappingVersion === 'E2-R01-v0.4-1' && legacy.profileRevision === appUser.revision && legacy.expiresAtMillis > Date.now() && mapping?.['status'] === 'ACTIVE' && mapping['version'] === legacy.mappingVersion && mapping['revision'] === legacy.mappingRevision && mapping['profileRevision'] === appUser.revision && mapping['baseRole'] === legacy.baseRole && mapping['approvedBy']) {
           appUser = { ...appUser, ...legacy };

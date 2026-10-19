@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-19",
+  "completedAt": "2026-10-19T23:31:52.261098+00:00",
+  "responsible": "Codex",
+  "status": "VALIDADA_LOCAL",
+  "acceptedByOwner": false,
+  "baseCommit": "cdf1621d21ecbdbc58a897db323e7791aa166292",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "commitLocator": "git log -1 --format=%H -- docs/evidence/r01-inheritance/results.json",
+  "mainUnchanged": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2",
+  "scope": [
+    "Usuarios y modales",
+    "Herencia y reemplazo transaccional de acceso"
+  ],
+  "unit": {
+    "passed": 28
+  },
+  "server": {
+    "r01": 37,
+    "auxiliary": 9,
+    "access": 8,
+    "accessCharacterizationsOfPriorDefect": 1,
+    "inheritance": 21
+  },
+  "characterization": {
+    "passed": 72,
+    "contractPassed": 54,
+    "contractFailed": 18
+  },
+  "ui": {
+    "startTime": "2026-10-19T23:18:45.906Z",
+    "duration": 258556.87600000002,
+    "expected": 42,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "strictGate": {
+    "exitCode": 1,
+    "open": 18,
+    "ids": [
+      "REQUEST-TERMINAL-REWRITE",
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "CYCLE-MULTIPLE-OPERATIVE",
+      "CYCLE-SELECTION-ORDER",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ],
+    "unchanged": true
+  },
+  "builds": {
+    "local": "PASS",
+    "lan": "PASS",
+    "production": "PASS",
+    "warning": "Initial bundle 779.79 kB exceeds 750 kB warning budget"
+  },
+  "validationOrder": "Suite completa con 20 casos de herencia y 42 UI; después se añadió reloj tras lectura de preview y normalización de asignación copiada. Reejecución dirigida final 21/21; frontend no cambió después de la suite completa.",
+  "offline": {
+    "loopbackAttempts": 7,
+    "productionFallback": false
+  },
+  "preserved": {
+    "sharedHashBefore": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+    "sharedHashAfter": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+    "sharedCounts": {
+      "asignaciones": 4,
+      "asignaciones_roles": 1,
+      "avisos_seguridad": 1,
+      "bitacora": 11,
+      "ciclos": 4,
+      "delegaciones": 2,
+      "docentes": 3,
+      "eventos_seguridad": 1,
+      "moodle_categorias": 2,
+      "moodle_plantillas": 2,
+      "operaciones_seguridad": 1,
+      "roles_personalizados": 2,
+      "seguridad": 1,
+      "solicitudes_compartidas": 2,
+      "solicitudes_sistemas": 1,
+      "usuarios": 7
+    },
+    "delegations": [
+      {
+        "id": "05c945fa-3940-4896-a5f6-8243617959a4",
+        "status": "REVOKED",
+        "revision": 2
+      },
+      {
+        "id": "333bbac4-82c6-4dec-a116-53ae8d31bfd1",
+        "status": "ACTIVE",
+        "revision": 1
+      }
+    ],
+    "privateSelectionHash": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+    "privateBackupHash": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed"
+  },
+  "human": {
+    "acceptance": "PENDIENTE",
+    "preserved": [
+      "T01 físico",
+      "T07 funcional",
+      "T11 físico"
+    ],
+    "T10": "Técnico verificado; humano pendiente",
+    "screenshots": "Inspección técnica Codex, no aceptación del propietario"
+  },
+  "blockers": [
+    "Límite administrativo combinado de 200 documentos",
+    "18 incumplimientos contractuales R02/R03",
+    "Aceptación humana y validación remota/productiva pendientes"
+  ],
+  "screenshots": [
+    {
+      "file": "summary-1280.png",
+      "width": 1280,
+      "sha256": "6cb5adf24945949a9d1fa81539089fd57b1c4c7a06829c4540ee43ae5a1f3a2b"
+    },
+    {
+      "file": "profile-1280.png",
+      "width": 1280,
+      "sha256": "2b8942ed0367789d79ca5d8fdf7516c34d9d0a4734aed3242f8210f9f204bdf1"
+    },
+    {
+      "file": "inherit-1280.png",
+      "width": 1280,
+      "sha256": "cd2da769b427aa21338f9c30e0384364f359f50b59feee6edb11ea79b018372e"
+    },
+    {
+      "file": "confirm-1280.png",
+      "width": 1280,
+      "sha256": "0dff038123938b4321af627f8185a9cb6bd05748dd9b26e21b98f836c9c7273e"
+    },
+    {
+      "file": "summary-768.png",
+      "width": 768,
+      "sha256": "9abd27f27e6991a58cebd4c49e72fd50ce4ad38973d418d37b53dea1b89d0f31"
+    },
+    {
+      "file": "profile-768.png",
+      "width": 768,
+      "sha256": "c7eb2f0b7480fc10a2042f65b3a18df7487f455cdf74161c90cdc5e08ec19ce4"
+    },
+    {
+      "file": "inherit-768.png",
+      "width": 768,
+      "sha256": "5ecdbf9b5f0e23dda10fd3e36792b9f8ac890711015ba651ec7654ae5cf0e0e3"
+    },
+    {
+      "file": "confirm-768.png",
+      "width": 768,
+      "sha256": "115af35d03aea2419f41c4c667829bb713d8db9f71fb55e74a9b56cec66c8f33"
+    },
+    {
+      "file": "summary-390.png",
+      "width": 390,
+      "sha256": "e9a41d2ae1b3c49ed4204c99e6c412a3503e9df0e467d0d966db40176950ac89"
+    },
+    {
+      "file": "profile-390.png",
+      "width": 390,
+      "sha256": "1bc3106bd58fcae550f824c0c40634da52cad1948794c6f7f18b410aba99bbf0"
+    },
+    {
+      "file": "inherit-390.png",
+      "width": 390,
+      "sha256": "7b7a5d7e575107a3fdf92d2b722deaa95c30c901e0a84457c75dc74f1259d391"
+    },
+    {
+      "file": "confirm-390.png",
+      "width": 390,
+      "sha256": "555163a9b8fbb7d1630326393a9e77d4fe46da8e4a96a432ccc24dcdb0f9c99e"
+    },
+    {
+      "file": "summary-320.png",
+      "width": 320,
+      "sha256": "71da46c423becb930526df026545ba8b11a5ee1ab00a9e94bdb4fcaca60c4510"
+    },
+    {
+      "file": "profile-320.png",
+      "width": 320,
+      "sha256": "ae8fb2f4acf93fca5cfad7f9b0e4a2d83d49797af7ea2969e99998c175668c56"
+    },
+    {
+      "file": "inherit-320.png",
+      "width": 320,
+      "sha256": "c0f5020c348d719ed2c2f8a3d670aee50bdcc43a31926f0be72c765738f58800"
+    },
+    {
+      "file": "confirm-320.png",
+      "width": 320,
+      "sha256": "799d4fda967efc8e64a1db4865f11ab12252a3f8ebb6ceaa367dacea91af97ac"
+    }
+  ],
+  "logs": [
+    {
+      "path": ".local/inheritance-final-acceptance.log",
+      "sha256": "e5273d2d597463f764cc0260c473364e4274dd4e0af60834245611a2a6c606e9"
+    },
+    {
+      "path": ".local/inheritance-final-server.log",
+      "sha256": "eea171dce4c5d26117c831c1d019e065ce66e0036a1d393b8cc42f1a209ee5d9"
+    },
+    {
+      "path": ".local/inheritance/contracts.log",
+      "sha256": "9683e162cbb6ed3c3d42c666d2f3796845ffdb6e5d302057da2914758c0cce4e"
+    },
+    {
+      "path": ".local/inheritance/build-local.log",
+      "sha256": "80752a1917f1f9c5c839ca745325455bcd7ec82f57a594629f5551baa11e6a8a"
+    },
+    {
+      "path": ".local/inheritance/build-lan.log",
+      "sha256": "9a508de2a4091e0e14fdba07356f18415919d79d0439b577310e42a3ccaea673"
+    },
+    {
+      "path": ".local/inheritance/build-production.log",
+      "sha256": "91204874c798c7670a1ff2768f6aeff840df4ff824374f1184d1cec27b99292c"
+    }
+  ],
+  "files": {
+    "firestore.rules": "d3041993426a5380312a8ba93dc394fd967ec51e04ce1b1861447f1e20bf4aae",
+    "functions/security/policy.js": "5f663ca8e9b412bf3f489221a781209bcf1ef878c6a5142560b6f79ebee38bcd",
+    "functions/security/service.js": "cad8464bd94e6cb1afb4d50e01cdf26a427518df656fe1732c3a6b63110c75e5",
+    "src/app/core/auth/user-session.service.ts": "329f02f417303df9ba56e533ab1fba195e8e32f85aa30622603fb74c5c517c1a",
+    "src/app/features/users/components/security-console.component.css": "1dd0037f68616a629b5cbe6e0f9b08208e401e33dab74dccbb9a5bf150d968aa",
+    "src/app/features/users/components/security-console.component.html": "121bc25dadfc20ede70fe8d902e94aab50f79799d6da0da36c15ce00e14ab327",
+    "src/app/features/users/components/security-console.component.ts": "fecd6e6050580ef055b36b83646f7dcdb8649a92857b4a5811d28d867dcb4dd8",
+    "src/app/features/users/data/security.service.ts": "6e076d48d115776a01c1aafec4eccb87ab39f165525dba5080be91f8cc1d6338",
+    "src/app/features/users/data/users.repository.ts": "44aa181934f4adc19f85167f62672b7d0a5339ba4482151a74151145fd9afb42",
+    "tools/e2-r01/acceptance.spec.mjs": "53b9285432ac70718151b2415821c482dbf14645bc2e8bd73df6b874648abc55",
+    "tools/e2-r01/access.spec.mjs": "c113451514f00461a3f290de904973627f64c087764cf86768367674de4b719f",
+    "tools/e2-r01/auxiliary.spec.mjs": "245505186b06c38af94a2b88449330368e4aed45c8f9706272b3a86b8f133e48",
+    "tools/e2-r01/playwright.config.mjs": "470664c885d3d988a82404de4b0a04a828c05d9b80a4b62d52f9f1fbfea6b76b",
+    "tools/e2-r01/ui.spec.mjs": "a6c5316e205659fa4661fcc1e682a69ab0f194ca157be28452a1e77890d67e1d",
+    "tools/e2-r01/users-layout.spec.mjs": "49d3aa99b88e5160b7c0c8c388c262f4330525e6f20390952b69825049f89ded",
+    "tools/local/run.mjs": "deabc95cf7f5a97d1ff10ea0d58b3b8c515b6aa5f452ec296a4e5a305430abc6",
+    "functions/security/inheritance.js": "72a09cb0297310829d501dc2920f8e3ffa3324652fa5d3fc3a02a65139fc6463",
+    "tools/e2-r01/inheritance-server.mjs": "53bc1b26a75033b9950dada24a28cb3e596641f9d382468d4c39bcd7c22315ca",
+    "tools/e2-r01/inheritance.spec.mjs": "9d3e25cc320c25702d643e72e6a4229b9209c5c2a2c4fb011cb89894a886ca09"
+  },
+  "services": {
+    "lan": "http://192.168.42.1:4201",
+    "interface": "Wi-Fi /22",
+    "otherInterface": "Ethernet 192.168.0.49/24",
+    "sharedReset": false,
+    "isolatedStopped": true,
+    "otherComputerTest": false
+  }
+}

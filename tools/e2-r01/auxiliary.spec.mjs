@@ -15,6 +15,17 @@ test.afterEach(async()=>{await fixture?.restore();fixture=undefined;const requir
 async function login(page,actor='auxiliar'){await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption(`demo.${actor}@tecplayacar.edu.mx`);await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();}
 function track(page){const targets=[],errors=[];page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('request',r=>{if(r.url().includes('Firestore/Listen')&&r.postData())for(const [k,v] of new URLSearchParams(r.postData()))if(k.endsWith('__data__'))try{const d=JSON.parse(v);if(d.addTarget)targets.push(d.addTarget);}catch{}});return {targets,errors};}
 const none=async(page)=>{await expect(page.getByRole('button',{name:/^(Nuevo docente|Asignacion|Nueva categoria|Nueva plantilla|Cargar CSV|Guardar categoria|Guardar plantilla)$/i})).toHaveCount(0);await expect(page.locator('input[type=file]')).toHaveCount(0);};
+
+test('AUX caducidad de delegación retira datos y navegación sin otra escritura',async({page})=>{
+ fixture=await auxiliaryFixture(db,{level:'VIEW'});
+ const now=Date.now();await page.clock.install({time:now});
+ await db.doc('delegaciones/aux-regression').update({expiresAtMillis:now+600000});
+ await login(page);await page.goto('/asignaciones');await expect(page.locator('tbody')).toContainText('27-1 ADM');
+ await page.clock.fastForward(600001);
+ await expect(page).toHaveURL(/acceso-restringido$/);await expect(page.locator('nav a')).toHaveCount(0);
+ await expect(page.locator('body')).not.toContainText('DOCENTE FICTICIO 1');
+ expect((await db.doc('delegaciones/aux-regression').get()).data().status).toBe('ACTIVE');
+});
 test('AUX ámbito vacío comprobado: sin consultas imposibles ni acciones ni ceros verificados',async({page})=>{
  fixture=await auxiliaryFixture(db,{empty:true,capabilities:['VALIDATE_TEACHERS','MANAGE_MOODLE_TEMPLATES','CONFIRM_MOODLE_UPDATE']});const tracked=track(page);await login(page);
  for(const route of ['docentes','asignaciones','moodle']){

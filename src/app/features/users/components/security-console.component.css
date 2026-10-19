@@ -126,3 +126,26 @@ legend { max-width:100%; padding:0 7px; font-size:14px; color:#102c5c; font-weig
   fieldset { padding:10px; }
 }
 .metric-icon svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.6; }
+
+/* Directory and person-centered workflows, E2-R01. */
+.directory-hero { display:flex; justify-content:space-between; gap:20px; align-items:center; }
+.directory-hero .panel-actions { margin:0; flex-wrap:wrap; }
+.users-metrics { grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:14px; }
+.directory-filters { display:grid; grid-template-columns:minmax(0,1fr) minmax(140px,220px); gap:16px; padding:16px; }
+.special-capabilities { grid-column:1/-1; border-left:4px solid #28bfd8; padding:12px; background:#f1f8ff; }
+.special-capabilities summary { cursor:pointer; font-weight:800; padding:10px; }
+.security-dialog .access-card { min-width:0; }
+.security-dialog .assignment-fields { grid-template-columns:1fr; }
+@media(max-width:900px) { .directory-hero { flex-direction:column; align-items:stretch; } .users-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { .directory-filters { grid-template-columns:1fr; } .directory-hero .panel-actions button { width:100%; } }
+
+.inheritance-columns { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.inheritance-result { padding:16px; background:#eff7ff; border:1px solid #c5dbf6; border-radius:8px; min-width:0; }
+.inheritance-columns section { min-width:0; }
+.replacement-choice { display:flex; align-items:flex-start; gap:10px; }
+.replacement-choice input { width:auto; flex:0 0 auto; }
+@media(max-width:700px) { .inheritance-columns { grid-template-columns:1fr; } }
+
+.directory-hero button.card-create { margin-top:0; min-height:44px; background:#4ac9ed; border-color:#4ac9ed; font-size:12px; }
+.directory-hero .panel-actions { align-items:center; }
+.directory-hero .panel-actions button { min-height:44px; }

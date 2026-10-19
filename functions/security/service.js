@@ -1,6 +1,7 @@
 'use strict';
 const { createHash } = require('node:crypto');
 const P = require('./policy');
+const Inheritance = require('./inheritance');
 const COLLECTIONS = ['usuarios', 'roles_personalizados', 'delegaciones', 'asignaciones_roles', 'revisiones_roles', 'mapeos_permisos'];
 const stable = value => JSON.stringify(value, (_key, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map(k => [k, v[k]])) : v);
 const hash = value => createHash('sha256').update(stable(value)).digest('hex');
@@ -30,7 +31,7 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         saveUser: 'MANAGE_USERS', deleteUser: 'MANAGE_USERS', saveRole: 'MANAGE_CUSTOM_ROLE_DEFINITIONS', deleteRole: 'MANAGE_CUSTOM_ROLE_DEFINITIONS',
         grantDelegation: 'MANAGE_SYSTEM_DELEGATIONS', revokeDelegation: 'MANAGE_SYSTEM_DELEGATIONS', suspendDelegation: 'MANAGE_SYSTEM_DELEGATIONS',
         assignRole: 'MANAGE_CUSTOM_ROLES', removeRole: 'MANAGE_CUSTOM_ROLES', resolveReview: 'RESOLVE_AUX_ROLE_REVIEWS',
-        approveMapping: 'MANAGE_USERS', previewMigration: 'MANAGE_USERS', applyMigration: 'MANAGE_USERS',
+        previewInheritance: 'MANAGE_USERS', applyInheritance: 'MANAGE_USERS', approveMapping: 'MANAGE_USERS', previewMigration: 'MANAGE_USERS', applyMigration: 'MANAGE_USERS',
       }[data.action];
       P.assert(required, 'Operación desconocida.', 'invalid-argument');
       P.requireCapability(actor, required);
@@ -39,7 +40,7 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         P.assert(previous.data().requestHash === hash(data), 'Identificador de reintento reutilizado con datos distintos.', 'already-exists');
         return previous.data().result;
       }
-      const reason = String(data.reason ?? '').trim();
+      const reason = data.action === 'previewInheritance' ? 'Consultar vista previa de herencia' : String(data.reason ?? '').trim();
       P.assert(reason.length >= 4 && reason.length <= 1000, 'Indica un motivo (4–1000 caracteres).', 'invalid-argument');
       const serverMillis = nowMillis();
       const now = new Date(serverMillis).toISOString();
@@ -57,11 +58,15 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         previewRef = db.doc(`previews_permisos/${id(data.previewId)}`);
         preview = (await tx.get(previewRef)).data();
       }
+      if (data.action === 'applyInheritance') {
+        previewRef = db.doc('previews_herencia/' + id(data.previewId));
+        preview = (await tx.get(previewRef)).data();
+      }
       function recompute(userId) {
         const user = state.usuarios[userId];
         if (user.baseRole === 'ADMIN_OPERATIVO') {
           const grant = state.delegaciones[user.delegationId];
-          const live = grant?.status === 'ACTIVE' && grant.userId === userId;
+          const live = grant?.status === 'ACTIVE' && grant.userId === userId && P.grantCurrent(grant, serverMillis);
           const permissions = live ? grant.permissions : P.levels();
           write('usuarios', userId, { ...user, permissions, capabilities: live ? grant.capabilities : [], scope: live ? grant.scope : P.scope(), access: Object.fromEntries(P.MODULES.map(k => [k, permissions[k] !== 'NONE'])) });
           return;
@@ -78,6 +83,25 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         write('usuarios', userId, { ...user, permissions, capabilities: [...new Set(capabilities)], scope, access: Object.fromEntries(P.MODULES.map(k => [k, permissions[k] !== 'NONE'])) });
       }
       switch (data.action) {
+        case 'previewInheritance': {
+          const plan = Inheritance.plan(state, auth.uid, id(data.sourceId), targetId, data.replace, serverMillis);
+          result.inheritancePreview = {...plan.review, previewId:operationId, generatedAt:now,
+            expiresAtMillis:Math.min(serverMillis + 5 * 60000, plan.review.proposed.expiresAtMillis ?? Infinity)};
+          tx.create(db.doc('previews_herencia/' + operationId), {...result.inheritancePreview, operatorId:auth.uid, fingerprint:plan.fingerprint});
+          break;
+        }
+        case 'applyInheritance': {
+          // Re-read time after the awaited preview read: I/O may cross its deadline.
+          const confirmationMillis = nowMillis();
+          P.assert(preview && preview.operatorId===auth.uid && preview.targetId===targetId && !preview.appliedAt && preview.expiresAtMillis>confirmationMillis, 'HERENCIA_PREVIEW_OBSOLETA: genera una nueva vista previa.', 'aborted');
+          const plan = Inheritance.plan(state, auth.uid, preview.sourceId, targetId, preview.replace, confirmationMillis);
+          P.assert(plan.fingerprint===preview.fingerprint, 'HERENCIA_PREVIEW_OBSOLETA: cambió una condición relevante.', 'aborted');
+          Object.assign(result, Inheritance.apply(state, plan, auth.uid, operationId, now, write));
+          P.assert(COLLECTIONS.reduce((n,c)=>n+Object.keys(state[c]).length,0)<=200, 'La herencia excedería el límite administrativo de 200 documentos.', 'resource-exhausted');
+          result.reviewIds = Object.values(state.revisiones_roles).filter(r=>hash(r)!==hash(beforeState.revisiones_roles[r.id]??null)).map(r=>r.id);
+          tx.update(previewRef,{appliedAt:now,appliedBy:auth.uid});
+          break;
+        }
         case 'saveUser': {
           requireRevision(target, data.expectedRevision);
           const input = data.value;
@@ -88,15 +112,18 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
           P.assert(target?.baseRole !== 'ADMIN_OPERATIVO' || input.baseRole === 'ADMIN_OPERATIVO' || !Object.values(state.delegaciones).some(d => d.userId === targetId && d.status === 'ACTIVE'), 'Revoca la delegación antes de cambiar el rol base del auxiliar.', 'failed-precondition');
           P.assert(!Object.values(state.usuarios).some(u => u.id !== targetId && !u.identityAliasOf && u.email === input.email), 'El correo ya tiene perfil.', 'already-exists');
           P.assert(!target?.authUid || target.email === input.email, 'La identidad vinculada no se cambia desde permisos.');
-          const permissions = input.baseRole === 'ADMIN_GENERAL' ? P.levels(Object.fromEntries(P.MODULES.map(k => [k, 'EDIT']))) : input.baseRole === 'ADMIN_OPERATIVO' ? P.levels() : P.customDefinition(input).permissions;
+          let permissions = input.baseRole === 'ADMIN_GENERAL' ? P.levels(Object.fromEntries(P.MODULES.map(k => [k, 'EDIT']))) : input.baseRole === 'ADMIN_OPERATIVO' ? P.levels() : P.customDefinition(input).permissions;
+          if (target?.baseRole === input.baseRole && target.basePermissions && hash(P.levels(input.permissions)) === hash(P.levels(target.permissions))) permissions = P.levels(target.basePermissions);
+          const baseCapabilities = ['ADMIN_GENERAL','ADMIN_OPERATIVO'].includes(input.baseRole) ? P.list(target?.baseCapabilities) : P.list(target && hash(P.list(input.capabilities).sort()) === hash(P.list(target.capabilities).sort()) ? target.baseCapabilities ?? target.capabilities : input.capabilities ?? target?.baseCapabilities ?? target?.capabilities);
+          P.assert(['ADMIN_GENERAL','ADMIN_OPERATIVO'].includes(input.baseRole) || baseCapabilities.every(c=>c===P.REQUEST_CAPABILITY), 'Facultades incompatibles con el perfil.');
           const newScope = P.scope(input.scope ?? { programs: input.assignedPrograms });
           const area = String(input.area ?? target?.area ?? '').trim();
           P.assert(area.length >= 2 && area.length <= 160, 'Registra el área institucional real del perfil.', 'invalid-argument');
           P.assert(!Object.values(permissions).some(level => level !== 'NONE') || Object.values(state.asignaciones_roles).filter(a => a.userId === targetId && a.status === 'ACTIVE').every(a => hash(a.scope) === hash(newScope)), 'El ámbito base no coincide con los roles activos.', 'failed-precondition');
           P.assert(!['ADMIN_GENERAL', 'ADMIN_OPERATIVO'].includes(input.baseRole) || !Object.values(state.asignaciones_roles).some(a => a.userId === targetId && a.status === 'ACTIVE'), 'Retira los roles personalizados antes de cambiar a un perfil administrativo.', 'failed-precondition');
-          const changedPrivileges = !target || hash([target.baseRole, target.role, target.status, target.basePermissions, target.baseScope, target.assignedPrograms]) !== hash([input.baseRole, input.role ?? input.baseRole, input.status, permissions, newScope, P.list(input.assignedPrograms)]);
+          const changedPrivileges = !target || hash([target.baseRole, target.role, target.status, target.basePermissions, target.baseScope, target.assignedPrograms, target.baseCapabilities ?? []]) !== hash([input.baseRole, input.role ?? input.baseRole, input.status, permissions, newScope, P.list(input.assignedPrograms), baseCapabilities]);
           P.assert(targetId !== auth.uid || !changedPrivileges, 'El propio acceso requiere otro administrador.');
-          write('usuarios', targetId, { ...target, authUid: target?.authUid ?? null, area, name: input.name.trim(), email: input.email, role: input.role ?? input.baseRole, greetingGender: input.greetingGender ?? 'Femenino', baseRole: input.baseRole, status: input.status, permissionSchemaVersion: 2, assignedPrograms: P.list(input.assignedPrograms), permissions, basePermissions: permissions, scope: newScope, baseScope: newScope, baseCapabilities: [], capabilities: [], createdAt: target?.createdAt ?? now });
+          write('usuarios', targetId, { ...target, authUid: target?.authUid ?? null, area, name: input.name.trim(), email: input.email, role: input.role ?? input.baseRole, greetingGender: input.greetingGender ?? 'Femenino', baseRole: input.baseRole, status: input.status, permissionSchemaVersion: 2, assignedPrograms: P.list(input.assignedPrograms), permissions, basePermissions: permissions, scope: newScope, baseScope: newScope, baseCapabilities, capabilities: baseCapabilities, createdAt: target?.createdAt ?? now });
           recompute(targetId);
           break;
         }
@@ -261,6 +288,7 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         result.delegaciones = []; result.revisiones_roles = [];
         result.roles_personalizados = result.roles_personalizados.filter(r => { try { P.canAssign(actor, auth.uid, 'candidate', { permissionSchemaVersion: 2, assignedPrograms: actor.scope.programs, baseRole: 'CUSTOM' }, r); return r.status === 'ACTIVE' && typeof r.approvedBy === 'string'; } catch { return false; } });
       }
+      result.usuarios = result.usuarios.map(u => ({...u, effectiveAccess:P.effective(u,result.delegaciones.find(g=>g.id===u.delegationId),{nowMillis:nowMillis()})}));
       return result;
     });
   }

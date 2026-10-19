@@ -25,6 +25,8 @@ export interface ModuleAccess {
 
 export type EffectiveLevel = 'NONE' | 'VIEW' | 'EDIT';
 export interface AppUser {
+  /** Read-only authorized directory projection; never written by the editor. */
+  effectiveAccess?: {permissions: Partial<Record<keyof ModuleAccess, EffectiveLevel>>; capabilities:string[]; scope:AppUser['scope']; active:boolean};
   area?: string;
   baseRole?: 'ADMIN_GENERAL' | 'ADMIN_OPERATIVO' | 'COORDINACION_ACADEMICA' | 'ALTA_DOCENTES' | 'CUSTOM' | 'PENDING';
   permissionSchemaVersion?: number;

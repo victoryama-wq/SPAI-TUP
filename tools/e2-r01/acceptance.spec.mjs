@@ -118,7 +118,7 @@ test('T11 revocación: siguientes operaciones denegadas y rol del destinatario a
   await command(admin,{action:'saveUser',targetId:'acceptance-recipient',expectedRevision:0,value:{name:'Destinatario ficticio',email:'demo.destinatario@tecplayacar.edu.mx',area:'Pruebas R01',baseRole:'CUSTOM',status:'Activo',permissions:{},assignedPrograms:['ADM'],scope:P.scope({programs:['ADM'],cycles:['27-1']})}});
   const role=(await db.collection('roles_personalizados').where('name','==','PRUEBA-R01-Consulta').get()).docs[0];
   const assigned=await command(aux,{action:'assignRole',targetId:'acceptance-recipient',expectedRevision:(await db.doc('usuarios/acceptance-recipient').get()).data().revision,roleId:role.id,roleRevision:role.data().revision});
-  await login(page,'demo.auxiliar@tecplayacar.edu.mx');await page.goto('/usuarios');await page.getByRole('button',{name:'Roles asignados',exact:true}).click();await expect(page.getByRole('heading',{name:'Asignar un rol preaprobado'})).toBeVisible();
+  await login(page,'demo.auxiliar@tecplayacar.edu.mx');await page.goto('/usuarios');await page.getByRole('row').filter({hasText:'demo.coordinacion.a@'}).getByRole('button',{name:'Ver acceso',exact:true}).click();await expect(page.getByRole('heading',{name:'Asignar un rol preaprobado'})).toBeVisible();
   const revoked=await command(admin,{action:'revokeDelegation',targetId:grant.delegationId,expectedRevision:1});
   await expect(page.locator('.security-panel')).toHaveCount(0);
   await denied(()=>getDocFromServer(doc(aux.db,'asignaciones/demo-asignacion-a')));
@@ -136,10 +136,10 @@ test('T11 revocación: siguientes operaciones denegadas y rol del destinatario a
 });
 for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`CO-11 formulario y roles accesibles ${width}x${height}`,async({page})=>{
  await page.setViewportSize({width,height});await login(page,'demo.sistemas@tecplayacar.edu.mx');await page.goto('/usuarios');
- const opener=page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true});await expect(opener).toBeVisible();
+ const opener=page.locator('.panel-actions').getByRole('button',{name:'Nuevo usuario',exact:true});await expect(opener).toBeVisible();
  await page.screenshot({path:resolve(evidence,`directorio-usuarios-after-${width}.png`),fullPage:true});
  await opener.click();const dialog=page.getByRole('dialog');
- for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Ciclos (códigos separados por coma)','Docentes (identidades verificadas, separadas por coma)','Motivo del cambio']){
+ for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Ciclos (códigos separados por coma)','Docentes (identidades verificadas, separadas por coma)','Campos extraordinarios permitidos']){
   const field=['Perfil','Saludo','Estado'].includes(label)?dialog.getByRole('combobox',{name:label,exact:true}):dialog.getByLabel(label,{exact:true});await field.focus();await expect(field).toBeFocused();await expect(field).toBeInViewport();
  }
  const body=dialog.locator('.editor-body');await body.evaluate(el=>el.scrollTop=0);
@@ -148,10 +148,10 @@ for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`
  await expect(dialog.locator('.editor-heading')).toBeInViewport();await expect(dialog.locator('.editor-actions')).toBeInViewport();
  await page.screenshot({path:resolve(evidence,`usuarios-after-${width}.png`),fullPage:true});
  await page.keyboard.press('Escape');await expect(opener).toBeFocused();
- await page.getByRole('button',{name:'Administrar roles personalizados',exact:true}).click();await expect(dialog.locator('form')).toHaveCount(0);
+ await page.getByRole('button',{name:'Roles personalizados',exact:true}).click();await expect(dialog.locator('form')).toHaveCount(0);
  await page.screenshot({path:resolve(evidence,`directorio-roles-after-${width}.png`),fullPage:true});
  await dialog.getByRole('button',{name:'Crear rol',exact:true}).click();await dialog.getByLabel('Nombre',{exact:true}).fill('Solo inspección; cancelar');
- const row=dialog.locator('.permission-row').filter({hasText:'asignaciones'});
+ const row=dialog.locator('.permission-row').filter({hasText:'Asignaciones'});
  await row.getByLabel('Editar',{exact:true}).check();await expect(row.getByLabel('Consultar',{exact:true})).toBeChecked();await row.getByLabel('Consultar',{exact:true}).uncheck();await expect(row.getByLabel('Editar',{exact:true})).not.toBeChecked();
  await page.screenshot({path:resolve(evidence,`roles-after-${width}.png`),fullPage:true});
  await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();

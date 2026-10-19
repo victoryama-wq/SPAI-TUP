@@ -18,12 +18,13 @@ service cloud.firestore {
   function safeList(d, key) { return d.get(key, []) is list ? d.get(key, []) : []; }
   function safeMap(d, key) { return d.get(key, {}) is map ? d.get(key, {}) : {}; }
   function safeScope(s) { return {'programs': safeList(s, 'programs'), 'cycles': safeList(s, 'cycles'), 'teachers': safeList(s, 'teachers'), 'fields': safeList(s, 'fields')}; }
+  function grantCurrent(grant) { return grant.get('expiresAtMillis', null) == null || (grant.get('expiresAtMillis', 0) is int && grant.get('expiresAtMillis', 0) > request.time.toMillis()); }
   function user() {
     let u = rawUser(); let id = u.get('delegationId', '_none') is string ? u.get('delegationId', '_none') : '_none';
     let path = /databases/$(database)/documents/delegaciones/$(id);
     let aux = u.get('baseRole', '') == 'ADMIN_OPERATIVO';
     let grant = aux && id is string && id != '_none' && exists(path) ? get(path).data : {};
-    return !aux ? u : (grant.get('status', '') == 'ACTIVE' && grant.get('userId', '') == request.auth.uid
+    return !aux ? u : (grant.get('status', '') == 'ACTIVE' && grant.get('userId', '') == request.auth.uid && grantCurrent(grant)
       ? {'status': u.get('status', ''), 'permissionSchemaVersion': u.get('permissionSchemaVersion', 0),
          'identityAliasOf': u.get('identityAliasOf', null), 'baseRole': 'ADMIN_OPERATIVO', 'delegationId': id,
          'permissions': safeMap(grant, 'permissions'), 'scope': safeScope(safeMap(grant, 'scope')), 'capabilities': safeList(grant, 'capabilities')}
@@ -34,7 +35,7 @@ service cloud.firestore {
   function general() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_GENERAL'; }
   function auxiliary() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_OPERATIVO'; }
   function delegation() { let grantId = user().get('delegationId', '_none'); return grantId != '_none' && exists(/databases/$(database)/documents/delegaciones/$(grantId)) ? get(/databases/$(database)/documents/delegaciones/$(grantId)).data : {}; }
-  function grantActive(u) { let grantId = u.get('delegationId', '_none'); let grant = grantId != '_none' && exists(/databases/$(database)/documents/delegaciones/$(grantId)) ? get(/databases/$(database)/documents/delegaciones/$(grantId)).data : {}; return grant.get('status', '') == 'ACTIVE' && grant.get('userId', '') == request.auth.uid; }
+  function grantActive(u) { let grantId = u.get('delegationId', '_none'); let grant = grantId != '_none' && exists(/databases/$(database)/documents/delegaciones/$(grantId)) ? get(/databases/$(database)/documents/delegaciones/$(grantId)).data : {}; return grant.get('status', '') == 'ACTIVE' && grant.get('userId', '') == request.auth.uid && grantCurrent(grant); }
   function delegated() { let u = user(); return valid(u) && u.get('baseRole', '') == 'ADMIN_OPERATIVO'; }
   function permissions() { return auxiliary() ? delegation().get('permissions', {}) : user().get('permissions', {}); }
   function hasModule(u, key, edit) {

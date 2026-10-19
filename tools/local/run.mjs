@@ -138,7 +138,7 @@ try {
       await runNode(['tools/stage1/rules.mjs']);
     }
     await runNode(['tools/local/tests/reset.mjs']);
-      if (process.argv.includes('--r01') && isolatedTest) { await runNode(['tools/e2-r01/auxiliary-server.mjs']); await runNode(['tools/e2-r01/access-server.mjs']); }
+      if (process.argv.includes('--r01') && isolatedTest) { await runNode(['tools/e2-r01/auxiliary-server.mjs']); await runNode(['tools/e2-r01/access-server.mjs']); await runNode(['tools/e2-r01/inheritance-server.mjs']); }
     if (process.argv.includes('--ui')) {
       if (isolatedTest) await runNode(['tools/e2-r01/prepare-demo.mjs']);
       await runNode(['node_modules/@playwright/test/cli.js', 'test', '--config', 'tools/e2-r01/playwright.config.mjs']);

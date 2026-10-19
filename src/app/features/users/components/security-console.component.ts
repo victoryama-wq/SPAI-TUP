@@ -4,7 +4,7 @@ import { Component, computed, effect, inject, signal, ElementRef, viewChild } fr
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AppUser, EffectiveLevel, ModuleAccess } from '../data/users.repository';
-import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, MigrationPreview } from '../data/security.service';
+import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, MigrationPreview, InheritancePreview } from '../data/security.service';
 
 @Component({
   host: { '(window:focus)': 'refreshDirectory()' },
@@ -27,12 +27,15 @@ export class SecurityConsoleComponent {
   private dialogOpener: HTMLElement | null = null;
   readonly general = computed(() => this.session.session()?.appUser?.baseRole === 'ADMIN_GENERAL');
   readonly modules = SECURITY_MODULES;
+  readonly moduleLabels: Record<string,string> = {dashboard:'Dashboard',usuarios:'Usuarios',ciclos:'Ciclos académicos',nomenclaturas:'Nomenclaturas',grupos:'Grupos',docentes:'Docentes',asignaturas:'Asignaturas',asignaciones:'Asignaciones',solicitudes:'Solicitudes',ligasMeet:'Ligas Meet',moodle:'Moodle',bitacora:'Bitácora'};
+  levelLabel(level?: string): string { return level === 'EDIT' ? 'Consultar y editar' : level === 'VIEW' ? 'Consultar' : 'Sin acceso'; }
+
   readonly baseRoles = ['COORDINACION_ACADEMICA', 'ALTA_DOCENTES', 'ADMIN_OPERATIVO', 'ADMIN_GENERAL', 'CUSTOM'] as const;
-  readonly roleLabels: Record<string, string> = { COORDINACION_ACADEMICA: 'Coordinación Académica', ALTA_DOCENTES: 'Alta de Docentes', ADMIN_OPERATIVO: 'Auxiliar de Sistemas', ADMIN_GENERAL: 'Administración de Sistemas', CUSTOM: 'Acceso personalizado' };
+  readonly roleLabels: Record<string, string> = { COORDINACION_ACADEMICA: 'Coordinación Académica', ALTA_DOCENTES: 'Alta de Docentes', ADMIN_OPERATIVO: 'Auxiliar de Sistemas', ADMIN_GENERAL: 'Administración de Sistemas', CUSTOM: 'Acceso personalizado', PENDING: 'Sin configurar' };
   readonly capabilities = ['MANAGE_CUSTOM_ROLES', 'VALIDATE_TEACHERS', 'MANAGE_CYCLES', 'CONFIRM_MOODLE_UPDATE', 'MANAGE_MOODLE_TEMPLATES', 'RECOVER_DELETED_RECORDS', 'PURGE_CYCLE', 'OPERATE_EXCEPTIONAL_CHANGE', 'REQUEST_TEACHER_MOODLE_IDENTITY'];
-  readonly capabilityLabels: Record<string, string> = { MANAGE_CUSTOM_ROLES: 'Asignar roles preaprobados', VALIDATE_TEACHERS: 'Validar docentes', MANAGE_CYCLES: 'Administrar ciclos', CONFIRM_MOODLE_UPDATE: 'Confirmar actualización Moodle', MANAGE_MOODLE_TEMPLATES: 'Administrar plantillas Moodle', RECOVER_DELETED_RECORDS: 'Recuperar registros (flujo posterior)', PURGE_CYCLE: 'Depurar ciclos (flujo posterior)', OPERATE_EXCEPTIONAL_CHANGE: 'Corrección extraordinaria', REQUEST_TEACHER_MOODLE_IDENTITY: 'Solicitar corrección de identidad docente (flujo posterior)' };
+  readonly capabilityLabels: Record<string, string> = { MANAGE_USERS:'Administrar perfiles institucionales', MANAGE_CUSTOM_ROLE_DEFINITIONS:'Administrar definiciones de roles', MANAGE_SYSTEM_DELEGATIONS:'Administrar delegaciones', RESOLVE_AUX_ROLE_REVIEWS:'Resolver revisiones de roles', CORRECT_TEACHER_MOODLE_IDENTITY:'Corregir identidad docente', MANAGE_CUSTOM_ROLES: 'Asignar roles preaprobados', VALIDATE_TEACHERS: 'Validar docentes', MANAGE_CYCLES: 'Administrar ciclos', CONFIRM_MOODLE_UPDATE: 'Confirmar actualización Moodle', MANAGE_MOODLE_TEMPLATES: 'Administrar plantillas Moodle', RECOVER_DELETED_RECORDS: 'Recuperar registros (flujo posterior)', PURGE_CYCLE: 'Depurar ciclos (flujo posterior)', OPERATE_EXCEPTIONAL_CHANGE: 'Corrección extraordinaria', REQUEST_TEACHER_MOODLE_IDENTITY: 'Solicitar corrección de identidad docente (flujo posterior)' };
   busy = false; error = ''; message = ''; reason = '';
-  mode: 'user' | 'role' | 'delegation' | 'operation' | 'preview' | null = null;
+  mode: 'user' | 'role' | 'delegation' | 'operation' | 'preview' | 'person' | 'reviews' | 'regularize' | 'inherit' | null = null;
   section: 'summary' | 'assignments' | 'delegations' | 'reviews' = 'summary';
   operation: { request: Record<string, unknown>; title: string; recipient: string; replace?: boolean } | null = null;
   readonly actionLabels: Record<string,string> = {assignRole:'Asignar rol',removeRole:'Retirar rol asignado',deleteRole:'Retirar definición',suspendDelegation:'Suspender delegación',revokeDelegation:'Revocar delegación',resolveReview:'Resolver revisión',approveMapping:'Registrar correspondencia',previewMigration:'Consultar vista previa',applyMigration:'Aplicar migración'};
@@ -69,6 +72,7 @@ export class SecurityConsoleComponent {
   closeEditor(): void {
     this.editorDialog()?.nativeElement.close();
     this.selectedUserId = ''; this.selectedRoleId = ''; this.mappingRole = ''; this.preview = null;
+    this.inheritancePreview = null; this.sourceId = ''; this.destinationId = ''; this.replaceAccess = false;
     this.mode = null; this.roleDirectory = false; this.operation = null; this.confirmation = null; this.reason = ''; this.pendingRequest = null;
     queueMicrotask(() => {
       if (!this.mode && !this.roleDirectory) {
@@ -101,14 +105,16 @@ export class SecurityConsoleComponent {
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
     if (!this.general()) return;
-    this.rememberOpener(); this.operation = null; this.confirmation = null; this.preview = null; this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? randomId(); this.expectedRevision = record?.revision ?? 0;
+    this.rememberOpener(); this.inheritancePreview = null; this.operation = null; this.confirmation = null; this.preview = null; this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? randomId(); this.expectedRevision = record?.revision ?? 0;
     this.name = record?.name ?? ''; this.email = (record as AppUser)?.email ?? '';
     this.area = (record as AppUser)?.area ?? '';
     this.greetingGender = (record as AppUser)?.greetingGender ?? 'Femenino';
-    this.baseRole = (record as AppUser)?.baseRole ?? 'COORDINACION_ACADEMICA'; this.status = record?.status ?? 'Activo';
-    this.permissions = { ...(record?.permissions ?? {}) }; this.selectedCapabilities = [...(record?.capabilities ?? [])];
-    this.programs = record?.scope?.programs.join(', ') ?? (record as AppUser)?.assignedPrograms?.join(', ') ?? '';
-    this.cycles = record?.scope?.cycles.join(', ') ?? ''; this.teachers = record?.scope?.teachers.join(', ') ?? ''; this.fields = record?.scope?.fields.join(', ') ?? '';
+    this.baseRole = (record as AppUser)?.baseRole ?? 'CUSTOM'; this.status = record?.status ?? 'Activo';
+    const access = mode === 'user' && ['ADMIN_OPERATIVO','ADMIN_GENERAL'].includes(this.baseRole ?? '') ? (record as AppUser)?.effectiveAccess ?? record : record;
+    this.permissions = { ...(access?.permissions ?? {}) }; this.selectedCapabilities = [...(access?.capabilities ?? [])];
+    this.programs = access?.scope?.programs.join(', ') ?? (record as AppUser)?.assignedPrograms?.join(', ') ?? '';
+    this.cycles = access?.scope?.cycles.join(', ') ?? ''; this.teachers = access?.scope?.teachers.join(', ') ?? ''; this.fields = access?.scope?.fields.join(', ') ?? '';
+    if (mode === 'delegation') { this.permissions = {}; this.selectedCapabilities = []; this.programs = ''; this.cycles = ''; this.teachers = ''; this.fields = ''; }
     this.reason = ''; this.error = ''; this.pendingRequest = null;
   }
   setPermission(key: keyof ModuleAccess, edit: boolean, checked: boolean): void {
@@ -117,9 +123,14 @@ export class SecurityConsoleComponent {
   }
   quickPermissions(all: boolean): void { this.permissions = Object.fromEntries(this.modules.map(k => [k, all && !['usuarios', 'ciclos', 'moodle', 'bitacora'].includes(k) ? 'VIEW' : 'NONE'])); }
   toggleCapability(cap: string, checked: boolean): void { this.selectedCapabilities = checked ? [...new Set([...this.selectedCapabilities, cap])] : this.selectedCapabilities.filter(c => c !== cap); }
+  baseRoleChanged(): void {
+    if (this.baseRole === 'ADMIN_GENERAL') { this.permissions=Object.fromEntries(this.modules.map(k=>[k,'EDIT'])); this.selectedCapabilities=[...this.capabilities]; }
+    else if (this.baseRole === 'ADMIN_OPERATIVO') { this.permissions={}; this.selectedCapabilities=[]; }
+    this.reason=''; this.pendingRequest=null;
+  }
   private values(value: string): string[] { return [...new Set(value.split(',').map(v => v.trim()).filter(Boolean))]; }
   async save(): Promise<void> {
-    if (!this.general() || !this.mode || (this.mode === 'operation' || this.mode === 'preview')) return;
+    if (!this.general() || !['user','role','delegation'].includes(this.mode ?? '')) return;
     const scope = { programs: this.values(this.programs), cycles: this.values(this.cycles), teachers: this.values(this.teachers), fields: this.values(this.fields) };
     await this.run({ action: this.mode === 'user' ? 'saveUser' : this.mode === 'role' ? 'saveRole' : 'grantDelegation', targetId: this.targetId, expectedRevision: this.expectedRevision, value: { greetingGender: this.greetingGender, area: this.area.trim(), name: this.name, email: this.email.trim().toLowerCase(), role: this.roleLabels[this.baseRole ?? 'CUSTOM'], baseRole: this.baseRole, status: this.status, permissions: this.permissions, capabilities: this.selectedCapabilities, scope, assignedPrograms: scope.programs } });
   }
@@ -159,8 +170,9 @@ export class SecurityConsoleComponent {
   }
   async run(request: Record<string, unknown>): Promise<void> {
     if (this.busy) return;
-    if (this.reason.trim().length < 4) { this.error = 'Escribe un motivo antes de revisar y confirmar.'; return; }
+
     const impacts: Record<string,string> = {
+      applyInheritance: 'Copia exactamente la configuración revisada. No cambia identidad ni estado personal. Retira la configuración anterior si se autorizó reemplazo y conserva su historial. La vista previa vence en cinco minutos o al terminar la vigencia del origen; el servidor rechaza cambios posteriores.',
       deleteRole: 'La definición dejará de estar disponible para nuevas asignaciones; se conserva su historial. El servidor rechaza el retiro si tiene asignaciones vigentes.',
       approveMapping: 'Registra una correspondencia verificada. Para un perfil heredado inicia la transición temporal vigente de siete días; no sustituye la migración explícita.',
       previewMigration: 'Genera una vista previa auditable; todavía no modifica los permisos del perfil.',
@@ -179,7 +191,8 @@ export class SecurityConsoleComponent {
   async confirmChange(): Promise<void> {
     const draft = this.confirmation;
     if (!draft || this.busy || draft.generation !== this.sessionGeneration) return;
-    const {command,generation} = draft, serialized = JSON.stringify(command);
+    if (this.reason.trim().length < 4) { this.error = 'Indica un motivo de al menos cuatro caracteres.'; return; }
+    const generation = draft.generation, command = {...draft.command,reason:this.reason.trim()}, serialized = JSON.stringify(command);
     if (!this.pendingRequest || this.pendingRequest['draft'] !== serialized) this.pendingRequest = {draft:serialized,operationId:randomId()};
     this.busy = true; this.error = ''; this.message = '';
     try {
@@ -196,5 +209,54 @@ export class SecurityConsoleComponent {
       if (generation === this.sessionGeneration) { this.error = this.errorText(e); this.confirmation = null; this.showDialog(); }
     } finally { if (generation === this.sessionGeneration) this.busy = false; }
   }
+  search = ''; statusFilter = '';
+  readonly coordinators = computed(() => this.profiles().filter(u => u.baseRole === 'COORDINACION_ACADEMICA'));
+  readonly availableRoles = computed(() => this.directory()?.roles_personalizados.filter(r => r.status === 'ACTIVE') ?? []);
+  filteredProfiles(): AppUser[] { const q=this.search.trim().toLocaleLowerCase(); return this.profiles().filter(u => (!this.statusFilter || u.status === this.statusFilter) && `${u.name} ${u.email} ${this.roleLabels[u.baseRole ?? ''] ?? ''}`.toLocaleLowerCase().includes(q)); }
+  selectedPerson(): AppUser | undefined { return this.profiles().find(u => u.id === this.selectedUserId); }
+  personAssignments(): SecurityRecord[] { return this.directory()?.asignaciones_roles.filter(a => a.userId === this.selectedUserId) ?? []; }
+  activePersonAssignments(): number { return this.personAssignments().filter(a => a.status === 'ACTIVE').length; }
+  personDelegations(): SecurityRecord[] { return this.directory()?.delegaciones.filter(a => a.userId === this.selectedUserId) ?? []; }
+  accessSummary(user: AppUser, compact = true): string {
+    if (!user) return '';
+    if (user.status !== 'Activo') return 'Cuenta inactiva';
+    if (user.permissionSchemaVersion !== 2) return 'Requiere regularización';
+    if (user.effectiveAccess && !user.effectiveAccess.active) return 'Sin autorización vigente';
+    if (user.baseRole === 'ADMIN_GENERAL') return 'Módulos institucionales';
+    const grant=this.directory()?.delegaciones.find(g => g.id === user.delegationId && g.status === 'ACTIVE');
+    const permissions=user.effectiveAccess?.permissions ?? (user.baseRole === 'ADMIN_OPERATIVO' ? grant?.permissions : user.permissions);
+    const entries=Object.entries(permissions ?? {}).filter(([,v]) => v==='VIEW' || v==='EDIT');
+    return entries.length ? (compact ? entries.slice(0,3).map(([k])=>this.moduleLabels[k]).join(', ') + (entries.length>3 ? ' y '+(entries.length-3)+' más; ver ficha' : '') : entries.map(([k,v])=>this.moduleLabels[k]+' ('+this.levelLabel(v)+')').join(', ')) : 'Sin módulos vigentes';
+  }
+  openPerson(user: AppUser): void { this.rememberOpener(); this.closeEditor(); this.selectedUserId=user.id; this.mode='person'; this.showDialog(); }
+  openReviews(): void { if (!this.general()) return; this.rememberOpener(); this.closeEditor(); this.mode='reviews'; this.showDialog(); }
+  regularize(): void { if (!this.general()) return; this.mappingRole=''; this.reason=''; this.mode='regularize'; this.showDialog(); }
+  sourceId = ''; destinationId = ''; replaceAccess = false;
+  inheritancePreview: InheritancePreview | null = null;
+  inheritanceSource(): AppUser | undefined { return this.profiles().find(u => u.id === this.sourceId); }
+  inheritanceGrant(): SecurityRecord | undefined { return this.directory()?.delegaciones.find(g => g.id === this.inheritanceSource()?.delegationId); }
+  inheritanceRoles(): SecurityRecord[] { return this.directory()?.asignaciones_roles.filter(a => a.userId === this.sourceId && a.status === 'ACTIVE') ?? []; }
+  isOwnIdentity(user: AppUser): boolean { return user.id === this.session.session()?.authUid; }
+  inheritanceChanged(): void { this.inheritancePreview=null; this.reason=''; this.pendingRequest=null; this.error=''; }
+  async prepareInheritance(): Promise<void> {
+    if (!this.general() || this.busy || !this.sourceId || !this.destinationId) return;
+    this.busy=true; this.error=''; const generation=this.sessionGeneration;
+    const request={action:'previewInheritance',sourceId:this.sourceId,targetId:this.destinationId,replace:this.replaceAccess};
+    const draft=JSON.stringify(request);
+    if (!this.pendingRequest || this.pendingRequest['draft']!==draft) this.pendingRequest={draft,operationId:randomId()};
+    try {
+      const result=await this.service.command({...request,operationId:this.pendingRequest['operationId']});
+      if (generation!==this.sessionGeneration) return;
+      this.inheritancePreview=result.inheritancePreview??null; this.pendingRequest=null; this.showDialog();
+    } catch(e) { if (generation===this.sessionGeneration) this.error=this.errorText(e); }
+    finally { if (generation===this.sessionGeneration) this.busy=false; }
+  }
+  reviewInheritance(): void {
+    const p=this.inheritancePreview; if (!p) return;
+    this.operation={request:{},title:p.replace?'Reemplazar acceso existente':'Heredar acceso institucional',recipient:p.sourceName+' → '+p.targetName};
+    void this.run({action:'applyInheritance',targetId:p.targetId,previewId:p.previewId});
+    this.operation=null;
+  }
+  openInheritance(): void { if (!this.general()) return; this.rememberOpener(); this.closeEditor(); this.mode='inherit'; this.showDialog(); }
   private errorText(e: unknown): string { return e instanceof Error ? e.message : 'No se confirmó la operación. Conserva los datos y vuelve a consultar.'; }
 }
