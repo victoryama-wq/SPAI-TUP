@@ -87,3 +87,15 @@ No se implementan CO de otras entregas. El Dashboard personalizado sigue exigien
 | CO-11 definiciones/dos pasos/dependencias/foco | Directorio/editor conservado; retiro separado e impedido en uso; motivo por operación y destinatario | UI de consola y callable directo AG/Auxiliar | Verificado local |
 
 [Evidencia y guion](E2-R01-CONTROL-ACCESOS-2026-10-16.md). No se implementan CO de otras entregas. Se mantienen 18 incumplimientos R02/R03, límite de 200 y aceptación humana pendiente; T01/T07 funcional/T11 físico conservados.
+
+## Complemento visual Usuarios — 2026-10-19
+
+| Requisito aplicable | Implementación | Evidencia | Estado |
+|---|---|---|---|
+| CO-11 composición institucional | Tarjeta marino/turquesa, métricas, Control operativo, cuatro vistas autorizadas y tabla/panel en flujo normal | `access.spec.mjs`, cuatro anchos 320/390/768/1280; capturas | Corregido y verificado local; aceptación visual pendiente |
+| CO-11 modales y directorio/editor | Un dialog reutilizado, confirmación dentro del mismo, foco inicial/retorno, Escape, scroll interno, zona sensible | Cuatro recorridos de consola y regresiones UI existentes | Verificado local |
+| CO-11 motivo y destinatario | Borradores contextuales, cancelación sin comando, correspondencia nueva al cambiar persona/cancelar | `users-layout.spec.mjs`, preview obsoleta rechazada; `access.spec.mjs` | Corregido y verificado local |
+| CO-02 sin expansión de facultades | Misma fuente autorizada y servidor; AG mantiene definiciones, Auxiliar solo roles preaprobados en su ámbito | 37 R01 + 9 Auxiliar + siete checks actuales de Control de accesos; directorio Auxiliar limitado | Verificado local, política sin cambios |
+| Alcance y estados de métricas | Conteos canónicos, etiquetas de alcance, reserva AG, carga/error sin ceros y reintento | Dos pruebas `users-layout.spec.mjs` y BD ficticia | Verificado local |
+
+[Informe y evidencia](E2-R01-USUARIOS-VISUAL-2026-10-19.md). Se conserva el inventario anterior. No se implementan otras entregas ni se cambia el gate: 18 incumplimientos R02/R03 y límite de 200 abiertos; aceptación humana pendiente.

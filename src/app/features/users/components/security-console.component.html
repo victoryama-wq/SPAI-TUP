@@ -1,10 +1,25 @@
 <section class="security-panel">
-  <header class="security-heading"><span>Administración institucional</span><h2>Control de accesos — Seguridad y permisos</h2><p>Cada cambio identifica su destinatario, motivo y revisión antes de confirmar.</p></header>
+  <section class="users-overview" aria-label="Resumen de usuarios">
+    <header class="users-title-card"><span class="eyebrow">Administración institucional</span><h2>Usuarios y permisos</h2><p>Gestiona perfiles, alcances y controles de acceso.</p>
+      @if (general()) { <button class="card-create" type="button" aria-label="Nuevo perfil institucional" (click)="open('user')" [disabled]="busy">Nuevo perfil institucional</button> }
+    </header>
+    <div class="users-metrics" aria-label="Métricas del directorio autorizado">
+      <article><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/></svg></span><div><strong>{{ directory() ? profiles().length : '—' }}</strong><span>Usuarios registrados</span></div></article>
+      <article><span class="metric-icon active-icon" aria-hidden="true">✓</span><div><strong>{{ directory() ? activeProfiles().length : '—' }}</strong><span>Activos</span></div></article>
+      <article><span class="metric-icon" aria-hidden="true">◇</span><div><strong>{{ directory() ? legacyProfiles().length : '—' }}</strong><span>Perfil heredado</span></div></article>
+      <article><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3M15 7h7M19 4l3 3-3 3M16 16h6M19 13l3 3-3 3"/></svg></span><div><strong>{{ directory() && general() ? liveDelegations().length : '—' }}</strong><span>Delegaciones vigentes</span>@if (!general()) { <small>Reservado a Administración General</small> }</div></article>
+    </div>
+  </section>
+  <p class="scope-note">{{ general() ? 'Directorio institucional autorizado; perfiles canónicos, sin duplicar alias de identidad.' : 'Directorio limitado a los perfiles autorizados por tu delegación; estas cifras no son totales institucionales.' }}</p>
+  @if (general()) { <div class="panel-actions"><button class="primary-action" type="button" (click)="open('user')" [disabled]="busy">Nuevo perfil institucional</button><button type="button" (click)="openRoles()" [disabled]="busy">Administrar roles personalizados</button></div> }
   @if (error) { <p role="alert">{{ error }}</p> }
   @if (message) { <p role="status">{{ message }}</p> }
-  <div class="panel-actions"><button type="button" (click)="reload()" [disabled]="busy">Actualizar desde servidor</button>
-    @if (general()) { <button class="primary-action" type="button" (click)="open('user')" [disabled]="busy">Nuevo perfil institucional</button><button type="button" (click)="openRoles()" [disabled]="busy">Administrar roles personalizados</button> }
-  </div>
+  @if (directoryState() === 'error') { <button type="button" (click)="reload()">Reintentar consulta</button> }
+  <section class="operational-panel" aria-labelledby="access-title">
+    <header class="operational-heading"><div><span class="eyebrow">Control operativo</span><h3 id="access-title">Control de accesos</h3></div><div class="operational-indicators">
+      <span title="Asignaciones de roles con estado activo en este directorio">Accesos vigentes <strong>{{ directory() ? activeAssignments().length : '—' }}</strong></span>
+      @if (general()) { <span>Revisión pendiente <strong class="pending-count">{{ directory() ? pendingReviews().length : '—' }}</strong></span> }
+    </div></header>
   @if (directory(); as data) {
     <nav class="section-navigation" aria-label="Secciones de control de accesos">
       <button type="button" [attr.aria-pressed]="section === 'summary'" (click)="changeSection('summary')">Resumen de acceso</button>
@@ -12,24 +27,19 @@
       @if (general()) { <button type="button" [attr.aria-pressed]="section === 'delegations'" (click)="changeSection('delegations')">Delegaciones</button><button type="button" [attr.aria-pressed]="section === 'reviews'" (click)="changeSection('reviews')">Revisiones pendientes</button> }
     </nav>
     @if (section === 'summary') {
-      <h3>Resumen de acceso</h3>
-      <div class="table-scroll"><table><caption>Perfiles y ámbito registrado; el acceso efectivo depende también de la delegación vigente</caption><thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th>Programas</th><th>Acciones</th></tr></thead><tbody>
-      @for (user of data.usuarios; track user.id) { <tr><td>{{ user.name }}<br>{{ user.email }}</td><td>{{ roleLabels[user.baseRole ?? ''] || 'Requiere revisión' }}</td><td><span class="state-badge">{{ statusLabel(user.status) }}</span></td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td>@if (general()) { <button type="button" (click)="open('user', user)" [disabled]="busy">Editar perfil</button>@if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" (click)="open('delegation', user)" [disabled]="busy">Otorgar delegación nueva</button> } }</td></tr> }
-      </tbody></table></div>
-      @if (general()) { <details class="access-card"><summary>Transición de perfiles heredados</summary><label>Persona para revisión<select [(ngModel)]="selectedUserId" (ngModelChange)="selectionChanged()"><option value="">Seleccionar</option>@for (user of data.usuarios; track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>      <h3>Transición de perfiles heredados</h3>
-      <p>Selecciona la persona arriba. La correspondencia exige evidencia institucional; nunca se deduce del nombre del rol. Campos ausentes permanecen sin acceso.</p>
-      <label>Correspondencia verificada<select [(ngModel)]="mappingRole"><option value="COORDINACION_ACADEMICA">Coordinación Académica</option><option value="ALTA_DOCENTES">Alta de Docentes</option></select></label>
-      <button (click)="migration('approveMapping')" [disabled]="busy">Registrar correspondencia verificada</button>
-      <button (click)="migration('previewMigration')" [disabled]="busy">Consultar vista previa</button>
-      @if (preview; as p) {
-        <p>Estado: {{ p.proposed.status }}. Revisión de perfil: {{ p.profileRevision }}. Revisión de delegación: {{ p.delegationRevision }}. No resueltos: {{ p.proposed.unresolved.join(', ') }}.</p>
-        <p>Rol anterior: {{ p.previous.baseRole || 'Sin clave verificada' }}. Propuesto: {{ p.proposed.baseRole }}.</p>
-        <p>Ámbito anterior: {{ p.previous.scope | json }}. Propuesto: {{ p.proposed.scope | json }}.</p>
-        <p>Capacidades anteriores: {{ p.previous.capabilities?.join(', ') || 'Sin capacidades verificadas' }}. Propuestas: {{ p.proposed.capabilities.join(', ') || 'Ninguna' }}.</p>
-        <p>Diferencias de módulos: {{ p.differences.join(', ') || 'Ninguna' }}.</p>
-        <table><thead><tr><th>Módulo</th><th>Anterior explícito</th><th>Flag heredado</th><th>Propuesto</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ module }}</td><td>{{ p.previous.permissions?.[module] || 'Ausente; no concede acceso' }}</td><td>{{ p.previous.access?.[module] === true ? 'true (requiere correspondencia)' : p.previous.access?.[module] === false ? 'false (revocado)' : 'Ausente' }}</td><td>{{ p.proposed.permissions[module] }}</td></tr> }</tbody></table>
-        <button (click)="migration('applyMigration')" [disabled]="busy">Revisar y aplicar esta vista previa</button>
-      }</details> }
+      <div class="access-layout">
+        <div class="table-scroll" tabindex="0" aria-label="Resumen de acceso; tabla con desplazamiento horizontal"><table><caption>Perfiles y ámbito registrado. El acceso efectivo depende también de la delegación vigente.</caption><thead><tr><th>Persona</th><th>Perfil</th><th>Estado</th><th>Programas</th><th>Acciones</th></tr></thead><tbody>
+        @for (user of profiles(); track user.id) { <tr><td><strong>{{ user.name }}</strong><small>{{ user.email }}</small></td><td>{{ roleLabels[user.baseRole ?? ''] || 'Perfil heredado' }}</td><td><span class="state-badge" [class.inactive-badge]="user.status === 'Inactivo'">{{ statusLabel(user.status) }}</span>@if (user.permissionSchemaVersion !== 2) { <small class="review-note">Requiere revisión</small> }</td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.includes('*') ? 'Todos (explícito)' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td><div class="row-actions">@if (general()) { <button type="button" (click)="open('user', user)" [disabled]="busy">Editar perfil</button>@if (user.baseRole === 'ADMIN_OPERATIVO') { <button type="button" (click)="open('delegation', user)" [disabled]="busy">Otorgar delegación nueva</button> } } @else { <span>Consulta autorizada</span> }</div></td></tr> }
+        @empty { <tr><td colspan="5">No hay perfiles en el directorio autorizado.</td></tr> }
+        </tbody></table></div>
+        @if (general()) { <aside class="legacy-panel" aria-labelledby="legacy-title"><header><div><span class="eyebrow">Control de transición</span><h3 id="legacy-title">Perfiles heredados</h3></div><span class="pending-badge">{{ legacyProfiles().length }} pendientes</span></header>
+          <p>Formaliza la correspondencia con evidencia institucional. Los campos ausentes no conceden acceso.</p>
+          <label>Persona para revisión<select [(ngModel)]="selectedUserId" (ngModelChange)="legacyPersonChanged()"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>
+          <label>Correspondencia verificada<select [(ngModel)]="mappingRole" (ngModelChange)="selectionChanged()"><option value="">Selecciona una opción</option><option value="COORDINACION_ACADEMICA">Coordinación Académica</option><option value="ALTA_DOCENTES">Alta de Docentes</option></select></label>
+          <button type="button" (click)="migration('previewMigration')" [disabled]="busy || !selectedUserId">Consultar vista previa</button>
+          <button class="primary-action" type="button" (click)="migration('approveMapping')" [disabled]="busy || !selectedUserId || !mappingRole">Registrar correspondencia</button>
+        </aside> }
+      </div>
     }
     @if (section === 'assignments') {
       <section class="access-card"><h3>Asignar un rol preaprobado</h3><div class="assignment-fields">
@@ -40,15 +50,16 @@
     }
     @if (general() && section === 'delegations') { <h3>Delegaciones</h3><div class="record-grid">@for (grant of data.delegaciones; track grant.id) { <article class="access-card"><h4>{{ userName(grant.userId) }}</h4><p>Delegación: <span class="state-badge">{{ statusLabel(grant.status) }}</span></p><p>Programas: {{ grant.scope?.programs?.join(', ') || 'Sin ámbito' }}</p><p class="record-id">Referencia: {{ grant.id }}</p>@if (grant.status === 'ACTIVE') { <button type="button" (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button class="danger-action" type="button" (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }</article> } @empty { <p>No hay delegaciones registradas.</p> }</div> }
     @if (general() && section === 'reviews') { <h3>Revisiones pendientes para Administración General</h3><div class="record-grid">@for (review of data.revisiones_roles; track review.id) { @if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') { <article class="access-card"><h4>{{ userName(review.userId) }}</h4><p>Revisión: <span class="state-badge">{{ statusLabel(review.status) }}</span></p><p>El rol conserva su estado efectivo hasta la decisión.</p><button type="button" (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button type="button" (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button type="button" (click)="replaceReview(review)" [disabled]="busy">Sustituir rol</button></article> } }</div> }
-  } @else { <p>Directorio sin confirmar. Espera la consulta o solicita revisión de tu perfil a Administración General.</p> }
+  } @else { <p class="directory-state" role="status">{{ directoryState() === 'loading' ? 'Consultando directorio autorizado…' : 'Directorio sin confirmar. No se muestran cifras ni registros como confirmados.' }}</p> }
+  </section>
 </section>
 
-<dialog #editorDialog class="security-dialog" aria-labelledby="security-editor-title" (cancel)="closeEditor()">
+<dialog #editorDialog class="security-dialog" aria-labelledby="security-editor-title" (cancel)="cancelEditor($event)">
   <header class="editor-heading">
-    <h3 id="security-editor-title">{{ roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
+    <h3 id="security-editor-title" tabindex="-1">{{ confirmation ? 'Confirmar cambio de acceso' : mode === 'preview' ? 'Vista previa de transición' : roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'user' ? 'Perfil institucional' : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
     <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy">Cerrar</button>
   </header>
-  @if (roleDirectory) {
+  @if (!confirmation && roleDirectory) {
     <div class="editor-body role-directory">
       <button type="button" [disabled]="busy" (click)="open('role')">Crear rol</button>
       @for (role of directory()?.roles_personalizados; track role.id) {
@@ -58,7 +69,7 @@
       } @empty { <p>No hay definiciones disponibles.</p> }
     </div>
   }
-    @if (operation; as op) {
+    @if (!confirmation && operation; as op) {
       <form id="security-operation" (ngSubmit)="confirmOperation()" #operationForm="ngForm"><div class="editor-body">
         <p><strong>Destinatario:</strong> {{ op.recipient }}</p><p>Operación: {{ op.title }}. Se validan nuevamente permisos y revisión en servidor.</p>
         @if (error) { <p role="alert">{{ error }}</p> }
@@ -66,7 +77,7 @@
         <label>Motivo del cambio<textarea name="reason" [(ngModel)]="reason" required minlength="4" maxlength="1000" rows="3"></textarea></label>
       </div><footer class="editor-actions"><button type="submit" [disabled]="busy || operationForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()">Cancelar</button></footer></form>
     }
-    @if (mode && mode !== 'operation') {
+    @if (!confirmation && mode && mode !== 'operation' && mode !== 'preview') {
       <form id="security-editor" (ngSubmit)="save()" #editorForm="ngForm">
         <div class="editor-body">
         @if (error) { <p role="alert">{{ error }}</p> }
@@ -116,4 +127,21 @@
         </footer>
       </form>
     }
+  @if (confirmation; as draft) {
+    <div class="editor-body confirmation-body"><p><strong>{{ draft.title }}</strong></p><p>{{ draft.recipient }}</p><p>{{ draft.impact }}</p><p><strong>Motivo:</strong> {{ draft.command['reason'] }}</p><p>Se comprobarán nuevamente permisos, revisión y vigencia en servidor.</p></div>
+    <footer class="editor-actions"><button type="button" (click)="backToEditor()" [disabled]="busy">Volver</button><button class="primary-action" type="button" (click)="confirmChange()" [disabled]="busy">{{ busy ? 'Confirmando…' : 'Confirmar' }}</button></footer>
+  }
+  @if (!confirmation && mode === 'preview') {
+    <div class="editor-body migration-preview"><p><strong>Persona:</strong> {{ userName(preview?.userId) }}</p><p>Esta vista previa no cambia permisos. El servidor rechazará su aplicación si cambian las versiones o vence la autorización temporal.</p>
+      @if (preview; as p) {
+        <p>Estado: {{ p.proposed.status === 'READY' ? 'Lista para revisión' : 'Requiere revisión' }}. Revisión de perfil: {{ p.profileRevision }}. Revisión de delegación: {{ p.delegationRevision }}. No resueltos: {{ p.proposed.unresolved.join(', ') }}.</p>
+        <p>Rol anterior: {{ roleLabels[p.previous.baseRole ?? ''] || 'Sin clave verificada' }}. Propuesto: {{ roleLabels[p.proposed.baseRole] || 'Requiere revisión' }}.</p>
+        <p>Ámbito anterior: {{ p.previous.scope | json }}. Propuesto: {{ p.proposed.scope | json }}.</p>
+        <p>Capacidades anteriores: {{ p.previous.capabilities?.join(', ') || 'Sin capacidades verificadas' }}. Propuestas: {{ p.proposed.capabilities.join(', ') || 'Ninguna' }}.</p>
+        <p>Diferencias de módulos: {{ p.differences.join(', ') || 'Ninguna' }}.</p>
+        <table><thead><tr><th>Módulo</th><th>Anterior explícito</th><th>Flag heredado</th><th>Propuesto</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ module }}</td><td>{{ p.previous.permissions?.[module] || 'Ausente; no concede acceso' }}</td><td>{{ p.previous.access?.[module] === true ? 'true (requiere correspondencia)' : p.previous.access?.[module] === false ? 'false (revocado)' : 'Ausente' }}</td><td>{{ p.proposed.permissions[module] }}</td></tr> }</tbody></table>
+
+      }
+    </div><footer class="editor-actions"><button type="button" (click)="closeEditor()">Cerrar vista previa</button><button class="primary-action" type="button" (click)="migration('applyMigration')" [disabled]="busy || !preview">Revisar y aplicar esta vista previa</button></footer>
+  }
 </dialog>

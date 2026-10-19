@@ -100,7 +100,7 @@ async function withSyntheticDb(work) {
 
 test('CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritorio y móvil', async ({page}) => {
   await login(page,'demo.sistemas@tecplayacar.edu.mx'); await page.goto('/usuarios');
-  await page.getByRole('button',{name:'Nuevo perfil institucional',exact:true}).click();
+  await page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true}).click();
   const dialog=page.getByRole('dialog');
   for(const name of ['Datos de acceso','Alcance académico','Módulos disponibles']) await expect(dialog.getByRole('group',{name,exact:true})).toBeVisible();
   await expect(dialog.getByRole('combobox',{name:'Saludo',exact:true})).toHaveValue('Femenino');
@@ -120,7 +120,7 @@ test('CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritori
     await page.screenshot({path:`.local/test-results/r01-review-${label}.png`});
   }
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole('button',{name:'Nuevo perfil institucional',exact:true})).toBeFocused();
+  await expect(page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true})).toBeFocused();
   await page.setViewportSize({width:1366,height:900});
   await page.getByRole('row').filter({hasText:'demo.inactivo@tecplayacar.edu.mx'}).getByRole('button',{name:'Editar perfil',exact:true}).click();
   await dialog.getByRole('combobox',{name:'Saludo',exact:true}).selectOption('Masculino');

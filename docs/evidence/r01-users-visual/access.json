@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-19T17:19:07.278Z",
+  "results": [
+    {
+      "name": "Caracterización base: auxiliar institucional falla por complejidad en Bitácora y Solicitudes",
+      "status": "PASS",
+      "detail": {
+        "expectedDefect": true,
+        "errors": {
+          "bitacora": "\nevaluation error at L185:20 for 'list' @ L185, false for 'list' @ L248, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L185, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L248",
+          "solicitudes_sistemas": "\nevaluation error at L179:20 for 'list' @ L179, false for 'list' @ L248, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L179, Unable to evaluate the expression as the maximum of 1000 expressions to evaluate has been reached. for 'list' @ L248"
+        }
+      }
+    },
+    {
+      "name": "VIEW institucional explícito lee registros positivos sin capacidad sensible implícita",
+      "status": "PASS",
+      "detail": {
+        "bitacora": [
+          "jcE0xVKAuA9kbaOP8k7T",
+          "O69FQDZnEqrQ7NGHuvJQ",
+          "XMZuqhLTPq7HTbXP1r4Q",
+          "aV4dLYMUGASz4QZPRMyZ",
+          "access-event"
+        ],
+        "solicitudes_sistemas": [
+          "access-own",
+          "access-foreign",
+          "demo-reapertura"
+        ]
+      }
+    },
+    {
+      "name": "VIEW no crea, resuelve, elimina solicitudes ni altera bitácora verificada",
+      "status": "PASS"
+    },
+    {
+      "name": "EDIT institucional mantiene operación existente; no modifica flujos R03",
+      "status": "PASS"
+    },
+    {
+      "name": "Ámbito limitado o vacío no concede Bitácora institucional; Solicitudes conserva solo lectura propia",
+      "status": "PASS"
+    },
+    {
+      "name": "Vacío confirmado autorizado y ausencia de módulo son distintos",
+      "status": "PASS"
+    },
+    {
+      "name": "Revocación de grant bloquea lectura y siguiente escritura sin cambiar proyección",
+      "status": "PASS"
+    },
+    {
+      "name": "Definiciones exclusivas AG y retiro en uso rechazado por callable",
+      "status": "PASS"
+    }
+  ]
+}

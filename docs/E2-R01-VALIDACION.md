@@ -212,3 +212,13 @@ Responsable técnico: Codex; base 4c52777024b5f7ca7e3a2b9d91ee7e05b704caaa. [Inf
 La revisión reproduce errores de complejidad en ambas lecturas y un falso vacío en Solicitudes. Se preservan autoridad y ámbito explícitos, con estados distintos de carga/vacío/ámbito/denegación/error. La configuración compartida actual es una nueva delegación institucional emitida por el propietario; no el ámbito vacío de la inspección anterior. Frontend LAN actualizado sin reset/reinicio; registros, delegación y hashes privados conservados. Evidencia completa en el manifiesto.
 
 Se mantiene **VALIDADA_LOCAL / aceptación humana PENDIENTE**. No se repiten T01 físico, T07 funcional ni T11 físico; T10 humano sigue pendiente. No se inicia R02/R03 ni se cierra el impedimento administrativo de 200 documentos.
+
+## Presentación Usuarios / CO-11 — 2026-10-19
+
+Responsable técnico: Codex. Base limpia `ca6ec3687f0826ccf794ae362500c2187cfddae4`, misma rama R01. [Informe, métricas, capturas y recorrido manual](E2-R01-USUARIOS-VISUAL-2026-10-19.md); [evidencia de esta ejecución](evidence/r01-users-visual/results.json).
+
+Composición institucional según Ciclos, cuatro métricas autorizadas, tabla con panel heredado lateral/inferior, cuatro vistas según facultades y modal único reutilizado. Motivos/destinatarios/correspondencia se limpian entre operaciones; revisión, preview e idempotencia se mantienen. Se verifica cancelación sin escritura y rechazo de preview obsoleta. Rules, servidor y autorización sin cambios.
+
+**28/28 unitarias, 37/37 servidor R01, 9/9 Auxiliar, 8/8 Control de accesos (una caracterización del defecto anterior), 72/72 caracterizaciones y 36/36 Chromium.** Gate estricto salida 1, mismos 18 incumplimientos R02/R03. Builds local/LAN/production PASS; aviso de presupuesto 779,19/750 kB. Inspección visual de Codex y geometría/foco automatizados en 1280, 768, 390 y 320 px; no aceptación del propietario.
+
+Estado **VALIDADA_LOCAL / aceptación humana y visual PENDIENTE**. T01 físico, T07 funcional y T11 físico conservados; T10 humano pendiente. Límite de 200 y demás impedimentos abiertos. LAN detenida al inicio y al cierre, datos compartidos sin intervención; solo emuladores aislados. Hashes de respaldo/selección/Rules conservados. Metadatos LAN: se detectó cambio de host a 192.168.42.1, de origen no identificado; se preserva la versión actual sin restaurarla (detalle en informe). Configuración versionada LAN sin diff. Sin push/merge/despliegue.

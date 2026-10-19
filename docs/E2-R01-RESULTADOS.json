@@ -741,8 +741,8 @@
     "historicalExecution": true,
     "supersededHumanStatus": "manualFindingsReview.humanSource"
   },
-  "currentReview": "accessControlReview",
-  "currentReviewDate": "2026-10-16",
+  "currentReview": "usersVisualReview",
+  "currentReviewDate": "2026-10-19",
   "manualFindingsReview": {
     "date": "2026-10-15",
     "responsible": "Codex",
@@ -1227,5 +1227,291 @@
         "sha256": "1ac2816a2bda347926b3209fd52cf9fc811932a43c84046d688d107220c8d5b2"
       }
     }
+  },
+  "usersVisualReview": {
+    "date": "2026-10-19",
+    "completedAt": "2026-10-19T17:26:51.534Z",
+    "responsible": "Codex",
+    "status": "VALIDADA_LOCAL",
+    "acceptedByOwner": false,
+    "baseCommit": "ca6ec3687f0826ccf794ae362500c2187cfddae4",
+    "branch": "codex/e2-r01-seguridad-permisos",
+    "commitLocator": "git log -1 --format=%H -- docs/E2-R01-USUARIOS-VISUAL-2026-10-19.md",
+    "mainUnchanged": "6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2",
+    "scope": "E2-R01 Usuarios / Control de accesos: presentacion y modales, sin cambios de Rules ni servidor",
+    "environment": "demo-spai-tup / isolated / synthetic / loopback",
+    "unit": {
+      "passed": 28,
+      "failed": 0
+    },
+    "server": {
+      "r01": 37,
+      "auxiliary": 9,
+      "accessChecks": 7,
+      "accessHistoricalCharacterization": 1
+    },
+    "characterization": {
+      "rules": 52,
+      "logic": 20,
+      "passed": 72
+    },
+    "ui": {
+      "startTime": "2026-10-19T17:19:09.776Z",
+      "duration": 140221.645,
+      "expected": 36,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "strictGate": {
+      "exitCode": 1,
+      "open": 18,
+      "ids": [
+        "REQUEST-TERMINAL-REWRITE",
+        "CYCLE-WRITE-Preparacion",
+        "CYCLE-CREATE-Preparacion",
+        "CYCLE-WRITE-Captura cerrada",
+        "CYCLE-CREATE-Captura cerrada",
+        "CYCLE-WRITE-Cerrado",
+        "CYCLE-CREATE-Cerrado",
+        "MOODLE-STATUS-RESET-ALLOWED",
+        "CYCLE-MULTIPLE-OPERATIVE",
+        "CYCLE-SELECTION-ORDER",
+        "REQUEST-CREATE-AWAITS",
+        "REQUEST-RESOLVE-AWAITS",
+        "REQUEST-DUPLICATE-CREATE",
+        "UI-PREMATURE-SUCCESS",
+        "SHARE-PRESERVES-MOODLE",
+        "SHARE-PARTIAL-AND-SUCCESS",
+        "REQUEST-DOUBLE-ACCEPT",
+        "SHARE-CONCURRENT-LOST-GROUP"
+      ],
+      "unchanged": true
+    },
+    "builds": {
+      "local": "PASS",
+      "lan": "PASS",
+      "production": "PASS",
+      "warning": "Initial bundle 779.19 kB / 750 kB warning budget"
+    },
+    "offline": {
+      "passed": true,
+      "loopbackAttempts": 7,
+      "productionFallback": false
+    },
+    "preserved": {
+      "firestore.rules": {
+        "before": "9439dddc61a3e8491db939eb430a05505a272aace271e7192a1a6343a563f31b",
+        "after": "9439dddc61a3e8491db939eb430a05505a272aace271e7192a1a6343a563f31b",
+        "unchanged": true
+      },
+      ".local/data-source.json": {
+        "before": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+        "after": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+        "unchanged": true
+      },
+      ".local/source-data/firestore-2026-09-11T18-58-34-492Z.json": {
+        "before": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+        "after": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+        "unchanged": true
+      },
+      ".local/lan-session.json": {
+        "before": "53b80ef940c146de1a954a024a110c5c52a8d5606d6971aa9a4f0e28c60ee846",
+        "after": "b909af1b9818ef77970df1d7151c336deb8a7490b6b0b16a0d345d227feb4feb",
+        "unchanged": false,
+        "observedDifference": {
+          "hostBefore": "192.168.41.254",
+          "hostAfter": "192.168.42.1"
+        },
+        "origin": "No identificado; no modificado ni restaurado por esta revision",
+        "preservedCurrentVersion": true
+      }
+    },
+    "services": {
+      "checkedAt": "2026-10-19T17:26:03.4233502Z",
+      "sharedLanInitiallyRunning": false,
+      "sharedDataWritten": false,
+      "sharedDataRead": false,
+      "isolatedStopped": true,
+      "listeners": [],
+      "sharedLanStartedByThisReview": false
+    },
+    "human": {
+      "T01": "CONFIRMADO_FISICO",
+      "T07": "CONFIRMADO_FUNCIONAL",
+      "T11": "CONFIRMADO_FISICO",
+      "T10": "PENDIENTE",
+      "correct": 7,
+      "withFindings": 2,
+      "failed": 1,
+      "pending": 1,
+      "visualAcceptance": "PENDIENTE"
+    },
+    "blockers": [
+      "Limite administrativo combinado de 200 documentos",
+      "18 incumplimientos contractuales R02/R03",
+      "Aceptacion humana y visual del propietario",
+      "T10 humano",
+      "CI/validacion remota y migracion/rollback pendientes"
+    ],
+    "reportFiles": {
+      "r01": {
+        "path": "r01.json",
+        "sha256": "416bf34d2567061b6800d6baca909a7e1e317e532a59f7b3ae671210d4fccb75"
+      },
+      "auxiliary": {
+        "path": "auxiliary.json",
+        "sha256": "05bcd879fe3dd0f7c257e10c12135b68e2086da0a69731d01bbc217aaae491c7"
+      },
+      "access": {
+        "path": "access.json",
+        "sha256": "471fcfab6cc5b8c684767719e326b5b71091b20ba24a5c9a44c7e2bc3fd23685"
+      },
+      "stage1Rules": {
+        "path": "stage1Rules.json",
+        "sha256": "8583839644222785f2266b365eb9a8169bbe4152fb107c3a06506adedd38e5dc"
+      },
+      "stage1Logic": {
+        "path": "stage1Logic.json",
+        "sha256": "e9c92ca5cc8460f41102e19729ab14a8d20b35a6195e3da6c0144590e028b66a"
+      }
+    },
+    "screenshots": [
+      {
+        "file": "auxiliary-scoped.png",
+        "sha256": "34ffce33a2a5d1d040df9980d7de47240cbc3ffe0f97b09ec22086eed639d2dd"
+      },
+      {
+        "file": "migration-preview.png",
+        "sha256": "72b0b92ad9cfa7b9ddf144bc5c13b739271e5a1d54697b9a916d70b807a9b9d0"
+      },
+      {
+        "file": "operation-1280.png",
+        "sha256": "5baa09c90ac50103aa7a690acee0f1e6c33a06c089907c6064aeebebf8ff88f3"
+      },
+      {
+        "file": "operation-320.png",
+        "sha256": "d24fff4be556547e3d788e615cbea8e0fa671478c62f745f869a991d6256ec71"
+      },
+      {
+        "file": "operation-390.png",
+        "sha256": "cb400ee2563c6ce8757e6966871da215c10e30c33408e689f873a7ea7a777e73"
+      },
+      {
+        "file": "operation-768.png",
+        "sha256": "6747e188ddd5b76e1f61700f326e5a9bc80d2a5ed8a283b6bb9e0fe143ed1a48"
+      },
+      {
+        "file": "profile-1280.png",
+        "sha256": "d5b8cc6e365f946a00a9440acafb8a5028329dc6c5267dea7b420e57315b93f3"
+      },
+      {
+        "file": "profile-320.png",
+        "sha256": "38c5bf92543fed4b23e6cb98db35c4dcfe94857213e8ad1cfb39c66e7588d38c"
+      },
+      {
+        "file": "profile-390.png",
+        "sha256": "e1af5cc080ce42d6bc0c633cfb517964196e8636ab981faf8568048bd7e3a57a"
+      },
+      {
+        "file": "profile-768.png",
+        "sha256": "65164ba120a69e21dabb08939d92b76d905e952599b611db9edc1ad9cf8dc87b"
+      },
+      {
+        "file": "summary-1280.png",
+        "sha256": "d5cda361e9a7f5e043802a0928405caacc84dde110dcae72aa6bf38cb08da014"
+      },
+      {
+        "file": "summary-320.png",
+        "sha256": "d108d9dc3d4bd3c80c21f4452a5070b90bcce1eb35b4fd468ddc4e0f07654683"
+      },
+      {
+        "file": "summary-390.png",
+        "sha256": "0886c1154863d66ffb81c155c8ff7ff13202cc9fb9f825ec7521eb247ed84179"
+      },
+      {
+        "file": "summary-768.png",
+        "sha256": "5294b49555d14fba535768b2cc39a0617049dd1f510b44e186c3432caecd9762"
+      },
+      {
+        "file": "transition-1280.png",
+        "sha256": "d5cda361e9a7f5e043802a0928405caacc84dde110dcae72aa6bf38cb08da014"
+      },
+      {
+        "file": "transition-320.png",
+        "sha256": "31dc6b692eb4735a30445420b4c2306b05bacfd2da4fcfe02f27f533a710d727"
+      },
+      {
+        "file": "transition-390.png",
+        "sha256": "5ac4d0abfea633466edb355a8715a96a2dac6b18ef8fac16cbda032f8f13f81a"
+      },
+      {
+        "file": "transition-768.png",
+        "sha256": "5241fe3994aa9af5e6914029947fd3cecdfce9912d7acf6483521365811185f8"
+      }
+    ],
+    "logs": {
+      "full-final.log": {
+        "path": ".local/users-layout/full-final.log",
+        "sha256": "6c223f17e8d32968514a988e934c2acf7529e9787e94d28d5459721f4edb6937"
+      },
+      "full-mapping-selector-failed.log": {
+        "path": ".local/users-layout/full-mapping-selector-failed.log",
+        "sha256": "744a4ec2c5fc8a31ddce36fa453bbd7d181cde5adec1d9fca11e85de9d41b8bf"
+      },
+      "ui-directed-first.log": {
+        "path": ".local/users-layout/ui-directed-first.log",
+        "sha256": "cc996a1ac680c1d2ba5eacc94e0b4931fa27995794cbfe01a90b3dfcfaa90e23"
+      },
+      "ui-directed-second.log": {
+        "path": ".local/users-layout/ui-directed-second.log",
+        "sha256": "8a818aad041f6ee0ef1063e1afd7648cb8bdf172fe057e87e79bb5ad3c71c775"
+      },
+      "ui-directed-third.log": {
+        "path": ".local/users-layout/ui-directed-third.log",
+        "sha256": "7a79846357bdf61d4318e621190c0512fbab6dcb1f599ba731d44a730f416c29"
+      },
+      "contracts.log": {
+        "path": ".local/users-layout/contracts.log",
+        "sha256": "9683e162cbb6ed3c3d42c666d2f3796845ffdb6e5d302057da2914758c0cce4e"
+      },
+      "build-local-final.log": {
+        "path": ".local/users-layout/build-local-final.log",
+        "sha256": "5bec07e04af7df54c2dcb52b9e289e3c038889c5bf53e2271bbb3c3d12f14025"
+      },
+      "build-lan-final.log": {
+        "path": ".local/users-layout/build-lan-final.log",
+        "sha256": "37495a36fbd3cf9630817333a136eb7152820b229ffdc12d678407f790d65294"
+      },
+      "build-production-final.log": {
+        "path": ".local/users-layout/build-production-final.log",
+        "sha256": "62a60b0d6415922a2e6d23d7baa1f9d19491c1f6f922a9d67cf7aab86084b88b"
+      },
+      "syntax.log": {
+        "path": ".local/users-layout/syntax.log",
+        "sha256": "690aa822da35426713fd3a0e70d8822f3e4e770f9c38f95b9804b5b7159da28b"
+      }
+    },
+    "files": {
+      "src/app/app.component.css": "1f002ddd3eac4f8eb8dc521a3134d3471f12d85c431c1f72aaa5ac11d0ef2995",
+      "src/app/features/users/components/security-console.component.html": "5d67800e84e0fce2e8d2472159fe8d151f09858a78ca0181aef9fbc57ddbf388",
+      "src/app/features/users/components/security-console.component.css": "2068621a65f92d3629b26adac402639de72a5954c0486a712e01c6b2c85f95e3",
+      "src/app/features/users/components/security-console.component.ts": "862798e0c937d063938beb9ee82af9bb1ff815691b9c20a714104f4ee5a4d118",
+      "tools/e2-r01/access.spec.mjs": "aea13bf0405d4f16e5634a77d832c8666950d53790c593d3ec20035eaf366d7c",
+      "tools/e2-r01/acceptance.spec.mjs": "051cb118828a46752e031eed4cd935f1cae3bd91a74ed000fc291395dbdee963",
+      "tools/e2-r01/ui.spec.mjs": "c9013179fce53cb344b5758f6cdaa8fcc34b8db2540865762c43e50aa83e3ee1",
+      "tools/e2-r01/users-layout.spec.mjs": "d6ab79e36f239d11ea694a82bd7cb990ba33d99241535b05e3a940d4b8f9b229",
+      "tools/e2-r01/playwright.config.mjs": "9bf235e3a9a54b98f0fe1f06ccf054e239e8a6297f103c60f77bda396ea0b5b5"
+    },
+    "inputs": [
+      {
+        "path": "C:/Users/Admin/Downloads/HALLAZGOS-REDISENO-PANEL-USUARIOS.md",
+        "sha256": "2c9ff797b1be3be155102966a2a5cea2e9e8ebb5c32dfff7d32369b3c0c26fbe"
+      },
+      {
+        "path": "C:/Users/Admin/Downloads/WhatsApp Image 2026-10-19 at 11.26.23 AM.jpeg",
+        "sha256": "4561f9bf1e33d4f2f4030fcf924d8f07cc5c46814ad965e16603bb8534f66290"
+      }
+    ]
   }
 }

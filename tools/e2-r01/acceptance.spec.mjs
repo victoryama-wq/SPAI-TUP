@@ -136,7 +136,7 @@ test('T11 revocación: siguientes operaciones denegadas y rol del destinatario a
 });
 for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`CO-11 formulario y roles accesibles ${width}x${height}`,async({page})=>{
  await page.setViewportSize({width,height});await login(page,'demo.sistemas@tecplayacar.edu.mx');await page.goto('/usuarios');
- const opener=page.getByRole('button',{name:'Nuevo perfil institucional',exact:true});await expect(opener).toBeVisible();
+ const opener=page.locator('.panel-actions').getByRole('button',{name:'Nuevo perfil institucional',exact:true});await expect(opener).toBeVisible();
  await page.screenshot({path:resolve(evidence,`directorio-usuarios-after-${width}.png`),fullPage:true});
  await opener.click();const dialog=page.getByRole('dialog');
  for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Ciclos (códigos separados por coma)','Docentes (identidades verificadas, separadas por coma)','Motivo del cambio']){
