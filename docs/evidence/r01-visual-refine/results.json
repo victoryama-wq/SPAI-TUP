@@ -1,0 +1,300 @@
+{
+  "date": "2026-10-19",
+  "completedAt": "2026-10-20T00:10:30.573297+00:00",
+  "responsible": "Codex",
+  "status": "VALIDADA_LOCAL",
+  "acceptedByOwner": false,
+  "baseCommit": "f4f30453fac0e05f7650e2ef805ca4c34ed64a7c",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "commitLocator": "git log -1 --format=%H -- docs/evidence/r01-visual-refine/results.json",
+  "scope": "Presentación y navegación interna de Usuarios; sin cambios funcionales de autorización",
+  "initialDirected": {
+    "passed": 4,
+    "note": "Primera composición; después se corrigieron escudo, interruptores móviles y encabezado claro"
+  },
+  "initialRegression": {
+    "startTime": "2026-10-20T00:01:43.170Z",
+    "duration": 167227.148,
+    "expected": 39,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  },
+  "initialFailures": {
+    "fixture": 4,
+    "oldTwoColumnExpectation": 2,
+    "accessibleGroupNumber": 1
+  },
+  "finalUI": {
+    "startTime": "2026-10-20T00:07:07.961Z",
+    "duration": 163881.958,
+    "expected": 46,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "unit": 28,
+  "server": {
+    "r01": 37,
+    "auxiliary": 9,
+    "access": 8,
+    "inheritance": 21
+  },
+  "characterizations": 72,
+  "strictGate": {
+    "exitCode": 1,
+    "open": 18,
+    "ids": [
+      "REQUEST-TERMINAL-REWRITE",
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "CYCLE-MULTIPLE-OPERATIVE",
+      "CYCLE-SELECTION-ORDER",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ],
+    "unchanged": true
+  },
+  "builds": {
+    "local": "PASS",
+    "lan": "PASS",
+    "production": "PASS",
+    "warning": "Initial bundle 779.79 kB / 750 kB warning budget"
+  },
+  "preservation": {
+    "sharedHashBefore": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+    "sharedHashAfter": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+    "privateSelectionHash": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+    "privateBackupHash": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+    "unchanged": [
+      "Rules",
+      "functions",
+      "core session",
+      "data services",
+      "global navigation",
+      "shared data and owner delegation"
+    ]
+  },
+  "offline": {
+    "loopbackAttempts": 7,
+    "productionFallback": false
+  },
+  "human": {
+    "acceptance": "PENDIENTE",
+    "preserved": [
+      "T01 físico",
+      "T07 funcional",
+      "T11 físico"
+    ],
+    "T10": "humano pendiente",
+    "visualInspection": "Codex; composición y capturas, no aceptación del propietario"
+  },
+  "services": {
+    "url": "http://192.168.42.1:4201",
+    "interface": "Wi-Fi /22",
+    "hostCheck": true,
+    "otherComputerTest": false,
+    "sharedRestartOrReset": false,
+    "isolatedStoppedAfterTests": true
+  },
+  "screenshots": [
+    {
+      "file": "before-edit.png",
+      "sha256": "2b8942ed0367789d79ca5d8fdf7516c34d9d0a4734aed3242f8210f9f204bdf1"
+    },
+    {
+      "file": "before-inherit.png",
+      "sha256": "cd2da769b427aa21338f9c30e0384364f359f50b59feee6edb11ea79b018372e"
+    },
+    {
+      "file": "before-panel.png",
+      "sha256": "6cb5adf24945949a9d1fa81539089fd57b1c4c7a06829c4540ee43ae5a1f3a2b"
+    },
+    {
+      "file": "comparison-edit.png",
+      "sha256": "50e3b740b94a170e5eabef16f6bceaa7ff9d2fdaf5ae60c3fb2f25825a4bcee9"
+    },
+    {
+      "file": "comparison-inherit.png",
+      "sha256": "fd50ad247e5cf10525bae1701bf96887013a27a1f87cd1f3299b73099327754d"
+    },
+    {
+      "file": "comparison-panel.png",
+      "sha256": "ecee5b64d62a5142fdcb208d50129f0b650a60d013eed57dcc8f55a09c90e5c6"
+    },
+    {
+      "file": "edit-1280.png",
+      "sha256": "a534fd8828b91b617b5e4a034350d2044bd13bfa61595b31bd80a2a8acd2722b"
+    },
+    {
+      "file": "edit-320.png",
+      "sha256": "4493162b92413edbd9002e9cadfefd885c4acac9565d37d7e987099d5d3d165b"
+    },
+    {
+      "file": "edit-390.png",
+      "sha256": "42287f6bf481467c68e45510336dc5847892ee7226731f074236d899a1c4c3a8"
+    },
+    {
+      "file": "edit-768.png",
+      "sha256": "fd9c299e0477333434857e203ff25d93717c755630de14c2b337683cd9d2832e"
+    },
+    {
+      "file": "inherit-1280.png",
+      "sha256": "9ca6b29f53e18ca4f596942a5e3b4282a31eaa83224053cab76fa91556aac728"
+    },
+    {
+      "file": "inherit-320.png",
+      "sha256": "ad5c3c8c48244205b4d965026256db1899c8002dc46b8e242d5b9ef0f7085e8f"
+    },
+    {
+      "file": "inherit-390.png",
+      "sha256": "6791f62cfcc60c68801fff3c4ef975ca7850c773715117a55219a799da4dd0ee"
+    },
+    {
+      "file": "inherit-768.png",
+      "sha256": "acefbe4a0f1ef9036b64811ff821febb64b0accba6eae55301203ceea5fb4fb6"
+    },
+    {
+      "file": "modules-1280.png",
+      "sha256": "de0343348f1f0cc8273c557cb0740d92fdfb1f4284829f3e4925f6a4722c337c"
+    },
+    {
+      "file": "modules-320.png",
+      "sha256": "8417a06402a3da8e7e22ff7b573698a2a9d5a9cc1e41fe73227f442140db7391"
+    },
+    {
+      "file": "modules-390.png",
+      "sha256": "ea12bcb63fe1d4c45b73a54e84b397e7195d7680e164b3add9ce1ae4816fbb3f"
+    },
+    {
+      "file": "modules-768.png",
+      "sha256": "f3feedca3e31846277f4061b35a63a77b50fb249c6bf5e51418f4682f8edb833"
+    },
+    {
+      "file": "panel-1280.png",
+      "sha256": "69a828dacc4f4488f3a27b4a84b3b468714a1cfeaa9b544a3e1a13a2212fbbc0"
+    },
+    {
+      "file": "panel-320.png",
+      "sha256": "8826509e9d6d1411d3222818e5af867f0ba681b57ba142022f236addb1d53dd7"
+    },
+    {
+      "file": "panel-390.png",
+      "sha256": "3664ff89f91d7f7ea5ade8d71b034ac8f2a5eb924b3e7ca15696f052d1404062"
+    },
+    {
+      "file": "panel-768.png",
+      "sha256": "c11e1d36eb4a2c0e150508a150cdf0bfd2d54960a4824f5c3e73aa5436254d75"
+    },
+    {
+      "file": "reference-edit.png",
+      "sha256": "f8e37259fab82bf9af3dc21c605ba9e3cf9597e21e6290f1986d36a6fa9c7b73"
+    },
+    {
+      "file": "reference-inherit.png",
+      "sha256": "5498c09a7a31d865f265cb27262c1e8db69197c27326979bf2586787cc9658a4"
+    },
+    {
+      "file": "reference-panel.png",
+      "sha256": "36af8a3951121c66c67eeadfe0243b3dc25724fc126094a0351118a5035494c5"
+    },
+    {
+      "file": "role-editor-1280.png",
+      "sha256": "c37bc22b2e7a9266c214d59ac0a24d8a86781e9844012a05aecc0e33f9aa77b6"
+    },
+    {
+      "file": "role-editor-320.png",
+      "sha256": "42d505e3627eef18059e2715075308c6b65ba7faa4e1fd76815a3258c1600071"
+    },
+    {
+      "file": "role-editor-390.png",
+      "sha256": "cc6951e23e9e1be22bc11083341c7ce7f39f760ca73f580fb4b5bf93a1d4db2d"
+    },
+    {
+      "file": "role-editor-768.png",
+      "sha256": "09ec03126a9bc5315840dae35a81c101d1f60246ac0043d69487c01c82e03208"
+    },
+    {
+      "file": "role-modules-1280.png",
+      "sha256": "b10e0f0205af5d6fc38799fe48082127d46de8b2f16cb0e00c5f1912b0d27cd0"
+    },
+    {
+      "file": "role-modules-320.png",
+      "sha256": "5a2e807f862bd56931bb7c6a6bf62f1c5173f6619063bbaa5114c6ee9380bc26"
+    },
+    {
+      "file": "role-modules-390.png",
+      "sha256": "e2ee135907a68a9dc0b882527b16fa1690324aeb0fd7f51f1fddabfbb64a6f60"
+    },
+    {
+      "file": "role-modules-768.png",
+      "sha256": "7a8f7a88e7a6bca1796bd10c9a8636e31f3c7572bca9707ac7998e904a83d1a1"
+    },
+    {
+      "file": "roles-1280.png",
+      "sha256": "2c9c869196066378f9160121d6b0a1e5a3999c152ca9f748337dc28382c8854b"
+    },
+    {
+      "file": "roles-320.png",
+      "sha256": "3bc53dcb4f42284bbe6e93798babb83a36a682a6443c3556c81eb5a28432bf6a"
+    },
+    {
+      "file": "roles-390.png",
+      "sha256": "2c43e142bc244099d71c89342072ead5297f759ca8274a1b3fa7929f440b357a"
+    },
+    {
+      "file": "roles-768.png",
+      "sha256": "c0a6a2c8a520da8e55cb541c0541cb478771c09d131a77f7fe1e02f766daec8b"
+    }
+  ],
+  "sources": {
+    "src/app/features/users/components/security-console.component.html": "b3449a63bfd925b43269fbcde364d812e5a69b0038d4aad80619d9bc12eb7863",
+    "src/app/features/users/components/security-console.component.css": "3d7b55d1ccc739cc7588932c81825eda46832fad206a08aa6cd79b08b92abadb",
+    "src/app/features/users/components/security-console.component.ts": "f2d65cb450f82548b62f8490a667737233ff6e235850ca0c35bb6e17e2469d22",
+    "tools/e2-r01/acceptance.spec.mjs": "7603588ed1578dcba0d77220ee197cbd993e88e4d96008e46ab55ed17d842d5f",
+    "tools/e2-r01/ui.spec.mjs": "82485f1b31beb4248cd97370d70d37c930f4257412c76fb8422338462d94f743",
+    "tools/e2-r01/playwright.config.mjs": "1edb13fcbc8193c7e714861330cab2153a885416fdbc77c35cc0380b2f3ad17b",
+    "tools/e2-r01/visual-refine.spec.mjs": "321d1d69c063f9ab894651486e7bb746c7a8bdb7f3686bd997a5772037b72d59"
+  },
+  "logs": [
+    {
+      "path": ".local/visual-refine-final-regression.log",
+      "sha256": "dd0b57dadfc9cc02921ac368340f3fdb170754b144f528f7333e4e9b4d713544"
+    },
+    {
+      "path": ".local/visual-refine-regression.log",
+      "sha256": "383676bbebf09609f0d20862331850ccdb5093675011697267a3ceb2e62c3d89"
+    },
+    {
+      "path": ".local/visual-refine-directed.log",
+      "sha256": "7269810cd363b6986dd10e1aeb2efa8c8a9ae55e7ad559ab1b64dc2295afdec7"
+    },
+    {
+      "path": ".local/visual-refine/contracts.log",
+      "sha256": "9683e162cbb6ed3c3d42c666d2f3796845ffdb6e5d302057da2914758c0cce4e"
+    },
+    {
+      "path": ".local/visual-refine/build-local.log",
+      "sha256": "38dd1d4ab7d333e82717078800d416e157accb97b271b5a62c1b900eed0c5001"
+    },
+    {
+      "path": ".local/visual-refine/build-lan.log",
+      "sha256": "d878949b846deceac4091450c7f40f84bcfcd18005d5b5315c1b8bdc18de426e"
+    },
+    {
+      "path": ".local/visual-refine/build-production.log",
+      "sha256": "b99b5213a7910b7eb7003e2efca05a62ecd1098a37bf08086f1ef77c26b1c212"
+    }
+  ]
+}

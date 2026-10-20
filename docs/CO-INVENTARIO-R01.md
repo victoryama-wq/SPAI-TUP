@@ -110,3 +110,14 @@ No se implementan CO de otras entregas. El Dashboard personalizado sigue exigien
 | Herencia autorizada en este encargo | Preview de servidor, reemplazo explícito, trazabilidad, plazo, atomicidad, idempotencia | inheritance-server.mjs e inheritance.spec.mjs | Implementado y validado local; no aceptación del propietario |
 
 [Informe y contrato del flujo](E2-R01-HERENCIA-ACCESO-2026-10-19.md). Se conservan las filas históricas como evidencia de su entrega; esta nueva composición las sustituye por instrucción expresa. No se implementan CO de otras entregas. Siguen abiertos el límite de 200 y los mismos 18 incumplimientos R02/R03.
+
+## CO-11 — Corrección visual posterior, 2026-10-19
+
+| Requisito | Implementación | Evidencia | Estado |
+|---|---|---|---|
+| Composición institucional | Encabezado marino, métricas con iconos, directorio y acciones jerarquizados | Referencia/antes/resultado en galería; capturas 1280/768/390/320 | Verificado técnicamente; aprobación visual pendiente |
+| Datos, alcance, módulos y facultades | Tarjetas con guía numerada navegable y estado activo; borrador conservado; capacidades plegables | Cuatro pruebas visual-refine, CO-11 y capturas de módulos | Verificado local |
+| Herencia y roles | Origen→destino como copia, resultado/preview; roles con directorio/editor y zona sensible | Regresiones de herencia y 21 servidor; capturas roles/editor | Verificado local; lógica sin cambios |
+| Foco, cancelación y móvil | Un dialog, scroll interno, pie de acciones, retorno de foco, checkbox accesible | 46 Chromium; guía por teclado y ninguna escritura al cancelar | Verificado local |
+
+[Informe](E2-R01-AJUSTE-VISUAL-2026-10-19.md). Se preservan CO-02 y demás políticas; no se implementan entregas futuras. Siguen abiertos límite 200, 18 incumplimientos R02/R03 y aceptación humana.

@@ -12,6 +12,39 @@ import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, M
   templateUrl: './security-console.component.html', styleUrl: './security-console.component.css',
 })
 export class SecurityConsoleComponent {
+  readonly editorSteps = [
+    { id: 'access-data', number: 1, label: 'Datos de acceso' },
+    { id: 'academic-scope', number: 2, label: 'Alcance académico' },
+    { id: 'available-modules', number: 3, label: 'Módulos disponibles' },
+    { id: 'special-faculties', number: 4, label: 'Facultades especiales' },
+  ];
+  activeEditorSection = 'access-data';
+  navigateEditor(id: string): void {
+    const section = this.editorDialog()?.nativeElement.querySelector<HTMLElement>('#' + id);
+    const body = section?.closest<HTMLElement>('.editor-sections');
+    if (!section || !body) return;
+    if (section instanceof HTMLDetailsElement) section.open = true;
+    this.activeEditorSection = id;
+    section.focus({ preventScroll: true });
+    body.scrollTo({ top: body.scrollTop + section.getBoundingClientRect().top - body.getBoundingClientRect().top - 18 });
+  }
+  trackEditorSection(event: Event): void {
+    const body = event.target as HTMLElement;
+    const top = body.getBoundingClientRect().top + 70;
+    const sections = Array.from(body.querySelectorAll<HTMLElement>('.form-section'));
+    const active = sections.filter(section => section.getBoundingClientRect().top <= top).at(-1) ?? sections[0];
+    if (active) this.activeEditorSection = active.id;
+  }
+  initials(name: string): string { return name.trim().split(/\s+/).slice(0, 2).map(part => part[0] ?? '').join('').toUpperCase(); }
+  inheritanceTarget(): AppUser | undefined { return this.profiles().find(user => user.id === this.destinationId); }
+  scopeText(scope: AppUser['scope']): string {
+    return [['Programas',scope?.programs],['Ciclos',scope?.cycles],['Docentes',scope?.teachers],['Campos',scope?.fields]].map(([label, values]) => `${label}: ${(values as string[] | undefined)?.join(', ') || 'Sin ámbito'}`).join(' · ');
+  }
+  capabilityText(capabilities: string[]): string { return capabilities.map(capability => this.capabilityLabels[capability] || capability).join(', ') || 'Ninguna'; }
+  roleSummary(role: SecurityRecord): string {
+    const labels = Object.entries(role.permissions ?? {}).filter(([,level]) => level === 'VIEW' || level === 'EDIT').map(([module]) => this.moduleLabels[module]);
+    return labels.length ? 'Módulos: ' + labels.join(', ') : 'Sin módulos concedidos';
+  }
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly service = inject(SecurityService);
   private readonly session = inject(UserSessionService);
@@ -105,6 +138,7 @@ export class SecurityConsoleComponent {
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
     if (!this.general()) return;
+    this.activeEditorSection = 'access-data';
     this.rememberOpener(); this.inheritancePreview = null; this.operation = null; this.confirmation = null; this.preview = null; this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? randomId(); this.expectedRevision = record?.revision ?? 0;
     this.name = record?.name ?? ''; this.email = (record as AppUser)?.email ?? '';
     this.area = (record as AppUser)?.area ?? '';

@@ -1,0 +1,30 @@
+import {test,expect} from '@playwright/test';
+import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {root,isolatedTest,verifyHub} from '../local/config.mjs';
+const out=resolve(root,'.local/visual-refine/screenshots');mkdirSync(out,{recursive:true});
+test.beforeEach(async({page})=>{
+ assert.equal(isolatedTest,true);await verifyHub();
+ await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
+ await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav').first()).toBeVisible();await page.goto('/usuarios');await expect(page.locator('.directory-filters')).toBeVisible();
+});
+for(const width of [320,390,768,1280])test('VISUAL composición, guía conserva borrador y roles '+width,async({page})=>{
+ await page.setViewportSize({width,height:960});
+ const shot=async name=>page.screenshot({path:resolve(out,name+'-'+width+'.png'),fullPage:true});
+ await shot('panel');const dialog=page.locator('dialog[open]');let writes=0;page.on('request',r=>{if(r.url().endsWith('/securityCommand'))writes++;});
+ const row=page.getByRole('row').filter({hasText:'demo.coordinacion.a@'});const edit=row.getByRole('button',{name:'Editar',exact:true});await edit.click();
+ const original=await dialog.getByLabel('Nombre',{exact:true}).inputValue();await dialog.getByLabel('Nombre',{exact:true}).fill('Borrador visual sin guardar');
+ await dialog.getByRole('button',{name:'3 Módulos disponibles',exact:true}).click();await expect(dialog.locator('#available-modules')).toBeFocused();await expect(dialog.locator('.editor-guide [aria-current=step]')).toHaveText('3Módulos disponibles');await expect(dialog.locator('.editor-actions')).toBeInViewport();
+ const checked=await dialog.locator('#available-modules input[type=checkbox]').evaluateAll(inputs=>inputs.map(input=>input.checked));
+ await dialog.getByRole('button',{name:'4 Facultades especiales',exact:true}).click();await expect(dialog.locator('#special-faculties')).toHaveAttribute('open','');await expect(dialog.getByLabel('Nombre',{exact:true})).toHaveValue('Borrador visual sin guardar');
+ await page.keyboard.press('Tab');expect(await dialog.evaluate(el=>el.contains(document.activeElement))).toBe(true);
+ await dialog.getByRole('button',{name:'1 Datos de acceso',exact:true}).click();await expect(dialog.getByLabel('Nombre',{exact:true})).toHaveValue('Borrador visual sin guardar');await dialog.getByLabel('Nombre',{exact:true}).fill(original);await shot('edit');
+ await dialog.getByRole('button',{name:'3 Módulos disponibles',exact:true}).click();expect(await dialog.locator('#available-modules input[type=checkbox]').evaluateAll(inputs=>inputs.map(input=>input.checked))).toEqual(checked);await shot('modules');
+ await page.keyboard.press('Escape');await expect(edit).toBeFocused();expect(writes).toBe(0);
+ await page.getByRole('button',{name:'Nuevo usuario',exact:true}).click();await expect(dialog.getByLabel('Nombre',{exact:true})).toHaveValue('');expect(await dialog.locator('#available-modules input:checked').count()).toBe(0);await expect(dialog.getByLabel('Programas (claves separadas por coma)',{exact:true})).toHaveValue('');await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'Roles personalizados',exact:true}).click();await shot('roles');await dialog.getByRole('button',{name:'Crear rol',exact:true}).click();await expect(dialog.getByLabel('Nombre',{exact:true})).toHaveValue('');await shot('role-editor');await dialog.getByRole('button',{name:'3 Módulos disponibles',exact:true}).click();await shot('role-modules');await dialog.getByRole('button',{name:'Volver al directorio',exact:true}).click();await expect(dialog).toHaveCount(1);await page.keyboard.press('Escape');expect(writes).toBe(0);
+ await page.getByRole('button',{name:'Heredar acceso',exact:true}).click();await dialog.getByRole('combobox',{name:'Origen',exact:true}).selectOption('demo-coord-a');await dialog.getByRole('combobox',{name:'Destino',exact:true}).selectOption('demo-coord-b');await shot('inherit');await expect(dialog).toContainText('El origen conserva su acceso');await expect(dialog.getByRole('button',{name:'Revisar herencia',exact:true})).toHaveCount(0);
+ expect(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);await expect(dialog.locator('.editor-actions')).toBeInViewport();await page.keyboard.press('Escape');expect(writes).toBe(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});

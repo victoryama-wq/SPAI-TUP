@@ -144,7 +144,10 @@ for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`
  }
  const body=dialog.locator('.editor-body');await body.evaluate(el=>el.scrollTop=0);
  expect(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
- expect(await body.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(width<=800?1:2);
+ // The new composition uses a navigation rail and one scrolling stack of cards.
+ expect(await body.evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(1);
+ expect(await dialog.locator('.field-grid').first().evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(width<=480?1:2);
+ await expect(dialog.getByRole('navigation',{name:'Secciones del formulario'})).toBeVisible();
  await expect(dialog.locator('.editor-heading')).toBeInViewport();await expect(dialog.locator('.editor-actions')).toBeInViewport();
  await page.screenshot({path:resolve(evidence,`usuarios-after-${width}.png`),fullPage:true});
  await page.keyboard.press('Escape');await expect(opener).toBeFocused();

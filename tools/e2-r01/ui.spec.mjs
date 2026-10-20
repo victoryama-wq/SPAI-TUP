@@ -115,7 +115,7 @@ test('CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritori
       return {modal:d.matches(':modal'),headerTop:header.top,footerBottom:footer.bottom,overflow:d.scrollWidth>d.clientWidth,sameColumn:Math.abs(fieldsets[0].left-fieldsets[1].left)<2};
     });
     expect(layout.modal).toBe(true); expect(layout.headerTop).toBeGreaterThanOrEqual(0);expect(layout.footerBottom).toBeLessThanOrEqual(height);expect(layout.overflow).toBe(false);
-    expect(layout.sameColumn).toBe(width<600);
+    expect(layout.sameColumn).toBe(true); // Cards form one stack beside the numbered guide.
     await dialog.locator('.editor-body').evaluate(e=>e.scrollTop=0);
     await page.screenshot({path:`.local/test-results/r01-review-${label}.png`});
   }

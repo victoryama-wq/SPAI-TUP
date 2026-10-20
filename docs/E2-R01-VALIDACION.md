@@ -230,3 +230,11 @@ Responsable: Codex. Base cdf1621d21ecbdbc58a897db323e7791aa166292; rama R01 cons
 28/28 unitarias; 37/37 servidor R01 + 9/9 Auxiliar + 8/8 Control de accesos (una caracterización histórica) + 21/21 herencia; 42/42 Chromium; 72/72 caracterizaciones. Gate estricto salida 1, mismos 18 IDs abiertos. Builds local/LAN/production PASS, advertencia 779,79/750 kB. Tras la suite completa, comprobación dirigida 21/21 del reloj posterior a la lectura de preview y normalización de asignaciones. Sin cambios posteriores en frontend. Capturas y geometría/foco a 320/390/768/1280 px; inspección técnica del agente.
 
 VALIDADA_LOCAL / aceptación humana PENDIENTE. T01 físico, T07 funcional y T11 físico conservados; T10 humano pendiente. Datos compartidos y delegación iguales por hash antes/después, selección y respaldo privado intactos. Pruebas destructivas aisladas. Límite administrativo de 200, 18 incumplimientos R02/R03 y validación remota/productiva siguen pendientes. Sin push, merge ni despliegue remoto.
+
+## Corrección de composición visual — 2026-10-19
+
+Base f4f30453fac0e05f7650e2ef805ca4c34ed64a7c. Responsable Codex. [Informe y comparación de referencias](E2-R01-AJUSTE-VISUAL-2026-10-19.md), [resultados](evidence/r01-visual-refine/results.json). Solo presentación y navegación interna de Usuarios: guía numerada, tarjetas, iconos, recorrido de herencia y directorio/editor de roles. Sin cambios en Rules, servidor, sesión ni servicios de datos.
+
+46/46 Chromium, 28/28 unitarias, 37 R01 + 9 Auxiliar + 8 Control de accesos + 21 herencia; 72 caracterizaciones. Builds local/LAN/production PASS; advertencia 779,79/750 kB. Gate estricto salida 1, mismos 18 incumplimientos. Primera corrida con siete fallos conservada y explicada en el informe; repetición estándar completa aprobada, sin omitir casos. Capturas inspeccionadas por Codex en 320/390/768/1280 px y comparaciones normalizadas a igual ancho.
+
+VALIDADA_LOCAL; aceptación visual/humana PENDIENTE. T01 físico, T07 funcional, T11 físico conservados; T10 humano pendiente. Límite 200, 18 contratos R02/R03 y validación remota/productiva abiertos. Datos compartidos, delegación y respaldo privado intactos. Solo frontend compilado actualizado en LAN, sin reiniciar servicios compartidos.

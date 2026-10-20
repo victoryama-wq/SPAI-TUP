@@ -1530,5 +1530,20 @@
     "ui": 42,
     "characterizations": 72,
     "openContractFailures": 18
+  },
+  "visualRefinement": {
+    "date": "2026-10-19",
+    "status": "VALIDADA_LOCAL",
+    "acceptedByOwner": false,
+    "report": "docs/E2-R01-AJUSTE-VISUAL-2026-10-19.md",
+    "evidence": "docs/evidence/r01-visual-refine/results.json",
+    "ui": 46,
+    "server": {
+      "r01": 37,
+      "auxiliary": 9,
+      "access": 8,
+      "inheritance": 21
+    },
+    "openContractFailures": 18
   }
 }

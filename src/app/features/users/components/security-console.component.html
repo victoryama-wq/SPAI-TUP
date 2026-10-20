@@ -1,11 +1,11 @@
 <section class="security-panel">
 <header class="users-title-card directory-hero"><div><span class="eyebrow">Administración institucional</span><h2>Control de accesos</h2><p>Gestiona usuarios, perfiles y permisos del sistema institucional.</p></div>
-@if (general()) { <div class="panel-actions"><button class="card-create" aria-label="Nuevo usuario" (click)="open('user')">Nuevo usuario</button><button [disabled]="busy || directoryState() !== 'ready'" (click)="openRoles()">Roles personalizados</button><button [disabled]="busy || directoryState() !== 'ready'" (click)="openInheritance()">Heredar acceso</button></div> }</header>
+@if (general()) { <div class="panel-actions"><button class="card-create" aria-label="Nuevo usuario" (click)="open('user')">Nuevo usuario</button><button [disabled]="busy || directoryState() !== 'ready'" (click)="openRoles()"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 7v6c0 5-9 9-9 9s-9-4-9-9V7z" /></svg>Roles personalizados</button><button [disabled]="busy || directoryState() !== 'ready'" (click)="openInheritance()"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" /></svg>Heredar acceso</button></div> }</header>
 <div class="users-metrics" aria-label="Métricas del directorio autorizado">
-<article><div><strong>{{ directory() ? profiles().length : '—' }}</strong><span>Usuarios registrados</span></div></article>
-<article><div><strong>{{ directory() ? activeProfiles().length : '—' }}</strong><span>Usuarios activos</span></div></article>
-<article title="Perfiles con clave Coordinación Académica, incluidos activos e inactivos"><div><strong>{{ directory() ? coordinators().length : '—' }}</strong><span>Coordinadores</span></div></article>
-<article title="Definiciones activas disponibles en tu directorio autorizado"><div><strong>{{ directory() ? availableRoles().length : '—' }}</strong><span>Roles disponibles</span></div></article>
+<article><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" /></svg></span><div><strong>{{ directory() ? profiles().length : '—' }}</strong><span>Usuarios registrados</span></div></article>
+<article><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a7 7 0 0 0-14 0v2 M13 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" /></svg></span><div><strong>{{ directory() ? activeProfiles().length : '—' }}</strong><span>Usuarios activos</span></div></article>
+<article title="Perfiles con clave Coordinación Académica, incluidos activos e inactivos"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M20 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75" /></svg></span><div><strong>{{ directory() ? coordinators().length : '—' }}</strong><span>Coordinadores</span></div></article>
+<article title="Definiciones activas disponibles en tu directorio autorizado"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8z M2 12l10 5 10-5 M2 16l10 5 10-5" /></svg></span><div><strong>{{ directory() ? availableRoles().length : '—' }}</strong><span>Roles disponibles</span></div></article>
 </div>
 <p class="scope-note">{{ general() ? 'Directorio institucional autorizado; perfiles canónicos, sin duplicar alias de identidad.' : 'Directorio limitado a los perfiles autorizados por tu delegación; estas cifras no son totales institucionales.' }} Coordinadores cuenta perfiles de Coordinación Académica. Roles disponibles cuenta definiciones activas.</p>
 @if (error && !mode && !roleDirectory) { <p role="alert">{{ error }}</p> }
@@ -16,15 +16,15 @@
 @if (directory()) {
 <div class="directory-filters"><label>Buscar por nombre, correo o rol<input [(ngModel)]="search" type="search" /></label><label>Estado de la cuenta<select [(ngModel)]="statusFilter"><option value="">Todos</option><option>Activo</option><option>Inactivo</option></select></label></div>
 <div class="table-scroll" tabindex="0" aria-label="Directorio; tabla con desplazamiento horizontal"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Accesos</th><th>Programas asignados</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
-@for (user of filteredProfiles(); track user.id) { <tr><td><strong>{{ user.name }}</strong><small>{{ user.email }}</small></td><td>{{ roleLabels[user.baseRole ?? ''] || 'Perfil heredado' }}</td><td>{{ accessSummary(user) }}</td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td><span class="state-badge" [class.inactive-badge]="user.status === 'Inactivo'">{{ statusLabel(user.status) }}</span>@if (user.permissionSchemaVersion !== 2) { <small class="review-note">Requiere regularización</small> }</td><td><div class="row-actions"><button (click)="openPerson(user)">Ver acceso</button>@if (general()) { <button (click)="open('user', user)">Editar</button> }</div></td></tr> }
+@for (user of filteredProfiles(); track user.id) { <tr><td><div class="person-cell"><span class="person-avatar" aria-hidden="true">{{ initials(user.name) }}</span><div><strong>{{ user.name }}</strong><small>{{ user.email }}</small></div></div></td><td>{{ roleLabels[user.baseRole ?? ''] || 'Perfil heredado' }}</td><td>{{ accessSummary(user) }}</td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td><span class="state-badge" [class.inactive-badge]="user.status === 'Inactivo'">{{ statusLabel(user.status) }}</span>@if (user.permissionSchemaVersion !== 2) { <small class="review-note">Requiere regularización</small> }</td><td><div class="row-actions"><button (click)="openPerson(user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 7v6c0 5-9 9-9 9s-9-4-9-9V7z" /></svg>Ver acceso</button>@if (general()) { <button (click)="open('user', user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-12 12H4v-5z M14 5l5 5" /></svg>Editar</button> }</div></td></tr> }
 @empty { <tr><td colspan="6">No hay usuarios que coincidan en el directorio autorizado.</td></tr> }
 </tbody></table></div>
 } @else { <p role="status">{{ directoryState() === 'loading' ? 'Consultando directorio autorizado…' : 'Directorio sin confirmar. No se muestran cifras como confirmadas.' }}</p> }
 </section></section>
-<dialog #editorDialog class="security-dialog" aria-labelledby="security-editor-title" (cancel)="cancelEditor($event)">
+<dialog #editorDialog class="security-dialog" [class.profile-dialog]="!confirmation && (mode === 'user' || mode === 'role' || mode === 'delegation')" aria-labelledby="security-editor-title" (cancel)="cancelEditor($event)">
   <header class="editor-heading">
-    <h3 id="security-editor-title" tabindex="-1">{{ confirmation ? 'Confirmar cambio de acceso' : mode === 'preview' ? 'Vista previa de transición' : roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'person' ? 'Ficha de acceso institucional' : mode === 'reviews' ? 'Revisiones pendientes' : mode === 'regularize' ? 'Regularizar acceso' : mode === 'inherit' ? 'Heredar acceso institucional' : mode === 'user' ? (expectedRevision ? 'Editar acceso institucional' : 'Nuevo acceso institucional') : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3>
-    <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy">Cerrar</button>
+    <div class="editor-heading-copy"><span class="eyebrow">Control de accesos</span><h3 id="security-editor-title" tabindex="-1">{{ confirmation ? 'Confirmar cambio de acceso' : mode === 'preview' ? 'Vista previa de transición' : roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'person' ? 'Ficha de acceso institucional' : mode === 'reviews' ? 'Revisiones pendientes' : mode === 'regularize' ? 'Regularizar acceso' : mode === 'inherit' ? 'Heredar acceso institucional' : mode === 'user' ? (expectedRevision ? 'Editar acceso institucional' : 'Nuevo acceso institucional') : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3><p>{{ mode === 'inherit' ? 'Copia una configuración vigente con revisión y confirmación.' : mode === 'user' ? 'Define los datos, el alcance y las facultades de esta persona.' : roleDirectory || mode === 'role' ? 'Organiza los módulos y ámbitos de las definiciones institucionales.' : 'Revisa el acceso y las consecuencias antes de confirmar.' }}</p></div>
+    <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy"><span aria-hidden="true">×</span></button>
   </header>
   @if (!confirmation && (mode === 'person' || mode === 'reviews' || mode === 'regularize')) { <div class="editor-body">
 @if (mode !== 'reviews') { <p><strong>{{ userName(selectedUserId) }}</strong></p> }
@@ -51,31 +51,32 @@
           <button class="primary-action" type="button" (click)="migration('approveMapping')" [disabled]="busy || !selectedUserId || !mappingRole">Registrar correspondencia</button>
 }</div> }
   @if (!confirmation && mode === 'inherit') {
-    <div class="editor-body inheritance-body">
+    <div class="editor-body inheritance-body"><ol class="flow-steps" aria-label="Recorrido de herencia"><li class="current">1 · Elegir personas</li><li [class.current]="!!inheritancePreview">2 · Revisar acceso</li><li>3 · Confirmar</li></ol>
       <p>Copia controlada de la configuración efectiva, validada en servidor. No copia identidad, estado personal, sesiones ni historial.</p>
       @if (error) { <p role="alert">{{ error }}</p> }
       <div class="inheritance-columns">
-        <section class="access-card"><h4>1. Persona cuyo acceso se heredará</h4><label>Origen<select [(ngModel)]="sourceId" (ngModelChange)="inheritanceChanged()" [disabled]="busy"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>
+        <section class="access-card inheritance-source"><h4><span class="section-number" aria-hidden="true">1</span> Persona cuyo acceso se heredará</h4><label>Origen<select [(ngModel)]="sourceId" (ngModelChange)="inheritanceChanged()" [disabled]="busy"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>
         @if (inheritanceSource(); as source) { @let sourceScope = source.effectiveAccess?.scope ?? source.scope;
-          <p>{{ roleLabels[source.baseRole ?? ''] || 'Perfil heredado' }}</p><p>{{ accessSummary(source, false) }}</p>
+          <div class="identity-card"><span class="person-avatar" aria-hidden="true">{{ initials(source.name) }}</span><div><strong>{{ source.name }}</strong><small>{{ roleLabels[source.baseRole ?? ''] || 'Perfil heredado' }}</small></div></div><div class="source-access-summary"><p><strong>Módulos autorizados</strong><br>{{ accessSummary(source, false) }}</p>
           <p>Programas: {{ sourceScope?.programs?.join(', ') || 'Sin ámbito' }} · Ciclos: {{ sourceScope?.cycles?.join(', ') || 'Sin ámbito' }}</p>
           <p>Docentes: {{ sourceScope?.teachers?.join(', ') || 'Sin ámbito' }} · Campos: {{ sourceScope?.fields?.join(', ') || 'Sin ámbito' }}</p>
           @for (assignment of inheritanceRoles(); track assignment.id) { <p>Rol: {{ roleName(assignment.roleId) }}</p> }
           @for (cap of source.effectiveAccess?.capabilities || source.capabilities || []; track cap) { <p>{{ capabilityLabels[cap] || cap }}</p> }
           <p>Vigencia de delegación: {{ inheritanceGrant()?.expiresAtMillis ? (inheritanceGrant()!.expiresAtMillis | date:'medium') : 'Sin vencimiento registrado; requiere validación de servidor' }}</p>
-          @if (source.permissionSchemaVersion !== 2) { <p role="status">Este origen requiere regularización previa.</p><button (click)="openPerson(source)">Abrir ficha para regularizar</button> }
+          </div>@if (source.permissionSchemaVersion !== 2) { <p role="status">Este origen requiere regularización previa.</p><button (click)="openPerson(source)">Abrir ficha para regularizar</button> }
         }
         </section>
-        <section class="access-card"><h4>2. Persona que recibirá el acceso</h4><label>Destino<select [(ngModel)]="destinationId" (ngModelChange)="inheritanceChanged()" [disabled]="busy"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id" [disabled]="user.id === sourceId || isOwnIdentity(user)">{{ user.name }} — {{ statusLabel(user.status) }}</option> }</select></label>
-        <p>El flujo normal requiere una cuenta sin configurar. Una cuenta inactiva o con historial requiere reemplazo; nunca se reactiva.</p>
+        <div class="copy-arrow" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16 m-6-6 6 6-6 6" /></svg></div><section class="access-card inheritance-target"><h4><span class="section-number" aria-hidden="true">2</span> Persona que recibirá el acceso</h4><label>Destino<select [(ngModel)]="destinationId" (ngModelChange)="inheritanceChanged()" [disabled]="busy"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id" [disabled]="user.id === sourceId || isOwnIdentity(user)">{{ user.name }} — {{ statusLabel(user.status) }}</option> }</select></label>
+        <div class="identity-card"><span class="person-avatar" aria-hidden="true">{{ initials(inheritanceTarget()?.name || '?') }}</span><div><strong>{{ inheritanceTarget()?.name || 'Persona destino' }}</strong><small>{{ inheritanceTarget() ? roleLabels[inheritanceTarget()!.baseRole ?? ''] || 'Perfil heredado' : 'Sin seleccionar' }}</small></div></div><p>El flujo normal requiere una cuenta sin configurar. Una cuenta inactiva o con historial requiere reemplazo; nunca se reactiva.</p>
         <label class="replacement-choice"><input type="checkbox" [(ngModel)]="replaceAccess" (ngModelChange)="inheritanceChanged()" [disabled]="busy" />Reemplazar acceso existente</label></section>
       </div>
+      <section class="copy-result-overview"><h4>Resultado de la copia</h4><div class="copy-journey"><strong>{{ inheritanceSource()?.name || 'Persona origen' }}</strong><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16 m-6-6 6 6-6 6" /></svg><strong>{{ inheritanceTarget()?.name || 'Persona destino' }}</strong></div><p>El origen conserva su acceso. El destino recibirá únicamente la configuración que valide el servidor.</p><p class="copy-notice">No se copian identidad, estado personal, sesiones ni historial. La vista previa es obligatoria antes de confirmar.</p></section>
       @if (inheritancePreview; as p) {
         <section class="inheritance-result"><h4>Resultado validado por servidor</h4><p><strong>{{ p.sourceName }} → {{ p.targetName }}</strong></p><p>Perfil actual: {{ roleLabels[p.previous.baseRole] || p.previous.baseRole }}. Resultado: {{ roleLabels[p.proposed.baseRole] }}. Estado personal conservado: {{ statusLabel(p.previous.status) }}.</p>
           <p>Vista previa válida hasta {{ p.expiresAtMillis | date:'medium' }}. Vigencia del acceso: {{ p.proposed.expiresAtMillis ? (p.proposed.expiresAtMillis | date:'medium') : 'Sin vencimiento registrado' }}.</p>
           <div class="table-scroll"><table><thead><tr><th>Módulo</th><th>Destino actual</th><th>Origen / resultado</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ moduleLabels[module] }}</td><td>{{ levelLabel(p.previous.permissions?.[module]) }}</td><td>{{ levelLabel(p.proposed.permissions?.[module]) }}</td></tr> }</tbody></table></div>
-          <p>Ámbitos actuales: {{ p.previous.scope | json }}.</p><p>Ámbitos propuestos: {{ p.proposed.scope | json }}.</p>
-          <p>Facultades actuales: {{ p.previous.capabilities.join(', ') || 'Ninguna' }}.</p><p>Facultades propuestas:</p>@for (cap of p.proposed.capabilities; track cap) { <p>{{ capabilityLabels[cap] || cap }}</p> }
+          <div class="scope-comparison"><section><h4>Ámbito actual del destino</h4><p>{{ scopeText(p.previous.scope) }}</p></section><section><h4>Ámbito propuesto</h4><p>{{ scopeText(p.proposed.scope) }}</p></section></div>
+          <p>Facultades actuales: {{ capabilityText(p.previous.capabilities) }}.</p><p>Facultades propuestas:</p>@for (cap of p.proposed.capabilities; track cap) { <p>{{ capabilityLabels[cap] || cap }}</p> }
           <p>Denegaciones conservadas: {{ p.proposed.denials.join(', ') || 'Ninguna' }}.</p>
           <p>Se retirarán {{ p.retire.assignments.length }} asignaciones y {{ p.retire.delegations.length }} delegaciones vigentes del destino.</p>
           @for (assignment of p.retire.assignments; track assignment.id) { <p>Retirar asignación: {{ roleName(assignment.roleId) }}</p> }
@@ -88,9 +89,9 @@
   }
   @if (!confirmation && roleDirectory) {
     <div class="editor-body role-directory">
-      <button type="button" [disabled]="busy" (click)="open('role')">Crear rol</button>
+      <div class="role-directory-intro"><p>Consulta las definiciones y sus módulos. Las que están en uso conservan sus restricciones de edición.</p><button class="primary-action" type="button" [disabled]="busy" (click)="open('role')"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14" /></svg>Crear rol</button></div>
       @for (role of directory()?.roles_personalizados; track role.id) {
-        <article><h4>{{ role.name }}</h4><p>Definición: <span class="state-badge">{{ statusLabel(role.status) }}</span></p>
+        <article><div class="role-card-heading"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8z M2 12l10 5 10-5 M2 16l10 5 10-5" /></svg></span><div><h4>{{ role.name }}</h4><p>{{ roleSummary(role) }}</p></div></div><p>Definición: <span class="state-badge">{{ statusLabel(role.status) }}</span></p>
           @if (general() && role.status === 'ACTIVE') { <button type="button" [disabled]="busy || roleInUse(role.id)" (click)="open('role', role)">Editar</button><details class="danger-zone"><summary>Acción sensible sobre la definición</summary><p>Retirar impide nuevas asignaciones y conserva el historial. No se permite si hay asignaciones vigentes.</p><button type="button" class="danger-action" [disabled]="busy || roleInUse(role.id)" (click)="action('deleteRole', role)">Retirar definición</button>@if (roleInUse(role.id)) { <p>Definición en uso: primero deben revisarse sus asignaciones.</p> }</details> }
         </article>
       } @empty { <p>No hay definiciones disponibles.</p> }
@@ -106,9 +107,13 @@
     }
     @if (!confirmation && (mode === 'user' || mode === 'role' || mode === 'delegation')) {
       <form id="security-editor" (ngSubmit)="save()" #editorForm="ngForm">
-        <div class="editor-body">
+        <div class="editor-workspace">
+        <nav class="editor-guide" aria-label="Secciones del formulario">
+          @for (step of editorSteps; track step.id) { <button type="button" [attr.aria-current]="activeEditorSection === step.id ? 'step' : null" (click)="navigateEditor(step.id)"><span>{{ step.number }}</span><span>{{ step.label }}</span></button> }
+        </nav>
+        <div class="editor-body editor-sections" (scroll)="trackEditorSection($event)">
         @if (error) { <p role="alert">{{ error }}</p> }
-        <fieldset><legend>Datos de acceso</legend>
+        <fieldset id="access-data" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">1</span> Datos de acceso</legend><div class="field-grid">
         @if (mode !== 'delegation') { <label>Nombre <input name="name" [(ngModel)]="name" required /></label> }
         @if (mode === 'user') {
           <label>Correo institucional <input name="email" type="email" [(ngModel)]="email" required /></label>
@@ -118,15 +123,15 @@
           <label>Estado <select name="status" [(ngModel)]="status"><option>Activo</option><option>Inactivo</option></select></label>
           <p>El auxiliar obtiene sus facultades mediante una delegación separada. Administración General tiene alcance institucional.</p>
         }
-        </fieldset>
-        <fieldset><legend>Alcance académico</legend>
+        </div></fieldset>
+        <fieldset id="academic-scope" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">2</span> Alcance académico</legend><div class="field-grid">
           <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
           <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
           <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
           @if (true) { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
           <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
-        </fieldset>
-        <fieldset class="modules-block"><legend>Módulos disponibles</legend>
+        </div></fieldset>
+        <fieldset id="available-modules" tabindex="-1" class="form-section modules-block"><legend><span class="section-number" aria-hidden="true">3</span> Módulos disponibles</legend>
           <button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(false)">Quitar todos</button>
           @for (module of modules; track module) {
             <div class="permission-row"><strong>{{ moduleLabels[module] }}</strong>
@@ -136,7 +141,7 @@
           }
           <p>Los catálogos reservados y los módulos administrativos no se conceden mediante roles personalizados. El servidor rechaza una configuración incompatible.</p>
         </fieldset>
-        <details class="special-capabilities"><summary>Facultades administrativas especiales (independientes de Editar)</summary><fieldset><legend>Facultades vigentes</legend>
+        <details id="special-faculties" tabindex="-1" class="special-capabilities form-section"><summary><span class="section-number" aria-hidden="true">4</span> Facultades administrativas especiales <small>Independientes de Editar · {{ selectedCapabilities.length }} seleccionadas</small></summary><fieldset><legend>Facultades vigentes</legend>
             @for (cap of capabilities; track cap) {
               @if (true) {
                 <label><input type="checkbox" [disabled]="mode !== 'delegation' && (mode === 'user' && baseRole === 'ADMIN_OPERATIVO' || cap !== 'REQUEST_TEACHER_MOODLE_IDENTITY')" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
@@ -145,10 +150,10 @@
           </fieldset><p>Las facultades del auxiliar se administran mediante su delegación; los perfiles ordinarios solo admiten solicitar corrección de identidad docente.</p></details>
         <p>Revisa persona, ámbitos y módulos anteriores antes de confirmar. La cuenta de Authentication no se crea desde este formulario.</p>
 
-        </div>
+        </div></div>
         <footer class="editor-actions">
           @if (mode === 'role') { <button type="button" (click)="openRoles()" [disabled]="busy">Volver al directorio</button> }
-          <button type="submit" [disabled]="busy || editorForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>
+          <button class="primary-action" type="submit" [disabled]="busy || editorForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>
         </footer>
       </form>
     }
