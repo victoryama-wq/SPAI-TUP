@@ -1,0 +1,92 @@
+{
+  "at": "2026-10-20T00:46:59.738523+00:00",
+  "base": "896edc1dc0ff878d928fbc9a41e2022b4307b861",
+  "responsible": "Codex: validacion tecnica local",
+  "viewports": [
+    {
+      "width": 1440,
+      "containerWidth": 1376,
+      "twoColumns": true,
+      "buttonRows": 1,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 1280,
+      "containerWidth": 1232,
+      "twoColumns": true,
+      "buttonRows": 1,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 1240,
+      "containerWidth": 1192,
+      "twoColumns": true,
+      "buttonRows": 1,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 1200,
+      "containerWidth": 1152,
+      "twoColumns": false,
+      "buttonRows": 1,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 1024,
+      "containerWidth": 980,
+      "twoColumns": false,
+      "buttonRows": 1,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 768,
+      "containerWidth": 724,
+      "twoColumns": false,
+      "buttonRows": 2,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 390,
+      "containerWidth": 346,
+      "twoColumns": false,
+      "buttonRows": 3,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    },
+    {
+      "width": 320,
+      "containerWidth": 276,
+      "twoColumns": false,
+      "buttonRows": 3,
+      "generalOverflow": false,
+      "buttonFont": "14px",
+      "metrics": "2x2"
+    }
+  ],
+  "existingVisualSuite": {
+    "startTime": "2026-10-20T00:45:44.533Z",
+    "duration": 12175.714,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "buildLan": "passed",
+  "sharedDataHash": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+  "humanAcceptance": "PENDIENTE",
+  "adminDocumentLimit": 200,
+  "r02R03OpenBreaches": 18
+}
