@@ -1,0 +1,357 @@
+{
+  "at": "2026-10-20T00:57:45.026Z",
+  "refs": [
+    {
+      "route": "grupos",
+      "style": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      }
+    },
+    {
+      "route": "nomenclaturas",
+      "style": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      }
+    },
+    {
+      "route": "ciclos",
+      "style": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      }
+    }
+  ],
+  "results": [
+    {
+      "width": 1280,
+      "pageOverflow": false,
+      "cellOverflow": false,
+      "roles": [
+        "Acceso personalizado",
+        "Perfil heredado",
+        "CoordinaciÃ³n AcadÃ©mica",
+        "Alta de Docentes"
+      ],
+      "states": [
+        "Inactivo",
+        "Activo",
+        "Activo",
+        "Activo"
+      ],
+      "buttons": [
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        }
+      ],
+      "heading": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "letterSpacing": "1.04px",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      },
+      "heroRows": 1
+    },
+    {
+      "width": 768,
+      "pageOverflow": false,
+      "cellOverflow": false,
+      "roles": [
+        "Acceso personalizado",
+        "Perfil heredado",
+        "CoordinaciÃ³n AcadÃ©mica",
+        "Alta de Docentes"
+      ],
+      "states": [
+        "Inactivo",
+        "Activo",
+        "Activo",
+        "Activo"
+      ],
+      "buttons": [
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        }
+      ],
+      "heading": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "letterSpacing": "1.04px",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      },
+      "heroRows": 2
+    },
+    {
+      "width": 390,
+      "pageOverflow": false,
+      "cellOverflow": false,
+      "roles": [
+        "Acceso personalizado",
+        "Perfil heredado",
+        "CoordinaciÃ³n AcadÃ©mica",
+        "Alta de Docentes"
+      ],
+      "states": [
+        "Inactivo",
+        "Activo",
+        "Activo",
+        "Activo"
+      ],
+      "buttons": [
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        }
+      ],
+      "heading": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "letterSpacing": "1.04px",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      },
+      "heroRows": 3
+    },
+    {
+      "width": 320,
+      "pageOverflow": false,
+      "cellOverflow": false,
+      "roles": [
+        "Acceso personalizado",
+        "Perfil heredado",
+        "CoordinaciÃ³n AcadÃ©mica",
+        "Alta de Docentes"
+      ],
+      "states": [
+        "Inactivo",
+        "Activo",
+        "Activo",
+        "Activo"
+      ],
+      "buttons": [
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Ver acceso",
+          "height": 38,
+          "overflow": false
+        },
+        {
+          "text": "Editar",
+          "height": 38,
+          "overflow": false
+        }
+      ],
+      "heading": {
+        "backgroundColor": "rgb(248, 251, 255)",
+        "color": "rgb(64, 87, 122)",
+        "padding": "16px 14px",
+        "fontSize": "13px",
+        "fontWeight": "900",
+        "letterSpacing": "1.04px",
+        "textTransform": "uppercase",
+        "borderBottom": "1px solid rgb(215, 228, 248)"
+      },
+      "heroRows": 3
+    }
+  ],
+  "filterChecks": "inactive and empty passed",
+  "base": "11e3bb2553f0f3bc22fb2078a75c8344c7c4d8b8",
+  "responsible": "Codex, comprobacion tecnica local",
+  "existingVisualSuite": {
+    "startTime": "2026-10-20T00:56:40.030Z",
+    "duration": 13978.41,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "buildLan": "passed",
+  "contrast": {
+    "40577a/f8fbff": 7.07,
+    "1d4ed8/edf4ff": 6.06,
+    "137545/e8f7ef": 5.19,
+    "40577a/f1f5f9": 6.7,
+    "1457d6/eef6ff": 5.73
+  },
+  "topLayoutWidths": [
+    1440,
+    1280,
+    1240,
+    1200,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "sharedDataHash": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+  "fixtures": "4 perfiles ficticios adicionales solo en Firestore 18080; sin modificar datos compartidos",
+  "humanAcceptance": "PENDIENTE",
+  "adminDocumentLimit": 200,
+  "r02R03OpenBreaches": 18
+}

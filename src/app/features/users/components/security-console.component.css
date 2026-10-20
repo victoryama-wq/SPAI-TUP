@@ -180,8 +180,6 @@ button .ui-icon { margin-right:7px; width:18px; height:18px; }
 .directory-filters { padding:18px 22px; background:#fff; }
 .directory-filters label { margin:0; color:#435e7e; font-size:12px; }
 .directory-filters input,.directory-filters select { min-height:46px; background:#fbfdff; }
-.operational-panel > .table-scroll { width:calc(100% - 44px); margin:0 22px 24px; }
-.operational-panel table { min-width:930px; font-size:13px; }
 th { background:#eaf4ff; color:#284a70; padding:13px 12px; font-size:11px; }
 td { padding:16px 12px; vertical-align:middle; }
 tbody tr:nth-child(even) { background:#f8fbff; }
@@ -301,7 +299,6 @@ tbody tr:nth-child(even) { background:#f8fbff; }
  .operational-heading { padding:18px 16px; align-items:stretch; }
  .operational-heading > button { width:100%; }
  .directory-filters { padding:16px; }
- .operational-panel > .table-scroll { margin:0 12px 18px; width:calc(100% - 24px); }
  .security-dialog { width:calc(100vw - 16px); max-height:calc(100dvh - 16px); border-radius:9px; }
  .editor-heading { padding:16px; gap:10px; }
  .editor-heading h3 { font-size:22px; }
@@ -332,7 +329,6 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 .profile-dialog .editor-heading .eyebrow { color:#42719a; }
 .profile-dialog .editor-heading-copy p { color:#526b85; }
 .profile-dialog .editor-heading button { color:#396386; background:#fff; border-color:#ccdeef; }
-.operational-panel .row-actions { min-width:195px; }
 @media(max-width:480px) { .permission-row input[type=checkbox] { flex:none; } }
 
 /* Keep the three full-size actions together only when both columns fit. */
@@ -341,3 +337,31 @@ tbody tr:nth-child(even) { background:#f8fbff; }
  .directory-hero .panel-actions { flex-wrap:nowrap; }
  .directory-hero .panel-actions button { flex:none; white-space:nowrap; }
 }
+
+/* Directory only: Grupos/Nomenclaturas table-wrap, cells and status-badge;
+   Ciclos edit-action sizing and palette. Dialog tables keep their own styles. */
+.directory-surface { margin:20px 22px 24px; background:#fff; border:1px solid #d7e4f8; border-radius:8px; overflow:hidden; }
+.directory-surface .directory-filters { padding:18px 14px; }
+.directory-surface > .table-scroll { border:0; border-top:1px solid #d7e4f8; border-radius:0; }
+.directory-surface > .table-scroll:focus-visible { outline-offset:-3px; }
+.directory-table { min-width:1160px; table-layout:fixed; font-size:13px; }
+.directory-table th,.directory-table td { padding:16px 14px; border-bottom:1px solid #d7e4f8; text-align:left; vertical-align:middle; line-height:1.5; }
+.directory-table th { background:#f8fbff; color:#40577a; font-size:13px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+.directory-table th:nth-child(1) { width:21%; }
+.directory-table th:nth-child(2) { width:15%; }
+.directory-table th:nth-child(3) { width:17%; }
+.directory-table th:nth-child(4) { width:15%; }
+.directory-table th:nth-child(5) { width:10%; }
+.directory-table th:nth-child(6) { width:22%; }
+.directory-table td { overflow-wrap:anywhere; white-space:normal; }
+.directory-table tbody tr:last-child td { border-bottom:0; }
+.directory-table .role-badge,.directory-table .state-badge { display:inline-flex; align-items:center; max-width:100%; min-height:30px; padding:7px 12px; border-radius:999px; font-size:13px; font-weight:900; line-height:1.4; }
+.directory-table .role-badge { background:#edf4ff; color:#1d4ed8; }
+.directory-table .state-badge { background:#f1f5f9; color:#40577a; }
+.directory-table .active-badge { background:#e8f7ef; color:#137545; }
+.directory-table .row-actions { min-width:0; align-items:center; gap:6px; }
+.directory-table .row-actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:38px; padding:0 12px; border:1px solid #b7d2f7; border-radius:8px; background:#eef6ff; color:#1457d6; font-size:12px; font-weight:900; white-space:nowrap; }
+.directory-table .row-actions button .ui-icon { width:18px; height:18px; margin:0; stroke-width:2.2; }
+.directory-table .row-actions button:hover:not(:disabled) { background:#edf4ff; border-color:#9fc2f8; }
+.directory-table .row-actions button:disabled { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; cursor:not-allowed; }
+@media(max-width:480px) { .directory-surface { margin:16px 12px 18px; } }
