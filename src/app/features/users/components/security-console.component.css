@@ -16,7 +16,6 @@ button.primary-action:hover:not(:disabled),.section-navigation button[aria-press
 .users-title-card h2 { margin:6px 0; color:white; font-size:24px; line-height:1.2; }
 .users-title-card p { font-size:13px; line-height:1.5; }
 button.card-create { background:white; color:#102d65; margin-top:14px; text-transform:uppercase; font-size:10px; letter-spacing:.06em; }
-button.card-create::before { content:'+'; margin-right:8px; font-size:17px; }
 .users-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .users-metrics article { display:flex; gap:12px; align-items:center; padding:14px 18px; background:white; border:1px solid #d7e4f8; border-radius:7px; box-shadow:0 8px 20px #0f23530d; min-width:0; }
 .metric-icon { display:grid; place-items:center; flex:0 0 32px; height:32px; border-radius:50%; background:#eef5ff; color:#22549b; font-size:20px; }
@@ -157,9 +156,13 @@ button .ui-icon { margin-right:7px; width:18px; height:18px; }
 .users-title-card h2 { font-size:34px; letter-spacing:-.025em; margin:8px 0; }
 .users-title-card p { font-size:15px; color:#e0edfc; max-width:470px; }
 .directory-hero .panel-actions { justify-content:flex-end; gap:10px; max-width:550px; }
-.directory-hero .panel-actions button { padding:12px 16px; border-color:#91b4e4; background:#ffffff0d; color:white; font-size:13px; }
-.directory-hero .panel-actions button:hover:not(:disabled) { background:#ffffff20; }
+/* Nomenclaturas: primary-action sizing, label typography and import/template palette. */
+.directory-hero .panel-actions button { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:40px; padding:8px 14px; border:1px solid rgb(255 255 255 / .34); border-radius:8px; background:#244a9b; color:white; font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.directory-hero .panel-actions button .ui-icon { width:22px; height:22px; margin:0; stroke-width:2; }
+.directory-hero .panel-actions button span { min-width:0; }
+.directory-hero .panel-actions button:hover:not(:disabled) { background:#1e3a8a; }
 .directory-hero .panel-actions .card-create { background:#42c9f1; color:#072f62; border-color:#42c9f1; }
+.directory-hero .panel-actions .card-create:hover:not(:disabled) { background:#4ac9ed; }
 .users-metrics { gap:14px; margin-top:18px; }
 .users-metrics article { min-height:102px; padding:18px; gap:16px; background:linear-gradient(125deg,#fff,#f5faff); }
 .metric-icon { flex-basis:46px; height:46px; border-radius:10px; background:#e1f3ff; color:#0874bf; }
@@ -168,9 +171,12 @@ button .ui-icon { margin-right:7px; width:18px; height:18px; }
 .users-metrics strong { font-size:29px; }
 .users-metrics div > span { font-size:13px; color:#334e70; }
 .scope-note { margin:12px 2px 18px; max-width:1100px; }
-.operational-heading { background:linear-gradient(110deg,#fff,#f1f8ff); color:#0b2a57; padding:22px 24px; border-bottom:1px solid #dae6f4; }
-.operational-heading .eyebrow { color:#45648a; }
-.operational-heading h3 { font-size:28px; }
+/* Same title strip and top rule as Nomenclaturas .table-panel > .panel-title. */
+.operational-heading { position:relative; background:linear-gradient(135deg,#071d4f 0%,#0b357f 100%); color:white; padding:18px 30px; border-bottom:0; }
+.operational-heading::before { content:''; position:absolute; inset:0 0 auto; height:4px; background:linear-gradient(90deg,#1d4ed8,#0ea5e9,transparent); border-radius:7px 7px 0 0; pointer-events:none; }
+.operational-heading .eyebrow { color:white; }
+.operational-heading h3 { color:white; font-size:clamp(22px,2.4vw,30px); margin-top:6px; }
+.operational-heading > button { flex:0 1 auto; max-width:100%; background:white; color:#0b3f8d; border:0; border-radius:8px; min-height:40px; padding:8px 14px; font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .directory-filters { padding:18px 22px; background:#fff; }
 .directory-filters label { margin:0; color:#435e7e; font-size:12px; }
 .directory-filters input,.directory-filters select { min-height:46px; background:#fbfdff; }
@@ -285,15 +291,15 @@ tbody tr:nth-child(even) { background:#f8fbff; }
  .users-title-card h2 { font-size:29px; }
  .users-title-card p { font-size:14px; }
  .directory-hero .panel-actions { gap:8px; }
- .directory-hero .panel-actions button { padding:12px; }
+ .directory-hero .panel-actions button { padding:8px 14px; width:100%; }
  .users-metrics { gap:10px; }
  .users-metrics article { flex-direction:column; align-items:flex-start; padding:14px; gap:10px; }
  .metric-icon { flex:0 0 36px; width:36px; height:36px; }
  .metric-icon .ui-icon { width:24px; height:24px; }
  .users-metrics strong { font-size:27px; }
  .users-metrics div > span { font-size:12px; }
- .operational-heading { padding:20px 16px; }
- .operational-heading h3 { font-size:25px; }
+ .operational-heading { padding:18px 16px; align-items:stretch; }
+ .operational-heading > button { width:100%; }
  .directory-filters { padding:16px; }
  .operational-panel > .table-scroll { margin:0 12px 18px; width:calc(100% - 24px); }
  .security-dialog { width:calc(100vw - 16px); max-height:calc(100dvh - 16px); border-radius:9px; }

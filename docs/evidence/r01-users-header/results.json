@@ -1,0 +1,32 @@
+{
+  "at": "2026-10-20T00:37:39.039292+00:00",
+  "base": "2383d96d3ba1d38303f343e893e398cc21bb7e66",
+  "responsible": "Codex; verificacion tecnica local",
+  "viewports": [
+    1280,
+    768,
+    390,
+    320
+  ],
+  "existingVisualTests": {
+    "startTime": "2026-10-20T00:35:39.755Z",
+    "duration": 14339.458999999999,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "captureCheck": "8 module/viewport combinations, no general overflow; 16 modal open/Escape/focus-return checks; no securityCommand writes",
+  "contrast": {
+    "ffffff/071d4f": 16.18,
+    "ffffff/0b357f": 11.48,
+    "ffffff/244a9b": 8.31,
+    "072f62/42c9f1": 6.82,
+    "0b3f8d/ffffff": 9.95
+  },
+  "build": "ng build --configuration lan --output-path .local/users-header/build-lan: exit 0",
+  "sharedDataHash": "cfd37e58a04ac36d585440cfb76e4bf50313ac34e287fcbc489b1f7591e7a6c3",
+  "humanAcceptance": "PENDIENTE",
+  "r02R03OpenBreaches": 18,
+  "adminDocumentLimit": 200
+}
