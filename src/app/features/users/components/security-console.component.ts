@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { randomId } from '../../../core/utils/random-id';
 import { Component, computed, effect, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CycleScopePickerComponent } from './cycle-scope-picker.component';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AppUser, EffectiveLevel, ModuleAccess } from '../data/users.repository';
 import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, MigrationPreview, InheritancePreview } from '../data/security.service';
 
 @Component({
   host: { '(window:focus)': 'refreshDirectory()' },
-  selector: 'spai-security-console', imports: [CommonModule, FormsModule],
+  selector: 'spai-security-console', imports: [CommonModule, FormsModule, CycleScopePickerComponent],
   templateUrl: './security-console.component.html', styleUrl: './security-console.component.css',
 })
 export class SecurityConsoleComponent {
@@ -38,8 +39,15 @@ export class SecurityConsoleComponent {
   initials(name: string): string { return name.trim().split(/\s+/).slice(0, 2).map(part => part[0] ?? '').join('').toUpperCase(); }
   inheritanceTarget(): AppUser | undefined { return this.profiles().find(user => user.id === this.destinationId); }
   scopeText(scope: AppUser['scope']): string {
-    return [['Programas',scope?.programs],['Ciclos',scope?.cycles],['Docentes',scope?.teachers],['Campos',scope?.fields]].map(([label, values]) => `${label}: ${(values as string[] | undefined)?.join(', ') || 'Sin ámbito'}`).join(' · ');
+    return [['Programas',scope?.programs],['Ciclos',scope?.cycles],['Docentes',scope?.teachers],['Campos',scope?.fields]].map(([label, values]) => `${label}: ${this.displayScope(values as string[] | undefined)}`).join(' · ');
   }
+  displayScope(values?: string[]): string { return values?.map(value => value === '*' ? 'Todos' : value).join(', ') || 'Sin ámbito'; }
+  scopeInput(value: string): string { return value.split(',').map(part => part.trim() === '*' ? 'Todos' : part).join(','); }
+  parseScopeInput(value: string): string { return value.split(',').map(part => part.trim().toLocaleLowerCase() === 'todos' ? '*' : part).join(','); }
+  selectedCycles(): string[] { return this.values(this.cycles); }
+  changeCycles(values: string[]): void { this.cycles = values.join(', '); this.selectionChanged(); }
+  canEditScope(): boolean { return this.general() && this.editIntent !== 'assignment' && !(this.mode === 'user' && ['ADMIN_GENERAL','ADMIN_OPERATIVO'].includes(this.baseRole ?? '')); }
+  canGrantGlobalCycles(): boolean { return this.canEditScope() && !(this.mode === 'user' && this.editorPerson() && this.isOwnIdentity(this.editorPerson()!)); }
   capabilityText(capabilities: string[]): string { return capabilities.map(capability => this.capabilityLabels[capability] || capability).join(', ') || 'Ninguna'; }
   roleSummary(role: SecurityRecord): string {
     const labels = Object.entries(role.permissions ?? {}).filter(([,level]) => level === 'VIEW' || level === 'EDIT').map(([module]) => this.moduleLabels[module]);
@@ -136,7 +144,7 @@ export class SecurityConsoleComponent {
   scopeLabels(access: Pick<AppUser, 'scope' | 'capabilities'>, key: 'programs' | 'cycles' | 'teachers' | 'fields'): string[] {
     const values = access.scope?.[key];
     if (!values?.length) return [key === 'fields' && Array.isArray(values) && !access.capabilities?.includes('OPERATE_EXCEPTIONAL_CHANGE')
-      ? 'No aplica: sin facultad extraordinaria' : 'Sin alcance concedido'];
+      ? 'No aplica: sin facultad extraordinaria' : 'Sin ámbito'];
     const labels: Record<string, string> = {
       teacherId: 'Docente', teacherName: 'Nombre del docente', teacherMoodleUser: 'Identidad docente en Moodle',
       group: 'Grupo', groupIds: 'Grupos', sharedGroups: 'Grupos compartidos', program: 'Programa',
@@ -319,10 +327,10 @@ export class SecurityConsoleComponent {
       if (generation === this.sessionGeneration) { this.error = this.errorText(e); this.confirmation = null; this.showDialog(); }
     } finally { if (generation === this.sessionGeneration) this.busy = false; }
   }
-  search = ''; statusFilter = '';
+  statusFilter = '';
   readonly coordinators = computed(() => this.profiles().filter(u => u.baseRole === 'COORDINACION_ACADEMICA'));
   readonly availableRoles = computed(() => this.directory()?.roles_personalizados.filter(r => r.status === 'ACTIVE') ?? []);
-  filteredProfiles(): AppUser[] { const q=this.search.trim().toLocaleLowerCase(); return this.profiles().filter(u => (!this.statusFilter || u.status === this.statusFilter) && `${u.name} ${u.email} ${this.roleLabels[u.baseRole ?? ''] ?? ''}`.toLocaleLowerCase().includes(q)); }
+  filteredProfiles(): AppUser[] { return this.profiles().filter(u => !this.statusFilter || u.status === this.statusFilter); }
   selectedPerson(): AppUser | undefined { return this.profiles().find(u => u.id === this.selectedUserId); }
   personAssignments(): SecurityRecord[] { return this.directory()?.asignaciones_roles.filter(a => a.userId === this.selectedUserId) ?? []; }
   activePersonAssignments(): number { return this.personAssignments().filter(a => a.status === 'ACTIVE').length; }

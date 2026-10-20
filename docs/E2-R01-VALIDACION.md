@@ -246,3 +246,13 @@ VALIDADA_LOCAL; aceptación visual/humana PENDIENTE. T01 físico, T07 funcional,
 28 unitarias, 37 R01 + 9 Auxiliar + 8 Control de accesos + 21 Herencia; 72 caracterizaciones. Primera interfaz 52/53 por recorrido antiguo del selector; corregida la navegación, 53/53. Verificación final de ficha tras completar etiquetas: 7/7. Compilaciones aislada, LAN y producción correctas; aviso de bundle 779,82/750 kB. Gate estricto salida 1, mismos 18 IDs pendientes. Las ejecuciones intermedias y su causa se conservan en el informe.
 
 Ajuste VALIDADO_LOCAL; aceptación humana y visual PENDIENTE. Se mantienen evidencias físicas T01/T07/T11, T10 humano pendiente y límite administrativo de 200 documentos. Se registra aparte un error de complejidad observado en notificaciones del auxiliar (Rules L242), pendiente de diagnóstico R01; no se computa como denegación válida ni se oculta cambiando Rules. Datos compartidos/delegación y respaldo/selección intactos por hash; ningún reinicio de servicios LAN. Solo comprobación desde anfitrión, sin aceptación remota ni productiva.
+
+## Complemento 2026-10-20 — Ámbitos y selector de ciclos
+
+Responsable técnico: Codex. Base `e24dbd23ccb2b6a283dfbb3db6d5a358005cfc9c`; rama R01 conservada. Informe: [Ámbitos y ciclos](E2-R01-AMBITOS-CICLOS-2026-10-20.md); evidencia: `evidence/r01-scope-selector/`.
+
+Todos sustituye únicamente la representación visible del token global; vacío = Sin ámbito. Selector múltiple de ciclos autorizados por estado, con códigos reales conservados, selección global excluyente y valores no resueltos retenidos. Se retira el buscador; permanece el filtro de cuenta y las advertencias de directorio limitado. Sin cambios de Rules, Functions, herencia o consultas del directorio.
+
+28 unitarias, 75 casos de servidor (37 + 9 + 8 + 21), 72 caracterizaciones y 59/59 interfaz. LAN/producción compilan; advertencia de 779,99/750 kB. Gate contractual salida 1, mismos 18 IDs pendientes. Rechazo global del auxiliar confirmado mediante `assignRole` y `saveUser`, sin cambios parciales. Sonda adicional de escritura directa en Rules L70 **INCONCLUSA** por error del evaluador: no se contabiliza como denegación válida, aunque no escribió datos. La ejecución estricta fallida y el diagnóstico se conservan separados de la validación de interfaz/callables.
+
+Aceptación humana/visual PENDIENTE; no validación productiva. Se conservan las evidencias humanas anteriores, el impedimento de 200 documentos y los pendientes R02/R03. Datos compartidos y privados intactos por hash, mismos procesos LAN; comprobación solo desde anfitrión.

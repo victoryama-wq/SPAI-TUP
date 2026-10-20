@@ -139,9 +139,10 @@ for(const [width,height] of [[1366,900],[768,1024],[1032,1376],[390,844]])test(`
  const opener=page.locator('.panel-actions').getByRole('button',{name:'Nuevo usuario',exact:true});await expect(opener).toBeVisible();
  await page.screenshot({path:resolve(evidence,`directorio-usuarios-after-${width}.png`),fullPage:true});
  await opener.click();const dialog=page.getByRole('dialog');
- for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Ciclos (códigos separados por coma)','Docentes (identidades verificadas, separadas por coma)','Campos extraordinarios permitidos']){
+ for(const label of ['Nombre','Correo institucional','Área institucional real','Perfil','Saludo','Estado','Programas (claves separadas por coma)','Docentes (identidades verificadas, separadas por coma)','Campos extraordinarios permitidos']){
   const field=['Perfil','Saludo','Estado'].includes(label)?dialog.getByRole('combobox',{name:label,exact:true}):dialog.getByLabel(label,{exact:true});await field.focus();await expect(field).toBeFocused();await expect(field).toBeInViewport();
  }
+ await dialog.locator('spai-cycle-scope-picker summary').focus();await expect(dialog.locator('spai-cycle-scope-picker summary')).toBeFocused();await expect(dialog.locator('spai-cycle-scope-picker summary')).toBeInViewport();
  const body=dialog.locator('.editor-body');await body.evaluate(el=>el.scrollTop=0);
  expect(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
  // The new composition uses a navigation rail and one scrolling stack of cards.

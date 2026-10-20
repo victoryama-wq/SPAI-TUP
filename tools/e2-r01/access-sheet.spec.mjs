@@ -55,7 +55,7 @@ for(const width of [320,390,768,1280])test(`FICHA presentación, ámbitos, tecla
  await expect(dialog).toContainText('Perfil y permisos vigentes');await expect(dialog).toContainText('1 revisiones pendientes');
  await expect(dialog.locator('.person-permissions')).toContainText('Acceso efectivo: Consultar');
  await expect(dialog.locator('.scope-grid')).toContainText('ADM');await expect(dialog.locator('.scope-grid')).toContainText('27-1');
- await expect(dialog.locator('.scope-grid')).toContainText('Sin alcance concedido');await expect(dialog.locator('.scope-grid')).toContainText('No aplica');
+ await expect(dialog.locator('.scope-grid')).toContainText('Sin ámbito');await expect(dialog.locator('.scope-grid')).toContainText('No aplica');
  await expect(dialog.getByText('Asignar un rol preaprobado',{exact:true})).toHaveCount(0);
  await expect(dialog.locator('.person-history')).not.toHaveAttribute('open','');
  await expect(dialog.locator('#security-editor-title')).toBeFocused();
@@ -80,7 +80,7 @@ test('FICHA cuenta inactiva, global explícito, ámbito ausente y delegación re
  await person(page,'demo.sistemas@');await expect(dialog.locator('.scope-values')).toHaveText(['Todos','Todos','Todos','Todos']);await page.screenshot({path:resolve(out,'global.png'),fullPage:true});await page.keyboard.press('Escape');
  await db.doc('usuarios/sheet-person').update({status:'Inactivo',permissions:P.levels({asignaciones:'VIEW'}),scope:null});
  await page.reload();await person(page);await expect(dialog).toContainText('Cuenta inactiva');await expect(dialog.locator('.person-permissions')).toContainText('Configurado: Consultar');await expect(dialog.locator('.person-permissions')).toContainText('No habilitado');await expect(dialog.locator('.scope-values')).not.toContainText(['Todos','Todos','Todos','Todos']);
- await expect(dialog.locator('.scope-values')).toHaveText(Array(4).fill('Sin alcance concedido'));await page.screenshot({path:resolve(out,'inactiva.png'),fullPage:true});await page.keyboard.press('Escape');
+ await expect(dialog.locator('.scope-values')).toHaveText(Array(4).fill('Sin ámbito'));await page.screenshot({path:resolve(out,'inactiva.png'),fullPage:true});await page.keyboard.press('Escape');
  await db.doc('delegaciones/sheet-grant').update({status:'REVOKED',revision:2,scope:{...scope,fields:['studentEnrollments','teacherName','sharedGroups']}});await page.reload();await person(page,'demo.auxiliar@');
  await expect(dialog).toContainText('la delegación no está vigente');await expect(dialog.locator('.person-permissions')).toContainText('Configurado: Consultar');await expect(dialog.locator('.person-permissions')).not.toContainText('Acceso efectivo: Consultar');
  await expect(dialog.locator('.scope-grid')).toContainText('Matrículas');await expect(dialog.locator('.scope-grid')).toContainText('Nombre del docente');await expect(dialog.locator('.scope-grid')).toContainText('Grupos compartidos');await expect(dialog.locator('.scope-grid')).not.toContainText('studentEnrollments');

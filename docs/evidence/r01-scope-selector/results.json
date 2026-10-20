@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-20T21:57:41.542574+00:00",
+  "baseCommit": "e24dbd23ccb2b6a283dfbb3db6d5a358005cfc9c",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "commitLocator": "git log -1 --format=%H -- docs/E2-R01-AMBITOS-CICLOS-2026-10-20.md",
+  "technicalStatus": "UI_AND_CALLABLES_VALIDATED_LOCAL; DIRECT_RULES_PROBE_INCONCLUSIVE",
+  "humanAcceptance": "PENDING",
+  "unitPassed": 28,
+  "ui": {
+    "startTime": "2026-10-20T21:52:55.131Z",
+    "duration": 278128.014,
+    "expected": 59,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "serverPassed": {
+    "auxiliar": 9,
+    "controlAccesos": 8,
+    "herencia": 21,
+    "r01": 37
+  },
+  "characterizationPassed": 72,
+  "contractGate": {
+    "exitCode": 1,
+    "failures": 18,
+    "idsUnchanged": true,
+    "ids": [
+      "REQUEST-TERMINAL-REWRITE",
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "CYCLE-MULTIPLE-OPERATIVE",
+      "CYCLE-SELECTION-ORDER",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ]
+  },
+  "builds": {
+    "lan": "PASS",
+    "production": "PASS",
+    "productionBudgetWarning": "779.99 kB / 750 kB"
+  },
+  "directRulesProbe": {
+    "status": "INCONCLUSIVE_EVALUATOR",
+    "code": "permission-denied",
+    "message": "7 PERMISSION_DENIED: \nevaluation error at L70:22 for 'update' @ L70, false for 'update' @ L259, false for 'update' @ L70, false for 'update' @ L259",
+    "creditedAsPolicyDenial": false
+  },
+  "preservation": {
+    "sharedHashBefore": "7762bebccbc2b89c234745407662140e1b483654e21c4b6a05d5fdde23243393",
+    "sharedServicesRestarted": false,
+    "privateDataUsed": false
+  },
+  "limitations": [
+    "200 security documents",
+    "18 R02/R03 failures",
+    "Rules L70 evaluator diagnosis",
+    "Prior auxiliary notifications complexity diagnosis",
+    "Owner acceptance pending"
+  ]
+}

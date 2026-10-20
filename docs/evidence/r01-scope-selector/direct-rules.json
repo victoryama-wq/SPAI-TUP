@@ -1,0 +1,6 @@
+{
+  "status": "INCONCLUSIVE_EVALUATOR",
+  "code": "permission-denied",
+  "message": "7 PERMISSION_DENIED: \nevaluation error at L70:22 for 'update' @ L70, false for 'update' @ L259, false for 'update' @ L70, false for 'update' @ L259",
+  "creditedAsPolicyDenial": false
+}

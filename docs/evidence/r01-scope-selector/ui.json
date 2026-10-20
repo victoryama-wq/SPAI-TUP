@@ -1,0 +1,2230 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe",
+      "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "tools/e2-r01/playwright.config.mjs"
+    ],
+    "configFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\tools\\e2-r01\\playwright.config.mjs",
+    "rootDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/tools/e2-r01",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/.local/test-results/r01-ui",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/tools/e2-r01",
+        "testIgnore": [],
+        "testMatch": [
+          "ui.spec.mjs",
+          "acceptance.spec.mjs",
+          "navigation.spec.mjs",
+          "auxiliary.spec.mjs",
+          "access.spec.mjs",
+          "users-layout.spec.mjs",
+          "inheritance.spec.mjs",
+          "visual-refine.spec.mjs",
+          "access-sheet.spec.mjs",
+          "scope-selector.spec.mjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\.local\\test-results\\r01-ui.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "\"C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe\" node_modules/@angular/cli/bin/ng.js serve --configuration isolated --host 127.0.0.1 --port 4202",
+      "cwd": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\",
+      "url": "http://127.0.0.1:4202",
+      "timeout": 120000,
+      "reuseExistingServer": false,
+      "env": {
+        "NG_CLI_ANALYTICS": "false"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "acceptance.spec.mjs",
+      "file": "acceptance.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "T09 identidad CUSTOM autenticable: UI, ámbitos y rechazos directos de servidor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8272,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "[2026-10-20T21:53:10.062Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea017e error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:10.084Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea017f error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:10.101Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0180 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:10.117Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0181 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:10.130Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0182 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L168:22 for 'delete' @ L168, false for 'delete' @ L259, false for 'delete' @ L168, false for 'delete' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:10.162Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0183 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L166:22 for 'create' @ L166, false for 'create' @ L259, evaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'create' @ L166, false for 'create' @ L259\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:08.911Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-86693e820313c54332dc",
+          "file": "acceptance.spec.mjs",
+          "line": 49,
+          "column": 1
+        },
+        {
+          "title": "T10 excepción académica global en Captura; CUSTOM y auxiliar conservan su ámbito",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8701,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "[2026-10-20T21:53:18.077Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0185 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:18.157Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0187 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    },
+                    {
+                      "text": "[2026-10-20T21:53:18.245Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea0189 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:17.321Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-84fcc8b36ef2954cecee",
+          "file": "acceptance.spec.mjs",
+          "line": 76,
+          "column": 1
+        },
+        {
+          "title": "T11 revocación: siguientes operaciones denegadas y rol del destinatario activo con revisión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4059,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "[2026-10-20T21:53:29.656Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea018b error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L167:22 for 'update' @ L167, false for 'update' @ L259, false for 'update' @ L167, false for 'update' @ L259\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:26.046Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-7b055eccff216f02062b",
+          "file": "acceptance.spec.mjs",
+          "line": 113,
+          "column": 1
+        },
+        {
+          "title": "CO-11 formulario y roles accesibles 1366x900",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4700,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:30.130Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-ba713d7bc7407b55813e",
+          "file": "acceptance.spec.mjs",
+          "line": 137,
+          "column": 75
+        },
+        {
+          "title": "CO-11 formulario y roles accesibles 768x1024",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3889,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:34.854Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-c3d88b3e8fcd1d41efc6",
+          "file": "acceptance.spec.mjs",
+          "line": 137,
+          "column": 75
+        },
+        {
+          "title": "CO-11 formulario y roles accesibles 1032x1376",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:38.758Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-4f3dbf01dac8ef07c685",
+          "file": "acceptance.spec.mjs",
+          "line": 137,
+          "column": 75
+        },
+        {
+          "title": "CO-11 formulario y roles accesibles 390x844",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3733,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:43.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7b63c9d006c1fb220de7-755e399962d3274742ce",
+          "file": "acceptance.spec.mjs",
+          "line": 137,
+          "column": 75
+        }
+      ]
+    },
+    {
+      "title": "access-sheet.spec.mjs",
+      "file": "access-sheet.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:47.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-884be722a54fde116e73",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3444,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:50.524Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-36ad2e8ca694c6256a62",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:53.984Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-f6307209146f282bc39f",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4418,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:53:57.908Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-ec9e709f89a865d5dc0b",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA cuenta inactiva, global explícito, ámbito ausente y delegación revocada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:02.341Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-f0b4574e2aa1b7c12d05",
+          "file": "access-sheet.spec.mjs",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "FICHA auxiliar: editor restringido, cancelación limpia y asignación auditada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:08.125Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-c7f20388ef32f63c20cb",
+          "file": "access-sheet.spec.mjs",
+          "line": 89,
+          "column": 1
+        },
+        {
+          "title": "FICHA versión obsoleta y revocación rechazan la asignación sin cambios parciales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3789,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:12.513Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-b859ef8686c69f615a8f",
+          "file": "access-sheet.spec.mjs",
+          "line": 106,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "access.spec.mjs",
+      "file": "access.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "ACCESS VIEW institucional positivo sin acciones de escritura; recarga",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5100,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:16.372Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-e8c3887cfb078a415299",
+          "file": "access.spec.mjs",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "ACCESS cambio Sistemas→Auxiliar limitado, ámbito vacío y revocación abierta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9347,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:21.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-d9804d25e4f79b958255",
+          "file": "access.spec.mjs",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "ACCESS vacío confirmado frente a error de consulta real, sin ceros engañosos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:30.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-9ce7bd7dbaaf1fd173a7",
+          "file": "access.spec.mjs",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "ACCESS sin módulo: URL directa y recarga no muestran datos protegidos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:34.654Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-337fc8cf16fcd144e1d4",
+          "file": "access.spec.mjs",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "ACCESS ficha desktop: estados, motivo propio y retiro seguro",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5226,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:40.060Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-da18d62ecdce0c1ab37e",
+          "file": "access.spec.mjs",
+          "line": 31,
+          "column": 114
+        },
+        {
+          "title": "ACCESS ficha tablet: estados, motivo propio y retiro seguro",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4817,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:45.305Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-340c016cc6ccbb16db9a",
+          "file": "access.spec.mjs",
+          "line": 31,
+          "column": 114
+        },
+        {
+          "title": "ACCESS ficha mobile: estados, motivo propio y retiro seguro",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:50.135Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-91fef40dbeead3aed831",
+          "file": "access.spec.mjs",
+          "line": 31,
+          "column": 114
+        },
+        {
+          "title": "ACCESS ficha small: estados, motivo propio y retiro seguro",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:54.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1328cab432918290d9d-510960f4341bce346944",
+          "file": "access.spec.mjs",
+          "line": 31,
+          "column": 114
+        }
+      ]
+    },
+    {
+      "title": "auxiliary.spec.mjs",
+      "file": "auxiliary.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "AUX caducidad de delegación retira datos y navegación sin otra escritura",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:54:58.884Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-b7a3db77926f44925ba7",
+          "file": "auxiliary.spec.mjs",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "AUX ámbito vacío comprobado: sin consultas imposibles ni acciones ni ceros verificados",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5658,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:01.708Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-e87f63e82c51a40fb48b",
+          "file": "auxiliary.spec.mjs",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "AUX VIEW positivo, recarga y cambio Sistemas → Auxiliar sin datos ni capacidades anteriores",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:07.382Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-a5eec6432374db7c29da",
+          "file": "auxiliary.spec.mjs",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "AUX revocación directa de delegación retira menú, datos y ruta con proyección antigua intacta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6211,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:17.704Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-8e662da0440a6e6af4d2",
+          "file": "auxiliary.spec.mjs",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "AUX consulta vacía válida, error técnico y recarga de recuperación son estados distintos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4651,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:23.934Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-9d4087f4da0253100fc1",
+          "file": "auxiliary.spec.mjs",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "AUX EDIT sin capacidades sensibles permite ficha pero no administra Moodle",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:28.605Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-e0a57ad808b35fae6e5f",
+          "file": "auxiliary.spec.mjs",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "AUX rechazo real del servidor no se presenta como lista vacía ni permite exportar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3009,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:32.161Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01061f9e425c4d63c2fc-aad6f49cfd86eb2d282f",
+          "file": "auxiliary.spec.mjs",
+          "line": 72,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "inheritance.spec.mjs",
+      "file": "inheritance.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "HERENCIA recorrido modal y cancelación 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2947,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:35.212Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b34610813098c40ec389-6037c5e5614bd6698326",
+          "file": "inheritance.spec.mjs",
+          "line": 20,
+          "column": 39
+        },
+        {
+          "title": "HERENCIA recorrido modal y cancelación 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3294,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:38.175Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b34610813098c40ec389-c7a84bf712268231d5f7",
+          "file": "inheritance.spec.mjs",
+          "line": 20,
+          "column": 39
+        },
+        {
+          "title": "HERENCIA recorrido modal y cancelación 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3250,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:41.488Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b34610813098c40ec389-8ef3eef61e8f01fe7338",
+          "file": "inheritance.spec.mjs",
+          "line": 20,
+          "column": 39
+        },
+        {
+          "title": "HERENCIA recorrido modal y cancelación 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3423,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:44.759Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b34610813098c40ec389-61a962cb1f187791bebb",
+          "file": "inheritance.spec.mjs",
+          "line": 20,
+          "column": 39
+        },
+        {
+          "title": "HERENCIA confirmar, reemplazo explícito y preview obsoleta en recorrido real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3703,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:48.199Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b34610813098c40ec389-fe054d4d7b8f947a11fd",
+          "file": "inheritance.spec.mjs",
+          "line": 35,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "navigation.spec.mjs",
+      "file": "navigation.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "H002 login real, URL Dashboard, recarga e historial sin inserción protegida ni consultas ajenas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8015,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:51.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-6890f94a0272d2296824",
+          "file": "navigation.spec.mjs",
+          "line": 61,
+          "column": 1
+        },
+        {
+          "title": "H002 permisos sin resolver: no se crea el Dashboard mientras se espera el perfil del servidor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1672,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:55:59.980Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-1fbb5929bd29439342fc",
+          "file": "navigation.spec.mjs",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "Sesión persistida de una versión antigua se invalida; un nuevo login completo no requiere doble ingreso",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2475,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:01.673Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-209ed90bbbb499ce7f1a",
+          "file": "navigation.spec.mjs",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "H002 cambio Sistemas → Consulta limpia los datos y cancela suscripciones de la sesión previa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1971,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:04.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-e160af68c028cc547c28",
+          "file": "navigation.spec.mjs",
+          "line": 94,
+          "column": 1
+        },
+        {
+          "title": "H002 lecturas directas del servidor: sin usuarios, roles, solicitudes ni agenda ajenos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:06.154Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-6a55525690d35a0bf6fa",
+          "file": "navigation.spec.mjs",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "H002 sin módulos no hay bucle; revocar Dashboard retira contenido y suscripciones",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:06.535Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-103e9da9ea47af12fdab",
+          "file": "navigation.spec.mjs",
+          "line": 117,
+          "column": 1
+        },
+        {
+          "title": "H003 nombre completo sin superposición en Dashboard autorizado: escritorio, tabletas y móvil",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2477,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:10.734Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eea81427e4fb2b1abe7d-ca8bdc7eeaa71179bc3c",
+          "file": "navigation.spec.mjs",
+          "line": 133,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "scope-selector.spec.mjs",
+      "file": "scope-selector.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:13.247Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-11899b1f924ced87f7a0",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3606,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:16.978Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-def2cf0614073f4155cd",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5947,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:20.602Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-f3163ddf61355b3c26ad",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:26.571Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-eadf8023300de0dc758e",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO global excluyente, individual, múltiple, vacío y presentación Todos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6385,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:30.952Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-91d3526f0f52a6bc5079",
+          "file": "scope-selector.spec.mjs",
+          "line": 49,
+          "column": 1
+        },
+        {
+          "title": "ÁMBITO auxiliar: global rechazado por interfaz/callables y diagnóstico de escritura directa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "Rules probe",
+                  "description": "INCONCLUSO: error de evaluador; no acredita cumplimiento de Rules"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "[2026-10-20T21:56:40.131Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x6fea018e error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L70:22 for 'update' @ L70, false for 'update' @ L259, false for 'update' @ L70, false for 'update' @ L259\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:37.349Z",
+                  "annotations": [
+                    {
+                      "type": "Rules probe",
+                      "description": "INCONCLUSO: error de evaluador; no acredita cumplimiento de Rules"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-c109cafd98b137b720f4",
+          "file": "scope-selector.spec.mjs",
+          "line": 60,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "ui.spec.mjs",
+      "file": "ui.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Administración configura Consultar/Editar y confirma un rol auditado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3438,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:40.973Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-61ffffd8938b8fbeaa0a",
+          "file": "ui.spec.mjs",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "Coordinación consulta sus módulos y no abre el directorio administrativo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3094,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:44.431Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-eaecd7e79936a3e45568",
+          "file": "ui.spec.mjs",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "Una sesión auxiliar abierta pierde el directorio al revocar su delegación",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2757,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:47.548Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-ceb95458ae2052ec5b7f",
+          "file": "ui.spec.mjs",
+          "line": 65,
+          "column": 1
+        },
+        {
+          "title": "CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritorio y móvil",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:50.325Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-d0c0fc44e05aff1f084b",
+          "file": "ui.spec.mjs",
+          "line": 103,
+          "column": 1
+        },
+        {
+          "title": "CO-02 CUSTOM VIEW muestra únicamente Asignaciones concedidas y ninguna acción operativa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3179,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:54.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-13146840c182f7dc8a76",
+          "file": "ui.spec.mjs",
+          "line": 143,
+          "column": 1
+        },
+        {
+          "title": "UI retira autorización temporal al vencer y al cambiar el mapeo en sesión abierta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2642,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:56:57.479Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-b995b4b2130c2ec29d56",
+          "file": "ui.spec.mjs",
+          "line": 161,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "users-layout.spec.mjs",
+      "file": "users-layout.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "USUARIOS métricas confirmadas, error/reintento, estado heredado y ámbito auxiliar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6399,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:00.164Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df7e803e2a5598f7f572-b62381a4c989ba029ca0",
+          "file": "users-layout.spec.mjs",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "USUARIOS transición: modal único, cancelación sin escritura y preview obsoleta rechazada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:06.582Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df7e803e2a5598f7f572-b4e1457259eb40cfae15",
+          "file": "users-layout.spec.mjs",
+          "line": 23,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "visual-refine.spec.mjs",
+      "file": "visual-refine.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4229,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:12.751Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-edcf0d99297bed549c1b",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:16.997Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-01c50a7cb8ed8e4e8c07",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4640,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:21.116Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-f49de207ca8206cffad3",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5108,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T21:57:25.773Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-c11a2b01055f984324b6",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T21:52:55.131Z",
+    "duration": 278128.014,
+    "expected": 59,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

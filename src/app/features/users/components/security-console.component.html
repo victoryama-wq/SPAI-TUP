@@ -17,9 +17,9 @@
 @if (general() && directory()) { <button (click)="openReviews()">Revisiones pendientes ({{ pendingReviews().length }})</button> }</header>
 @if (directory()) {
 <div class="directory-surface">
-<div class="directory-filters"><label>Buscar por nombre, correo o rol<input [(ngModel)]="search" type="search" /></label><label>Estado de la cuenta<select [(ngModel)]="statusFilter"><option value="">Todos</option><option>Activo</option><option>Inactivo</option></select></label></div>
+<div class="directory-filters"><label>Estado de la cuenta<select [(ngModel)]="statusFilter"><option value="">Todos</option><option>Activo</option><option>Inactivo</option></select></label></div>
 <div class="table-scroll" tabindex="0" aria-label="Directorio; tabla con desplazamiento horizontal"><table class="directory-table"><thead><tr><th scope="col">Usuario</th><th scope="col">Rol</th><th scope="col">Accesos</th><th scope="col">Programas asignados</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
-@for (user of filteredProfiles(); track user.id) { <tr><td><div class="person-cell"><span class="person-avatar" aria-hidden="true">{{ initials(user.name) }}</span><div><strong>{{ user.name }}</strong><small>{{ user.email }}</small></div></div></td><td><span class="role-badge">{{ roleLabels[user.baseRole ?? ''] || 'Perfil heredado' }}</span></td><td>{{ accessSummary(user) }}</td><td>{{ user.baseRole === 'ADMIN_GENERAL' ? 'Institucional' : user.scope?.programs?.join(', ') || 'Sin ámbito confirmado' }}</td><td><span class="state-badge" [class.active-badge]="user.status === 'Activo'" [class.inactive-badge]="user.status === 'Inactivo'">{{ statusLabel(user.status) }}</span>@if (user.permissionSchemaVersion !== 2) { <small class="review-note">Requiere regularización</small> }</td><td><div class="row-actions"><button (click)="openPerson(user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 7v6c0 5-9 9-9 9s-9-4-9-9V7z" /></svg>Ver acceso</button>@if (general()) { <button (click)="open('user', user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-12 12H4v-5z M14 5l5 5" /></svg>Editar</button> }</div></td></tr> }
+@for (user of filteredProfiles(); track user.id) { <tr><td><div class="person-cell"><span class="person-avatar" aria-hidden="true">{{ initials(user.name) }}</span><div><strong>{{ user.name }}</strong><small>{{ user.email }}</small></div></div></td><td><span class="role-badge">{{ roleLabels[user.baseRole ?? ''] || 'Perfil heredado' }}</span></td><td>{{ accessSummary(user) }}</td><td>{{ displayScope(configuredAccess(user).scope?.programs) }}</td><td><span class="state-badge" [class.active-badge]="user.status === 'Activo'" [class.inactive-badge]="user.status === 'Inactivo'">{{ statusLabel(user.status) }}</span>@if (user.permissionSchemaVersion !== 2) { <small class="review-note">Requiere regularización</small> }</td><td><div class="row-actions"><button (click)="openPerson(user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 7v6c0 5-9 9-9 9s-9-4-9-9V7z" /></svg>Ver acceso</button>@if (general()) { <button (click)="open('user', user)"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-12 12H4v-5z M14 5l5 5" /></svg>Editar</button> }</div></td></tr> }
 @empty { <tr><td colspan="6">No hay usuarios que coincidan en el directorio autorizado.</td></tr> }
 </tbody></table></div>
 </div>
@@ -81,8 +81,8 @@
         <section class="access-card inheritance-source"><h4><span class="section-number" aria-hidden="true">1</span> Persona cuyo acceso se heredará</h4><label>Origen<select [(ngModel)]="sourceId" (ngModelChange)="inheritanceChanged()" [disabled]="busy"><option value="">Selecciona una persona</option>@for (user of profiles(); track user.id) { <option [value]="user.id">{{ user.name }}</option> }</select></label>
         @if (inheritanceSource(); as source) { @let sourceScope = source.effectiveAccess?.scope ?? source.scope;
           <div class="identity-card"><span class="person-avatar" aria-hidden="true">{{ initials(source.name) }}</span><div><strong>{{ source.name }}</strong><small>{{ roleLabels[source.baseRole ?? ''] || 'Perfil heredado' }}</small></div></div><div class="source-access-summary"><p><strong>Módulos autorizados</strong><br>{{ accessSummary(source, false) }}</p>
-          <p>Programas: {{ sourceScope?.programs?.join(', ') || 'Sin ámbito' }} · Ciclos: {{ sourceScope?.cycles?.join(', ') || 'Sin ámbito' }}</p>
-          <p>Docentes: {{ sourceScope?.teachers?.join(', ') || 'Sin ámbito' }} · Campos: {{ sourceScope?.fields?.join(', ') || 'Sin ámbito' }}</p>
+          <p>Programas: {{ displayScope(sourceScope?.programs) }} · Ciclos: {{ displayScope(sourceScope?.cycles) }}</p>
+          <p>Docentes: {{ displayScope(sourceScope?.teachers) }} · Campos: {{ displayScope(sourceScope?.fields) }}</p>
           @for (assignment of inheritanceRoles(); track assignment.id) { <p>Rol: {{ roleName(assignment.roleId) }}</p> }
           @for (cap of source.effectiveAccess?.capabilities || source.capabilities || []; track cap) { <p>{{ capabilityLabels[cap] || cap }}</p> }
           <p>Vigencia de delegación: {{ inheritanceGrant()?.expiresAtMillis ? (inheritanceGrant()!.expiresAtMillis | date:'medium') : 'Sin vencimiento registrado; requiere validación de servidor' }}</p>
@@ -158,11 +158,11 @@
         </div> }</fieldset>
         <fieldset id="academic-scope" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">2</span> Alcance académico</legend><div class="field-grid">
           @if (editIntent === 'assignment') { @for (block of scopeBlocks; track block.key) { <div><strong>{{ block.label }}</strong><p>{{ selectedAssignmentRole() ? scopeLabels(selectedAssignmentRole()!, block.key).join(', ') : 'Selecciona un rol para consultar su alcance' }}</p></div> } } @else {
-          <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
-          <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
-          <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
-          @if (true) { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
-          <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
+          <label>Programas (claves separadas por coma)<input name="programs" [ngModel]="scopeInput(programs)" (ngModelChange)="programs = parseScopeInput($event)" /></label>
+          <spai-cycle-scope-picker [selected]="selectedCycles()" [canGrantGlobal]="canGrantGlobalCycles()" [disabled]="!canEditScope()" (selectionChange)="changeCycles($event)" />
+          <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [ngModel]="scopeInput(teachers)" (ngModelChange)="teachers = parseScopeInput($event)" /></label>
+          @if (true) { <label>Campos extraordinarios permitidos<input name="fields" [ngModel]="scopeInput(fields)" (ngModelChange)="fields = parseScopeInput($event)" /></label> }
+          <p>Una lista vacía significa Sin ámbito. Todos representa un alcance global explícito y requiere revisión administrativa.</p>
           }
         </div></fieldset>
         <fieldset id="available-modules" tabindex="-1" class="form-section modules-block"><legend><span class="section-number" aria-hidden="true">3</span> Módulos disponibles</legend>
@@ -200,7 +200,7 @@
       @if (preview; as p) {
         <p>Estado: {{ p.proposed.status === 'READY' ? 'Lista para revisión' : 'Requiere revisión' }}. Revisión de perfil: {{ p.profileRevision }}. Revisión de delegación: {{ p.delegationRevision }}. No resueltos: {{ p.proposed.unresolved.join(', ') }}.</p>
         <p>Rol anterior: {{ roleLabels[p.previous.baseRole ?? ''] || 'Sin clave verificada' }}. Propuesto: {{ roleLabels[p.proposed.baseRole] || 'Requiere revisión' }}.</p>
-        <p>Ámbito anterior: {{ p.previous.scope | json }}. Propuesto: {{ p.proposed.scope | json }}.</p>
+        <p>Ámbito anterior: {{ scopeText(p.previous.scope) }}. Propuesto: {{ scopeText(p.proposed.scope) }}.</p>
         <p>Capacidades anteriores: {{ p.previous.capabilities?.join(', ') || 'Sin capacidades verificadas' }}. Propuestas: {{ p.proposed.capabilities.join(', ') || 'Ninguna' }}.</p>
         <p>Diferencias de módulos: {{ p.differences.join(', ') || 'Ninguna' }}.</p>
         <table><thead><tr><th>Módulo</th><th>Anterior explícito</th><th>Flag heredado</th><th>Propuesto</th></tr></thead><tbody>@for (module of modules; track module) { <tr><td>{{ moduleLabels[module] }}</td><td>{{ p.previous.permissions?.[module] || 'Ausente; no concede acceso' }}</td><td>{{ p.previous.access?.[module] === true ? 'true (requiere correspondencia)' : p.previous.access?.[module] === false ? 'false (revocado)' : 'Ausente' }}</td><td>{{ p.proposed.permissions[module] }}</td></tr> }</tbody></table>

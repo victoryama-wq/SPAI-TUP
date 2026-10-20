@@ -1,0 +1,13 @@
+{
+  "stats": {
+    "startTime": "2026-10-20T21:44:07.648Z",
+    "duration": 16613.659,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "purpose": "Sonda estricta independiente: no acreditar errores de evaluador como denegacion valida",
+  "status": "FAILED_EVALUATOR",
+  "source": ".local/scope-selector/ui.json"
+}

@@ -396,3 +396,7 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 .directory-table .row-actions button:hover:not(:disabled) { background:#edf4ff; border-color:#9fc2f8; }
 .directory-table .row-actions button:disabled { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; cursor:not-allowed; }
 @media(max-width:480px) { .directory-surface { margin:16px 12px 18px; } }
+
+/* Compact account filter; directory query and scope warning remain unchanged. */
+.directory-surface .directory-filters { display:flex; justify-content:flex-end; }
+.directory-surface .directory-filters > label { width:min(100%, 230px); flex:none; }
