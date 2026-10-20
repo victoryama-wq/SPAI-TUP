@@ -1545,5 +1545,25 @@
       "inheritance": 21
     },
     "openContractFailures": 18
+  },
+  "accessSheetReview": {
+    "date": "2026-10-20",
+    "status": "VALIDADA_LOCAL",
+    "acceptedByOwner": false,
+    "report": "docs/E2-R01-FICHA-ACCESO-2026-10-20.md",
+    "evidence": "docs/evidence/r01-access-sheet/results.json",
+    "unit": 28,
+    "server": {
+      "r01": 37,
+      "auxiliary": 9,
+      "access": 8,
+      "inheritance": 21
+    },
+    "ui": 53,
+    "finalFocusedUi": 7,
+    "characterizations": 72,
+    "openContractFailures": 18,
+    "adminDocumentLimit": 200,
+    "pendingObservation": "Auxiliary notifications Rules L242 complexity observed during diagnosis; not a successful authorization denial. See report."
   }
 }

@@ -1,0 +1,807 @@
+{
+  "stats": {
+    "startTime": "2026-10-20T17:32:13.814Z",
+    "duration": 214441.468,
+    "expected": 53,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "title": "T09 identidad CUSTOM autenticable: UI, ámbitos y rechazos directos de servidor",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 7033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "T10 excepción académica global en Captura; CUSTOM y auxiliar conservan su ámbito",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 6080
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "T11 revocación: siguientes operaciones denegadas y rol del destinatario activo con revisión",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3043
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-11 formulario y roles accesibles 1366x900",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3624
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-11 formulario y roles accesibles 768x1024",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3015
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-11 formulario y roles accesibles 1032x1376",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3344
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-11 formulario y roles accesibles 390x844",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2708
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA presentación, ámbitos, teclado y cancelación 320",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3127
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA presentación, ámbitos, teclado y cancelación 390",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3041
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA presentación, ámbitos, teclado y cancelación 768",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3367
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA presentación, ámbitos, teclado y cancelación 1280",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3634
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA cuenta inactiva, global explícito, ámbito ausente y delegación revocada",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4607
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA auxiliar: editor restringido, cancelación limpia y asignación auditada",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3441
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "FICHA versión obsoleta y revocación rechazan la asignación sin cambios parciales",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3219
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS VIEW institucional positivo sin acciones de escritura; recarga",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4123
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS cambio Sistemas→Auxiliar limitado, ámbito vacío y revocación abierta",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 7501
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS vacío confirmado frente a error de consulta real, sin ceros engañosos",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3573
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS sin módulo: URL directa y recarga no muestran datos protegidos",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4362
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS ficha desktop: estados, motivo propio y retiro seguro",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4536
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS ficha tablet: estados, motivo propio y retiro seguro",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4445
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS ficha mobile: estados, motivo propio y retiro seguro",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3918
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ACCESS ficha small: estados, motivo propio y retiro seguro",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3927
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX caducidad de delegación retira datos y navegación sin otra escritura",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX ámbito vacío comprobado: sin consultas imposibles ni acciones ni ceros verificados",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4413
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX VIEW positivo, recarga y cambio Sistemas → Auxiliar sin datos ni capacidades anteriores",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 8721
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX revocación directa de delegación retira menú, datos y ruta con proyección antigua intacta",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 5316
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX consulta vacía válida, error técnico y recarga de recuperación son estados distintos",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3705
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX EDIT sin capacidades sensibles permite ficha pero no administra Moodle",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3093
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AUX rechazo real del servidor no se presenta como lista vacía ni permite exportar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2689
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "HERENCIA recorrido modal y cancelación 320",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2822
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "HERENCIA recorrido modal y cancelación 390",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2932
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "HERENCIA recorrido modal y cancelación 768",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2893
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "HERENCIA recorrido modal y cancelación 1280",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2936
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "HERENCIA confirmar, reemplazo explícito y preview obsoleta en recorrido real",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3287
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H002 login real, URL Dashboard, recarga e historial sin inserción protegida ni consultas ajenas",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 6396
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H002 permisos sin resolver: no se crea el Dashboard mientras se espera el perfil del servidor",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 1284
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Sesión persistida de una versión antigua se invalida; un nuevo login completo no requiere doble ingreso",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 1964
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H002 cambio Sistemas → Consulta limpia los datos y cancela suscripciones de la sesión previa",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 1486
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H002 lecturas directas del servidor: sin usuarios, roles, solicitudes ni agenda ajenos",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 323
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H002 sin módulos no hay bucle; revocar Dashboard retira contenido y suscripciones",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2930
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "H003 nombre completo sin superposición en Dashboard autorizado: escritorio, tabletas y móvil",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2383
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Administración configura Consultar/Editar y confirma un rol auditado",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2892
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Coordinación consulta sus módulos y no abre el directorio administrativo",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2215
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Una sesión auxiliar abierta pierde el directorio al revocar su delegación",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2448
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-11 bloques, saludo conservado, dos pasos y modal accesible en escritorio y móvil",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3083
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CO-02 CUSTOM VIEW muestra únicamente Asignaciones concedidas y ninguna acción operativa",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2847
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "UI retira autorización temporal al vencer y al cambiar el mapeo en sesión abierta",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 2381
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "USUARIOS métricas confirmadas, error/reintento, estado heredado y ámbito auxiliar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 5030
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "USUARIOS transición: modal único, cancelación sin escritura y preview obsoleta rechazada",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4668
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "VISUAL composición, guía conserva borrador y roles 320",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3209
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "VISUAL composición, guía conserva borrador y roles 390",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3459
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "VISUAL composición, guía conserva borrador y roles 768",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 3960
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "VISUAL composición, guía conserva borrador y roles 1280",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed",
+              "duration": 4231
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

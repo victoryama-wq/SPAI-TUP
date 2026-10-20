@@ -1,0 +1,155 @@
+{
+  "testedAt": "2026-10-20T17:22:14.895Z",
+  "completed": true,
+  "passed": 37,
+  "cases": [
+    {
+      "name": "Lectura denegada anonymous",
+      "status": "PASS"
+    },
+    {
+      "name": "Lectura denegada r01-inactive",
+      "status": "PASS"
+    },
+    {
+      "name": "Lectura denegada r01-legacy",
+      "status": "PASS"
+    },
+    {
+      "name": "Lectura denegada r01-person",
+      "status": "PASS"
+    },
+    {
+      "name": "Directorio callable exige Auth y Administración",
+      "status": "PASS"
+    },
+    {
+      "name": "VIEW consulta ámbito propio y rechaza ámbito ajeno/escritura",
+      "status": "PASS"
+    },
+    {
+      "name": "EDIT ficha propia sin identidad ni ajenas",
+      "status": "PASS"
+    },
+    {
+      "name": "Asignaciones propias y excepción global de matrículas sin complejidad",
+      "status": "PASS"
+    },
+    {
+      "name": "Identidad de asignación Moodle protegida incluso para administrador",
+      "status": "PASS"
+    },
+    {
+      "name": "Autoservicio no permite modificar, añadir o eliminar privilegios",
+      "status": "PASS"
+    },
+    {
+      "name": "Perfil inactivo conserva vinculación sin activarse",
+      "status": "PASS"
+    },
+    {
+      "name": "Cliente no fabrica roles, delegaciones, auditoría ni eventos",
+      "status": "PASS"
+    },
+    {
+      "name": "Administrador crea rol y delegación explícita",
+      "status": "PASS"
+    },
+    {
+      "name": "Auxiliar asigna preaprobado con procedencia y destinatarios filtrados",
+      "status": "PASS"
+    },
+    {
+      "name": "Auxiliar no administra definiciones, usuarios, delegaciones ni terceros superiores",
+      "status": "PASS"
+    },
+    {
+      "name": "Rol de nombre inocuo no permite superar capacidades ni ámbito",
+      "status": "PASS"
+    },
+    {
+      "name": "Reintento devuelve mismo resultado sin duplicar auditoría/evento",
+      "status": "PASS"
+    },
+    {
+      "name": "Revocar conserva roles activos, ignora retirados y notifica a todos los administradores",
+      "status": "PASS"
+    },
+    {
+      "name": "Sesión abierta revocada pierde acceso directo y operaciones preparadas",
+      "status": "PASS"
+    },
+    {
+      "name": "Nueva delegación no reutiliza identidad ni resuelve revisión anterior",
+      "status": "PASS"
+    },
+    {
+      "name": "Dos administradores no sobrescriben resolución de revisión",
+      "status": "PASS"
+    },
+    {
+      "name": "Asignación concurrente con revocación nunca queda sin seguimiento",
+      "status": "PASS"
+    },
+    {
+      "name": "Migración muestra ausencias y preserva revocaciones explícitas",
+      "status": "PASS"
+    },
+    {
+      "name": "Vista previa obsoleta no restaura permisos ni produce efectos",
+      "status": "PASS"
+    },
+    {
+      "name": "Identidad técnica vincula UID sin activar ni copiar autoridad de duplicados",
+      "status": "PASS"
+    },
+    {
+      "name": "Alta de Docentes consulta catálogo y edita solo ficha propia",
+      "status": "PASS"
+    },
+    {
+      "name": "Capacidad sensible y ámbitos de ciclo, docente y campos se exigen por separado",
+      "status": "PASS"
+    },
+    {
+      "name": "Sustitución revisada no reactiva retirados ni mezcla ámbitos",
+      "status": "PASS"
+    },
+    {
+      "name": "Fallo de persistencia de auditoría revierte también cambio y evento",
+      "status": "PASS"
+    },
+    {
+      "name": "Cambio, bitácora y evento tienen actor real y efecto idempotente",
+      "status": "PASS"
+    },
+    {
+      "name": "CO-02 CUSTOM VIEW Asignaciones: consultas por programa/ciclo y toda escritura denegada",
+      "status": "PASS"
+    },
+    {
+      "name": "CO-02 excepción académica no se extiende al auxiliar VIEW aun con capacidad sensible",
+      "status": "PASS"
+    },
+    {
+      "name": "Transición: siete días exactos de servidor y preview anterior no confirma al vencer",
+      "status": "PASS"
+    },
+    {
+      "name": "Rules y callables: autorización temporal vigente, vencida, cambiada o revocada",
+      "status": "PASS"
+    },
+    {
+      "name": "Límite 199/200/201: operaciones críticas, directorio y rechazo totalmente atómico",
+      "status": "PASS"
+    },
+    {
+      "name": "Dos desactivaciones concurrentes conservan al menos un administrador",
+      "status": "PASS"
+    },
+    {
+      "name": "Todas las conexiones observadas permanecen en loopback",
+      "status": "PASS"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { AppUser, EffectiveLevel, ModuleAccess } from './users.repository';
 
 export const SECURITY_MODULES: (keyof ModuleAccess)[] = ['dashboard', 'usuarios', 'ciclos', 'nomenclaturas', 'grupos', 'docentes', 'asignaturas', 'asignaciones', 'solicitudes', 'ligasMeet', 'moodle', 'bitacora'];
 export interface SecurityRecord {
+  approvedBy?: string;
   id: string; revision: number; name?: string; userId?: string; roleId?: string;
   expiresAtMillis?: number;
   status: string; reviewStatus?: string; assignmentId?: string; delegationId?: string;

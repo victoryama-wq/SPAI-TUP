@@ -82,6 +82,75 @@ export class SecurityConsoleComponent {
   permissions: Partial<Record<keyof ModuleAccess, EffectiveLevel>> = {};
   selectedCapabilities: string[] = [];
   selectedUserId = ''; selectedRoleId = ''; mappingRole = '';
+  editIntent: 'profile' | 'assignment' = 'profile';
+  readonly scopeBlocks = [
+    { key: 'programs', label: 'Programas' }, { key: 'cycles', label: 'Ciclos' },
+    { key: 'teachers', label: 'Docentes' }, { key: 'fields', label: 'Campos extraordinarios' },
+  ] as const;
+  canAssignPerson(user?: AppUser): boolean {
+    const actor = this.session.session()?.appUser;
+    return this.directoryState() === 'ready' && !!user && actor?.status === 'Activo'
+      && (this.general() || actor?.capabilities?.includes('MANAGE_CUSTOM_ROLES') === true)
+      && !this.isOwnIdentity(user) && !user.identityAliasOf && user.permissionSchemaVersion === 2
+      && !!user.baseRole && !['ADMIN_GENERAL', 'ADMIN_OPERATIVO'].includes(user.baseRole);
+  }
+  canEditPerson(user?: AppUser): boolean { return !!user && (this.general() || this.canAssignPerson(user)); }
+  editorPerson(): AppUser | undefined { return this.profiles().find(user => user.id === this.targetId); }
+  assignmentRoles(): SecurityRecord[] {
+    // The directory is filtered by the server against the operator's live delegation.
+    return this.availableRoles().filter(role => typeof role.approvedBy === 'string' && !this.directory()?.asignaciones_roles.some(
+      assignment => assignment.userId === this.targetId && assignment.roleId === role.id && assignment.status === 'ACTIVE'));
+  }
+  selectedAssignmentRole(): SecurityRecord | undefined { return this.assignmentRoles().find(role => role.id === this.selectedRoleId); }
+  assignmentChanged(): void {
+    this.selectionChanged();
+    const role = this.selectedAssignmentRole();
+    this.permissions = { ...role?.permissions }; this.selectedCapabilities = [...(role?.capabilities ?? [])];
+    this.programs = role?.scope?.programs?.join(', ') ?? ''; this.cycles = role?.scope?.cycles?.join(', ') ?? '';
+    this.teachers = role?.scope?.teachers?.join(', ') ?? ''; this.fields = role?.scope?.fields?.join(', ') ?? '';
+  }
+  editIntentChanged(): void {
+    const intent = this.editIntent, person = this.editorPerson();
+    if (!person) return;
+    this.open('user', person); this.editIntent = intent;
+    if (intent === 'assignment') this.assignmentChanged();
+  }
+  configuredAccess(user: AppUser): Pick<AppUser, 'permissions' | 'capabilities' | 'scope'> {
+    if (user.baseRole === 'ADMIN_GENERAL' && user.effectiveAccess?.active) return user.effectiveAccess;
+    if (user.baseRole === 'ADMIN_OPERATIVO') return this.directory()?.delegaciones.find(g => g.id === user.delegationId) ?? user;
+    return user;
+  }
+  personModules(user: AppUser): (keyof ModuleAccess)[] {
+    const configured = this.configuredAccess(user);
+    return this.modules.filter(module => ['VIEW', 'EDIT'].includes(configured.permissions?.[module] ?? '')
+      || ['VIEW', 'EDIT'].includes(user.effectiveAccess?.permissions[module] ?? ''));
+  }
+  effectiveState(user: AppUser): string {
+    if (user.status !== 'Activo') return 'Cuenta inactiva: la configuración conservada no habilita acceso.';
+    if (!user.effectiveAccess) return 'Acceso efectivo no disponible; vuelve a consultar el directorio.';
+    if (!user.effectiveAccess.active) return user.baseRole === 'ADMIN_OPERATIVO'
+      ? 'Sin acceso efectivo: la delegación no está vigente.'
+      : 'Sin acceso efectivo: requiere regularización del perfil.';
+    return 'Autorización vigente; cada operación sigue sujeta a sus permisos y alcances.';
+  }
+  scopeLabels(access: Pick<AppUser, 'scope' | 'capabilities'>, key: 'programs' | 'cycles' | 'teachers' | 'fields'): string[] {
+    const values = access.scope?.[key];
+    if (!values?.length) return [key === 'fields' && Array.isArray(values) && !access.capabilities?.includes('OPERATE_EXCEPTIONAL_CHANGE')
+      ? 'No aplica: sin facultad extraordinaria' : 'Sin alcance concedido'];
+    const labels: Record<string, string> = {
+      teacherId: 'Docente', teacherName: 'Nombre del docente', teacherMoodleUser: 'Identidad docente en Moodle',
+      group: 'Grupo', groupIds: 'Grupos', sharedGroups: 'Grupos compartidos', program: 'Programa',
+      sharedPrograms: 'Programas compartidos', shared: 'Asignación compartida', studentEnrollments: 'Matrículas', status: 'Estado',
+    };
+    return values.map(value => value === '*' ? 'Todos' : key === 'fields' ? labels[value] ?? value : value);
+  }
+  personReviews(): SecurityRecord[] { return this.directory()?.revisiones_roles.filter(review => review.userId === this.selectedUserId) ?? []; }
+  personPendingReviews(): number {
+    return new Set([
+      ...this.personReviews().filter(review => review.status === 'REQUIERE_REVISION_ADMIN_GENERAL').map(review => review.assignmentId ?? review.id),
+      ...this.personAssignments().filter(assignment => assignment.reviewStatus === 'REQUIERE_REVISION_ADMIN_GENERAL').map(assignment => assignment.id),
+    ]).size;
+  }
   preview: MigrationPreview | null = null;
   private pendingRequest: Record<string, unknown> | null = null;
   area = '';
@@ -106,7 +175,7 @@ export class SecurityConsoleComponent {
     this.editorDialog()?.nativeElement.close();
     this.selectedUserId = ''; this.selectedRoleId = ''; this.mappingRole = ''; this.preview = null;
     this.inheritancePreview = null; this.sourceId = ''; this.destinationId = ''; this.replaceAccess = false;
-    this.mode = null; this.roleDirectory = false; this.operation = null; this.confirmation = null; this.reason = ''; this.pendingRequest = null;
+    this.mode = null; this.editIntent = 'profile'; this.roleDirectory = false; this.operation = null; this.confirmation = null; this.reason = ''; this.pendingRequest = null;
     queueMicrotask(() => {
       if (!this.mode && !this.roleDirectory) {
         if (this.dialogOpener?.isConnected && !this.dialogOpener.hasAttribute('disabled')) this.dialogOpener.focus();
@@ -137,7 +206,9 @@ export class SecurityConsoleComponent {
   userName(id?: string): string { const user = this.directory()?.usuarios.find(u => u.id === id); return user ? `${user.name} (${user.email})` : 'Perfil fuera de esta vista'; }
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
-    if (!this.general()) return;
+    if (!this.general() && (mode !== 'user' || !this.canAssignPerson(record as AppUser))) return;
+    this.editIntent = this.general() ? 'profile' : 'assignment';
+    this.selectedRoleId = ''; this.selectedUserId = mode === 'user' ? record?.id ?? '' : '';
     this.activeEditorSection = 'access-data';
     this.rememberOpener(); this.inheritancePreview = null; this.operation = null; this.confirmation = null; this.preview = null; this.roleDirectory = false; this.mode = mode; this.showDialog(); this.targetId = record?.id ?? randomId(); this.expectedRevision = record?.revision ?? 0;
     this.name = record?.name ?? ''; this.email = (record as AppUser)?.email ?? '';
@@ -150,6 +221,7 @@ export class SecurityConsoleComponent {
     this.cycles = access?.scope?.cycles.join(', ') ?? ''; this.teachers = access?.scope?.teachers.join(', ') ?? ''; this.fields = access?.scope?.fields.join(', ') ?? '';
     if (mode === 'delegation') { this.permissions = {}; this.selectedCapabilities = []; this.programs = ''; this.cycles = ''; this.teachers = ''; this.fields = ''; }
     this.reason = ''; this.error = ''; this.pendingRequest = null;
+    if (this.editIntent === 'assignment') this.assignmentChanged();
   }
   setPermission(key: keyof ModuleAccess, edit: boolean, checked: boolean): void {
     const previous = this.permissions[key] ?? 'NONE';
@@ -164,13 +236,17 @@ export class SecurityConsoleComponent {
   }
   private values(value: string): string[] { return [...new Set(value.split(',').map(v => v.trim()).filter(Boolean))]; }
   async save(): Promise<void> {
+    if (this.mode === 'user' && this.editIntent === 'assignment') {
+      if (this.canAssignPerson(this.editorPerson())) await this.assign();
+      return;
+    }
     if (!this.general() || !['user','role','delegation'].includes(this.mode ?? '')) return;
     const scope = { programs: this.values(this.programs), cycles: this.values(this.cycles), teachers: this.values(this.teachers), fields: this.values(this.fields) };
     await this.run({ action: this.mode === 'user' ? 'saveUser' : this.mode === 'role' ? 'saveRole' : 'grantDelegation', targetId: this.targetId, expectedRevision: this.expectedRevision, value: { greetingGender: this.greetingGender, area: this.area.trim(), name: this.name, email: this.email.trim().toLowerCase(), role: this.roleLabels[this.baseRole ?? 'CUSTOM'], baseRole: this.baseRole, status: this.status, permissions: this.permissions, capabilities: this.selectedCapabilities, scope, assignedPrograms: scope.programs } });
   }
   async assign(): Promise<void> {
     const user = this.directory()?.usuarios.find(u => u.id === this.selectedUserId); const role = this.directory()?.roles_personalizados.find(r => r.id === this.selectedRoleId);
-    if (!user || !role) { this.error = 'Selecciona usuario y rol.'; return; }
+    if (!user || !role || !this.canAssignPerson(user) || !this.assignmentRoles().some(item => item.id === role.id)) { this.error = 'Selecciona una persona y un rol autorizado vigente.'; return; }
     this.beginOperation({ action: 'assignRole', targetId: user.id, expectedRevision: user.revision ?? 0, roleId: role.id, roleRevision: role.revision }, `${user.name} — ${role.name}`);
   }
   async action(action: string, item: SecurityRecord, decision?: string): Promise<void> {

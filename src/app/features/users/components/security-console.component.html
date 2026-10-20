@@ -25,35 +25,54 @@
 </div>
 } @else { <p role="status">{{ directoryState() === 'loading' ? 'Consultando directorio autorizado…' : 'Directorio sin confirmar. No se muestran cifras como confirmadas.' }}</p> }
 </section></section>
-<dialog #editorDialog class="security-dialog" [class.profile-dialog]="!confirmation && (mode === 'user' || mode === 'role' || mode === 'delegation')" aria-labelledby="security-editor-title" (cancel)="cancelEditor($event)">
+<dialog #editorDialog class="security-dialog" [class.profile-dialog]="mode === 'person' || mode === 'user' || mode === 'role' || mode === 'delegation'" aria-labelledby="security-editor-title" (cancel)="cancelEditor($event)">
   <header class="editor-heading">
     <div class="editor-heading-copy"><span class="eyebrow">Control de accesos</span><h3 id="security-editor-title" tabindex="-1">{{ confirmation ? 'Confirmar cambio de acceso' : mode === 'preview' ? 'Vista previa de transición' : roleDirectory ? 'Directorio de roles personalizados' : mode === 'operation' ? operation?.title : mode === 'person' ? 'Ficha de acceso institucional' : mode === 'reviews' ? 'Revisiones pendientes' : mode === 'regularize' ? 'Regularizar acceso' : mode === 'inherit' ? 'Heredar acceso institucional' : mode === 'user' ? (expectedRevision ? 'Editar acceso institucional' : 'Nuevo acceso institucional') : mode === 'role' ? 'Definición preaprobada' : 'Nueva delegación' }}</h3><p>{{ mode === 'inherit' ? 'Copia una configuración vigente con revisión y confirmación.' : mode === 'user' ? 'Define los datos, el alcance y las facultades de esta persona.' : roleDirectory || mode === 'role' ? 'Organiza los módulos y ámbitos de las definiciones institucionales.' : 'Revisa el acceso y las consecuencias antes de confirmar.' }}</p></div>
     <button type="button" aria-label="Cerrar editor" (click)="closeEditor()" [disabled]="busy"><span aria-hidden="true">×</span></button>
   </header>
   @if (!confirmation && (mode === 'person' || mode === 'reviews' || mode === 'regularize')) { <div class="editor-body">
-@if (mode !== 'reviews') { <p><strong>{{ userName(selectedUserId) }}</strong></p> }
+@if (mode === 'regularize') { <p><strong>{{ userName(selectedUserId) }}</strong></p> }
 @if (mode === 'reviews' && !pendingReviews().length) { <p>No hay revisiones pendientes en el directorio confirmado.</p> }
 @if (mode === 'person') {
-@if (selectedPerson(); as person) { @let current = person.effectiveAccess;
-<p>Programas: {{ current?.scope?.programs?.join(', ') || 'Sin ámbito' }} · Ciclos: {{ current?.scope?.cycles?.join(', ') || 'Sin ámbito' }}.</p>
-<p>Docentes: {{ current?.scope?.teachers?.join(', ') || 'Sin ámbito' }} · Campos: {{ current?.scope?.fields?.join(', ') || 'Sin ámbito' }}.</p>
-<details><summary>Detalle de módulos y facultades vigentes</summary>@for (module of modules; track module) { <p>{{ moduleLabels[module] }}: {{ levelLabel(current?.permissions?.[module]) }}</p> } @for (cap of current?.capabilities || []; track cap) { <p>{{ capabilityLabels[cap] || cap }}</p> }</details>
+@if (selectedPerson(); as person) { @let current = person.effectiveAccess; @let configured = configuredAccess(person);
+<section class="form-section person-overview">
+  <h4><span class="section-number" aria-hidden="true">1</span> Perfil y permisos vigentes</h4>
+  <div class="person-identity"><span class="person-avatar" aria-hidden="true">{{ initials(person.name) }}</span><div><strong>{{ person.name }}</strong><p>{{ person.email }}</p></div></div>
+  <div class="person-badges"><span class="role-badge">{{ roleLabels[person.baseRole ?? ''] || 'Perfil heredado' }}</span><span class="state-badge" [class.active-badge]="person.status === 'Activo'" [class.inactive-badge]="person.status === 'Inactivo'">{{ statusLabel(person.status) }}</span><span class="state-badge" [class.review-badge]="personPendingReviews() > 0">{{ personPendingReviews() }} revisiones pendientes</span></div>
+  <p class="effective-notice">{{ effectiveState(person) }}</p>
+  <div class="person-permissions" role="list" aria-label="Permisos configurados y efectivos">
+    @for (module of personModules(person); track module) {
+      <div role="listitem"><strong>{{ moduleLabels[module] }}</strong><span>Configurado: {{ levelLabel(configured.permissions?.[module]) }}</span><span>Acceso efectivo: {{ !current ? 'No disponible' : current.active ? levelLabel(current.permissions[module]) : 'No habilitado' }}</span></div>
+    } @empty { <p>No hay módulos configurados en la información disponible. Las asignaciones de rol no son la única fuente de permisos.</p> }
+  </div>
+  <p><strong>Facultades configuradas:</strong> {{ capabilityText(configured.capabilities || []) }}</p>
+  <p><strong>Facultades efectivas:</strong> {{ !current ? 'No disponibles' : current.active ? capabilityText(current.capabilities) : 'No habilitadas' }}</p>
+</section>
+<section class="form-section person-scopes">
+  <h4><span class="section-number" aria-hidden="true">2</span> Alcances institucionales</h4>
+  <p>{{ current?.active ? 'Alcances efectivos informados por el servidor.' : 'Configuración conservada; no habilita acceso mientras la autorización no esté vigente.' }}</p>
+  <div class="scope-grid">@for (block of scopeBlocks; track block.key) { <div><h5>{{ block.label }}</h5><div class="scope-values">@for (label of scopeLabels(current?.active ? current! : configured, block.key); track $index) { <span>{{ label }}</span> }</div></div> }</div>
+  @if (!current) { <p role="alert">No se pudo obtener el acceso efectivo. Cierra la ficha y vuelve a consultar el directorio.</p> }
+</section>
 }
-<p>{{ accessSummary(selectedPerson()!) }}</p><p>Asignaciones de rol activas: {{ activePersonAssignments() }}. El historial distingue asignaciones retiradas y revisiones.</p>
-@if (general()) { <div class="row-actions"><button (click)="open('user', selectedPerson())">Editar perfil</button>@if (selectedPerson()?.baseRole === 'ADMIN_OPERATIVO') { <button (click)="open('delegation', selectedPerson())">Otorgar delegación nueva</button> } @if (selectedPerson()?.permissionSchemaVersion !== 2) { <button (click)="regularize()">Regularizar acceso</button> }</div> }
 }
     @if (mode === 'person') {
-      <section class="access-card"><h3>Asignar un rol preaprobado</h3><div class="assignment-fields">
-        <label>Rol<select [(ngModel)]="selectedRoleId" (ngModelChange)="selectionChanged()"><option value="">Seleccionar</option>@for (role of directory()?.roles_personalizados; track role.id) { @if (role.status === 'ACTIVE') { <option [value]="role.id">{{ role.name }}</option> } }</select></label>
-      </div><button class="primary-action" type="button" (click)="assign()" [disabled]="busy || !selectedUserId || !selectedRoleId">Revisar asignación</button></section>
-      <h3>Roles asignados</h3><div class="record-grid">@for (assignment of personAssignments(); track assignment.id) { <article class="access-card"><h4>{{ userName(assignment.userId) }}</h4><p>{{ roleName(assignment.roleId) }}</p><p>Asignación: <span class="state-badge">{{ statusLabel(assignment.status) }}</span></p><p>Revisión: <span class="state-badge">{{ statusLabel(assignment.reviewStatus) }}</span></p>@if (assignment.status === 'ACTIVE') { <button type="button" (click)="action('removeRole', assignment)" [disabled]="busy">Retirar rol</button> }</article> } @empty { <p>No hay roles asignados en este directorio.</p> }</div>
+      <details class="form-section person-history"><summary><span class="section-number" aria-hidden="true">3</span> Historial y revisiones <small>{{ personPendingReviews() }} pendientes</small></summary>
+      <p>Asignaciones de rol activas: {{ activePersonAssignments() }}. Se conservan las retiradas y su estado de revisión.</p>
+      <div class="record-grid">@for (assignment of personAssignments(); track assignment.id) { <article class="access-card"><h4>{{ roleName(assignment.roleId) }}</h4><p>Asignación: <span class="state-badge">{{ statusLabel(assignment.status) }}</span></p><p>Revisión: <span class="state-badge">{{ statusLabel(assignment.reviewStatus) }}</span></p>@if (assignment.status === 'ACTIVE') { <button type="button" (click)="action('removeRole', assignment)" [disabled]="busy">Retirar rol</button> }</article> } @empty { <p>Sin asignaciones de rol registradas. Consulta arriba los permisos del perfil.</p> }</div>
+      @if (general()) {
+        <h4>Delegaciones registradas</h4><div class="record-grid">@for (grant of personDelegations(); track grant.id) { <article class="access-card" [attr.data-delegation-id]="grant.id"><p>Delegación: <span class="state-badge">{{ statusLabel(grant.status) }}</span></p><p>Programas: {{ scopeLabels(grant, 'programs').join(', ') }}</p>@if (grant.status === 'ACTIVE') { <button type="button" (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button class="danger-action" type="button" (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }</article> } @empty { <p>No hay delegaciones registradas.</p> }</div>
+        <h4>Revisiones registradas</h4>@for (review of personReviews(); track review.id) { <article class="access-card"><p>{{ statusLabel(review.status) }}</p>@if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') { <button (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button (click)="replaceReview(review)" [disabled]="busy">Sustituir rol</button> }</article> } @empty { <p>No hay revisiones registradas.</p> }
+      }
+      </details>
+      @if (general()) { <div class="row-actions">@if (selectedPerson()?.permissionSchemaVersion !== 2) { <button (click)="regularize()">Regularizar acceso</button> }</div> }
     }
-    @if (general() && mode === 'person') { <h3>Delegaciones</h3><div class="record-grid">@for (grant of personDelegations(); track grant.id) { <article class="access-card" [attr.data-delegation-id]="grant.id"><h4>{{ userName(grant.userId) }}</h4><p>Delegación: <span class="state-badge">{{ statusLabel(grant.status) }}</span></p><p>Programas: {{ grant.scope?.programs?.join(', ') || 'Sin ámbito' }}</p>@if (grant.status === 'ACTIVE') { <button type="button" (click)="action('suspendDelegation', grant)" [disabled]="busy">Suspender</button><button class="danger-action" type="button" (click)="action('revokeDelegation', grant)" [disabled]="busy">Revocar</button> }</article> } @empty { <p>No hay delegaciones registradas.</p> }</div> }
     @if (general() && mode === 'reviews') { <h3>Revisiones pendientes para Administración General</h3><div class="record-grid">@for (review of pendingReviews(); track review.id) { @if (review.status === 'REQUIERE_REVISION_ADMIN_GENERAL') { <article class="access-card"><h4>{{ userName(review.userId) }}</h4><p>Revisión: <span class="state-badge">{{ statusLabel(review.status) }}</span></p><p>El rol conserva su estado efectivo hasta la decisión.</p><button type="button" (click)="action('resolveReview', review, 'KEEP')" [disabled]="busy">Conservar</button><button type="button" (click)="action('resolveReview', review, 'REMOVE')" [disabled]="busy">Retirar</button><button type="button" (click)="replaceReview(review)" [disabled]="busy">Sustituir rol</button></article> } }</div> }
 @if (mode === 'regularize') {          <label>Correspondencia verificada<select [(ngModel)]="mappingRole" (ngModelChange)="selectionChanged()"><option value="">Selecciona una opción</option><option value="COORDINACION_ACADEMICA">Coordinación Académica</option><option value="ALTA_DOCENTES">Alta de Docentes</option></select></label>
           <button type="button" (click)="migration('previewMigration')" [disabled]="busy || !selectedUserId">Consultar vista previa</button>
           <button class="primary-action" type="button" (click)="migration('approveMapping')" [disabled]="busy || !selectedUserId || !mappingRole">Registrar correspondencia</button>
 }</div> }
+  @if (!confirmation && mode === 'person') { <footer class="editor-actions"><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>@if (canEditPerson(selectedPerson())) { <button class="primary-action" type="button" (click)="open('user', selectedPerson())" [disabled]="busy">Editar perfil</button> }</footer> }
   @if (!confirmation && mode === 'inherit') {
     <div class="editor-body inheritance-body"><ol class="flow-steps" aria-label="Recorrido de herencia"><li class="current">1 · Elegir personas</li><li [class.current]="!!inheritancePreview">2 · Revisar acceso</li><li>3 · Confirmar</li></ol>
       <p>Copia controlada de la configuración efectiva, validada en servidor. No copia identidad, estado personal, sesiones ni historial.</p>
@@ -117,7 +136,16 @@
         </nav>
         <div class="editor-body editor-sections" (scroll)="trackEditorSection($event)">
         @if (error) { <p role="alert">{{ error }}</p> }
-        <fieldset id="access-data" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">1</span> Datos de acceso</legend><div class="field-grid">
+        <fieldset id="access-data" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">1</span> Datos de acceso</legend>
+        @if (mode === 'user' && canAssignPerson(editorPerson())) {
+          @if (general()) { <label>Operación sobre el perfil<select name="editIntent" [(ngModel)]="editIntent" (ngModelChange)="editIntentChanged()"><option value="profile">Editar configuración del perfil</option><option value="assignment">Incorporar un rol preaprobado</option></select></label> }
+          @if (editIntent === 'assignment') {
+            <p><strong>{{ name }}</strong> · {{ email }}</p><p>Acceso actual: {{ accessSummary(editorPerson()!, false) }}</p><p>Incorpora una definición preaprobada. Sus módulos, ámbitos y facultades son de consulta; no se modifica la definición ni la identidad.</p>
+            <label>Rol preaprobado<select name="preapprovedRole" [(ngModel)]="selectedRoleId" (ngModelChange)="assignmentChanged()" required><option value="">Selecciona un rol</option>@for (role of assignmentRoles(); track role.id) { <option [value]="role.id">{{ role.name }}</option> }</select></label>
+            @if (!assignmentRoles().length) { <p>No hay roles preaprobados disponibles para una nueva asignación en este directorio.</p> }
+          }
+        }
+        @if (editIntent !== 'assignment') { <div class="field-grid">
         @if (mode !== 'delegation') { <label>Nombre <input name="name" [(ngModel)]="name" required /></label> }
         @if (mode === 'user') {
           <label>Correo institucional <input name="email" type="email" [(ngModel)]="email" required /></label>
@@ -127,37 +155,39 @@
           <label>Estado <select name="status" [(ngModel)]="status"><option>Activo</option><option>Inactivo</option></select></label>
           <p>El auxiliar obtiene sus facultades mediante una delegación separada. Administración General tiene alcance institucional.</p>
         }
-        </div></fieldset>
+        </div> }</fieldset>
         <fieldset id="academic-scope" tabindex="-1" class="form-section"><legend><span class="section-number" aria-hidden="true">2</span> Alcance académico</legend><div class="field-grid">
+          @if (editIntent === 'assignment') { @for (block of scopeBlocks; track block.key) { <div><strong>{{ block.label }}</strong><p>{{ selectedAssignmentRole() ? scopeLabels(selectedAssignmentRole()!, block.key).join(', ') : 'Selecciona un rol para consultar su alcance' }}</p></div> } } @else {
           <label>Programas (claves separadas por coma)<input name="programs" [(ngModel)]="programs" /></label>
           <label>Ciclos (códigos separados por coma)<input name="cycles" [(ngModel)]="cycles" /></label>
           <label>Docentes (identidades verificadas, separadas por coma)<input name="teachers" [(ngModel)]="teachers" /></label>
           @if (true) { <label>Campos extraordinarios permitidos<input name="fields" [(ngModel)]="fields" /></label> }
           <p>Una lista vacía no otorga ámbito. «*» representa alcance global explícito y requiere revisión administrativa.</p>
+          }
         </div></fieldset>
         <fieldset id="available-modules" tabindex="-1" class="form-section modules-block"><legend><span class="section-number" aria-hidden="true">3</span> Módulos disponibles</legend>
-          <button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(false)">Quitar todos</button>
+          @if (editIntent !== 'assignment') { <button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(true)">Marcar todos para consulta</button><button type="button" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" (click)="quickPermissions(false)">Quitar todos</button> }
           @for (module of modules; track module) {
             <div class="permission-row"><strong>{{ moduleLabels[module] }}</strong>
-              <label><input type="checkbox" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" [checked]="permissions[module] === 'VIEW' || permissions[module] === 'EDIT'" (change)="setPermission(module, false, $any($event.target).checked)" />Consultar</label>
-              <label><input type="checkbox" [disabled]="mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" [checked]="permissions[module] === 'EDIT'" (change)="setPermission(module, true, $any($event.target).checked)" />Editar</label>
+              <label><input type="checkbox" [disabled]="editIntent === 'assignment' || mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" [checked]="permissions[module] === 'VIEW' || permissions[module] === 'EDIT'" (change)="setPermission(module, false, $any($event.target).checked)" />Consultar</label>
+              <label><input type="checkbox" [disabled]="editIntent === 'assignment' || mode === 'user' && (baseRole === 'ADMIN_OPERATIVO' || baseRole === 'ADMIN_GENERAL')" [checked]="permissions[module] === 'EDIT'" (change)="setPermission(module, true, $any($event.target).checked)" />Editar</label>
             </div>
           }
           <p>Los catálogos reservados y los módulos administrativos no se conceden mediante roles personalizados. El servidor rechaza una configuración incompatible.</p>
         </fieldset>
-        <details id="special-faculties" tabindex="-1" class="special-capabilities form-section"><summary><span class="section-number" aria-hidden="true">4</span> Facultades administrativas especiales <small>Independientes de Editar · {{ selectedCapabilities.length }} seleccionadas</small></summary><fieldset><legend>Facultades vigentes</legend>
+        <details id="special-faculties" tabindex="-1" class="special-capabilities form-section"><summary><span class="section-number" aria-hidden="true">4</span> Facultades administrativas especiales <small>Independientes de Editar · {{ selectedCapabilities.length }} seleccionadas</small></summary><fieldset><legend>Facultades vigentes</legend>@if (editIntent === 'assignment') { <p>{{ capabilityText(selectedCapabilities) }}</p> }
             @for (cap of capabilities; track cap) {
               @if (true) {
-                <label><input type="checkbox" [disabled]="mode !== 'delegation' && (mode === 'user' && baseRole === 'ADMIN_OPERATIVO' || cap !== 'REQUEST_TEACHER_MOODLE_IDENTITY')" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
+                <label><input type="checkbox" [disabled]="editIntent === 'assignment' || mode !== 'delegation' && (mode === 'user' && baseRole === 'ADMIN_OPERATIVO' || cap !== 'REQUEST_TEACHER_MOODLE_IDENTITY')" [checked]="selectedCapabilities.includes(cap)" (change)="toggleCapability(cap, $any($event.target).checked)" />{{ capabilityLabels[cap] }}</label>
               }
             }
-          </fieldset><p>Las facultades del auxiliar se administran mediante su delegación; los perfiles ordinarios solo admiten solicitar corrección de identidad docente.</p></details>
+          </fieldset><p>Las facultades del auxiliar se administran mediante su delegación; los perfiles ordinarios solo admiten solicitar corrección de identidad docente.</p>@if (general() && mode === 'user' && editorPerson()?.baseRole === 'ADMIN_OPERATIVO') { <p>Otorgar una nueva delegación abre su configuración y descarta este borrador sin guardarlo.</p><button type="button" (click)="open('delegation', editorPerson())">Otorgar delegación nueva</button> }</details>
         <p>Revisa persona, ámbitos y módulos anteriores antes de confirmar. La cuenta de Authentication no se crea desde este formulario.</p>
 
         </div></div>
         <footer class="editor-actions">
           @if (mode === 'role') { <button type="button" (click)="openRoles()" [disabled]="busy">Volver al directorio</button> }
-          <button class="primary-action" type="submit" [disabled]="busy || editorForm.invalid">Revisar y confirmar</button><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>
+          <button class="primary-action" type="submit" [disabled]="busy || editorForm.invalid || editIntent === 'assignment' && !selectedRoleId">Revisar y confirmar</button><button type="button" (click)="closeEditor()" [disabled]="busy">Cancelar</button>
         </footer>
       </form>
     }

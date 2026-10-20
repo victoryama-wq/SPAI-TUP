@@ -329,6 +329,37 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 .profile-dialog .editor-heading .eyebrow { color:#42719a; }
 .profile-dialog .editor-heading-copy p { color:#526b85; }
 .profile-dialog .editor-heading button { color:#396386; background:#fff; border-color:#ccdeef; }
+
+/* Institutional access sheet: content scrolls independently of its actions. */
+.person-overview h4,.person-scopes h4 { display:flex; align-items:center; gap:10px; margin:0 0 18px; font-size:19px; color:#103967; }
+.person-identity { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.person-identity > div { min-width:0; overflow-wrap:anywhere; }
+.person-identity strong { font-size:18px; color:#102e59; }
+.person-identity p { margin:4px 0 0; color:#526b85; }
+.person-badges { display:flex; flex-wrap:wrap; gap:8px; }
+.person-badges .role-badge { display:inline-flex; align-items:center; padding:7px 12px; border-radius:999px; background:#edf4ff; color:#1d4ed8; font-size:13px; font-weight:900; line-height:1.4; }
+.person-badges .review-badge { background:#fff1cc; color:#74500d; }
+.person-overview > p { margin:10px 0 0; }
+.effective-notice { border-left:3px solid #32c1d7; padding:10px 12px; background:#eaf5fc; }
+.person-permissions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.person-permissions > div { display:grid; gap:5px; border:1px solid #dce8f5; border-radius:6px; padding:12px; background:white; font-size:13px; }
+.person-permissions strong { color:#103967; font-size:14px; }
+.scope-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.scope-grid > div { min-width:0; background:white; border:1px solid #dce8f5; border-radius:6px; padding:14px; }
+.scope-grid h5 { margin:0 0 10px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#32628e; }
+.scope-values { display:flex; flex-wrap:wrap; gap:6px; }
+.scope-values span { border-radius:5px; padding:5px 8px; background:#edf6fd; color:#163c60; font-size:13px; overflow-wrap:anywhere; max-width:100%; }
+.person-history summary { color:#103967; font-size:16px; font-weight:750; cursor:pointer; }
+.person-history summary small { display:inline-block; margin:6px; color:#74500d; background:#fff1cc; padding:4px 8px; border-radius:5px; }
+.person-history .record-grid { margin-top:14px; }
+.person-history button { margin:4px; }
+@media(max-width:600px) {
+ .person-permissions,.scope-grid { grid-template-columns:minmax(0,1fr); }
+ .person-overview h4,.person-scopes h4 { font-size:17px; line-height:1.4; align-items:flex-start; }
+ .person-identity { align-items:flex-start; }
+ .person-identity strong { font-size:16px; }
+ .person-history summary { line-height:1.5; }
+}
 @media(max-width:480px) { .permission-row input[type=checkbox] { flex:none; } }
 
 /* Keep the three full-size actions together only when both columns fit. */

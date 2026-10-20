@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-20",
+  "completedAt": "2026-10-20T17:43:49.127996+00:00",
+  "responsible": "Codex",
+  "status": "VALIDADA_LOCAL",
+  "ownerAcceptance": "PENDIENTE",
+  "baseCommit": "e8b79bd6d8839ff23f0f63fdfb3cf09d069d8f8b",
+  "branch": "codex/e2-r01-seguridad-permisos",
+  "commitLocator": "git log -1 --format=%H -- docs/E2-R01-FICHA-ACCESO-2026-10-20.md",
+  "ui": {
+    "startTime": "2026-10-20T17:32:13.814Z",
+    "duration": 214441.468,
+    "expected": 53,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "newUiCases": 7,
+  "unit": 28,
+  "server": {
+    "r01": 37,
+    "auxiliary": 9,
+    "access": 8,
+    "inheritance": 21
+  },
+  "characterizations": 72,
+  "strictGate": {
+    "exitCode": 1,
+    "open": 18,
+    "ids": [
+      "REQUEST-TERMINAL-REWRITE",
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "CYCLE-MULTIPLE-OPERATIVE",
+      "CYCLE-SELECTION-ORDER",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ],
+    "unchanged": true
+  },
+  "builds": {
+    "lan": "PASS",
+    "production": "PASS",
+    "isolated": "PASS",
+    "warning": "Initial bundle 779.82 kB / 750 kB warning budget"
+  },
+  "widths": [
+    320,
+    390,
+    768,
+    1280
+  ],
+  "adminDocumentLimit": 200,
+  "sharedBefore": "7762bebccbc2b89c234745407662140e1b483654e21c4b6a05d5fdde23243393",
+  "privateSelectionHash": "9550d3a37a5b783eb274daf3289dd3c9d94ea7f3ed1ba343e4119bb33f2bdc09",
+  "privateBackupHash": "b3ddfc0d73a8b6c2e0415cb171456843c0d76bb84009b8562da66744321492ed",
+  "initialAttempt": "Interrumpido tras detectar selectores getByLabel exactos que no encontraban el select anidado; sustituidos por combobox con nombre accesible. Dos casos auxiliares pasaron después; la suite completa se ejecutó desde un entorno aislado limpio. No se cambiaron expectativas de autorización.",
+  "finalFocused": {
+    "startTime": "2026-10-20T17:42:12.242Z",
+    "duration": 42974.164000000004,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "firstCompleteUi": {
+    "startTime": "2026-10-20T17:23:19.191Z",
+    "duration": 278014.68799999997,
+    "expected": 52,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "sharedAfter": "7762bebccbc2b89c234745407662140e1b483654e21c4b6a05d5fdde23243393",
+  "interface": {
+    "IPAddress": "192.168.42.1",
+    "InterfaceAlias": "Wi-Fi",
+    "AddressState": 4
+  },
+  "sharedServices": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9199,
+      "OwningProcess": 10708
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9099,
+      "OwningProcess": 10708
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 8080,
+      "OwningProcess": 19716
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 5001,
+      "OwningProcess": 10708
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 4310,
+      "OwningProcess": 11812
+    },
+    {
+      "LocalAddress": "192.168.42.1",
+      "LocalPort": 4201,
+      "OwningProcess": 17840
+    }
+  ],
+  "pendingObservation": "During intermediate auxiliary diagnosis: notifications Rules L242 maximum of 1000 expressions; not counted as a valid denial; separate R01 diagnosis pending.",
+  "sourceHashes": {
+    "src/app/features/users/components/security-console.component.css": "3fa888a17c20da1e43b3d7f48e82c162e921b8adbb1497713636bf4e099c8001",
+    "src/app/features/users/components/security-console.component.html": "57855c0eef5cfe8094d67b80e3e5c00c252686d0cb23dc0e6978e4b3f0159561",
+    "src/app/features/users/components/security-console.component.ts": "ad26762dc6f68bb1331c81ad8841c9a5f8c4cb319d1669de4daddb533e0a2045"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "at": "2026-10-20T17:23:15.894Z",
+  "results": [
+    {
+      "name": "Perfil ordinario: fuente intacta, identidad/estado conservados, ámbitos y Rules",
+      "status": "PASS"
+    },
+    {
+      "name": "Rol personalizado: referencia compartida, asignación propia y denegaciones conservadas",
+      "status": "PASS"
+    },
+    {
+      "name": "Delegación: facultades/ámbitos/plazo idénticos, ID propio y caducidad posterior en Rules",
+      "status": "PASS"
+    },
+    {
+      "name": "Identidad propia, alias y autoescalamiento rechazados sin escrituras",
+      "status": "PASS"
+    },
+    {
+      "name": "Operador no autorizado: comando directo y callable",
+      "status": "PASS"
+    },
+    {
+      "name": "Cuenta inactiva/revocada requiere reemplazo; no reactivación ni unión, historial y revisiones intactos",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por source; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por target; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por role; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por delegation; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por revocation; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por expiry; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por preview expiry; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Preview obsoleta por operator; ningún cambio parcial",
+      "status": "PASS"
+    },
+    {
+      "name": "Caducidad durante lectura de confirmación: se vuelve a consultar el reloj antes de escribir",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotencia: doble confirmación no duplica registros, auditoría ni evento",
+      "status": "PASS"
+    },
+    {
+      "name": "Último administrador protegido",
+      "status": "PASS"
+    },
+    {
+      "name": "Origen temporal, revocado o configuración inconsistente bloqueados",
+      "status": "PASS"
+    },
+    {
+      "name": "Reemplazar auxiliar conserva roles concedidos por su delegación y crea revisión",
+      "status": "PASS"
+    },
+    {
+      "name": "Editar datos personales conserva permisos/capacidades de rol sin convertirlos en concesión base",
+      "status": "PASS"
+    },
+    {
+      "name": "Límite 200: preview al umbral; creación excedente y lectura 201 rechazan atómicamente",
+      "status": "PASS"
+    }
+  ]
+}
