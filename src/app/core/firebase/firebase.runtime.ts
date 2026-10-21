@@ -24,8 +24,8 @@ export function validateFirebaseConfig(config: FirebaseRuntimeConfig): void {
     && (octets[0] === 10 || (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) || (octets[0] === 192 && octets[1] === 168));
   const lan = config.demoLan === true && privateHost && local?.projectId === 'demo-spai-tup'
     && typeof window !== 'undefined' && window.location.hostname === local.host
-    && window.location.protocol === 'http:' && window.location.port === '4201'
-    && [local.auth, local.firestore, local.functions, local.storage].every((port) => port === 4201);
+    && window.location.protocol === 'http:' && ['4201', '4203'].includes(window.location.port)
+    && [local.auth, local.firestore, local.functions, local.storage].every((port) => port === Number(window.location.port));
   if (config.mode !== 'local' || !local || !local.projectId.startsWith('demo-')
     || config.firebase.projectId !== local.projectId || (config.demoLan ? !lan : local.host !== '127.0.0.1')
     || ![local.auth, local.firestore, local.functions, local.storage].every((port) => Number.isInteger(port) && port > 0 && port < 65536)) {

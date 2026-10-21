@@ -27,13 +27,21 @@ test('UUID fallback uses secure random bytes on HTTP LAN and preserves UUID v4 f
   assert.throws(() => exported.randomId({}));
 });
 
-test('LAN is opt-in, private, same-host and only demo-spai-tup through port 4201', () => {
+test('LAN is opt-in, private, same-host and only demo-spai-tup through declared ports 4201 or 4203', () => {
   const before = globalThis.window;
   try {
     globalThis.window = { location: { hostname: '192.168.41.254', protocol: 'http:', port: '4201' } };
     const lan = { ...localConfig, demoLan: true, emulators: { ...config, host: '192.168.41.254', auth: 4201, firestore: 4201, functions: 4201, storage: 4201 } };
     assert.doesNotThrow(() => runtime.validateFirebaseConfig(lan));
     assert.throws(() => runtime.validateFirebaseConfig(localConfig));
+    globalThis.window.location.port = '4203';
+    const isolatedLan = { ...lan, emulators: { ...lan.emulators, auth: 4203, firestore: 4203, functions: 4203, storage: 4203 } };
+    assert.doesNotThrow(() => runtime.validateFirebaseConfig(isolatedLan));
+    assert.throws(() => runtime.validateFirebaseConfig(lan));
+    globalThis.window.location.port = '4204';
+    assert.throws(() => runtime.validateFirebaseConfig({ ...lan, emulators: { ...lan.emulators, auth: 4204, firestore: 4204, functions: 4204, storage: 4204 } }));
+    globalThis.window.location.port = '4201';
+
     for (const bad of [
       { ...lan, demoLan: false }, { ...lan, mode: 'production' },
       { ...lan, emulators: { ...lan.emulators, host: '8.8.8.8' } },

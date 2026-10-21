@@ -3,14 +3,15 @@ import { networkInterfaces } from 'node:os';
 import { BlockList } from 'node:net';
 import { readFileSync, statSync, createReadStream, writeFileSync } from 'node:fs';
 import { resolve, extname, sep } from 'node:path';
-import { config, root, sessionFile, verifyHub } from './config.mjs';
+import { config, root, sessionFile, verifyHub, isolatedTest } from './config.mjs';
 
 const host = process.argv[2];
+const lanPort = isolatedTest ? 4203 : 4201;
 const iface = Object.values(networkInterfaces()).flat().find((item) => item?.family === 'IPv4' && !item.internal && item.address === host);
 if (!iface || !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host)) throw new Error('Indica una IPv4 privada de este equipo.');
 const clients = new BlockList();
 clients.addSubnet(iface.cidr.split('/')[0], Number(iface.cidr.split('/')[1]), 'ipv4');
-const origin = `http://${host}:4201`;
+const origin = `http://${host}:${lanPort}`;
 const build = resolve(root, 'dist/spai-tup-lan/browser');
 statSync(resolve(build, 'index.html'));
 const initial = JSON.parse(readFileSync(sessionFile, 'utf8'));
@@ -35,7 +36,7 @@ const server = createServer((req, res) => {
     const current = JSON.parse(readFileSync(sessionFile, 'utf8'));
     if (current.synthetic !== true || current.token !== initial.token || current.emulatorPid !== initial.emulatorPid) return fail(503, 'Sesion sintetica cambiada. Reinicia la pasarela.');
   } catch { return fail(503, 'Sesion local no disponible.'); }
-  if (!clients.check(req.socket.remoteAddress, 'ipv4') || req.headers.host !== `${host}:4201`) return fail(403, 'Solo red local.');
+  if (!clients.check(req.socket.remoteAddress, 'ipv4') || req.headers.host !== `${host}:${lanPort}`) return fail(403, 'Solo red local.');
   if (req.headers.origin && req.headers.origin !== origin) return fail(403, 'Origen no permitido.');
   if (/^\s*bearer\s+owner\s*$/i.test(req.headers.authorization ?? '')) return fail(403, 'Acceso administrativo no publicado.');
   let path;
@@ -62,7 +63,7 @@ const server = createServer((req, res) => {
   if (req.method === 'HEAD') res.end(); else createReadStream(file).pipe(res);
 });
 server.on('error', (error) => { console.error(error.message); process.exitCode = 1; });
-server.listen(4201, host, () => {
-  writeFileSync(resolve(root, '.local/lan-session.json'), JSON.stringify({ pid: process.pid, host, port: 4201, synthetic: true }));
+server.listen(lanPort, host, () => {
+  writeFileSync(resolve(root, isolatedTest ? '.local/lan-session-isolated.json' : '.local/lan-session.json'), JSON.stringify({ pid: process.pid, host, port: lanPort, synthetic: true }));
   console.log(`DEMO LAN lista: ${origin} — solo datos sinteticos; administracion en loopback.`);
 });
