@@ -1,5 +1,7 @@
 # E2-R01 — Ficha y evidencia local
 
+> **Estado vigente al 21/10/2026:** validación técnica **VALIDADA_LOCAL**, según las ejecuciones y limitaciones conservadas; aceptación humana de los cambios revisados **APROBADA** por el propietario; preparación para producción **PENDIENTE**. Versión aceptada: `8ae650b8c3c59390a2290bf819d61d195710c35a`. Véase el [acta de cierre](E2-R01-CIERRE-2026-10-21.md) y la [propuesta R02, sin implementar](E2-R02-PROPUESTA-ALCANCE.md). No se repiten pruebas ni recorridos aceptados. Los registros siguientes son históricos y no sustituyen esta aceptación.
+
 > Ejecución complementaria vigente: [correcciones del 15/10/2026](E2-R01-ACEPTACION-2026-10-15.md), añadida al final. Se preservan los resultados históricos; T01 físico, T07 funcional y T11 físico quedan confirmados por el nuevo reporte humano, sin atribuir su ejecución a Codex.
 
 Fecha inicial: 2026-10-12. Revisión: 2026-10-13. Estado: **VALIDADA_LOCAL**.
@@ -7,6 +9,8 @@ Fecha inicial: 2026-10-12. Revisión: 2026-10-13. Estado: **VALIDADA_LOCAL**.
 Alcance aprobado: C01, C01.1, C01.2, C09 administrativo y C11 aplicable de [v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md). [Matriz, modelo, mapeo y límites](E2-R01-SEGURIDAD-PERMISOS.md).
 
 ## Criterios de aceptación
+
+La aceptación humana no cierra el impedimento administrativo de **200 documentos**, los **18 incumplimientos R02/R03**, las validaciones remotas ni los ensayos de migración y reversión. También se conservan los diagnósticos técnicos pendientes, incluida la sonda Rules inconclusa. D1 permanece: captura cerrada bloquea correcciones académicas ordinarias hasta reapertura, con la excepción acotada de Especiales ya definida en v0.4.
 
 | Criterio | Evidencia |
 |---|---|

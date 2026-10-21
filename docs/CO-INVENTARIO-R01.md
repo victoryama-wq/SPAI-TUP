@@ -1,5 +1,7 @@
 # Inventario operativo y cobertura R01
 
+> **Seguimiento vigente — 21/10/2026:** [aceptación humana APROBADA de los cambios revisados](E2-R01-CIERRE-2026-10-21.md), SHA `8ae650b8c3c59390a2290bf819d61d195710c35a`. CO-11/Usuarios, directorio, modales, Editar perfil y herencia cuentan con la confirmación expresa del propietario; las ejecuciones históricas y sus límites permanecen. Esto no acredita automáticamente otros casos humanos individuales de CO-02 ni cierra producción. CO-01 se delimita en la [propuesta R02](E2-R02-PROPUESTA-ALCANCE.md), sin implementación. Los 18 incumplimientos, el límite de 200 documentos y validaciones remotas/migración/reversión permanecen abiertos.
+
 > Seguimiento vigente de aceptación: [15/10/2026](E2-R01-ACEPTACION-2026-10-15.md). El inventario CO-01 a CO-12 y las ejecuciones previas se conservan. T01 físico, T07 funcional y T11 físico están confirmados por la propietaria; los pendientes históricos no sustituyen ese nuevo resultado.
 
 Revisión complementaria del 2026-10-13, sobre `7b22264d06c1d2925bf7c3c97058ad06112d9b39`.

@@ -1678,5 +1678,83 @@
       "Rules evaluator L70 probe remains inconclusive; not counted as policy denial",
       "Owner visual acceptance"
     ]
+  },
+  "closureReview": {
+    "date": "2026-10-21",
+    "timezone": "America/Cancun",
+    "reviewedCommit": "8ae650b8c3c59390a2290bf819d61d195710c35a",
+    "branch": "codex/e2-r01-seguridad-permisos",
+    "technicalValidation": {
+      "status": "VALIDADA_LOCAL",
+      "basis": "Existing dated evidence; no new test execution",
+      "limitationsPreserved": true
+    },
+    "humanAcceptance": {
+      "status": "APROBADA",
+      "by": "Propietario del proyecto",
+      "source": "Explicit confirmation in this conversation on 2026-10-21",
+      "scope": [
+        "Ultimos cambios revisados de E2-R01",
+        "Directorio de Usuarios",
+        "Modales de Usuarios",
+        "Editar perfil",
+        "Heredar acceso institucional"
+      ],
+      "doesNotInventIndividualTestRuns": true
+    },
+    "productionReadiness": "PENDIENTE",
+    "openGates": {
+      "administrativeDocumentLimit": {
+        "limit": 200,
+        "status": "PRODUCTION_BLOCKER"
+      },
+      "contractFailures": {
+        "total": 18,
+        "R02": 8,
+        "R03": 10,
+        "ids": [
+          "REQUEST-TERMINAL-REWRITE",
+          "CYCLE-WRITE-Preparacion",
+          "CYCLE-CREATE-Preparacion",
+          "CYCLE-WRITE-Captura cerrada",
+          "CYCLE-CREATE-Captura cerrada",
+          "CYCLE-WRITE-Cerrado",
+          "CYCLE-CREATE-Cerrado",
+          "MOODLE-STATUS-RESET-ALLOWED",
+          "CYCLE-MULTIPLE-OPERATIVE",
+          "CYCLE-SELECTION-ORDER",
+          "REQUEST-CREATE-AWAITS",
+          "REQUEST-RESOLVE-AWAITS",
+          "REQUEST-DUPLICATE-CREATE",
+          "UI-PREMATURE-SUCCESS",
+          "SHARE-PRESERVES-MOODLE",
+          "SHARE-PARTIAL-AND-SUCCESS",
+          "REQUEST-DOUBLE-ACCEPT",
+          "SHARE-CONCURRENT-LOST-GROUP"
+        ],
+        "rerun": false
+      },
+      "remoteValidation": "PENDING",
+      "migration": "PENDING",
+      "rollbackValidation": "PENDING",
+      "directRulesProbe": "INCONCLUSIVE_EVALUATOR",
+      "auxiliaryNotificationComplexity": "PENDING"
+    },
+    "historicalAcceptanceStatuses": "Preserved as recorded; this closure is the current acceptance record for reviewed changes",
+    "D1": "Captura cerrada bloquea correcciones academicas ordinarias hasta reapertura; la excepcion expresa de Especiales de v0.4 no habilita asignaciones ordinarias ni ciclos Cerrado",
+    "closureDocument": "docs/E2-R01-CIERRE-2026-10-21.md",
+    "nextDelivery": {
+      "id": "E2-R02",
+      "status": "PROPOSAL_ONLY",
+      "document": "docs/E2-R02-PROPUESTA-ALCANCE.md",
+      "implementationStarted": false
+    },
+    "documentationOnly": true,
+    "sharedServicesChanged": false,
+    "sharedDataChanged": false,
+    "privateBackupAccessed": false,
+    "push": false,
+    "merge": false,
+    "deployment": false
   }
 }
