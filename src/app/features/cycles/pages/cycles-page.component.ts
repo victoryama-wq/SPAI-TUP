@@ -151,7 +151,7 @@ export class CyclesPageComponent {
     const command=this.cyclesRepository.prepare(action,cycle,extra);
     this.isSaving=true; this.formError='';
     try {
-      const confirmed=await this.confirmationDialogService.confirm({title,message:`${title} para ${cycle.code}. Se comprobarán los permisos, el estado y la versión vigentes antes de confirmar.`,confirmLabel:title,cancelLabel:'Cancelar'});
+      const confirmed=await this.confirmationDialogService.confirm({title,message:action === 'closeCapture' ? 'Al cerrar la captura, se bloquearán las operaciones académicas ordinarias del ciclo.' : `${title} para ${cycle.code}. Se comprobarán los permisos, el estado y la versión vigentes antes de confirmar.`,confirmLabel:title,cancelLabel:'Cancelar'});
       if(confirmed) await this.cyclesRepository.confirm(command);
     } catch(error) { this.formError=this.getSaveErrorMessage(error); }
     finally {this.isSaving=false;delete this.reopenReason[cycle.id];}

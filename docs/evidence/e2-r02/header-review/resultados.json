@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-21T22:53:44.347Z",
+  "status": "PASS",
+  "widths": [
+    1280,
+    390,
+    320
+  ],
+  "cancelCommands": 0,
+  "serverRejection": 409,
+  "forcedExpectedRevision": -1,
+  "cyclesUnchanged": true,
+  "otherStatesPresentationOnly": [
+    {
+      "status": "Preparacion",
+      "enabledText": false
+    },
+    {
+      "status": "Captura cerrada",
+      "enabledText": false
+    },
+    {
+      "status": "Cerrado",
+      "enabledText": false
+    }
+  ],
+  "commands": [
+    {
+      "action": "closeCapture",
+      "expectedRevision": -1
+    }
+  ],
+  "errors": [],
+  "physicalSecondComputer": false
+}

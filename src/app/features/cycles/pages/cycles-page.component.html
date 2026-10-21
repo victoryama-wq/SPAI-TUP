@@ -39,12 +39,16 @@
 @if (activeCycle(); as cycle) {
   <section class="operative-control" aria-label="Operaciones del ciclo">
     <div><span class="operative-kicker">Ciclo operativo {{ cycle.code }}</span><h3>{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</h3>
-      <p>{{ cycle.specialsEnabled && cycle.status === 'Captura cerrada' ? 'Especiales habilitado. La captura ordinaria continúa bloqueada.' : 'Las acciones se confirman con la versión y los permisos vigentes del servidor.' }}</p>
+      @if (cycle.status === 'Captura') {
+        <p>La captura académica está habilitada para el ciclo activo.</p>
+      } @else if (cycle.specialsEnabled && cycle.status === 'Captura cerrada') {
+        <p>Especiales habilitado. La captura ordinaria continúa bloqueada.</p>
+      }
     </div>
     @if (canOperate(cycle)) {
       <div class="operative-actions">
         @if (cycle.status === 'Preparacion') { <button class="primary-action" type="button" (click)="startCapture(cycle)">Iniciar captura</button> }
-        @if (cycle.status === 'Captura') { <button class="primary-action" type="button" (click)="closeCapture(cycle)">Cerrar captura</button> }
+        @if (cycle.status === 'Captura') { <button class="primary-action" type="button" (click)="closeCapture(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path></svg><span>Cerrar captura</span></button> }
         @if (cycle.status === 'Captura cerrada') {
           <label>Motivo para reabrir<input type="text" maxlength="1000" [value]="reopenReason[cycle.id] || ''" (input)="setReason(cycle.id, $event)" /></label>
           <button type="button" class="primary-action" (click)="reopenCapture(cycle)">Reabrir captura</button>
