@@ -1,0 +1,783 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe",
+      "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      ".local/directory-gap/playwright.config.mjs"
+    ],
+    "configFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\.local\\directory-gap\\playwright.config.mjs",
+    "rootDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/tools/e2-r01",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/.local/test-results/r01-ui",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP/tools/e2-r01",
+        "testIgnore": [],
+        "testMatch": [
+          "scope-selector.spec.mjs",
+          "access-sheet.spec.mjs",
+          "users-layout.spec.mjs",
+          "visual-refine.spec.mjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\.local\\directory-gap\\ui.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "\"C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe\" node_modules/@angular/cli/bin/ng.js serve --configuration isolated --host 127.0.0.1 --port 4202",
+      "cwd": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP\\",
+      "url": "http://127.0.0.1:4202",
+      "timeout": 120000,
+      "reuseExistingServer": false,
+      "env": {
+        "NG_CLI_ANALYTICS": "false"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "access-sheet.spec.mjs",
+      "file": "access-sheet.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:32:57.442Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-884be722a54fde116e73",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3092,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:04.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-36ad2e8ca694c6256a62",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3279,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:07.623Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-f6307209146f282bc39f",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA presentación, ámbitos, teclado y cancelación 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3326,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:10.914Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-ec9e709f89a865d5dc0b",
+          "file": "access-sheet.spec.mjs",
+          "line": 48,
+          "column": 39
+        },
+        {
+          "title": "FICHA cuenta inactiva, global explícito, ámbito ausente y delegación revocada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4533,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:14.253Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-f0b4574e2aa1b7c12d05",
+          "file": "access-sheet.spec.mjs",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "FICHA auxiliar: editor restringido, cancelación limpia y asignación auditada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:18.799Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-c7f20388ef32f63c20cb",
+          "file": "access-sheet.spec.mjs",
+          "line": 89,
+          "column": 1
+        },
+        {
+          "title": "FICHA versión obsoleta y revocación rechazan la asignación sin cambios parciales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3652,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:22.510Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "06d7096462e57a5eed2d-b859ef8686c69f615a8f",
+          "file": "access-sheet.spec.mjs",
+          "line": 106,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "scope-selector.spec.mjs",
+      "file": "scope-selector.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:26.708Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-11899b1f924ced87f7a0",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:29.572Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-def2cf0614073f4155cd",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3345,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:32.801Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-f3163ddf61355b3c26ad",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO selector accesible y guardado sin cambios 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:36.159Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-eadf8023300de0dc758e",
+          "file": "scope-selector.spec.mjs",
+          "line": 34,
+          "column": 39
+        },
+        {
+          "title": "ÁMBITO global excluyente, individual, múltiple, vacío y presentación Todos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6852,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:39.713Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-91d3526f0f52a6bc5079",
+          "file": "scope-selector.spec.mjs",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "ÁMBITO auxiliar: global rechazado por interfaz/callables y diagnóstico de escritura directa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "Rules probe",
+                  "description": "INCONCLUSO: error de evaluador; no acredita cumplimiento de Rules"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2999,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "[2026-10-21T16:33:49.021Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x322de434 error. Code: 7 Message: 7 PERMISSION_DENIED: \nevaluation error at L70:22 for 'update' @ L70, false for 'update' @ L259, false for 'update' @ L70, false for 'update' @ L259\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:46.577Z",
+                  "annotations": [
+                    {
+                      "type": "Rules probe",
+                      "description": "INCONCLUSO: error de evaluador; no acredita cumplimiento de Rules"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4943679aa00ba682aac1-c109cafd98b137b720f4",
+          "file": "scope-selector.spec.mjs",
+          "line": 64,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "users-layout.spec.mjs",
+      "file": "users-layout.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "USUARIOS métricas confirmadas, error/reintento, estado heredado y ámbito auxiliar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:49.609Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df7e803e2a5598f7f572-b62381a4c989ba029ca0",
+          "file": "users-layout.spec.mjs",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "USUARIOS transición: modal único, cancelación sin escritura y preview obsoleta rechazada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3711,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:53.843Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df7e803e2a5598f7f572-b4e1457259eb40cfae15",
+          "file": "users-layout.spec.mjs",
+          "line": 23,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "visual-refine.spec.mjs",
+      "file": "visual-refine.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 320",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3171,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:33:57.573Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-edcf0d99297bed549c1b",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 390",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3197,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:34:00.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-01c50a7cb8ed8e4e8c07",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3449,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:34:03.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-f49de207ca8206cffad3",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        },
+        {
+          "title": "VISUAL composición, guía conserva borrador y roles 1280",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T16:34:07.421Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b8abef18226e5dbc64b-c11a2b01055f984324b6",
+          "file": "visual-refine.spec.mjs",
+          "line": 12,
+          "column": 39
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T16:32:46.062Z",
+    "duration": 85808.972,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

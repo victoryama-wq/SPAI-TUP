@@ -256,3 +256,9 @@ Todos sustituye únicamente la representación visible del token global; vacío 
 28 unitarias, 75 casos de servidor (37 + 9 + 8 + 21), 72 caracterizaciones y 59/59 interfaz. LAN/producción compilan; advertencia de 779,99/750 kB. Gate contractual salida 1, mismos 18 IDs pendientes. Rechazo global del auxiliar confirmado mediante `assignRole` y `saveUser`, sin cambios parciales. Sonda adicional de escritura directa en Rules L70 **INCONCLUSA** por error del evaluador: no se contabiliza como denegación válida, aunque no escribió datos. La ejecución estricta fallida y el diagnóstico se conservan separados de la validación de interfaz/callables.
 
 Aceptación humana/visual PENDIENTE; no validación productiva. Se conservan las evidencias humanas anteriores, el impedimento de 200 documentos y los pendientes R02/R03. Datos compartidos y privados intactos por hash, mismos procesos LAN; comprobación solo desde anfitrión.
+
+## Complemento 2026-10-21 — Directorio sin fila de filtros
+
+Base `ff931937c867e4bb26e113421a709a8cbd2bbdb1`; responsable técnico: Codex. Se retiraron Estado de la cuenta, contenedor y CSS residual, además de `statusFilter` y su predicado. La tabla usa directamente los perfiles canónicos del directorio autorizado; conserva ambos estados, badges, acciones y Revisiones pendientes. Margen institucional 20 px / 16 px móvil. Sin cambios de consultas, permisos o datos.
+
+19/19 recorridos dirigidos en emuladores aislados; compilaciones LAN y producción correctas (aviso 779,99/750 kB). Capturas inspeccionadas a 320/390/768/1280 px. Véase [informe](E2-R01-DIRECTORIO-SIN-FILTROS-2026-10-21.md) y `evidence/r01-directory-gap/results.json`. Se mantienen los pendientes de Rules, el límite 200 y los 18 incumplimientos R02/R03, sin alterar sus expectativas. Aceptación visual/humana PENDIENTE.

@@ -130,13 +130,12 @@ legend { max-width:100%; padding:0 7px; font-size:14px; color:#102c5c; font-weig
 .directory-hero { display:flex; flex-direction:column; justify-content:space-between; gap:20px; align-items:stretch; }
 .directory-hero .panel-actions { margin:0; flex-wrap:wrap; }
 .users-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
-.directory-filters { display:grid; grid-template-columns:minmax(0,1fr) minmax(140px,220px); gap:16px; padding:16px; }
 .special-capabilities { grid-column:1/-1; border-left:4px solid #28bfd8; padding:12px; background:#f1f8ff; }
 .special-capabilities summary { cursor:pointer; font-weight:800; padding:10px; }
 .security-dialog .access-card { min-width:0; }
 .security-dialog .assignment-fields { grid-template-columns:1fr; }
 @media(max-width:900px) { .directory-hero { flex-direction:column; align-items:stretch; } .users-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:480px) { .directory-filters { grid-template-columns:1fr; } .directory-hero .panel-actions button { width:100%; } }
+@media(max-width:480px) { .directory-hero .panel-actions button { width:100%; } }
 
 .inheritance-columns { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .inheritance-result { padding:16px; background:#eff7ff; border:1px solid #c5dbf6; border-radius:8px; min-width:0; }
@@ -177,9 +176,6 @@ button .ui-icon { margin-right:7px; width:18px; height:18px; }
 .operational-heading .eyebrow { color:white; }
 .operational-heading h3 { color:white; font-size:clamp(22px,2.4vw,30px); margin-top:6px; }
 .operational-heading > button { flex:0 1 auto; max-width:100%; background:white; color:#0b3f8d; border:0; border-radius:8px; min-height:40px; padding:8px 14px; font-size:14px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.directory-filters { padding:18px 22px; background:#fff; }
-.directory-filters label { margin:0; color:#435e7e; font-size:12px; }
-.directory-filters input,.directory-filters select { min-height:46px; background:#fbfdff; }
 th { background:#eaf4ff; color:#284a70; padding:13px 12px; font-size:11px; }
 td { padding:16px 12px; vertical-align:middle; }
 tbody tr:nth-child(even) { background:#f8fbff; }
@@ -298,7 +294,6 @@ tbody tr:nth-child(even) { background:#f8fbff; }
  .users-metrics div > span { font-size:12px; }
  .operational-heading { padding:18px 16px; align-items:stretch; }
  .operational-heading > button { width:100%; }
- .directory-filters { padding:16px; }
  .security-dialog { width:calc(100vw - 16px); max-height:calc(100dvh - 16px); border-radius:9px; }
  .editor-heading { padding:16px; gap:10px; }
  .editor-heading h3 { font-size:22px; }
@@ -372,8 +367,7 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 /* Directory only: Grupos/Nomenclaturas table-wrap, cells and status-badge;
    Ciclos edit-action sizing and palette. Dialog tables keep their own styles. */
 .directory-surface { margin:20px 22px 24px; background:#fff; border:1px solid #d7e4f8; border-radius:8px; overflow:hidden; }
-.directory-surface .directory-filters { padding:18px 14px; }
-.directory-surface > .table-scroll { border:0; border-top:1px solid #d7e4f8; border-radius:0; }
+.directory-surface > .table-scroll { border:0; border-radius:0; }
 .directory-surface > .table-scroll:focus-visible { outline-offset:-3px; }
 .directory-table { min-width:1160px; table-layout:fixed; font-size:13px; }
 .directory-table th,.directory-table td { padding:16px 14px; border-bottom:1px solid #d7e4f8; text-align:left; vertical-align:middle; line-height:1.5; }
@@ -396,7 +390,3 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 .directory-table .row-actions button:hover:not(:disabled) { background:#edf4ff; border-color:#9fc2f8; }
 .directory-table .row-actions button:disabled { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; cursor:not-allowed; }
 @media(max-width:480px) { .directory-surface { margin:16px 12px 18px; } }
-
-/* Compact account filter; directory query and scope warning remain unchanged. */
-.directory-surface .directory-filters { display:flex; justify-content:flex-end; }
-.directory-surface .directory-filters > label { width:min(100%, 230px); flex:none; }

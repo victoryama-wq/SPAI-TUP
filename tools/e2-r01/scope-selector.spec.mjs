@@ -27,17 +27,21 @@ test.afterEach(async()=>{
  await require('firebase-admin/app').deleteApp(app);
 });
 async function login(page,actor='sistemas'){
- await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption(`demo.${actor}@tecplayacar.edu.mx`);await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();await page.goto('/usuarios');await expect(page.locator('.directory-filters')).toBeVisible();
+ await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption(`demo.${actor}@tecplayacar.edu.mx`);await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();await page.goto('/usuarios');await expect(page.locator('.directory-surface')).toBeVisible();
 }
 async function edit(page){await page.getByRole('row').filter({hasText:'demo.scope.person@'}).getByRole('button',{name:'Editar',exact:true}).click();const d=page.locator('dialog[open]');await d.getByRole('button',{name:'2 Alcance académico',exact:true}).click();return d;}
 async function save(page){const d=page.locator('dialog[open]');await d.getByRole('button',{name:'Revisar y confirmar',exact:true}).click();await d.getByLabel('Motivo del cambio').fill('Verificación aislada del selector de ciclos');await d.getByRole('button',{name:'Confirmar',exact:true}).click();await expect(d).toHaveCount(0);}
 for(const width of [320,390,768,1280])test('ÁMBITO selector accesible y guardado sin cambios '+width,async({page})=>{
  await page.setViewportSize({width,height:960});await login(page);
- await expect(page.getByRole('searchbox')).toHaveCount(0);await expect(page.getByLabel('Estado de la cuenta')).toBeVisible();
- await page.getByLabel('Estado de la cuenta').selectOption('Inactivo');await expect(page.getByRole('row').filter({hasText:'demo.scope.person@'})).toHaveCount(0);await page.getByLabel('Estado de la cuenta').selectOption('');
+ await expect(page.getByRole('searchbox')).toHaveCount(0);await expect(page.getByLabel('Estado de la cuenta')).toHaveCount(0);await expect(page.locator('.directory-filters')).toHaveCount(0);
+ const profiles=(await db.collection('usuarios').get()).docs.filter(d=>!d.data().identityAliasOf);
+ await expect(page.locator('.directory-table tbody tr')).toHaveCount(profiles.length);
+ await expect(page.locator('.directory-table .active-badge').first()).toBeVisible();await expect(page.locator('.directory-table .inactive-badge').first()).toBeVisible();
+ const gap=await page.locator('.directory-table').evaluate(table=>table.getBoundingClientRect().top-document.querySelector('.operational-heading').getBoundingClientRect().bottom);expect(gap).toBeGreaterThanOrEqual(0);expect(gap).toBeLessThanOrEqual(width<=480?18:22);
  await page.screenshot({path:resolve(out,`panel-${width}.png`),fullPage:true});
  await page.locator('.operational-heading').evaluate(el=>el.scrollIntoView({block:'start'}));
  await page.screenshot({path:resolve(out,`tabla-${width}.png`),fullPage:true});
+ await page.screenshot({path:resolve(root,`.local/directory-gap/transicion-${width}.png`),fullPage:true});
  const d=await edit(page),picker=d.locator('spai-cycle-scope-picker');await picker.locator('summary').focus();await page.keyboard.press('Enter');await expect(picker.getByText('Ciclos históricos',{exact:true})).toBeVisible();
  await expect(picker).toContainText('Ciclo activo');await expect(picker).toContainText('Ciclos en preparación');await expect(picker).toContainText('saved-unresolved (no resuelto)');
  const active=picker.getByRole('checkbox',{name:/Ciclo DEMO 27-1/});await expect(active).toBeChecked();await active.focus();await page.keyboard.press('Space');await expect(active).not.toBeChecked();await page.keyboard.press('Space');await expect(active).toBeChecked();

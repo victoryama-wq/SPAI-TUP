@@ -7,7 +7,7 @@ const out=resolve(root,'.local/visual-refine/screenshots');mkdirSync(out,{recurs
 test.beforeEach(async({page})=>{
  assert.equal(isolatedTest,true);await verifyHub();
  await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
- await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav').first()).toBeVisible();await page.goto('/usuarios');await expect(page.locator('.directory-filters')).toBeVisible();
+ await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav').first()).toBeVisible();await page.goto('/usuarios');await expect(page.locator('.directory-surface')).toBeVisible();
 });
 for(const width of [320,390,768,1280])test('VISUAL composición, guía conserva borrador y roles '+width,async({page})=>{
  await page.setViewportSize({width,height:960});

@@ -327,10 +327,8 @@ export class SecurityConsoleComponent {
       if (generation === this.sessionGeneration) { this.error = this.errorText(e); this.confirmation = null; this.showDialog(); }
     } finally { if (generation === this.sessionGeneration) this.busy = false; }
   }
-  statusFilter = '';
   readonly coordinators = computed(() => this.profiles().filter(u => u.baseRole === 'COORDINACION_ACADEMICA'));
   readonly availableRoles = computed(() => this.directory()?.roles_personalizados.filter(r => r.status === 'ACTIVE') ?? []);
-  filteredProfiles(): AppUser[] { return this.profiles().filter(u => !this.statusFilter || u.status === this.statusFilter); }
   selectedPerson(): AppUser | undefined { return this.profiles().find(u => u.id === this.selectedUserId); }
   personAssignments(): SecurityRecord[] { return this.directory()?.asignaciones_roles.filter(a => a.userId === this.selectedUserId) ?? []; }
   activePersonAssignments(): number { return this.personAssignments().filter(a => a.status === 'ACTIVE').length; }

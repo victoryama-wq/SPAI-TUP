@@ -31,7 +31,7 @@ test.afterEach(async()=>{
 async function login(page,actor='sistemas'){
  await page.goto('/');await page.getByLabel('Cuenta ficticia del emulador').selectOption(`demo.${actor}@tecplayacar.edu.mx`);
  await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav').first()).toBeVisible();
- await page.goto('/usuarios');await expect(page.locator('.directory-filters')).toBeVisible();
+ await page.goto('/usuarios');await expect(page.locator('.directory-surface')).toBeVisible();
 }
 async function person(page,email='demo.sheet.person@'){
  const trigger=page.getByRole('row').filter({hasText:email}).getByRole('button',{name:'Ver acceso',exact:true});await trigger.click();return trigger;

@@ -1637,5 +1637,46 @@
       "Prior auxiliary notifications complexity diagnosis",
       "Owner acceptance pending"
     ]
+  },
+  "directoryGapReview": {
+    "date": "2026-10-21T16:35:12.278536+00:00",
+    "baseCommit": "ff931937c867e4bb26e113421a709a8cbd2bbdb1",
+    "branch": "codex/e2-r01-seguridad-permisos",
+    "status": "VISUAL_VALIDATED_LOCAL",
+    "humanAcceptance": "PENDING",
+    "ui": {
+      "startTime": "2026-10-21T16:32:46.062Z",
+      "duration": 85808.972,
+      "expected": 19,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "builds": {
+      "lan": "PASS",
+      "production": "PASS",
+      "budgetWarning": "779.99/750 kB"
+    },
+    "filterRemoved": {
+      "control": true,
+      "internalPredicate": true,
+      "css": true,
+      "persistence": "No persistence existed"
+    },
+    "viewportWidths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "scopeQueriesChanged": false,
+    "sharedServicesRestarted": false,
+    "privateDataUsed": false,
+    "knownPending": [
+      "200 security documents",
+      "18 R02/R03 contract failures (not rerun)",
+      "Rules evaluator L70 probe remains inconclusive; not counted as policy denial",
+      "Owner visual acceptance"
+    ]
   }
 }
