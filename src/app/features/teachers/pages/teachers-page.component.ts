@@ -87,7 +87,9 @@ export class TeachersPageComponent {
   readonly teachersReadState = this.teachersRepository.readState;
   readonly teachersReadMessage = this.teachersRepository.readMessage;
   retryTeachers(): void { void this.teachersRepository.refreshFromServer().catch(() => undefined); }
-  readonly canCreateTeacher = computed(() => hasAccess(this.session()?.appUser, 'docentes', true) && this.teachersReady() && (this.session()?.appUser?.baseRole !== 'ADMIN_OPERATIVO' || Boolean(this.session()?.appUser?.scope?.teachers?.includes('*'))));
+  readonly captureMessage = this.cyclesRepository.captureMessage;
+  readonly academicCapture = computed(() => this.cyclesRepository.contextReady() && this.activeCycle()?.status==='Captura' && (this.session()?.appUser?.baseRole==='ADMIN_GENERAL' || Boolean(this.session()?.appUser?.scope?.cycles?.some(c=>c==='*'||c===this.activeCycle()?.code))));
+  readonly canCreateTeacher = computed(() => this.academicCapture() && hasAccess(this.session()?.appUser, 'docentes', true) && this.teachersReady() && (this.session()?.appUser?.baseRole !== 'ADMIN_OPERATIVO' || Boolean(this.session()?.appUser?.scope?.teachers?.includes('*'))));
   readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
   readonly activeTeacherRecords = computed(() => this.teachers().filter((teacher) => this.isRealTeacherRecord(teacher)));
@@ -358,6 +360,7 @@ export class TeachersPageComponent {
   }
 
   canEditTeacher(teacher: Teacher): boolean {
+    if (!this.academicCapture()) return false;
     const user = this.session()?.appUser;
     if (!this.teachersReady() || (user?.baseRole === 'ADMIN_OPERATIVO' && !user.scope?.fields?.length)) return false;
     return hasAccess(user, 'docentes', true) && ['PENDIENTE', 'VALIDADO'].includes(teacher.status)
@@ -855,11 +858,13 @@ export class TeachersPageComponent {
   }
 
   canDeleteTeacher(teacher: Teacher): boolean {
+    if (!this.academicCapture()) return false;
     return (this.canManageTeachers() && teacher.status === 'INACTIVO')
       || this.canDeleteOwnPendingNewTeacher(teacher);
   }
 
   private canDeleteOwnPendingNewTeacher(teacher: Teacher): boolean {
+    if (!this.academicCapture()) return false;
     const session = this.session();
     const appUser = session?.appUser;
 

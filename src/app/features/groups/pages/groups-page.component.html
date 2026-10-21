@@ -1,3 +1,4 @@
+@if (captureMessage()) { <p class="feedback" role="status">{{ captureMessage() }}</p> }
 <section class="groups-overview">
   <section class="groups-header">
     <div>
@@ -422,7 +423,8 @@
                   type="button"
                   aria-label="Eliminar grupo"
                   title="Eliminar grupo"
-                  (click)="askDeleteGroup(group)"
+                  [disabled]="group.cycleCode !== activeCycle()?.code"
+                    (click)="askDeleteGroup(group)"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>

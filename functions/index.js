@@ -337,6 +337,9 @@ const securedCall = handler => onCall({ region: 'us-central1' }, async request =
     throw new HttpsError(code, code === 'internal' ? 'No se pudo confirmar la operación.' : error.message);
   }
 });
+const cycleService = require('./cycles/service').createCycleService(db);
+exports.cycleCommand = securedCall(request => cycleService.execute(request.auth, request.data));
+exports.cycleContext = securedCall(request => cycleService.inspect(request.auth));
 exports.securityCommand = securedCall(request => securityService.execute(request.auth, request.data));
 exports.securityDirectory = securedCall(request => securityService.list(request.auth));
 exports.deliverSecurityNotification = onDocumentCreated({ document: 'eventos_seguridad/{eventId}', region: 'us-central1', retry: true }, event => security.processNotification(db, event.params.eventId, Boolean(localRuntime)));

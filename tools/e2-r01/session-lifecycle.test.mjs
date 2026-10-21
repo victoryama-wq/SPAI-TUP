@@ -29,6 +29,22 @@ test('Consulta vacía confirmada, carga, denegación y fallo técnico no se conf
  h.setSession(null);h.flush();assert.equal(h.repo.readState(),'restricted');
 });
 
+test('CO-01: cambiar ciclo retira datos antes del efecto y descarta respuestas tardías',()=>{
+ const h=harness('src/app/core/data/firestore.repository.ts','FirestoreRepository',[{},'asignaciones']);
+ let cycle='27-1';h.repo.selectionKey=()=>cycle;
+ h.setSession(actor('a',{asignaciones:'VIEW'}));h.flush();
+ const first=h.listeners[0];h.emit(first,{cycle:'27-1'});assert.equal(h.repo.items().length,1);
+ cycle='26-3';assert.equal(h.repo.items().length,0);assert.equal(h.repo.readState(),'loading');
+ h.emit(first,{cycle:'27-1'});assert.equal(h.repo.items().length,0);
+ h.flush();assert.equal(first.stopped,true);const second=h.listeners[1];h.emit(second,{cycle:'26-3'});
+ h.emit(first,{cycle:'27-1'});assert.equal(h.repo.items()[0].cycle,'26-3');
+ cycle='27-1';h.flush();assert.equal(second.stopped,true);h.emit(second,{cycle:'26-3'});assert.equal(h.repo.items().length,0);
+ h.emit(h.listeners[2],{cycle:'27-1'});assert.equal(h.repo.items()[0].cycle,'27-1');
+ h.setSession(actor('consulta',{asignaciones:'VIEW'}));assert.equal(h.repo.items().length,0);h.flush();
+ h.emit(h.listeners[2],{cycle:'27-1',previousSession:true});assert.equal(h.repo.items().length,0);
+ h.setSession(null);h.flush();assert.ok(h.listeners.every(l=>l.stopped));
+});
+
 test('Perfil vigente ignora caché y escrituras optimistas no confirmadas; una identidad nueva no hereda autorización',()=>{
  let authUser={uid:'consulta',email:'consulta@example.invalid'},callback,cleanup;const effects=[];
  const signal=initial=>{let value=initial;const read=()=>value;read.set=v=>value=v;return read;};

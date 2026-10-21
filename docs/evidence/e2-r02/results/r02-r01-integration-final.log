@@ -1,0 +1,127 @@
+R01 PASS Lectura denegada anonymous
+R01 PASS Lectura denegada r01-inactive
+R01 PASS Lectura denegada r01-legacy
+R01 PASS Lectura denegada r01-person
+R01 PASS Directorio callable exige Auth y Administración
+[2026-10-21T22:14:49.460Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532507 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L128:22 for 'update' @ L128, false for 'update' @ L278, false for 'update' @ L128, false for 'update' @ L278
+R01 PASS VIEW consulta ámbito propio y rechaza ámbito ajeno/escritura
+[2026-10-21T22:14:49.569Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532508 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.607Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532509 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.631Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250a error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.664Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.708Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250c error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.748Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250d error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:49.787Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250e error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+R01 PASS EDIT ficha propia sin identidad ni ajenas
+[2026-10-21T22:14:49.864Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53250f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:14:49.979Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532510 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L180:22 for 'create' @ L180, false for 'create' @ L278, evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'create' @ L180, false for 'create' @ L278
+R01 PASS Asignaciones propias y excepción global de matrículas sin complejidad
+[2026-10-21T22:14:50.069Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532511 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+R01 PASS Identidad de asignación Moodle protegida incluso para administrador
+[2026-10-21T22:14:50.106Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532512 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.128Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532513 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.148Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532514 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.177Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532515 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.201Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532516 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.224Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532517 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.247Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532518 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.270Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532519 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+[2026-10-21T22:14:50.302Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53251a error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L278, false for 'update' @ L70, false for 'update' @ L278
+R01 PASS Autoservicio no permite modificar, añadir o eliminar privilegios
+R01 PASS Perfil inactivo conserva vinculación sin activarse
+[2026-10-21T22:14:51.122Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53251c error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L73, false for 'create' @ L278, false for 'update' @ L73, false for 'update' @ L278
+[2026-10-21T22:14:51.139Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53251d error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L74, false for 'create' @ L278, false for 'update' @ L74, false for 'update' @ L278
+[2026-10-21T22:14:51.149Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53251e error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L75, false for 'create' @ L278, false for 'update' @ L75, false for 'update' @ L278
+[2026-10-21T22:14:51.170Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53251f error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L79, false for 'create' @ L278, false for 'update' @ L79, false for 'update' @ L278
+[2026-10-21T22:14:51.185Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532520 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L216, false for 'create' @ L278, false for 'update' @ L217, false for 'update' @ L278
+R01 PASS Cliente no fabrica roles, delegaciones, auditoría ni eventos
+R01 PASS Administrador crea rol y delegación explícita
+R01 PASS Auxiliar asigna preaprobado con procedencia y destinatarios filtrados
+R01 PASS Auxiliar no administra definiciones, usuarios, delegaciones ni terceros superiores
+R01 PASS Rol de nombre inocuo no permite superar capacidades ni ámbito
+R01 PASS Reintento devuelve mismo resultado sin duplicar auditoría/evento
+R01 PASS Revocar conserva roles activos, ignora retirados y notifica a todos los administradores
+R01 PASS Sesión abierta revocada pierde acceso directo y operaciones preparadas
+R01 PASS Nueva delegación no reutiliza identidad ni resuelve revisión anterior
+R01 PASS Dos administradores no sobrescriben resolución de revisión
+R01 PASS Asignación concurrente con revocación nunca queda sin seguimiento
+R01 PASS Migración muestra ausencias y preserva revocaciones explícitas
+R01 PASS Vista previa obsoleta no restaura permisos ni produce efectos
+R01 PASS Identidad técnica vincula UID sin activar ni copiar autoridad de duplicados
+[2026-10-21T22:14:59.192Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532524 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:59.202Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532525 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:59.223Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532526 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+R01 PASS Alta de Docentes consulta catálogo y edita solo ficha propia
+[2026-10-21T22:14:59.331Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532527 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L112, false for 'update' @ L278
+[2026-10-21T22:14:59.371Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532528 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:14:59.401Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532529 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:14:59.418Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252a error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+[2026-10-21T22:15:01.499Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:01.506Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252c error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L112, false for 'update' @ L278
+[2026-10-21T22:15:01.528Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252d error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L112, false for 'update' @ L278
+[2026-10-21T22:15:01.560Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252e error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L152:22 for 'update' @ L152, false for 'update' @ L278, false for 'update' @ L152, false for 'update' @ L278
+R01 PASS Capacidad sensible y ámbitos de ciclo, docente y campos se exigen por separado
+R01 PASS Sustitución revisada no reactiva retirados ni mezcla ámbitos
+R01 PASS Fallo de persistencia de auditoría revierte también cambio y evento
+R01 PASS Cambio, bitácora y evento tienen actor real y efecto idempotente
+[2026-10-21T22:15:03.975Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d53252f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:03.992Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532530 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:04.006Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532531 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:04.025Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532532 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:04.041Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532533 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L182:22 for 'delete' @ L182, false for 'delete' @ L278, false for 'delete' @ L182, false for 'delete' @ L278
+[2026-10-21T22:15:04.072Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532534 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L180:22 for 'create' @ L180, false for 'create' @ L278, evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'create' @ L180, false for 'create' @ L278
+R01 PASS CO-02 CUSTOM VIEW Asignaciones: consultas por programa/ciclo y toda escritura denegada
+[2026-10-21T22:15:04.262Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532535 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+[2026-10-21T22:15:04.288Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532536 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L182:22 for 'delete' @ L182, false for 'delete' @ L278, false for 'delete' @ L182, false for 'delete' @ L278
+R01 PASS CO-02 excepción académica no se extiende al auxiliar VIEW aun con capacidad sensible
+R01 PASS Transición: siete días exactos de servidor y preview anterior no confirma al vencer
+[2026-10-21T22:15:06.909Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x4d532537 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L181:22 for 'update' @ L181, false for 'update' @ L278, false for 'update' @ L181, false for 'update' @ L278
+R01 PASS Rules y callables: autorización temporal vigente, vencida, cambiada o revocada
+R01 PASS Límite 199/200/201: operaciones críticas, directorio y rechazo totalmente atómico
+R01 PASS Dos desactivaciones concurrentes conservan al menos un administrador
+R01 PASS Todas las conexiones observadas permanecen en loopback

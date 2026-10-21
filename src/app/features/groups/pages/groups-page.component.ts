@@ -55,7 +55,8 @@ export class GroupsPageComponent implements OnDestroy {
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly programs = this.programsRepository.programs;
   readonly activeCycle = this.cyclesRepository.activeCycle;
-  readonly canManageGroups = computed(() => isSystems(this.userSessionService.session()?.appUser) && hasAccess(this.userSessionService.session()?.appUser, 'grupos', true));
+  readonly captureMessage = this.cyclesRepository.captureMessage;
+  readonly canManageGroups = computed(() => this.cyclesRepository.contextReady() && this.activeCycle()?.status==='Captura' && isSystems(this.userSessionService.session()?.appUser) && hasAccess(this.userSessionService.session()?.appUser, 'grupos', true));
   readonly isConsultationMode = computed(() => !this.canManageGroups());
 
   readonly activeGroupsCount = computed(
@@ -185,6 +186,7 @@ export class GroupsPageComponent implements OnDestroy {
 
   canDeleteSelectedCycleGroups(): boolean {
     return this.canManageGroups()
+      && this.selectedCycleCode === this.activeCycle()?.code
       && this.hasSelectedCycleFilter()
       && this.selectedCycleGroupsCount > 0;
   }
@@ -321,7 +323,7 @@ export class GroupsPageComponent implements OnDestroy {
   }
 
   askDeleteGroup(group: AcademicGroup): void {
-    if (!this.canManageGroups()) {
+    if (!this.canManageGroups() || this.groupCycleCode(group) !== this.activeCycle()?.code) {
       return;
     }
 
@@ -349,7 +351,7 @@ export class GroupsPageComponent implements OnDestroy {
   }
 
   async deleteSelectedGroup(): Promise<void> {
-    if (!this.canManageGroups() || !this.groupPendingDelete) {
+    if (!this.canManageGroups() || !this.groupPendingDelete || this.groupCycleCode(this.groupPendingDelete) !== this.activeCycle()?.code) {
       return;
     }
 
@@ -367,7 +369,7 @@ export class GroupsPageComponent implements OnDestroy {
   }
 
   async deleteSelectedCycleGroups(): Promise<void> {
-    if (!this.canManageGroups() || !this.selectedCycleCode) {
+    if (!this.canDeleteSelectedCycleGroups()) {
       return;
     }
 

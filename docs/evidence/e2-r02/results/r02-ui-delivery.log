@@ -1,0 +1,16 @@
+[WebServer] (node:25328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:23492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tools\e2-r02\ui.spec.mjs:19:1 › Ciclo operativo: transiciones, motivo, Especiales y tamaños de revisión (3.5s)
+  ok 2 tools\e2-r02\ui.spec.mjs:34:1 › Coordinación: Especiales habilitado, ordinaria bloqueada e histórico solo consulta (3.6s)
+  ok 3 tools\e2-r02\ui.spec.mjs:56:1 › CO-01 cambios rápidos: nunca mezcla filas ni conserva selección en otra sesión (3.7s)
+  ok 4 tools\e2-r02\ui.spec.mjs:70:1 › Múltiples operativos y ausencia: avisos explícitos, sin elección arbitraria (2.6s)
+  ok 5 tools\e2-r02\ui.spec.mjs:77:1 › Especiales: alta real desde formulario en captura cerrada (2.9s)
+
+  5 passed (24.4s)

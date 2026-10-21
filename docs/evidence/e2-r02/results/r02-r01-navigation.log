@@ -1,0 +1,16 @@
+[WebServer] (node:22240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:26224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tools\e2-r01\navigation.spec.mjs:61:1 › H002 login real, URL Dashboard, recarga e historial sin inserción protegida ni consultas ajenas (6.4s)
+  ok 2 tools\e2-r01\navigation.spec.mjs:72:1 › H002 permisos sin resolver: no se crea el Dashboard mientras se espera el perfil del servidor (1.3s)
+  ok 3 tools\e2-r01\navigation.spec.mjs:94:1 › H002 cambio Sistemas → Consulta limpia los datos y cancela suscripciones de la sesión previa (2.0s)
+  ok 4 tools\e2-r01\navigation.spec.mjs:104:1 › H002 lecturas directas del servidor: sin usuarios, roles, solicitudes ni agenda ajenos (1.5s)
+  ok 5 tools\e2-r01\navigation.spec.mjs:117:1 › H002 sin módulos no hay bucle; revocar Dashboard retira contenido y suscripciones (4.2s)
+
+  5 passed (29.2s)

@@ -1,0 +1,136 @@
+{
+  "recordedAt": "2026-10-21T22:27:18.250344+00:00",
+  "baseCommit": "94eeffa90bdb97886f05a88127d3abc59cbcac80",
+  "acceptedR01Commit": "8ae650b8c3c59390a2290bf819d61d195710c35a",
+  "branch": "codex/e2-r02-captura-especiales",
+  "deliveryCommit": "El commit local que incorpora este archivo; fuentes verificables mediante sha256",
+  "implementation": "IMPLEMENTACION_LOCAL_CON_PENDIENTES",
+  "technicalValidation": "NO_VALIDADA_LOCAL",
+  "humanAcceptance": "PENDIENTE",
+  "productionReadiness": "PENDIENTE_BLOQUEADA",
+  "sourceSha256": {
+    "firestore.indexes.json": "8897a59b29ff39d22e083b80c816ef460fc0f6fb2a2de7719e93df1eb52ee08b",
+    "firestore.rules": "4bcb5bbadd2042eebbdc585d8f84cfa90c8d6b6287f7e44683b51f76f8eabf43",
+    "functions/cycles/service.js": "fddf441cf29f3f45063555655b8f2821557821b5a330519fc11e6e799179d7b5",
+    "functions/index.js": "3ea4a28071a1f576033f7e936a3d4082675c9294c50e051752baf952aab13652",
+    "src/app/core/data/authorized-query.ts": "8021ff500327b799f55e0c63094285a615fc49a777846b9e0ab27d0c43697c90",
+    "src/app/core/data/firestore.repository.ts": "92224a322cafbb01101659ad4b1c1a5f3d36468fd961508987bac0b5f89ae905",
+    "src/app/features/assignments/data/assignments.repository.ts": "96a0270ccee6ee42ca6d8c69189d8395f8e081003a98c7706056558a441c7c32",
+    "src/app/features/assignments/pages/assignments-page.component.css": "ef0b078b9bd3d7f645096e54a4b518fb0e0c29d28f67086549bb8111abea7e39",
+    "src/app/features/assignments/pages/assignments-page.component.html": "7636d7db44883f297d5525a98b9b66648dd8b3f098789abf358452de1e79cd26",
+    "src/app/features/assignments/pages/assignments-page.component.ts": "cb648dc1b361f21591ab6f202c6b32bf80c3b334ad41d2bc8cda69b062b25329",
+    "src/app/features/cycles/data/cycles.repository.ts": "5095bf57fc070e72e148856c0ce37ef67df12729b10a23ce11336415414c50b1",
+    "src/app/features/cycles/pages/cycles-page.component.css": "6f90a2575bda992a999c6439224e4d9f5ee2d543e775659a655f88da1c150868",
+    "src/app/features/cycles/pages/cycles-page.component.html": "8be4ba63ccaf80e5a4fe71a3ee7bca8147d1930241cc7cfc23043321c9d5f8d6",
+    "src/app/features/cycles/pages/cycles-page.component.ts": "442f60bd92d8b7263477377289e516158e84cce52fd30a870d4f7e002839a8b5",
+    "src/app/features/groups/pages/groups-page.component.html": "cff6cd680274de9af776fe4eedabd3baa9d97bca539cf101761850815f8f3468",
+    "src/app/features/groups/pages/groups-page.component.ts": "a47d1f6ad8ad5232ae4f95d7b0bbe3b8d12eed3c433b11474f3ec0274d5d8dbb",
+    "src/app/features/requests/pages/requests-page.component.ts": "7f642eddc44fabe6ddd224553771b94e036668c127abc33024b80b43f0680bb7",
+    "src/app/features/teachers/pages/teachers-page.component.html": "dfcc068d83e9ef64d70b6e8e6603c5a9ec4364df20aff175e0331e7e2ff2c3a6",
+    "src/app/features/teachers/pages/teachers-page.component.ts": "f4885befd14b163044f3cc328ef95cbdfbabd312fc6a087f236218486d51bd08",
+    "tools/e2-r01/integration.mjs": "641521232adaf5b4b648cef5f453b7366a99ff6028df23594a8a458bc1df3e96",
+    "tools/e2-r01/policy.test.mjs": "154f5f88d8206ca7a99217d3bc6e7fbc2c7338d2a647e4959a8a488bf3b9970e",
+    "tools/e2-r01/session-lifecycle.test.mjs": "b90cafd875e6202f12cc9867f16ae3a7111e29025c67a274557053dcca6dcbf6",
+    "tools/e2-r02/integration.mjs": "1b841ffa445bd413b5f2e5b7a145172226347a744982ccb5271e9819c11207fa",
+    "tools/e2-r02/playwright.config.mjs": "2680471c2a8b0074e42055915d2d1dc650d440a69444ab87732c1929726fd83a",
+    "tools/e2-r02/prepare-review.mjs": "06b64cdac6228a0c4dbd3ae3193f14c9aa927df5987e57558798b7e941f8163c",
+    "tools/e2-r02/requests-cycle.test.mjs": "0ec7277c922a5c271e74deccbc8313bae9ce76c6244c60117194ae00da1adb2e",
+    "tools/e2-r02/review.ps1": "25841b21353d08f7a209c7456b783dea8553a51881486fdf97c1b57b24f0a97d",
+    "tools/e2-r02/ui.spec.mjs": "d5e1ae5aca836dfd86a07e3fdb444c9c0cbbf4345fb7ff6d900769e1fc585228",
+    "tools/local/tests/config.test.mjs": "eb35cb42f776468c2786b34c2228878142ce90ddfca1a7f28818caa215a10a01",
+    "tools/local/tests/integration.mjs": "f0e2331f2170fba3393758f16a5f9c83c90c6009fd426d9efa91c2f309ef7b70",
+    "tools/stage1/logic.mjs": "f2a7c20e0ab1f5ba82677c1d43395e463253555326026201884d3ab54b09a108",
+    "tools/stage1/report.mjs": "a5bae7f516722d99980afb04dfe86af8c7e2d5efb9e43f61dc0972b8bf278242",
+    "tools/stage1/rules.mjs": "b787a982da7413377ed35cf5ab9812f68aa0d2abbd67533b8383b42fd5849f13"
+  },
+  "serverR02": {
+    "testedAt": "2026-10-21T22:21:59.740Z",
+    "groups": 19,
+    "statuses": {
+      "PASS": 11,
+      "INCONCLUSIVE_EVALUATOR": 8
+    },
+    "exitCode": 1,
+    "strictEvaluatorDenialsNotCredited": true
+  },
+  "gate": {
+    "total": 72,
+    "contractPass": 56,
+    "contractFail": 10,
+    "inconclusive": 6,
+    "exitCode": 1,
+    "openR03": [
+      "REQUEST-TERMINAL-REWRITE",
+      "MOODLE-STATUS-RESET-ALLOWED",
+      "REQUEST-CREATE-AWAITS",
+      "REQUEST-RESOLVE-AWAITS",
+      "REQUEST-DUPLICATE-CREATE",
+      "UI-PREMATURE-SUCCESS",
+      "SHARE-PRESERVES-MOODLE",
+      "SHARE-PARTIAL-AND-SUCCESS",
+      "REQUEST-DOUBLE-ACCEPT",
+      "SHARE-CONCURRENT-LOST-GROUP"
+    ],
+    "openR02": [
+      "CYCLE-WRITE-Preparacion",
+      "CYCLE-CREATE-Preparacion",
+      "CYCLE-WRITE-Captura cerrada",
+      "CYCLE-CREATE-Captura cerrada",
+      "CYCLE-WRITE-Cerrado",
+      "CYCLE-CREATE-Cerrado"
+    ]
+  },
+  "unit": {
+    "passed": 30,
+    "failed": 0,
+    "log": "evidence/e2-r02/results/r02-unit-delivery.log"
+  },
+  "r01Server": {
+    "passed": 37,
+    "criterion": "Criterio previo de la suite R01; no levanta sus diagnosticos historicos de Rules",
+    "testedAt": "2026-10-21T22:15:20.902Z"
+  },
+  "r01Navigation": {
+    "startTime": "2026-10-21T22:10:20.863Z",
+    "duration": 29158.181,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "r02UI": {
+    "startTime": "2026-10-21T22:25:37.571Z",
+    "duration": 24386.690000000002,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "builds": {
+    "production": "PASS",
+    "isolated": "PASS",
+    "warning": "bundle inicial 781.34 kB / presupuesto 750 kB"
+  },
+  "services": {
+    "isolatedProject": "demo-spai-tup",
+    "frontend": "http://127.0.0.1:4202/",
+    "ports": {
+      "firestore": 18080,
+      "auth": 19099,
+      "functions": 15001,
+      "storage": 19199
+    },
+    "sharedLAN": "No sustituida ni reiniciada"
+  },
+  "openProductionGates": [
+    "200 documentos administrativos",
+    "6 casos R02 inconclusos por evaluador",
+    "10 incumplimientos R03",
+    "Diagnosticos R01 previos",
+    "Validacion remota e indices",
+    "Migracion, respaldo, recuperacion y reversion productivos",
+    "Aceptacion humana R02"
+  ],
+  "hostVerification": "evidence/e2-r02/results/host-verification.json",
+  "evidenceFormatting": "Los logs versionados conservan mensajes y resultados; solo se normalizan espacios finales y salto final. Originales en .local."
+}

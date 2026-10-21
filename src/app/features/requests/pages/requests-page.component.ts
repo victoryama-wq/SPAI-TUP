@@ -1279,7 +1279,12 @@ export class RequestsPageComponent {
         return;
       }
 
-      this.cyclesRepository.reopenCapture(cycle.id);
+      try {
+        await this.cyclesRepository.reopenCapture(cycle.id, this.responseObservations.trim());
+      } catch (error) {
+        this.responseErrors = [error instanceof Error ? error.message : 'No se pudo confirmar la reapertura.'];
+        return;
+      }
       createdEntityId = cycle.id;
       description = `Se acepto reabrir captura del ciclo ${cycle.code}.`;
     }

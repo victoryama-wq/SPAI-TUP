@@ -16,10 +16,10 @@ const services = runtime.initializeFirebaseRuntime(localConfig, 'integration');
 try {
   await signInWithEmailAndPassword(services.auth, accounts[0].email, password);
   assert.equal(services.auth.currentUser.uid, accounts[0].uid);
-  const probe = doc(services.db, 'ciclos/demo-etapa0-probe');
+  const probe = doc(services.db, 'programas/demo-etapa0-probe');
   await setDoc(probe, { code: '99-1', label: 'PRUEBA FICTICIA', status: 'Preparacion', createdAt: new Date().toISOString() });
   assert.equal((await getDocFromServer(probe)).data().label, 'PRUEBA FICTICIA');
-  const rest = await fetch(`http://${config.host}:${config.firestore}/v1/projects/${config.projectId}/databases/(default)/documents/ciclos/demo-etapa0-probe`, { headers: { authorization: 'Bearer owner' } }).then((r) => r.json());
+  const rest = await fetch(`http://${config.host}:${config.firestore}/v1/projects/${config.projectId}/databases/(default)/documents/programas/demo-etapa0-probe`, { headers: { authorization: 'Bearer owner' } }).then((r) => r.json());
   assert.equal(rest.fields.label.stringValue, 'PRUEBA FICTICIA');
   await deleteDoc(probe);
   console.log('PASS: authenticated SDK write/read and independent emulator REST verification.');

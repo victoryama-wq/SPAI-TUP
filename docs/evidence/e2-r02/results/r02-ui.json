@@ -1,0 +1,266 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe",
+      "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-20261021\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "tools/e2-r02/playwright.config.mjs"
+    ],
+    "configFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-20261021\\tools\\e2-r02\\playwright.config.mjs",
+    "rootDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-R02-20261021/tools/e2-r02",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-R02-20261021/.local/test-results/r02-ui-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-R02-20261021/tools/e2-r02",
+        "testIgnore": [],
+        "testMatch": [
+          "ui.spec.mjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-20261021\\.local\\test-results\\r02-ui.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "\"C:\\Users\\Admin\\AppData\\Local\\npm-cache\\_npx\\5dad66f2cb301fc2\\node_modules\\node\\bin\\node.exe\" node_modules/@angular/cli/bin/ng.js serve --configuration isolated --host 127.0.0.1 --port 4202",
+      "cwd": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-20261021\\",
+      "url": "http://127.0.0.1:4202",
+      "timeout": 120000,
+      "reuseExistingServer": false,
+      "env": {
+        "NG_CLI_ANALYTICS": "false"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "ui.spec.mjs",
+      "file": "ui.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Ciclo operativo: transiciones, motivo, Especiales y tamaños de revisión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3513,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:25:45.036Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-4e11679c20d4dd212a49",
+          "file": "ui.spec.mjs",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "Coordinación: Especiales habilitado, ordinaria bloqueada e histórico solo consulta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:25:48.677Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-b0162c98cb1ed7250981",
+          "file": "ui.spec.mjs",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "CO-01 cambios rápidos: nunca mezcla filas ni conserva selección en otra sesión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3694,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:25:52.282Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-ff81f50e10de14b3fa86",
+          "file": "ui.spec.mjs",
+          "line": 56,
+          "column": 1
+        },
+        {
+          "title": "Múltiples operativos y ausencia: avisos explícitos, sin elección arbitraria",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2617,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:25:55.992Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-0b39ac45bdfcb4aa451b",
+          "file": "ui.spec.mjs",
+          "line": 70,
+          "column": 1
+        },
+        {
+          "title": "Especiales: alta real desde formulario en captura cerrada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2870,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:25:58.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c8ab3ee350f564cbc79-ae249f600e02516c484f",
+          "file": "ui.spec.mjs",
+          "line": 77,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T22:25:37.571Z",
+    "duration": 24386.690000000002,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

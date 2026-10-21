@@ -1,4 +1,6 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { CyclesRepository } from '../../cycles/data/cycles.repository';
+import { UserSessionService } from '../../../core/auth/user-session.service';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { doc, getDocFromServer, orderBy, setDoc, waitForPendingWrites, where } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
@@ -109,10 +111,18 @@ const ASSIGNMENT_DELETE_TIMEOUT_MS = 12000;
 
 @Injectable({ providedIn: 'root' })
 export class AssignmentsRepository extends FirestoreRepository<AcademicAssignment> {
+  private readonly cycleRepository = inject(CyclesRepository);
+  private readonly selectionSession = inject(UserSessionService);
+  readonly selectedCycleId = signal<string | null>(null);
+  readonly selectedCycle = computed(() => this.selectedCycleId() ? this.cycleRepository.cycles().find(c=>c.id===this.selectedCycleId()) ?? null : this.cycleRepository.activeCycle());
+  protected override selectionKey(): string { return this.selectedCycle()?.code ?? '_no_selected_cycle_'; }
+  protected override selectionConstraints() { return [where('cycle', '==', this.selectedCycle()?.code ?? '_no_selected_cycle_')]; }
+  selectCycle(id: string | null): void { this.selectedCycleId.set(id); }
   readonly assignments = computed(() => this.items().filter((assignment) => !assignment.deletedAt));
 
   constructor() {
     super(inject(FIREBASE_DB), ASSIGNMENTS_COLLECTION, orderBy('updatedAt', 'desc'));
+    effect(() => { this.selectionSession.session(); this.selectedCycleId.set(null); });
   }
 
   async upsertAssignment(payload: UpsertAssignmentPayload): Promise<string> {

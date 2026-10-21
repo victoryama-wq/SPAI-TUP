@@ -1,0 +1,53 @@
+{
+  "verifiedAt": "2026-10-21T22:28:45.3631633Z",
+  "frontend": "http://127.0.0.1:4202/",
+  "status": 200,
+  "verification": "ANFITRION_SOLAMENTE",
+  "checkout": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-20261021",
+  "branch": "codex/e2-r02-captura-especiales",
+  "sharedHead": "94eeffa90bdb97886f05a88127d3abc59cbcac80",
+  "sharedStatus": [],
+  "listening": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19199,
+      "OwningProcess": 18412
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19099,
+      "OwningProcess": 18412
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 18080,
+      "OwningProcess": 15228
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 15001,
+      "OwningProcess": 18412
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9099,
+      "OwningProcess": 10708
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 8080,
+      "OwningProcess": 19716
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 4202,
+      "OwningProcess": 13520
+    },
+    {
+      "LocalAddress": "192.168.42.1",
+      "LocalPort": 4201,
+      "OwningProcess": 17840
+    }
+  ],
+  "fixture": "27-1 Captura; Especiales deshabilitado; datos ficticios"
+}

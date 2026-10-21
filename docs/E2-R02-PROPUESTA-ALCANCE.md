@@ -1,6 +1,6 @@
-# E2-R02 — Propuesta de alcance: Ciclo y Especiales
+# E2-R02 — Alcance autorizado: Ciclo y Especiales
 
-Fecha: 2026-10-21. Estado: **PROPUESTA / SIN IMPLEMENTAR EN ESTA ENTREGA**. Punto funcional de partida: R01 `8ae650b8c3c59390a2290bf819d61d195710c35a`, con [aceptación humana registrada](E2-R01-CIERRE-2026-10-21.md). Antes de iniciar se verificará el checkout real y cualquier trabajo posterior; una rama o inspección histórica de R02 no acredita implementación ni permite reemplazar esta base.
+Fecha: 2026-10-21. Estado: **IMPLEMENTACIÓN LOCAL CON PENDIENTES — NO VALIDADA**. Punto funcional de partida: R01 `8ae650b8c3c59390a2290bf819d61d195710c35a`, con [aceptación humana registrada](E2-R01-CIERRE-2026-10-21.md). Se verificó el checkout real y se conservó todo trabajo posterior; una rama o inspección histórica de R02 no acredita implementación ni permite reemplazar esta base.
 
 Fuentes normativas sin modificar: [Etapa 2 v0.4](ETAPA-2-CONTRATOS-ESTABILIZACION.md), **E2-C02**, autorización por ciclo de **E2-C03**, matriz **E2-C01**, pruebas aplicables **E2-C11** y **CO-01** del [contrato operativo](CONTRATO-CAMBIOS-OPERATIVOS-SPAI.md). Esta propuesta no cambia decisiones de negocio.
 
@@ -51,3 +51,24 @@ Si una implementación futura acredita los ocho de R02, el gate global deberá s
 6. Entregar capturas y un recorrido humano limitado a R02. Separar validación local, aceptación humana y producción; preparar reversión local sin alterar datos ni declarar una reversión productiva ensayada.
 
 Solo emuladores y datos ficticios aislados para las escrituras y revocaciones. Demo LAN, sus datos, delegación del propietario, respaldo privado y su selección deben conservarse. Sin reset compartido, push, merge, despliegues ni correos reales. **Ninguno de estos pasos de implementación se ejecuta con esta propuesta.**
+
+
+## Autorización expresa de implementación — 21/10/2026
+
+El propietario autoriza implementar R02 hasta entrega técnica y preparación de aceptación humana; fuente: encargo recibido `b83232d7-1880-412c-953c-5fc10d816863/Texto pegado.txt`. Esta autorización sustituye el carácter exclusivamente propositivo de las secciones históricas anteriores. Base vigente: `94eeffa90bdb97886f05a88127d3abc59cbcac80`. Rama nueva `codex/e2-r02-captura-especiales`, checkout independiente `SPAI-TUP-R02-20261021`; se conserva la rama antigua R02 sin usarla como base.
+
+Decisiones: operativo incluye Preparacion/Captura/Captura cerrada; solo las cinco transiciones enumeradas; motivo de reapertura, versión esperada, idempotencia y atomicidad con bitácora/evento. D1 y Especiales se validan al confirmar, incluyendo cierre/deshabilitación concurrentes. CO-01 exige descartar suscripciones y respuestas anteriores. No se modifica la versión servida de la LAN. Solo entorno aislado para escrituras, con aceptación humana y producción pendientes.
+
+| Requisito | Operaciones / archivos | Evidencia prevista |
+|---|---|---|
+| Unicidad, transiciones, versiones, auditoría | `functions/cycles/service.js`, `functions/index.js`, `cycles.repository.ts` | Integración aislada de comandos, simultaneidad, colisiones y reintentos |
+| D1, Especiales, solicitudes existentes | `firestore.rules`, páginas de Asignaciones, Docentes y Grupos | SDK directo, casos por estado, actores, grupos y carreras |
+| CO-01 | repositorio de Asignaciones, `firestore.repository.ts`, página de Asignaciones | UI actual/histórico, cambios rápidos y consultas sin datos anteriores |
+| Ocho contratos R02 | `tools/stage1/{rules,logic,report}.mjs` | Mantener IDs y expectativas; conservar diez R03 abiertos |
+| No regresión R01 | Suites existentes afectadas | Evidencia local por ejecución, sin repetir aceptación humana |
+
+Inicialización técnica: `cycleContext` deriva únicamente el documento servidor `ciclo_control/operativo` a partir de los ciclos existentes en una transacción. No migra, selecciona arbitrariamente ni modifica ciclos. Ante multiplicidad registra INCONSISTENT y las escrituras académicas quedan bloqueadas; ante ausencia NONE. Sin contexto verificado las escrituras también fallan cerradas. Las transiciones actualizan atómicamente la barrera y el ciclo; Rules consulta la barrera servidor al confirmar cada escritura académica. No se ejecuta esa inicialización sobre la demo compartida.
+
+Entrega y evidencia por ejecución: [validación R02](E2-R02-VALIDACION.md), [matriz de pruebas](E2-R02-MATRIZ-PRUEBAS.md), [resultados](E2-R02-RESULTADOS.json). Los textos propositivos anteriores son históricos; la implementación local no acredita los seis contratos afectados por el evaluador de Rules. La aceptación humana y producción siguen pendientes.
+
+La decisión de [Eliminar usuario](DECISION-BAJA-USUARIO-PENDIENTE.md) se registra aparte; no se implementa en R02.

@@ -1,3 +1,13 @@
+<section class="cycle-selection" aria-label="Consulta por ciclo">
+  <label>Ciclo de consulta
+    <select (change)="selectCycle($event)" [value]="historical() ? activeCycle()?.id : ''">
+      <optgroup label="Ciclo operativo"><option value="">{{ operativeCycle()?.code || 'Sin ciclo operativo' }}</option></optgroup>
+      <optgroup label="Ciclos históricos">@for (cycle of historicalCycles(); track cycle.id) { <option [value]="cycle.id">{{ cycle.code }} — {{ cycle.label }}</option> }</optgroup>
+    </select>
+  </label>
+  @if (historical()) { <p role="status">Consulta histórica de {{ activeCycle()?.code }}. Solo consulta y reporte; captura académica bloqueada.</p> }
+  @else if (cycleIssue()) { <p role="status">{{ cycleIssue() }}</p> }
+</section>
 @if (formMessage && !isAssignmentModalOpen) {
   <div class="feedback standalone-feedback">
     <strong>{{ formMessage }}</strong>
@@ -40,7 +50,7 @@
           <div class="panel-heading-copy">
             <span>Planeacion academica</span>
             <h3>Asignaciones academicas</h3>
-            <p>Relaciona grupos del ciclo activo con asignaturas, docentes e ID Moodle para revision institucional.</p>
+            <p>Relaciona grupos del ciclo seleccionado con asignaturas, docentes e ID Moodle para revision institucional.</p>
             <small>{{ catalogScopeLabel() }}</small>
           </div>
 
@@ -67,7 +77,7 @@
               </span>
             }
             <span class="cycle-chip" [class.pending]="!activeCycle()">
-              Ciclo activo
+              {{ historical() ? 'Ciclo histórico' : 'Ciclo operativo' }}
               <strong>{{ activeCycleCode() }}</strong>
             </span>
             @if (canManageAssignments()) {
@@ -446,6 +456,7 @@
               class="special-type-button"
               type="button"
               [class.is-active]="assignmentForm.specialType === 'propedeutic'"
+              [disabled]="activeCycle()?.status !== 'Captura'"
               (click)="selectSpecialType('propedeutic')"
             >
               <strong>Propedeutico</strong>
@@ -639,6 +650,17 @@
             </div>
           </div>
         }
+        @if (modeTab() === 'Especiales' && assignmentForm.special) {
+          <label class="group-field">
+            <span>Grupo especial admitido *</span>
+            <select [(ngModel)]="assignmentForm.group">
+              <option value="">Selecciona un grupo</option>
+              @for (group of visibleGroupPickerOptions(); track group.id) {
+                <option [value]="group.fullGroup">{{ group.fullGroup }} — {{ group.programName }}</option>
+              }
+            </select>
+          </label>
+        }
         @if (assignmentForm.special && !isEnglishForm()) {
           <label class="program-field">
             <span>{{ modeTab() === 'Inglés' ? 'Campus *' : 'Carrera *' }}</span>
@@ -809,6 +831,7 @@
         }
       </div>
 
+      @if (!canSaveAssignmentForm()) { <p role="status" class="feedback">{{ captureBlockedMessage() || 'No tienes permiso vigente para guardar esta asignación.' }}</p> }
       @if (formErrors.length) {
         <div class="feedback has-errors">
           @for (error of formErrors; track error) {
@@ -838,7 +861,7 @@
         <button
           class="primary-action"
           type="button"
-          [disabled]="(!editingAssignmentId && !canCaptureAssignments()) || isSavingAssignment"
+          [disabled]="!canSaveAssignmentForm() || isSavingAssignment"
           (click)="saveAssignment()"
         >
           {{ isSavingAssignment ? 'Guardando...' : submitLabel }}

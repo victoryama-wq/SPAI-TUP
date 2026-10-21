@@ -3195,3 +3195,20 @@ td[colspan] {
     padding-bottom: 24px;
   }
 }
+
+.cycle-selection { background:#fff; border:1px solid #d4e4f5; border-radius:8px; padding:16px; margin-bottom:16px; color:#163758; }
+.cycle-selection label { display:flex; flex-wrap:wrap; gap:12px; align-items:center; font-weight:700; }
+.cycle-selection select { max-width:100%; min-height:44px; padding:8px; border:1px solid #94b8df; border-radius:6px; }
+.cycle-selection p { margin:12px 0 0; }
+
+/* CO-01: selected-cycle controls use normal flow, never cover the title or filters. */
+@media(min-width:900px) {
+ .table-panel > .panel-title {display:grid; height:auto; min-height:0; row-gap:16px; padding-bottom:22px;}
+ .table-panel > .panel-title .panel-heading-copy,
+ .table-panel > .panel-title .panel-heading-actions,
+ .table-panel > .panel-title .filters,
+ .table-panel > .panel-title > .assignments-side-panel {position:static; inset:auto; transform:none; width:auto; max-width:none;}
+ .table-panel > .panel-title .filters {width:100%;}
+
+ .table-panel > .panel-title .panel-heading-actions {justify-self:start; flex-wrap:wrap; gap:10px;}
+}

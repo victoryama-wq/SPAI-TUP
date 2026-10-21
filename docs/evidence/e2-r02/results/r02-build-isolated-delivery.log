@@ -1,0 +1,36 @@
+> Building...
+√ Building...
+Initial chunk files | Names                        |  Raw size
+chunk-XNT7JGEA.js   | -                            |   1.31 MB |
+chunk-YNBSD4WM.js   | -                            | 895.27 kB |
+main.js             | main                         | 189.58 kB |
+polyfills.js        | polyfills                    |  89.60 kB |
+chunk-PC7H2L5C.js   | -                            |   9.81 kB |
+chunk-5WLKMZ2I.js   | -                            |   6.66 kB |
+chunk-3UVTHMWD.js   | -                            |   3.55 kB |
+chunk-RXIYIJET.js   | -                            |   1.97 kB |
+styles.css          | styles                       | 730 bytes |
+
+                    | Initial total                |   2.51 MB
+
+Lazy chunk files    | Names                        |  Raw size
+chunk-GZLNAXGH.js   | assignments-page-component   | 440.73 kB |
+chunk-IRDJUPIE.js   | moodle-page-component        | 369.00 kB |
+chunk-S5T3V2WM.js   | security-console-component   | 309.93 kB |
+chunk-BR24EA6T.js   | dashboard-page-component     | 286.13 kB |
+chunk-4SPQNJGB.js   | teachers-page-component      | 280.36 kB |
+chunk-CRZH7YYM.js   | -                            | 228.34 kB |
+chunk-HVY5GFBA.js   | subjects-page-component      | 185.18 kB |
+chunk-ZVNQVCZO.js   | groups-page-component        | 164.68 kB |
+chunk-OM4CA2QR.js   | requests-page-component      | 162.60 kB |
+chunk-D23ILCXK.js   | nomenclatures-page-component | 128.03 kB |
+chunk-3XICWYBU.js   | audit-log-page-component     |  97.40 kB |
+chunk-XX5G5DFT.js   | cycles-page-component        |  86.48 kB |
+chunk-X4WLA4TV.js   | meet-links-page-component    |  85.88 kB |
+chunk-IV4C747M.js   | -                            |  18.16 kB |
+chunk-IQKKHDZP.js   | -                            |  13.29 kB |
+...and 8 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [5.907 seconds] - 2026-10-21T22:26:15.471Z
+
+Output location: C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-R02-20261021\.local\r02-build

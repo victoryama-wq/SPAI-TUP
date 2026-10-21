@@ -10,14 +10,14 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
   // The own profile is already resolved by UserSessionService through get.
   // The administrative directory is never queried by other actors.
   if (path === 'usuarios' && !general) return null;
-  if (!general && module && !hasAccess(user, module) && !(path === 'ciclos' && (hasAccess(user, 'dashboard') || hasAccess(user, 'asignaciones')))) return null;
+  if (!general && module && !hasAccess(user, module) && !(path === 'ciclos' && (hasAccess(user, 'dashboard') || hasAccess(user, 'asignaciones') || hasAccess(user, 'docentes') || hasAccess(user, 'grupos')))) return null;
   const ref = collection(db, path);
   if (general) return constraints.length ? query(ref, ...constraints) : query(ref);
   const programs = user.scope?.programs ?? [];
   if (path === 'bitacora' && !programs.includes('*')) return null;
   const programCollections = ['programas', 'nomenclaturas_programas', 'grupos', 'asignaciones', 'moodle_categorias', 'moodle_plantillas'];
   if (!academic && programCollections.includes(path) && !programs.length) return null;
-  if (!academic && path === 'asignaciones' && !user.scope?.cycles?.length) return null;
+  if (path === 'asignaciones' && !user.scope?.cycles?.length) return null;
   if (path === 'docentes' && user.baseRole === 'ADMIN_OPERATIVO' && !user.scope?.teachers?.length) return null;
   let filter: QueryFilterConstraint | undefined;
   const scoped = (field: string | FieldPath, values = programs): QueryFilterConstraint => {
@@ -39,7 +39,7 @@ export function authorizedQuery(db: Firestore, path: string, constraints: QueryC
     if (fields[path]) filter = scoped(fields[path]);
     if (path === 'ligas_meet') filter = scoped('cycle', user.scope?.cycles ?? []);
   }
-  if (path === 'asignaciones' && !academic && !(user.scope?.cycles ?? []).includes('*')) {
+  if (path === 'asignaciones' && !(user.scope?.cycles ?? []).includes('*')) {
     const cycles = user.scope?.cycles ?? [];
     if (!programs.includes('*') && Math.max(1, programs.length) * Math.max(1, cycles.length) > 30) throw new Error('El ámbito combinado requiere consultas paginadas. No se ha reducido tu autorización.');
     filter = filter ? and(filter, scoped('cycle', cycles)) : scoped('cycle', cycles);

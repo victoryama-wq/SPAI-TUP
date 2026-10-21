@@ -215,7 +215,8 @@ try {
   await denied(()=>updateDoc(ref('r01-aux','docentes/r01-own'),{status:'VALIDADO'}));
   await command('r01-admin',{action:'revokeDelegation',targetId:result.delegationId,expectedRevision:1});
   result=await command('r01-admin',{action:'grantDelegation',targetId:'r01-aux',expectedRevision:await rev('usuarios/r01-aux'),value:{...grantValue,capabilities:['MANAGE_CYCLES','VALIDATE_TEACHERS','OPERATE_EXCEPTIONAL_CHANGE']}});
-  await updateDoc(ref('r01-aux','ciclos/demo-27-1'),{notes:'AUTORIZADO'});
+  await httpsCallable(clients.get('r01-aux').functions,'cycleCommand')({action:'schedule',cycleId:'demo-27-1',expectedRevision:(await read('ciclos/demo-27-1')).revision??0,operationId:crypto.randomUUID(),date:'2026-11-30'});
+  assert.equal((await read('ciclos/demo-27-1')).tentativeCaptureCloseAt,'2026-11-30');
   await updateDoc(ref('r01-aux','asignaciones/r01-own'),{teacherName:'CORRECCIÓN DELEGADA'});
   await denied(()=>getDocFromServer(ref('r01-aux','asignaciones/demo-asignacion-cerrada')));
   await denied(()=>updateDoc(ref('r01-aux','asignaciones/r01-own'),{subjectName:'IDENTIDAD PROTEGIDA'}));

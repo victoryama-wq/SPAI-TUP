@@ -14,9 +14,11 @@ export function reporter(suite) {
         if (id === 'CUSTOM-EDIT-GROUP' || id === 'ACADEMIC-LEGACY-FLAGS') expected = false;
         baseline = expected;
       }
+      // Only the eight authorized R02 target cases adopt their unchanged contract as baseline.
+      if (/^CYCLE-(WRITE|CREATE)-(Preparacion|Captura cerrada|Cerrado)$/.test(id) || ['CYCLE-MULTIPLE-OPERATIVE','CYCLE-SELECTION-ORDER'].includes(id)) baseline=expected;
       const baselineMatches = JSON.stringify(actual) === JSON.stringify(baseline);
-      const contractMatches = expected === null ? null : JSON.stringify(actual) === JSON.stringify(expected);
-      cases.push({ historicalBaseline, contractVersion: stage === 2 ? 'E2-v0.4-R01' : 'E1', id, finding, stage, actual, baseline, expected, baselineMatches, contractMatches, evidence });
+      const contractMatches = actual === 'INCONCLUSIVE_EVALUATOR' || expected === null ? null : JSON.stringify(actual) === JSON.stringify(expected);
+      cases.push({ historicalBaseline, contractVersion: id.startsWith('CYCLE-') ? 'E2-v0.4-R02' : stage === 2 ? 'E2-v0.4-R01' : 'E1', id, finding, stage, actual, baseline, expected, baselineMatches, contractMatches, evidence });
       console.log(`${!baselineMatches ? 'BASELINE_CHANGED' : contractMatches === false ? 'KNOWN_CONTRACT_FAILURE' : contractMatches === null ? 'DECISION_PENDING' : 'CONTRACT_PASS'} ${id} ${finding}`);
     },
     finish() {

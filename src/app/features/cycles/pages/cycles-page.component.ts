@@ -1,5 +1,5 @@
-import { hasCapability } from '../../users/data/module-permission.service';
-﻿import { CommonModule } from '@angular/common';
+import { hasCapability, hasAccess } from '../../users/data/module-permission.service';
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,7 +22,13 @@ export class CyclesPageComponent {
   private readonly userSessionService = inject(UserSessionService);
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
 
-  readonly canManage = computed(() => hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES'));
+  readonly canManage = computed(() => this.cyclesRepository.contextReady() && hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES') && !this.cyclesRepository.inconsistent());
+  readonly cycleMessage = this.cyclesRepository.captureMessage;
+  readonly contextReady = this.cyclesRepository.contextReady;
+  readonly inconsistent = this.cyclesRepository.inconsistent;
+  reopenReason: Record<string, string> = {};
+  canOperate(cycle: AcademicCycle): boolean { const user=this.userSessionService.session()?.appUser; return this.canManage() && !this.isSaving && (user?.baseRole==='ADMIN_GENERAL' || Boolean(user?.scope?.cycles?.some(c=>c==='*'||c===cycle.code))); }
+  setReason(id: string, event: Event): void { this.reopenReason[id]=(event.target as HTMLInputElement).value; }
   readonly cycles = this.cyclesRepository.cycles;
   readonly currentAccessDiagnostic = computed(() => {
     const session = this.userSessionService.session();
@@ -78,7 +84,7 @@ export class CyclesPageComponent {
   }
 
   openForm(): void {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
+    if (!this.canManage() || this.activeCycle()) { this.formError = 'Ya existe un ciclo operativo o no tienes autorización.'; return; }
     this.duplicateCode = false;
     this.formError = '';
     this.form.reset({
@@ -134,60 +140,21 @@ export class CyclesPageComponent {
     }
   }
 
-  async startCapture(cycle: AcademicCycle): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
-    const confirmed = await this.confirmationDialogService.confirm({
-      title: 'Activar ciclo',
-      message: `Activar ${cycle.code} como ciclo activo? Se mostrara en el encabezado y en los modulos operativos de SPAI.`,
-      confirmLabel: 'Activar',
-      cancelLabel: 'Cancelar',
-    });
-
-    if (confirmed) {
-      this.cyclesRepository.startCapture(cycle.id);
-    }
-  }
-
-  async closeCapture(cycle: AcademicCycle): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
-    const confirmed = await this.confirmationDialogService.confirm({
-      title: 'Cerrar captura',
-      message: `Cerrar captura para el ciclo ${cycle.code}? Las coordinaciones academicas ya no podran editar materias.`,
-      confirmLabel: 'Cerrar captura',
-      cancelLabel: 'Cancelar',
-    });
-
-    if (confirmed) {
-      this.cyclesRepository.closeCapture(cycle.id);
-    }
-  }
-
-  async reopenCapture(cycle: AcademicCycle): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
-    const confirmed = await this.confirmationDialogService.confirm({
-      title: 'Reabrir captura',
-      message: `Reabrir captura para el ciclo ${cycle.code}? Las coordinaciones academicas podran hacer ajustes nuevamente.`,
-      confirmLabel: 'Reabrir',
-      cancelLabel: 'Cancelar',
-    });
-
-    if (confirmed) {
-      this.cyclesRepository.reopenCapture(cycle.id);
-    }
-  }
-
-  async closeCycle(cycle: AcademicCycle): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
-    const confirmed = await this.confirmationDialogService.confirm({
-      title: 'Cerrar ciclo',
-      message: `Cerrar el ciclo ${cycle.code}? Quedara como historico de consulta.`,
-      confirmLabel: 'Cerrar ciclo',
-      cancelLabel: 'Cancelar',
-    });
-
-    if (confirmed) {
-      this.cyclesRepository.closeCycle(cycle.id);
-    }
+  async startCapture(cycle: AcademicCycle): Promise<void> { await this.transition('start', cycle, 'Iniciar captura'); }
+  async closeCapture(cycle: AcademicCycle): Promise<void> { await this.transition('closeCapture', cycle, 'Cerrar captura'); }
+  async reopenCapture(cycle: AcademicCycle): Promise<void> { await this.transition('reopen', cycle, 'Reabrir captura', {reason:this.reopenReason[cycle.id] || ''}); }
+  async closeCycle(cycle: AcademicCycle): Promise<void> { await this.transition('close', cycle, 'Cerrar ciclo'); }
+  async toggleSpecials(cycle: AcademicCycle): Promise<void> { await this.transition('specials', cycle, cycle.specialsEnabled?'Deshabilitar Especiales':'Habilitar Especiales', {enabled:!cycle.specialsEnabled}); }
+  private async transition(action: string, cycle: AcademicCycle, title: string, extra: Record<string, unknown> = {}): Promise<void> {
+    if (!this.canOperate(cycle)) return;
+    if(action==='reopen' && String(extra['reason']).trim().length<4) {this.formError='Indica un motivo de reapertura (mínimo 4 caracteres).';return;}
+    const command=this.cyclesRepository.prepare(action,cycle,extra);
+    this.isSaving=true; this.formError='';
+    try {
+      const confirmed=await this.confirmationDialogService.confirm({title,message:`${title} para ${cycle.code}. Se comprobarán los permisos, el estado y la versión vigentes antes de confirmar.`,confirmLabel:title,cancelLabel:'Cancelar'});
+      if(confirmed) await this.cyclesRepository.confirm(command);
+    } catch(error) { this.formError=this.getSaveErrorMessage(error); }
+    finally {this.isSaving=false;delete this.reopenReason[cycle.id];}
   }
 
   async deleteCycle(cycle: AcademicCycle): Promise<void> {
@@ -214,7 +181,7 @@ export class CyclesPageComponent {
   }
 
   canDeleteCycle(cycle: AcademicCycle): boolean {
-    return cycle.status === 'Preparacion' || cycle.status === 'Cerrado';
+    return false; // R04: nunca depurar desde R02.
   }
 
   async updateTentativeCaptureClose(cycle: AcademicCycle, event: Event): Promise<void> {
@@ -253,7 +220,7 @@ export class CyclesPageComponent {
       return 'Firebase no permitio guardar el ciclo. Revisa que tu usuario tenga acceso al modulo Ciclos o rol de Sistemas.';
     }
 
-    return 'No se pudo guardar el ciclo. Intenta de nuevo.';
+    return message || 'No se pudo guardar el ciclo. Intenta de nuevo.';
   }
 
   formatDate(value: string | null | undefined): string {

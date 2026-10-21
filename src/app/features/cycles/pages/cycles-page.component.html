@@ -1,3 +1,5 @@
+@if (cycleMessage()) { <p class="form-error" role="status">{{ cycleMessage() }}</p> }
+@if (formError && !isFormOpen) { <p class="form-error" role="alert">{{ formError }}</p> }
 <section class="cycles-overview" aria-label="Resumen de ciclos">
   <section class="cycles-header">
     <div>
@@ -6,7 +8,7 @@
       <p>Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.</p>
     </div>
 
-    <button class="primary-action" type="button" [disabled]="!canManage()" (click)="openForm()">
+    <button class="primary-action" type="button" [disabled]="!canManage() || !!activeCycle() || isSaving" (click)="openForm()">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 5v14M5 12h14"></path>
       </svg>
@@ -33,6 +35,26 @@
     </article>
   </div>
 </section>
+
+@if (activeCycle(); as cycle) {
+  <section class="operative-control" aria-label="Operaciones del ciclo">
+    <div><span class="operative-kicker">Ciclo operativo {{ cycle.code }}</span><h3>{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</h3>
+      <p>{{ cycle.specialsEnabled && cycle.status === 'Captura cerrada' ? 'Especiales habilitado. La captura ordinaria continúa bloqueada.' : 'Las acciones se confirman con la versión y los permisos vigentes del servidor.' }}</p>
+    </div>
+    @if (canOperate(cycle)) {
+      <div class="operative-actions">
+        @if (cycle.status === 'Preparacion') { <button class="primary-action" type="button" (click)="startCapture(cycle)">Iniciar captura</button> }
+        @if (cycle.status === 'Captura') { <button class="primary-action" type="button" (click)="closeCapture(cycle)">Cerrar captura</button> }
+        @if (cycle.status === 'Captura cerrada') {
+          <label>Motivo para reabrir<input type="text" maxlength="1000" [value]="reopenReason[cycle.id] || ''" (input)="setReason(cycle.id, $event)" /></label>
+          <button type="button" class="primary-action" (click)="reopenCapture(cycle)">Reabrir captura</button>
+          <button type="button" class="secondary-action" (click)="toggleSpecials(cycle)">{{ cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales' }}</button>
+          <button type="button" class="secondary-action" (click)="closeCycle(cycle)">Cerrar ciclo</button>
+        }
+      </div>
+    }
+  </section>
+}
 
 @if (isFormOpen) {
   <div class="modal-backdrop" role="presentation" (click)="closeForm()">
@@ -150,7 +172,7 @@
           <th>Cierre aplicado</th>
           <th>Cierre</th>
           <th>Observaciones</th>
-          <th>Acciones de Sistemas</th>
+          <th>Operación</th>
         </tr>
       </thead>
       <tbody>
@@ -175,7 +197,7 @@
                 class="table-date-input"
                 type="date"
                 [value]="dateInputValue(cycle.tentativeCaptureCloseAt)"
-                [disabled]="!canManage() || cycle.status === 'Cerrado'"
+                [disabled]="!canOperate(cycle) || cycle.status === 'Cerrado'"
                 aria-label="Cierre de Captura"
                 (change)="updateTentativeCaptureClose(cycle, $event)"
               />
@@ -186,64 +208,7 @@
               <span class="notes">{{ cycle.notes || 'Sin observaciones' }}</span>
             </td>
             <td>
-              <div class="table-actions">
-                <button
-                  class="capture-action icon-action"
-                  type="button"
-                  [disabled]="!canManage() || cycle.status !== 'Preparacion' && cycle.status !== 'Captura' && cycle.status !== 'Captura cerrada'"
-                  aria-label="Accion de captura"
-                  title="Accion de captura"
-                  (click)="
-                    cycle.status === 'Preparacion'
-                      ? startCapture(cycle)
-                      : cycle.status === 'Captura'
-                        ? closeCapture(cycle)
-                      : reopenCapture(cycle)
-                  "
-                >
-                  @if (cycle.status === 'Preparacion') {
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5"></path>
-                    </svg>
-                  } @else if (cycle.status === 'Captura') {
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 3v18M5 8h14M5 16h14"></path>
-                    </svg>
-                  } @else if (cycle.status === 'Captura cerrada') {
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"></path>
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M18 6 6 18M6 6l12 12"></path>
-                    </svg>
-                  }
-                </button>
-                <button
-                  class="text-action icon-action"
-                  type="button"
-                  [disabled]="!canManage() || cycle.status !== 'Captura cerrada'"
-                  aria-label="Cerrar ciclo"
-                  title="Cerrar ciclo"
-                  (click)="closeCycle(cycle)"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M5 5h14v14H5zM9 9h6v6H9z"></path>
-                  </svg>
-                </button>
-                <button
-                  class="danger-action icon-action"
-                  type="button"
-                  [disabled]="!canManage() || !canDeleteCycle(cycle)"
-                  aria-label="Eliminar ciclo"
-                  title="Eliminar ciclo"
-                  (click)="deleteCycle(cycle)"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 6h18M8 6V4h8v2M9 10v8M15 10v8M5 6l1 16h12l1-16"></path>
-                  </svg>
-                </button>
-              </div>
+              <span>{{ cycle.id === activeCycle()?.id ? 'Controles del ciclo arriba' : 'Solo consulta' }}</span>
             </td>
           </tr>
         }

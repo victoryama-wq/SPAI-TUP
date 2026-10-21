@@ -106,6 +106,7 @@ test('Local email handler cannot access SMTP or secret values', async () => {
   const forbidden = () => { throw new Error('Real external effect attempted'); };
   const dependencies = {
     './security/service': require('../../../functions/security/service'),
+    './cycles/service': require('../../../functions/cycles/service'),
     'firebase-admin/app': { initializeApp: () => {} },
     'firebase-admin/firestore': { getFirestore: () => ({ collection: () => ({ doc: () => ({ set: async (data) => writes.push(data) }) }) }), FieldValue: { serverTimestamp: () => 'SERVER_TIMESTAMP' } },
     'firebase-functions': { logger: { info: () => {}, error: () => {} } },

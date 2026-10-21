@@ -1,3 +1,6 @@
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {root} from '../local/config.mjs';
 import assert from 'node:assert/strict';
 import { sourceMembers, sourceFunctions, deferred } from './source-harness.mjs';
 import { reporter } from './report.mjs';
@@ -27,19 +30,19 @@ for (const [program, read, respond] of [['ADM', true, true], ['DER', true, false
   const ui = requestUi(program);
   report.check(`UI-REQUEST-${program}`, 'F03', 2, [ui.canAccessRequest(request), ui.canRespondRequest(request)], [read, respond], [read, respond], evidence(requestFile, 'canAccessRequest/canRespondRequest'));
 }
-const teacherUi = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canDeleteOwnPendingNewTeacher'], { session: () => ({ authUid: 'test-a', appUser: { id: 'test-a', status: 'Activo', permissionSchemaVersion:2, baseRole:'COORDINACION_ACADEMICA', permissions:{docentes:'EDIT'}, access: { docentes: true } } }), modulePermissionService: permission });
+const teacherUi = sourceMembers('src/app/features/teachers/pages/teachers-page.component.ts', 'TeachersPageComponent', ['canDeleteOwnPendingNewTeacher'], { academicCapture:()=>true, session: () => ({ authUid: 'test-a', appUser: { id: 'test-a', status: 'Activo', permissionSchemaVersion:2, baseRole:'COORDINACION_ACADEMICA', permissions:{docentes:'EDIT'}, access: { docentes: true } } }), modulePermissionService: permission });
 report.check('UI-TEACHER-OWNERSHIP', 'F02', 2, ['test-a', 'test-b'].map((createdBy) => teacherUi.canDeleteOwnPendingNewTeacher({ status: 'PENDIENTE', origin: 'MANUAL', lifecycleStatus: 'NUEVO', createdBy })), [true, false], [true, false], 'TeachersPageComponent.canDeleteOwnPendingNewTeacher');
 
-let cycles = [{ id: 'a', code: '27-1', status: 'Captura cerrada' }, { id: 'b', code: '27-2', status: 'Preparacion' }];
-const cr = sourceMembers(cycleFile, 'CyclesRepository', ['activeCycle', 'startCapture'], { cycles: () => cycles, updateDocument: async (id, patch) => Object.assign(cycles.find((c) => c.id === id), patch) });
-report.check('CYCLE-CLOSED-CAPTURE-ACTIVE', 'F05', 3, cr.activeCycle().id, 'a', 'a', evidence(cycleFile, 'activeCycle'));
-await cr.startCapture('b');
-report.check('CYCLE-MULTIPLE-OPERATIVE', 'F05', 3, cycles.filter((c) => ['Captura', 'Captura cerrada'].includes(c.status)).length, 2, 1, evidence(cycleFile, 'startCapture'));
-cycles.reverse();
-report.check('CYCLE-SELECTION-ORDER', 'F05', 3, cr.activeCycle().id, 'b', 'ERROR_AMBIGUOUS_CYCLE', 'activeCycle chooses first; contract requires detecting ambiguity without selecting an arbitrary cycle');
-
-const gate = sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts', 'AssignmentsPageComponent', ['canCaptureAssignments'], { activeCycle: () => ({ status: 'Captura cerrada' }) });
-report.check('UI-CAPTURE-CLOSED', 'F04', 3, gate.canCaptureAssignments(), false, false, 'AssignmentsPageComponent.canCaptureAssignments');
+let cycles = [{ id:'a', code:'27-1', status:'Captura cerrada' }];
+const cr=sourceMembers(cycleFile,'CyclesRepository',['operativeCycles','inconsistent','activeCycle'],{cycles:()=>cycles});
+report.check('CYCLE-CLOSED-CAPTURE-ACTIVE','F05',3,cr.activeCycle().id,'a','a',evidence(cycleFile,'activeCycle'));
+const r02=JSON.parse(readFileSync(resolve(root,'.local/test-results/r02.json'),'utf8'));
+const cycleConcurrent=r02.cases.find(c=>c.name==='No operative cycle / concurrent creation / unique code');
+report.check('CYCLE-MULTIPLE-OPERATIVE','F05',3,cycleConcurrent?.status==='PASS'?1:'UNVERIFIED',2,1,'tools/e2-r02/integration.mjs: actual concurrent callable creation');
+cycles.push({id:'b',code:'27-2',status:'Preparacion'});cycles.reverse();
+report.check('CYCLE-SELECTION-ORDER','F05',3,cr.inconsistent() && cr.activeCycle()===null?'ERROR_AMBIGUOUS_CYCLE':cr.activeCycle()?.id,'b','ERROR_AMBIGUOUS_CYCLE',evidence(cycleFile,'operativeCycles/inconsistent/activeCycle'));
+const gate=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canCaptureAssignments'],{activeCycle:()=>({code:'27-1',status:'Captura cerrada'}),cyclesRepository:{inconsistent:()=>false,contextReady:()=>true},allowedCycle:()=>true,modeTab:()=> 'Escolarizado'});
+report.check('UI-CAPTURE-CLOSED','F04',3,gate.canCaptureAssignments(),false,false,'AssignmentsPageComponent.canCaptureAssignments');
 
 const write = deferred();
 const rr = sourceMembers(repoFile, 'SharedRequestsRepository', ['createRequest', 'createRequestId', 'normalizeName', 'acceptRequest', 'resolveRequest'], { setDocument: () => write.promise, updateDocument: () => write.promise });

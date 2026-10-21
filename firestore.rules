@@ -84,18 +84,32 @@ service cloud.firestore {
   }
   function globalCatalog(key) { let u = user(); return hasModule(u, key, false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA', 'ALTA_DOCENTES'] || u.get('scope', {}).get('programs', []).hasAny(['*'])); }
   function catalogRead(key, program) { let u = user(); return hasModule(u, key, false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA', 'ALTA_DOCENTES'] || u.get('scope', {}).get('programs', []).hasAny(['*', program])); }
-  function cycleWrite(update) {
-    let u = user(); let s = safeMap(u, 'scope'); let fields = safeList(s, 'fields'); let cycles = safeList(s, 'cycles');
-    return hasModule(u, 'ciclos', true) && (u.get('baseRole', '') == 'ADMIN_GENERAL' ||
-      (u.get('baseRole', '') == 'ADMIN_OPERATIVO' && safeList(u, 'capabilities').hasAny(['MANAGE_CYCLES'])
-      && cycles.hasAny(['*', request.resource.data.get('code', '')]) && (!update ||
-        (cycles.hasAny(['*', resource.data.get('code', '')]) && (fields.hasAny(['*']) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields.concat(['updatedAt','updatedBy','updatedByName','updatedByRole'])))))));
+  // Server-owned cycle fence is read in the atomic Rules evaluation of each write.
+  function currentCycle() {
+    let ref = /databases/$(database)/documents/ciclo_control/operativo;
+    let control = exists(ref) ? get(ref).data : {};
+    return control.get('state','') == 'READY' ? control : {};
   }
+  function captureOpen(code) { let c=currentCycle(); return c.get('code','_none') == code && c.get('status','') == 'Captura'; }
+  function teacherCapture() { let c=currentCycle(); return c.get('status','') == 'Captura' && inCycle(c.get('code','_none')); }
+  function admittedSpecialGroup(d) {
+    let groupId = d.get('group','').replace('[^A-Z0-9]+', '_');
+    let path = /databases/$(database)/documents/grupos/$(groupId);
+    let g = exists(path) ? get(path).data : {};
+    return g.get('fullGroup','_none') == d.get('group','') && g.get('cycleCode','_none') == d.get('cycle','')
+      && g.get('status','') == 'Activo' && !(g.get('modality','') in ['Escolarizado','Ejecutivo'])
+      && g.get('section','').matches('(?i).*C[.]A[.]?');
+  }
+  function assignmentCapture(d) {
+    let c=currentCycle();
+    return c.get('code','_none') == d.get('cycle','') && ((c.get('status','') == 'Captura' && (d.get('assignmentType','') != 'ESPECIAL' || admittedSpecialGroup(d)))
+      || (c.get('status','') == 'Captura cerrada' && c.get('specialsEnabled',false) == true
+          && d.get('assignmentType','') == 'ESPECIAL' && admittedSpecialGroup(d) && d.get('group','') in c.get('specialGroups',[]) && d.get('sharedGroups',[]).hasOnly(c.get('specialGroups',[]))));
+  }
+  match /ciclo_control/{id} { allow read, write: if false; }
   match /ciclos/{id} {
-    allow read: if module('ciclos', false) || module('asignaciones', false) || module('dashboard', false);
-    allow create: if cycleWrite(false);
-    allow update: if cycleWrite(true);
-    allow delete: if module('ciclos', true) && capability('MANAGE_CYCLES') && inCycle(resource.data.code);
+    allow read: if module('ciclos', false) || module('asignaciones', false) || module('dashboard', false) || module('docentes', false) || module('grupos', false);
+    allow write: if false;
   }
   match /programas/{id} {
     allow read: if resource != null && catalogRead('nomenclaturas', resource.get('id', ''));
@@ -110,9 +124,9 @@ service cloud.firestore {
   }
   match /grupos/{id} {
     allow read: if catalogRead('grupos', resource.data.get('programAbbreviation', ''));
-    allow create: if systems() && module('grupos', true) && inProgram(request.resource.data.programAbbreviation) && inCycle(request.resource.data.cycleCode);
-    allow update: if systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inProgram(request.resource.data.programAbbreviation) && inCycle(resource.data.cycleCode) && inCycle(request.resource.data.cycleCode);
-    allow delete: if systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inCycle(resource.data.cycleCode);
+    allow create: if captureOpen(request.resource.data.cycleCode) && systems() && module('grupos', true) && inProgram(request.resource.data.programAbbreviation) && inCycle(request.resource.data.cycleCode);
+    allow update: if captureOpen(resource.data.cycleCode) && captureOpen(request.resource.data.cycleCode) && systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inProgram(request.resource.data.programAbbreviation) && inCycle(resource.data.cycleCode) && inCycle(request.resource.data.cycleCode);
+    allow delete: if captureOpen(resource.data.cycleCode) && systems() && module('grupos', true) && inProgram(resource.data.programAbbreviation) && inCycle(resource.data.cycleCode);
   }
   function teacherScope(d, teacherId) { return general() || (delegated() && within('teachers', teacherId)) || (module('docentes', true) && (d.get('createdBy', '') == request.auth.uid || (user().get('baseRole', '') != 'ALTA_DOCENTES' && d.get('assignedCoordinatorIds', []).hasAny([request.auth.uid])))); }
   function teacherFields() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherCode', 'fullName', 'normalizedName', 'phone', 'paymentType', 'category', 'location', 'notes', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
@@ -120,7 +134,7 @@ service cloud.firestore {
     let u = user(); let role = u.get('baseRole', ''); let keys = request.resource.data.diff(resource.data).affectedKeys(); let s = u.get('scope', {});
     let own = resource.data.get('createdBy', '') == request.auth.uid || (role != 'ALTA_DOCENTES' && safeList(resource.data, 'assignedCoordinatorIds').hasAny([request.auth.uid]));
     let adminScope = role == 'ADMIN_GENERAL' || (role == 'ADMIN_OPERATIVO' && s.get('teachers', []).hasAny(['*', id]));
-    let ordinary = hasModule(u, 'docentes', true) && (adminScope || (role != 'ADMIN_OPERATIVO' && own)) && (role != 'ADMIN_OPERATIVO' || s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))) && resource.data.get('status', '') in ['PENDIENTE', 'VALIDADO'] && teacherFields();
+    let ordinary = teacherCapture() && hasModule(u, 'docentes', true) && (adminScope || (role != 'ADMIN_OPERATIVO' && own)) && (role != 'ADMIN_OPERATIVO' || s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))) && resource.data.get('status', '') in ['PENDIENTE', 'VALIDADO'] && teacherFields();
     let sensitive = hasModule(u, 'docentes', true) && adminScope && (role == 'ADMIN_GENERAL' || (u.get('capabilities', []).hasAny(['VALIDATE_TEACHERS']) && (s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))))) && keys.hasOnly(['status', 'lifecycleStatus', 'validatedBy', 'validatedAt', 'inactivatedBy', 'inactivatedAt', 'assignedCoordinatorIds', 'assignedCoordinatorNames', 'updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']);
     return valid(u) && (ordinary || sensitive);
   }
@@ -131,12 +145,12 @@ service cloud.firestore {
   }
   match /docentes/{id} {
     allow read: if resource != null && teacherRead(resource.get('id', ''));
-    allow create: if module('docentes', true) && request.resource.data.normalizedMoodleUser == id
+    allow create: if teacherCapture() && module('docentes', true) && request.resource.data.normalizedMoodleUser == id
       && request.resource.data.createdBy == request.auth.uid
       && (!auxiliary() || within('teachers', id))
       && (general() || (request.resource.data.status == 'PENDIENTE' && request.resource.data.origin == 'MANUAL' && request.resource.data.get('assignedCoordinatorIds', []).hasOnly([request.auth.uid])));
     allow update: if teacherUpdate(id);
-    allow delete: if (!auxiliary() || (module('docentes', true) && within('teachers', id))) && ((capability('VALIDATE_TEACHERS') && within('teachers', id) && resource.data.status == 'INACTIVO') || (module('docentes', true) && resource.data.createdBy == request.auth.uid && resource.data.status == 'PENDIENTE' && resource.data.lifecycleStatus == 'NUEVO'));
+    allow delete: if teacherCapture() && (!auxiliary() || (module('docentes', true) && within('teachers', id))) && ((capability('VALIDATE_TEACHERS') && within('teachers', id) && resource.data.status == 'INACTIVO') || (module('docentes', true) && resource.data.createdBy == request.auth.uid && resource.data.status == 'PENDIENTE' && resource.data.lifecycleStatus == 'NUEVO'));
   }
   match /asignaturas/{id} {
     allow read: if module('asignaturas', false);
@@ -146,7 +160,7 @@ service cloud.firestore {
   }
   function assignmentRead() {
     let u = user(); let s = u.get('scope', {});
-    return hasModule(u, 'asignaciones', false) && (u.get('baseRole', '') in ['ADMIN_GENERAL', 'COORDINACION_ACADEMICA'] || (s.get('programs', []).hasAny(['*', resource.data.get('program', '')]) && s.get('cycles', []).hasAny(['*', resource.data.get('cycle', '')])));
+    return hasModule(u, 'asignaciones', false) && (u.get('baseRole', '') == 'ADMIN_GENERAL' || ((u.get('baseRole', '') == 'COORDINACION_ACADEMICA' || s.get('programs', []).hasAny(['*', resource.data.get('program', '')])) && s.get('cycles', []).hasAny(['*', resource.data.get('cycle', '')])));
   }
   function ordinaryAssignmentFields() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherMoodleUser', 'teacherName', 'group', 'program', 'shared', 'sharedGroups', 'sharedPrograms', 'studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
   function enrollmentsOnly() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']); }
@@ -158,20 +172,25 @@ service cloud.firestore {
     let own = programs.hasAny(['*', d.get('program', '')]) && programs.hasAny(['*', n.get('program', '')]) && s.get('cycles', []).hasAny(['*', d.get('cycle', '')]);
     let ordinary = keys.hasOnly(['teacherMoodleUser', 'teacherName', 'group', 'program', 'shared', 'sharedGroups', 'sharedPrograms', 'studentEnrollments', 'updatedBy', 'updatedByName', 'updatedByRole', 'updatedAt']);
     let administrative = role == 'ADMIN_GENERAL' || (role == 'ADMIN_OPERATIVO' && own && s.get('cycles', []).hasAny(['*', n.get('cycle', '')]) && (s.get('fields', []).hasAny(['*']) || keys.hasOnly(s.get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole']))) && (!(d.get('status', '') in ['CARGADO_MOODLE', 'VALIDADO']) || u.get('capabilities', []).hasAny(['OPERATE_EXCEPTIONAL_CHANGE'])) && (!keys.hasAny(['status']) || u.get('capabilities', []).hasAny(['CONFIRM_MOODLE_UPDATE'])));
-    return hasModule(u, 'asignaciones', true) && loadedIdentity(d, n) && n.get('moodleId', '') == n.get('normalizedMoodleId', '') && n.get('createdBy', '') == d.get('createdBy', '') && n.get('createdAt', '') == d.get('createdAt', '')
+    return ((assignmentCapture(d) && assignmentCapture(n)) || (administrative && keys.hasOnly(['status','observations','updatedAt','updatedBy','updatedByName','updatedByRole']))) && !keys.hasAny(['cycle','assignmentType','special']) && hasModule(u, 'asignaciones', true) && loadedIdentity(d, n) && n.get('moodleId', '') == n.get('normalizedMoodleId', '') && n.get('createdBy', '') == d.get('createdBy', '') && n.get('createdAt', '') == d.get('createdAt', '')
       && (administrative || (role != 'ADMIN_OPERATIVO' && ((own && ordinary) || (role == 'COORDINACION_ACADEMICA' && s.get('cycles', []).hasAny(['*', d.get('cycle', '')]) && enrollmentsOnly()))));
   }
   match /asignaciones/{id} {
     allow read: if assignmentRead();
-    allow create: if module('asignaciones', true) && inProgram(request.resource.data.program) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && request.resource.data.moodleId == request.resource.data.normalizedMoodleId && request.resource.data.cycle is string && request.resource.data.group is string && request.resource.data.subjectId is string && request.resource.data.teacherMoodleUser is string && (general() || request.resource.data.status == 'EN_CAPTURA');
+    allow create: if assignmentCapture(request.resource.data) && module('asignaciones', true) && inProgram(request.resource.data.program) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && request.resource.data.moodleId == request.resource.data.normalizedMoodleId && request.resource.data.cycle is string && request.resource.data.group is string && request.resource.data.subjectId is string && request.resource.data.teacherMoodleUser is string && (general() || request.resource.data.status == 'EN_CAPTURA');
     allow update: if resource != null && assignmentUpdate();
-    allow delete: if systems() && module('asignaciones', true) && capability('OPERATE_EXCEPTIONAL_CHANGE') && inProgram(resource.data.program) && inCycle(resource.data.cycle);
+    allow delete: if assignmentCapture(resource.data) && module('asignaciones', true) && inProgram(resource.data.program) && inCycle(resource.data.cycle) && ((systems() && capability('OPERATE_EXCEPTIONAL_CHANGE')) || (user().get('baseRole','') == 'COORDINACION_ACADEMICA' && resource.data.get('assignmentType','') == 'ESPECIAL'));
+  }
+  function requestCapture(d) {
+    let c=currentCycle(); let id=d.get('sourceAssignmentId','_none');
+    let path=/databases/$(database)/documents/asignaciones/$(id);
+    return (d.get('requestType','') == 'REABRIR_CAPTURA' && c.get('code','_none') == d.get('cycle','') && c.get('status','') == 'Captura cerrada') || captureOpen(d.get('cycle','')) || (c.get('status','')=='Captura cerrada' && c.get('specialsEnabled',false) && exists(path) && assignmentCapture(get(path).data) && d.get('destinationGroup','') in c.get('specialGroups',[]));
   }
   function requestScope(d) { return general() || (module('solicitudes', false) && (inProgram(d.get('sourceProgram', '')) || inProgram(d.get('destinationProgram', '')) || d.requestedBy == request.auth.uid)); }
   match /solicitudes_compartidas/{id} {
     allow read: if requestScope(resource.data);
-    allow create: if module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE' && inProgram(request.resource.data.destinationProgram);
-    allow update: if module('solicitudes', true) && (general() || inProgram(resource.data.sourceProgram) || (resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'CANCELADA'))
+    allow create: if requestCapture(request.resource.data) && module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE' && inProgram(request.resource.data.destinationProgram);
+    allow update: if (request.resource.data.status != 'ACEPTADA' || requestCapture(resource.data)) && module('solicitudes', true) && (general() || inProgram(resource.data.sourceProgram) || (resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'CANCELADA'))
       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'responseObservations', 'respondedBy', 'respondedByName', 'respondedByRole', 'respondedAt', 'updatedAt', 'createdEntityId'])
       && request.resource.data.respondedBy == request.auth.uid;
     allow delete: if false;

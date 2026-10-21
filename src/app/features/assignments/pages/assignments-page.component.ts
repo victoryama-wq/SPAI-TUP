@@ -273,12 +273,26 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   assignmentForm = this.emptyForm();
 
-  readonly activeCycle = this.cyclesRepository.activeCycle;
+  readonly activeCycle = this.assignmentsRepository.selectedCycle;
+  readonly operativeCycle = this.cyclesRepository.activeCycle;
+  readonly cycleIssue = this.cyclesRepository.captureMessage;
+  readonly historicalCycles = computed(() => this.cycles().filter(c=>c.status==='Cerrado' && this.allowedCycle(c.code)));
+  allowedCycle(code: string): boolean { const u=this.session()?.appUser; return u?.baseRole==='ADMIN_GENERAL' || Boolean(u?.scope?.cycles?.some(c=>c==='*'||c===code)); }
+  selectCycle(event: Event): void { this.closeAssignmentModal(); this.currentPage.set(1); this.assignmentsRepository.selectCycle((event.target as HTMLSelectElement).value || null); }
+  readonly historical = computed(() => this.activeCycle()?.status==='Cerrado');
+  assignmentCaptureAllowed(assignment: AcademicAssignment): boolean {
+    const c=this.activeCycle();
+    if(!c || !this.cyclesRepository.contextReady() || this.cyclesRepository.inconsistent() || c.code!==assignment.cycle || !this.allowedCycle(c.code)) return false;
+    if(c.status==='Captura') return true;
+    const group=this.groupsByFullGroup().get(assignment.group);
+    return c.status==='Captura cerrada' && c.specialsEnabled===true && assignment.assignmentType==='ESPECIAL' && !!group && this.isSpecialGroup(group);
+  }
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
 
   ngOnDestroy(): void {
     this.clearFormMessageTimeout();
+    this.assignmentsRepository.selectCycle(null);
   }
 
   // All rows returned by the scoped repository, never institutional authority.
@@ -338,7 +352,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       || this.isAcademicCoordinationRole(role);
   });
 
-  readonly canCaptureAssignments = computed(() => this.activeCycle()?.status === 'Captura');
+  readonly canCaptureAssignments = computed(() => !this.cyclesRepository.inconsistent() && this.cyclesRepository.contextReady() && !!this.activeCycle() && this.allowedCycle(this.activeCycle()!.code) && (this.activeCycle()?.status === 'Captura' || (this.activeCycle()?.status === 'Captura cerrada' && this.activeCycle()?.specialsEnabled === true && this.modeTab() === 'Especiales')));
 
   readonly assignedProgramCodes = computed(() => {
     const appUser = this.session()?.appUser;
@@ -355,19 +369,15 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly captureBlockedMessage = computed(() => {
+    if (!this.cyclesRepository.contextReady()) return this.cyclesRepository.captureMessage() || 'Verificando el ciclo y tus permisos…';
     const activeCycle = this.activeCycle();
 
     if (!activeCycle) {
-      const referenceCycle = this.cycles().find((cycle) => cycle.status === 'Preparacion' || cycle.status === 'Cerrado');
-
-      if (referenceCycle) {
-        return `El ciclo ${referenceCycle.code} esta en estado ${referenceCycle.status}. Coordinacion de Sistemas debe abrir un ciclo en Captura para registrar asignaciones.`;
-      }
-
+      if (this.cyclesRepository.inconsistent()) return 'Hay varios ciclos operativos. La captura está bloqueada hasta resolver la inconsistencia.';
       return 'No hay ciclo activo operativo. Coordinacion de Sistemas debe abrir un ciclo en Captura antes de registrar asignaciones.';
     }
 
-    if (activeCycle.status !== 'Captura') {
+    if (!this.canCaptureAssignments()) {
       return `El ciclo ${activeCycle.code} esta en estado ${activeCycle.status}. La captura y edicion de asignaciones estan bloqueadas.`;
     }
 
@@ -769,7 +779,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   selectedFormProgramLabel(): string {
-    if (this.assignmentForm.special) {
+    if (this.assignmentForm.special && this.modeTab() !== 'Especiales') {
       return this.assignmentForm.program || 'Seleccionar carrera';
     }
 
@@ -942,7 +952,13 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.syncPickerInputsFromForm();
   }
 
+  canSaveAssignmentForm(): boolean {
+    const current=this.editingAssignmentId ? this.assignments().find(a=>a.id===this.editingAssignmentId) : null;
+    return this.editingAssignmentId ? !!current && this.canEditAssignment(current) : this.canManageAssignments() && this.canCaptureAssignments();
+  }
+
   async saveAssignment(continueAdding = false): Promise<void> {
+    if (!this.canSaveAssignmentForm()) { this.formErrors=[this.captureBlockedMessage() || 'Tu permiso o el ámbito de esta asignación cambió.']; return; }
     if (this.isSavingAssignment) {
       return;
     }
@@ -994,7 +1010,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
     const actor = this.actorData();
     const subject = this.selectedSubject();
-    const group = this.assignmentForm.special ? null : this.selectedGroup();
+    const group = this.assignmentForm.special && this.modeTab() !== 'Especiales' ? null : this.selectedGroup();
     const shareGroups = this.assignmentForm.shared ? this.selectedShareGroups() : [];
     const lockedShareGroups = this.lockedShareGroups();
     const selectedProgram = this.assignmentForm.special
@@ -1002,7 +1018,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       : group?.programAbbreviation ?? '';
     const program = this.programCodeForWrite(selectedProgram);
 
-    if ((!this.assignmentForm.special && !group) || !selectedProgram || !program || !subject || !this.hasValidTeacherSelection()) {
+    if (((!this.assignmentForm.special || this.modeTab() === 'Especiales') && !group) || !selectedProgram || !program || !subject || !this.hasValidTeacherSelection()) {
       this.formErrors = ['Selecciona programa/grupo, asignatura y docente validos.'];
       return;
     }
@@ -1935,7 +1951,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   onSpecialChange(): void {
-    if (this.assignmentForm.special) {
+    if (this.assignmentForm.special && this.modeTab() !== 'Especiales') {
       this.assignmentForm.specialType = this.assignmentForm.propedeutic ? 'propedeutic' : 'enrollments';
       this.assignmentForm.group = '';
       this.assignmentForm.shared = false;
@@ -1960,7 +1976,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     this.assignmentForm.special = type !== 'group';
     this.assignmentForm.propedeutic = type === 'propedeutic';
 
-    if (this.assignmentForm.special) {
+    if (this.assignmentForm.special && this.modeTab() !== 'Especiales') {
       this.assignmentForm.group = '';
       this.assignmentForm.shared = false;
       this.assignmentForm.sourceAssignmentId = '';
@@ -2026,7 +2042,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (this.modeTab() === 'Especiales' && this.assignmentForm.specialType === 'group') {
-      return 'CURSO_ESPECIAL';
+      return 'ESPECIAL';
     }
 
     return this.assignmentForm.special ? 'ESPECIAL' : 'REGULAR';
@@ -2176,7 +2192,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   canEditAssignment(assignment: AcademicAssignment): boolean {
-    if (!this.assignmentsReady()) return false;
+    if (!this.assignmentsReady() || !this.assignmentCaptureAllowed(assignment)) return false;
     const user = this.session()?.appUser;
     if (!hasAccess(user, 'asignaciones', true)) return false;
     if (user?.baseRole === 'ADMIN_GENERAL') return true;
@@ -2225,8 +2241,9 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   canDeleteAssignment(assignment: AcademicAssignment): boolean {
+    if (!this.assignmentCaptureAllowed(assignment)) return false;
     return hasAccess(this.session()?.appUser, 'asignaciones', true)
-      && hasCapability(this.session()?.appUser, 'OPERATE_EXCEPTIONAL_CHANGE')
+      && (hasCapability(this.session()?.appUser, 'OPERATE_EXCEPTIONAL_CHANGE') || (this.session()?.appUser?.baseRole === 'COORDINACION_ACADEMICA' && assignment.assignmentType === 'ESPECIAL'))
       && this.canModifyAssignment(assignment);
   }
 
@@ -3050,9 +3067,11 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('No hay ciclo activo operativo para capturar asignaciones.');
     }
 
-    if (activeCycle && activeCycle.status !== 'Captura') {
-      errors.push(`El ciclo activo esta en estado ${activeCycle.status}; solo se puede capturar o editar en estado Captura.`);
+    if (activeCycle && !this.canCaptureAssignments()) {
+      errors.push(this.captureBlockedMessage());
     }
+
+    if (activeCycle?.status === 'Captura cerrada' && this.assignmentTypeForForm() !== 'ESPECIAL') errors.push('La excepción de captura cerrada solo admite asignaciones ESPECIAL.');
 
     if (this.assignmentForm.special && !this.assignmentForm.program) {
       errors.push(this.modeTab() === 'Inglés'
@@ -3064,7 +3083,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       errors.push('La modalidad es obligatoria para asignaciones de ingles.');
     }
 
-    if (!this.assignmentForm.special && !this.assignmentForm.group) {
+    if ((!this.assignmentForm.special || this.modeTab() === 'Especiales') && !this.assignmentForm.group) {
       errors.push(`El ${this.assignmentForm.shared ? 'grupo base' : 'grupo'} es obligatorio.`);
     }
 
@@ -3851,9 +3870,7 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   private isSpecialGroup(group: AcademicGroup): boolean {
     const section = this.normalizeSearchText(group.section);
-    const fullGroup = this.normalizeSearchText(group.fullGroup);
-
-    return section.endsWith('c.a') || fullGroup.endsWith('c.a');
+    return !['Escolarizado','Ejecutivo'].includes(group.modality) && /c\.a\.?$/i.test(section);
   }
 
   private isHealthGroup(group: AcademicGroup): boolean {
@@ -4163,7 +4180,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return this.assignmentForm.group.trim();
     }
 
-    if (this.assignmentForm.special) {
+    if (this.assignmentForm.special && this.modeTab() !== 'Especiales') {
       return '';
     }
 

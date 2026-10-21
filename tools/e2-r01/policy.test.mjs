@@ -62,7 +62,7 @@ test('UI real permite EDIT personalizado propio, pero no VIEW ni ámbito ajeno',
   const helpers=sourceFunctions('src/app/features/users/data/module-permission.service.ts',['hasAccess','isSystems','hasCapability']);
   const assignment={program:'ADM',cycle:'27-1',status:'EN_CAPTURA'};
   const user={status:'Activo',permissionSchemaVersion:2,baseRole:'CUSTOM',permissions:{asignaciones:'EDIT'},scope:{programs:['ADM'],cycles:['27-1']}};
-  const ui=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canEditAssignment','canModifyAssignment'],{session:()=>({appUser:user}),assignmentsReady:()=>true},helpers);
+  const ui=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canEditAssignment','canModifyAssignment'],{session:()=>({appUser:user}),assignmentsReady:()=>true,assignmentCaptureAllowed:()=>true},helpers);
   assert.equal(ui.canEditAssignment(assignment),true);
   assert.equal(ui.canEditAssignment({...assignment,program:'DER'}),false);
   assert.equal(ui.canEditAssignment({...assignment,cycle:'26-3'}),false);

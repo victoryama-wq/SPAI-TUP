@@ -1,0 +1,6 @@
+PASS: authenticated SDK write/read and independent emulator REST verification.
+PASS: callable Functions uses emulator with authenticated context.
+PASS: Storage emulator reachable; original deny-all rules preserved.
+PASS: Firestore event executed Functions and simulated mail without recipients.
+PASS: all five fictitious accounts authenticate and read their own profiles.
+PASS: repeat seeding succeeds with deterministic IDs.

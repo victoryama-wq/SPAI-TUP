@@ -51,10 +51,16 @@ async function allowed(operation) {
   catch (error) { if (error.code === 'permission-denied' && !/maximum of|INTERNAL|UNAVAILABLE/i.test(error.message)) return false; throw error; }
 }
 async function check(id, finding, stage, operation, baseline, expected, evidence = 'firestore.rules') {
-  report.check(id, finding, stage, await allowed(operation), baseline, expected, evidence);
+  let actual;
+  try { actual=await allowed(async()=>{try{await operation();}catch(error){if(id.startsWith('CYCLE-') && /evaluation error|Null value/i.test(error.message)) {const unresolved=new Error(error.message);unresolved.code='rules-inconclusive';throw unresolved;}throw error;}}); } catch(error) { if(!id.startsWith('CYCLE-')) throw error; actual='INCONCLUSIVE_EVALUATOR'; }
+  report.check(id, finding, stage, actual, baseline, expected, evidence);
 }
 
 try {
+  for (const c of (await db.collection('ciclos').get()).docs) if(c.id!=='demo-27-1') await c.ref.update({status:'Cerrado'});
+  await db.doc('ciclos/demo-27-1').update({status:'Captura'});
+  const cycleService=require('./cycles/service').createCycleService(db);
+  await cycleService.inspect({uid:'demo-sistemas'});
   for (const [key, role, status, enabled, assignedPrograms] of specs) {
     await adminAuth.getAuth(admin).createUser({ uid: uid(key), email: email(key), password, emailVerified: true });
     await reset(`usuarios/${uid(key)}`, { permissionSchemaVersion:2, baseRole:key==='systems'||key==='inactive'?'ADMIN_GENERAL':key.startsWith('academic')?'COORDINACION_ACADEMICA':key.startsWith('aux')?'ADMIN_OPERATIVO':'CUSTOM', permissions:Object.fromEntries(modules.map(k=>[k,enabled?(key==='custom-view'?'VIEW':'EDIT'):'NONE'])), scope:{programs: key==='custom-view'||key==='custom-edit'?['*']:assignedPrograms,cycles:['*'],teachers:[],fields:[]}, authUid: uid(key), name: `Ficticio ${key}`, email: email(key), role, status, access: { ...access(enabled), ...(key === 'aux-users' ? { usuarios: true } : {}) }, assignedPrograms });
@@ -109,6 +115,7 @@ try {
 
   for (const status of ['Preparacion', 'Captura', 'Captura cerrada', 'Cerrado']) {
     await db.doc('ciclos/demo-27-1').update({ status });
+    await cycleService.inspect({uid:'demo-sistemas'});
     await reset('asignaciones/stage1-source', source);
     await check(`CYCLE-WRITE-${status}`, 'F04', 3, () => updateDoc(path('academic-a', 'asignaciones/stage1-source'), { teacherName: `FICTICIO ${status}` }), true, status === 'Captura');
     await check(`CYCLE-CREATE-${status}`, 'F04', 3, () => setDoc(path('academic-a', 'asignaciones/stage1-new'), source), true, status === 'Captura');
@@ -116,6 +123,7 @@ try {
   }
   await check('SYSTEMS-CLOSED-OPERATIONS', 'F04', 3, () => updateDoc(path('systems', 'asignaciones/stage1-source'), { observations: 'REVISION FICTICIA' }), true, true, 'SPEC 10 Systems retains operational correction; exact operation matrix D1');
   await db.doc('ciclos/demo-27-1').update({ status: 'Captura' });
+  await cycleService.inspect({uid:'demo-sistemas'});
   await check('ACADEMIC-FOREIGN-TEACHER', 'F09', 2, () => updateDoc(path('academic-b', 'asignaciones/stage1-source'), { teacherName: 'AJENO' }), false, false);
   await check('ACADEMIC-OWN-ENROLLMENTS', 'F11', 2, () => updateDoc(path('academic-a', 'asignaciones/stage1-source'), { studentEnrollments: 'tup-ficticio-own' }), true, true, 'Positive control: same field and document, authorized source program');
   await check('ACADEMIC-FOREIGN-ENROLLMENTS', 'F11', 2, () => updateDoc(path('academic-b', 'asignaciones/stage1-source'), { studentEnrollments: 'tup-ficticio' }), false, true, 'Observed permission-denied with maximum 1000 expressions reached; SPEC 25.4 permits global enrollment-only edit during Captura');

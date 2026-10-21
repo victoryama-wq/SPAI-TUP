@@ -1,0 +1,13 @@
+import {createRequire} from 'node:module';
+import {root,config,isolatedTest,localEnvironment,verifyHub} from '../local/config.mjs';
+import {resolve} from 'node:path';
+if(!isolatedTest) throw Error('Solo revisión aislada');await verifyHub();Object.assign(process.env,localEnvironment());
+const require=createRequire(resolve(root,'functions/package.json'));
+const app=require('firebase-admin/app').initializeApp({projectId:config.projectId},'r02-review-prepare');const db=require('firebase-admin/firestore').getFirestore(app);
+for(const d of (await db.collection('ciclos').get()).docs) await d.ref.update({status:d.id==='demo-27-1'?'Captura':'Cerrado'});
+await db.doc('ciclos/demo-27-1').update({revision:1,specialsEnabled:false,tentativeCaptureCloseAt:'2026-11-30'});
+await db.doc('grupos/27_1_ADM_11_C_A').set({fullGroup:'27-1 ADM 11 C.A',cycleCode:'27-1',programAbbreviation:'ADM',programName:'Administración ficticia',section:'C.A',groupCode:'11',modality:'Virtual',academicArea:'Demo',shift:'Matutino',status:'Activo',createdAt:'2026-10-21T00:00:00Z',updatedAt:'2026-10-21T00:00:00Z'});
+const source=(await db.doc('asignaciones/demo-asignacion-a').get()).data();
+await db.doc('asignaciones/r02-review-special').set({...source,group:'27-1 ADM 11 C.A',moodleId:'r02-review-special',normalizedMoodleId:'r02-review-special',assignmentType:'ESPECIAL',special:true});
+await require('./cycles/service').createCycleService(db).inspect({uid:'demo-sistemas'});
+await require('firebase-admin/app').deleteApp(app);console.log('Revisión R02 aislada: 27-1 Captura, históricos y ESPECIAL ficticio; LAN intacta.');
