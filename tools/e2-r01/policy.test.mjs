@@ -6,6 +6,17 @@ const require = createRequire(import.meta.url);
 const P = require('../../functions/security/policy');
 const profile = { authUid: 'helper', status: 'Activo', baseRole: 'ADMIN_OPERATIVO', permissionSchemaVersion: 2, delegationId: 'grant' };
 const grant = { id: 'grant', userId: 'helper', status: 'ACTIVE', permissions: { docentes: 'EDIT' }, capabilities: ['MANAGE_CUSTOM_ROLES'], scope: { programs: ['ADM'] } };
+
+test('Una baja histórica no recupera acceso por estado Activo, rol general o delegación conservada', () => {
+  const ui = sourceFunctions('src/app/features/users/data/module-permission.service.ts', ['hasAccess', 'isSystems', 'hasCapability']);
+  for (const baseRole of ['ADMIN_GENERAL', 'ADMIN_OPERATIVO', 'CUSTOM']) {
+    const deleted = { ...profile, baseRole, deletedAt: '2026-10-21T23:00:00Z', permissions: P.levels({ docentes: 'EDIT' }), capabilities: ['MANAGE_USERS'] };
+    assert.equal(P.effective(deleted, grant).active, false);
+    assert.equal(P.isGeneral(deleted), false);
+    assert.equal(ui.hasAccess(deleted, 'docentes'), false);
+    assert.equal(ui.hasCapability(deleted, 'MANAGE_USERS'), false);
+  }
+});
 test('VIEW nunca equivale a EDIT; desconocidos no se normalizan a acceso', () => {
   assert.equal(P.levels({ docentes: 'view' }).docentes, 'VIEW');
   assert.equal(P.levels().docentes, 'NONE');

@@ -25,6 +25,8 @@ export interface ModuleAccess {
 
 export type EffectiveLevel = 'NONE' | 'VIEW' | 'EDIT';
 export interface AppUser {
+  deletedAt?: string;
+  deletionOperationId?: string;
   /** Read-only authorized directory projection; never written by the editor. */
   effectiveAccess?: {permissions: Partial<Record<keyof ModuleAccess, EffectiveLevel>>; capabilities:string[]; scope:AppUser['scope']; active:boolean};
   area?: string;

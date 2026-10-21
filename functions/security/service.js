@@ -46,6 +46,7 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
       const now = new Date(serverMillis).toISOString();
       const targetId = id(data.targetId);
       const target = state.usuarios[targetId];
+      if (['saveUser','assignRole','grantDelegation','approveMapping','previewMigration','applyMigration','previewInheritance','applyInheritance'].includes(data.action)) P.assert(!target?.deletedAt, 'El perfil fue dado de baja; requiere reincorporación administrativa explícita.', 'failed-precondition');
       const write = (collection, key, value) => { state[collection][key] = { ...value, id: key, revision: revision(state[collection][key]) + 1, updatedAt: now }; };
       const fresh = collection => P.assert(!state[collection][operationId], 'El identificador ya pertenece a una operación anterior.', 'already-exists');
       function compatibleScope(user, role, excluding) {
@@ -103,6 +104,9 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
           break;
         }
         case 'saveUser': {
+          P.assert(!target?.deletedAt, 'El perfil fue dado de baja; la reincorporación requiere un procedimiento administrativo explícito.', 'failed-precondition');
+          const requestedEmail = String(data.value?.email ?? '').trim().toLowerCase();
+          if (/^[a-z0-9._+-]+@tecplayacar\.edu\.mx$/.test(requestedEmail)) { const blocked = await tx.get(db.doc('bajas_correo/' + requestedEmail)); P.assert(!blocked.exists, 'El correo fue dado de baja; no se puede aprovisionar automáticamente.', 'failed-precondition'); }
           requireRevision(target, data.expectedRevision);
           const input = data.value;
           P.assert(input && P.BASE_ROLES.includes(input.baseRole) && ['Activo', 'Inactivo'].includes(input.status), 'Perfil inválido.', 'invalid-argument');
@@ -288,7 +292,7 @@ function createSecurityService(db, { nowMillis = Date.now } = {}) {
         result.delegaciones = []; result.revisiones_roles = [];
         result.roles_personalizados = result.roles_personalizados.filter(r => { try { P.canAssign(actor, auth.uid, 'candidate', { permissionSchemaVersion: 2, assignedPrograms: actor.scope.programs, baseRole: 'CUSTOM' }, r); return r.status === 'ACTIVE' && typeof r.approvedBy === 'string'; } catch { return false; } });
       }
-      result.usuarios = result.usuarios.map(u => ({...u, effectiveAccess:P.effective(u,result.delegaciones.find(g=>g.id===u.delegationId),{nowMillis:nowMillis()})}));
+      result.usuarios = result.usuarios.filter(u => !u.deletedAt).map(u => ({...u, effectiveAccess:P.effective(u,result.delegaciones.find(g=>g.id===u.delegationId),{nowMillis:nowMillis()})}));
       return result;
     });
   }

@@ -1,4 +1,5 @@
 const { initializeApp } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { logger } = require('firebase-functions');
 const { defineSecret } = require('firebase-functions/params');
@@ -329,7 +330,7 @@ exports.sendEmailForNotification = onDocumentCreated(
 
 const security = require('./security/service');
 const securityService = security.createSecurityService(db);
-const securedCall = handler => onCall({ region: 'us-central1' }, async request => {
+const securedCall = (handler, options = {}) => onCall({ region: 'us-central1', ...options }, async request => {
   try { return await handler(request); }
   catch (error) {
     const allowed = ['invalid-argument', 'unauthenticated', 'permission-denied', 'not-found', 'already-exists', 'failed-precondition', 'aborted', 'resource-exhausted'];
@@ -342,15 +343,20 @@ exports.cycleCommand = securedCall(request => cycleService.execute(request.auth,
 exports.cycleContext = securedCall(request => cycleService.inspect(request.auth));
 exports.securityCommand = securedCall(request => securityService.execute(request.auth, request.data));
 exports.securityDirectory = securedCall(request => securityService.list(request.auth));
+const deletionPreviewKey = defineSecret('SPAI_USER_DELETION_PREVIEW_KEY');
+const userDeletion = require('./security/user-deletion').createUserDeletionService(db, getAuth(), { previewKey: () => deletionPreviewKey.value() });
+exports.userDeletionCommand = securedCall(request => userDeletion.execute(request.auth, request.data), { secrets: [deletionPreviewKey] });
 exports.deliverSecurityNotification = onDocumentCreated({ document: 'eventos_seguridad/{eventId}', region: 'us-central1', retry: true }, event => security.processNotification(db, event.params.eventId, Boolean(localRuntime)));
 exports.syncUserProfileByEmail = securedCall(async request => {
   const auth = request.auth;
   if (!auth?.uid || !auth.token?.email) throw new HttpsError('unauthenticated', 'Inicia sesión.');
   const email = String(auth.token.email).trim().toLowerCase();
-  if (!email.endsWith('@tecplayacar.edu.mx') || auth.token.email_verified !== true) throw new HttpsError('permission-denied', 'Se requiere correo institucional verificado.');
+  if (!/^[a-z0-9._+-]+@tecplayacar\.edu\.mx$/.test(email) || auth.token.email_verified !== true) throw new HttpsError('permission-denied', 'Se requiere correo institucional verificado.');
   return db.runTransaction(async tx => {
     const fence = db.doc('seguridad/control'); const lock = await tx.get(fence);
     const uidRef = db.collection('usuarios').doc(auth.uid); const canonical = await tx.get(uidRef);
+    const blocked = await Promise.all([tx.get(db.doc('bloqueos_identidad/' + auth.uid)), tx.get(db.doc('bajas_correo/' + email))]);
+    if (canonical.data()?.deletedAt || blocked.some(s => s.exists)) throw new HttpsError('permission-denied', 'Acceso dado de baja. La reincorporación requiere un procedimiento administrativo explícito.');
     // Never replace an existing canonical profile with a more privileged duplicate.
     if (canonical.exists && canonical.data().authUid === auth.uid) return { synced: true, uid: auth.uid };
     if (canonical.exists && !canonical.data().authUid && !canonical.data().identityAliasOf && canonical.data().email === email) {

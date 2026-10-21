@@ -28,10 +28,10 @@ function scope(value = {}) {
   }));
 }
 function subset(values, ceiling) { return ceiling.includes('*') || values.every(v => ceiling.includes(v)); }
-function isGeneral(profile) { return !profile?.identityAliasOf && profile?.status === 'Activo' && profile.permissionSchemaVersion === 2 && profile.baseRole === 'ADMIN_GENERAL'; }
+function isGeneral(profile) { return !profile?.deletedAt && !profile?.identityAliasOf && profile?.status === 'Activo' && profile.permissionSchemaVersion === 2 && profile.baseRole === 'ADMIN_GENERAL'; }
 function legacyValid(profile, mapping, nowMillis = Date.now()) {
   const legacy = profile?.legacyAuthorization;
-  return profile?.permissionSchemaVersion !== 2 && profile?.status === 'Activo' && !profile.identityAliasOf
+  return profile?.permissionSchemaVersion !== 2 && profile?.status === 'Activo' && !profile.deletedAt && !profile.identityAliasOf
     && legacy?.mappingVersion === MAPPING_VERSION && legacy.profileRevision === profile.revision
     && legacy.expiresAtMillis > nowMillis
     && mapping?.status === 'ACTIVE' && mapping.version === MAPPING_VERSION
@@ -43,7 +43,7 @@ function effective(profile, delegation, { mapping, nowMillis = Date.now() } = {}
   const legacy = profile?.legacyAuthorization;
   if (legacyValid(profile, mapping, nowMillis)) profile = { ...profile, ...legacy, permissionSchemaVersion: 2 };
   const none = { permissions: levels(), capabilities: [], scope: scope(), baseRole: profile?.baseRole ?? 'PENDING', active: false };
-  if (profile?.status !== 'Activo' || profile.permissionSchemaVersion !== 2 || profile.identityAliasOf) return none;
+  if (profile?.deletedAt || profile?.status !== 'Activo' || profile.permissionSchemaVersion !== 2 || profile.identityAliasOf) return none;
   if (isGeneral(profile)) return { permissions: levels(Object.fromEntries(MODULES.map(k => [k, 'EDIT']))), capabilities: [...DELEGABLE, ...NON_DELEGABLE, REQUEST_CAPABILITY], scope: scope({ programs: ['*'], cycles: ['*'], teachers: ['*'], fields: ['*'] }), baseRole: profile.baseRole, active: true };
   if (profile.baseRole === 'ADMIN_OPERATIVO') {
     if (!delegation || !grantCurrent(delegation, nowMillis) || delegation.status !== 'ACTIVE' || delegation.userId !== profile.authUid || delegation.id !== profile.delegationId) return { ...none, revoked: true };

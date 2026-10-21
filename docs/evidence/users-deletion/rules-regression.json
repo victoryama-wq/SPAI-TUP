@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-21T23:40:37.904Z",
+  "case": "Positive delegated teacher edit from existing R01 suite, same isolated data",
+  "results": [
+    {
+      "version": "775dc7e",
+      "status": "PASS"
+    },
+    {
+      "version": "complement",
+      "status": "PASS"
+    }
+  ]
+}

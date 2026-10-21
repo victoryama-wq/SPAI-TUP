@@ -12,3 +12,7 @@ Autorizada como decisión funcional por el propietario el 21/10/2026; **NO IMPLE
 - Si falla Authentication, SPAI permanece bloqueado, baja pendiente de reintento y trazabilidad; no informar eliminación completa hasta verificarla.
 
 Estado: pendiente de entrega propia, diseño técnico y pruebas aisladas. Sin cambios en Usuarios, permisos, identidades o datos por este registro.
+
+## Actualización autorizada — 21/10/2026
+
+El propietario autorizó después su implementación local como complemento independiente. Se conserva arriba la decisión original. La implementación y sus pruebas están en [USUARIOS-BAJA-VALIDACION-2026-10-21.md](USUARIOS-BAJA-VALIDACION-2026-10-21.md), rama `codex/usuarios-baja-complemento`. Hay dos comprobaciones estrictas de Rules inconclusas: validación de seguridad incompleta, aceptación humana y producción pendientes. No forma parte de las transiciones de R02 ni se incorpora a la Demo LAN compartida.

@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-21T23:48:55.458Z",
+  "status": "PASS",
+  "widths": [
+    1280,
+    768,
+    390,
+    320
+  ],
+  "cancelUnchanged": true,
+  "mandatoryReason": true,
+  "focusReturned": true,
+  "cleanReason": true,
+  "realCallableDeletion": true,
+  "directoryDelta": -1,
+  "metricDelta": -1,
+  "pendingRecovery": true,
+  "priorBrowserSessionCleared": true,
+  "commands": [
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "confirm",
+    "pending",
+    "pending",
+    "retry",
+    "pending",
+    "prepare",
+    "confirm",
+    "pending"
+  ],
+  "errors": [],
+  "physicalSecondComputer": false
+}

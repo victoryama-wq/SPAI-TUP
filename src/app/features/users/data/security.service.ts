@@ -27,12 +27,17 @@ export interface InheritancePreview {
   proposed: { baseRole: string; permissions: AppUser['permissions']; scope: AppUser['scope']; capabilities: string[]; roles: {id:string;name:string;revision:number}[]; expiresAtMillis: number | null; denials: string[] };
   retire: { assignments: {id:string;roleId:string}[]; delegations: string[] }; preserve: string;
 }
+export interface UserDeletionPreview { token: string; targetId: string; name: string; email: string; expiresAt: number; }
+export interface UserDeletionResult { operationId: string; targetId: string; name: string; email: string; status: 'PENDING_AUTH' | 'PROCESSING_AUTH' | 'COMPLETED'; message: string; attempts: number; lastError?: string | null; }
+export interface UserDeletionResponse { preview?: UserDeletionPreview; result?: UserDeletionResult; pending?: UserDeletionResult[]; }
 export interface SecurityResult { preview?: MigrationPreview; inheritancePreview?: InheritancePreview; operationId: string }
 @Injectable({ providedIn: 'root' })
 export class SecurityService {
   private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly commandCall = httpsCallable<Record<string, unknown>, SecurityResult>(this.functions, 'securityCommand');
   private readonly directoryCall = httpsCallable<Record<string, never>, SecurityDirectory>(this.functions, 'securityDirectory');
+  private readonly deletionCall = httpsCallable<Record<string, unknown>, UserDeletionResponse>(this.functions, 'userDeletionCommand');
+  async deletion(request: Record<string, unknown>): Promise<UserDeletionResponse> { return (await this.deletionCall(request)).data; }
   async directory(): Promise<SecurityDirectory> { return (await this.directoryCall({})).data; }
   async command(request: Record<string, unknown>): Promise<SecurityResult> { return (await this.commandCall(request)).data; }
 }

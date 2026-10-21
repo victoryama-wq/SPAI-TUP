@@ -69,10 +69,14 @@
 
       @if (loginState() === 'pending') {
         <div class="status-card pending" role="status">
-          <strong>Acceso pendiente</strong>
+          <strong>{{ session()?.appUser?.deletedAt ? 'Acceso dado de baja' : 'Acceso pendiente' }}</strong>
           <span>
-            {{ displayName() }} ya inició sesión. Sistemas debe activar tu usuario
-            y asignarte un rol antes de entrar al sistema.
+            @if (session()?.appUser?.deletedAt) {
+              El acceso de {{ displayName() }} a SPAI está bloqueado. La reincorporación requiere un procedimiento administrativo explícito.
+            } @else {
+              {{ displayName() }} ya inició sesión. Sistemas debe activar tu usuario
+              y asignarte un rol antes de entrar al sistema.
+            }
           </span>
         </div>
 

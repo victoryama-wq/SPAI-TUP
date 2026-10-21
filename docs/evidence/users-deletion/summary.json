@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-21T23:50:29.023956+00:00",
+  "status": "VALIDACION_TECNICA_PARCIAL",
+  "humanAcceptance": "PENDIENTE",
+  "production": "PENDIENTE",
+  "branch": "codex/usuarios-baja-complemento",
+  "cycleCommit": "775dc7e661e08442de9f57ce37b567b33f1d285b",
+  "reviewUrl": "http://127.0.0.1:4204/",
+  "sharedLanUnchanged": "http://192.168.42.1:4203/",
+  "sharedLanServedVersion": "59a114d",
+  "unit": {
+    "passed": 31,
+    "failed": 0
+  },
+  "historicalR01": {
+    "completed": true,
+    "casesReportedPass": 37,
+    "warning": "Existing negative assertions accept some evaluation diagnostics; not evidence that strict Rules checks are clean"
+  },
+  "deletion": {
+    "PASS": 8,
+    "FAIL": 0,
+    "INCONCLUSIVE_EVALUATOR": 2
+  },
+  "ui": {
+    "status": "PASS",
+    "widths": [
+      1280,
+      768,
+      390,
+      320
+    ],
+    "priorSessionCleared": true
+  },
+  "builds": {
+    "production": "PASS",
+    "complement": "PASS",
+    "initialBundleKb": 781.85,
+    "warningBudgetKb": 750
+  },
+  "sourceSha256": {
+    "firestore.rules": "3353b61f91f6f9faf4433dfcbadac6ba413b658fe4ff56b765ab43b457f99cbf",
+    "functions/index.js": "ed3a95bc404667692f5f0d65477ed4d809329751fc0d97e7cb587ff2a9a13051",
+    "functions/security/policy.js": "0ccc269e1a9eabf352439def97ec1e991a58f120db216a61212b16c285bc3866",
+    "functions/security/service.js": "db81bad84caf0074fbca8c68e797ac448624da4d0651c7f435195ae37a6f441c",
+    "src/app/features/auth/pages/login-page/login-page.component.html": "030ec5b70570f3f5afa2f4efa1f6f7556ebf56e0f1887ad6136f637d1d1bb622",
+    "src/app/features/auth/pages/login-page/login-page.component.ts": "cdeef2abb51a9d796a0c9d5fee0b81df3f1373cb03321d7f391c45205364510c",
+    "src/app/features/users/components/security-console.component.css": "3e0981001ad1dd48c633ee3222b41207c3c8664b2bb7911fe44dcaadceea4e34",
+    "src/app/features/users/components/security-console.component.html": "69159cf32ff72deb6f74d16c11f34616f3f965458a7808076c0b68fe2ab30113",
+    "src/app/features/users/components/security-console.component.ts": "3e0b10b26d5ebaf6faa1b016c84203c36fab0d383b2c64b907962caea9e822a7",
+    "src/app/features/users/data/module-permission.service.ts": "07376bd4a07c9f29d2427da9cb7d304534607ccf5caf35795b2439a8ddd6b937",
+    "src/app/features/users/data/security.service.ts": "245443e1cf8ca5b9887db1bdc2358d61eed253b7829c998c9f162c83ad1773da",
+    "src/app/features/users/data/users.repository.ts": "1a3b499c7fab256c5b7896f439553cec002c1d2761ffa1459aa66e558c40c7f9",
+    "functions/security/user-deletion.js": "e8065187f603243e7435a5b804743ac5479e55bc71752cd87a9ea43804674ed0"
+  }
+}

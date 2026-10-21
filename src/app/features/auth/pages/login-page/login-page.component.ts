@@ -46,7 +46,7 @@ export class LoginPageComponent implements OnDestroy {
       return 'preparing';
     }
 
-    return appUser.status === 'Activo' ? 'loading' : 'pending';
+    return !appUser.deletedAt && appUser.status === 'Activo' ? 'loading' : 'pending';
   });
 
   readonly displayName = computed(() => {

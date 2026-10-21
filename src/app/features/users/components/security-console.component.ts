@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CycleScopePickerComponent } from './cycle-scope-picker.component';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AppUser, EffectiveLevel, ModuleAccess } from '../data/users.repository';
-import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, MigrationPreview, InheritancePreview } from '../data/security.service';
+import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, MigrationPreview, InheritancePreview, UserDeletionPreview, UserDeletionResult } from '../data/security.service';
 
 @Component({
   host: { '(window:focus)': 'refreshDirectory()' },
@@ -76,7 +76,7 @@ export class SecurityConsoleComponent {
   readonly directory = signal<SecurityDirectory | null>(null);
   readonly directoryState = signal<'loading' | 'ready' | 'error' | 'restricted'>('loading');
   private directoryActor: AppUser | null = null;
-  readonly profiles = computed(() => this.directoryActor === this.session.session()?.appUser ? this.directory()?.usuarios.filter(user => !user.identityAliasOf) ?? [] : []);
+  readonly profiles = computed(() => this.directoryActor === this.session.session()?.appUser ? this.directory()?.usuarios.filter(user => !user.identityAliasOf && !user.deletedAt) ?? [] : []);
   readonly activeProfiles = computed(() => this.profiles().filter(user => user.status === 'Activo'));
   readonly legacyProfiles = computed(() => this.profiles().filter(user => user.permissionSchemaVersion !== 2));
   readonly activeAssignments = computed(() => this.directory()?.asignaciones_roles.filter(item => item.status === 'ACTIVE') ?? []);
@@ -94,7 +94,7 @@ export class SecurityConsoleComponent {
   readonly capabilities = ['MANAGE_CUSTOM_ROLES', 'VALIDATE_TEACHERS', 'MANAGE_CYCLES', 'CONFIRM_MOODLE_UPDATE', 'MANAGE_MOODLE_TEMPLATES', 'RECOVER_DELETED_RECORDS', 'PURGE_CYCLE', 'OPERATE_EXCEPTIONAL_CHANGE', 'REQUEST_TEACHER_MOODLE_IDENTITY'];
   readonly capabilityLabels: Record<string, string> = { MANAGE_USERS:'Administrar perfiles institucionales', MANAGE_CUSTOM_ROLE_DEFINITIONS:'Administrar definiciones de roles', MANAGE_SYSTEM_DELEGATIONS:'Administrar delegaciones', RESOLVE_AUX_ROLE_REVIEWS:'Resolver revisiones de roles', CORRECT_TEACHER_MOODLE_IDENTITY:'Corregir identidad docente', MANAGE_CUSTOM_ROLES: 'Asignar roles preaprobados', VALIDATE_TEACHERS: 'Validar docentes', MANAGE_CYCLES: 'Administrar ciclos', CONFIRM_MOODLE_UPDATE: 'Confirmar actualización Moodle', MANAGE_MOODLE_TEMPLATES: 'Administrar plantillas Moodle', RECOVER_DELETED_RECORDS: 'Recuperar registros (flujo posterior)', PURGE_CYCLE: 'Depurar ciclos (flujo posterior)', OPERATE_EXCEPTIONAL_CHANGE: 'Corrección extraordinaria', REQUEST_TEACHER_MOODLE_IDENTITY: 'Solicitar corrección de identidad docente (flujo posterior)' };
   busy = false; error = ''; message = ''; reason = '';
-  mode: 'user' | 'role' | 'delegation' | 'operation' | 'preview' | 'person' | 'reviews' | 'regularize' | 'inherit' | null = null;
+  mode: 'user' | 'role' | 'delegation' | 'operation' | 'preview' | 'person' | 'reviews' | 'regularize' | 'inherit' | 'delete-user' | null = null;
   section: 'summary' | 'assignments' | 'delegations' | 'reviews' = 'summary';
   operation: { request: Record<string, unknown>; title: string; recipient: string; replace?: boolean } | null = null;
   readonly actionLabels: Record<string,string> = {assignRole:'Asignar rol',removeRole:'Retirar rol asignado',deleteRole:'Retirar definición',suspendDelegation:'Suspender delegación',revokeDelegation:'Revocar delegación',resolveReview:'Resolver revisión',approveMapping:'Registrar correspondencia',previewMigration:'Consultar vista previa',applyMigration:'Aplicar migración'};
@@ -202,6 +202,7 @@ export class SecurityConsoleComponent {
     this.editorDialog()?.nativeElement.close();
     this.selectedUserId = ''; this.selectedRoleId = ''; this.mappingRole = ''; this.preview = null;
     this.inheritancePreview = null; this.sourceId = ''; this.destinationId = ''; this.replaceAccess = false;
+    this.deletionPreview = null; this.deletionRequest = null; this.deletionTarget = null;
     this.mode = null; this.editIntent = 'profile'; this.roleDirectory = false; this.operation = null; this.confirmation = null; this.reason = ''; this.pendingRequest = null;
     queueMicrotask(() => {
       if (!this.mode && !this.roleDirectory) {
@@ -217,6 +218,7 @@ export class SecurityConsoleComponent {
     effect(() => {
       const user = this.session.session()?.appUser;
       this.sessionGeneration++;
+      this.pendingDeletions = null; this.deletionTrackingError = '';
       this.selectedUserId = ''; this.selectedRoleId = ''; this.reason = ''; this.error = ''; this.message = ''; this.busy = false;
       this.directory.set(null); this.directoryState.set('restricted'); this.section = 'summary'; this.preview = null; this.closeEditor();
       if (user?.status === 'Activo' && (user.baseRole === 'ADMIN_GENERAL' || user.capabilities?.includes('MANAGE_CUSTOM_ROLES'))) void this.reload();
@@ -369,6 +371,48 @@ export class SecurityConsoleComponent {
     return entries.length ? (compact ? entries.slice(0,3).map(([k])=>this.moduleLabels[k]).join(', ') + (entries.length>3 ? ' y '+(entries.length-3)+' más; ver ficha' : '') : entries.map(([k,v])=>this.moduleLabels[k]+' ('+this.levelLabel(v)+')').join(', ')) : 'Sin módulos vigentes';
   }
   openPerson(user: AppUser): void { this.rememberOpener(); this.closeEditor(); if (!this.canViewPerson(user)) { this.error='No se puede abrir la ficha: la identidad no está confirmada en el directorio autorizado vigente.'; return; } this.error=''; this.selectedUserId=user.id; this.mode='person'; this.showDialog(); }
+  deletionPreview: UserDeletionPreview | null = null;
+  deletionTarget: AppUser | null = null;
+  private deletionRequest: Record<string, unknown> | null = null;
+  get deletionSubmitted(): boolean { return this.deletionRequest !== null; }
+  pendingDeletions: UserDeletionResult[] | null = null;
+  deletionTrackingError = '';
+  canDeletePerson(user: AppUser): boolean { return this.general() && this.canViewPerson(user) && typeof user.name === 'string' && !!user.name.trim() && !user.deletedAt; }
+  async openDeletion(user: AppUser): Promise<void> {
+    if (!this.canDeletePerson(user) || this.busy) return;
+    this.rememberOpener(); this.closeEditor(); this.deletionTarget=user; this.mode='delete-user'; this.error=''; this.reason=''; this.showDialog();
+    const generation=this.sessionGeneration; this.busy=true;
+    try {
+      const response=await this.service.deletion({action:'prepare',targetId:user.id});
+      if(generation===this.sessionGeneration && this.mode==='delete-user') this.deletionPreview=response.preview??null;
+    } catch(e) { if(generation===this.sessionGeneration) this.error=this.errorText(e); }
+    finally { if(generation===this.sessionGeneration) this.busy=false; }
+  }
+  async confirmDeletion(): Promise<void> {
+    if(this.busy || !this.general() || !this.deletionPreview || this.reason.trim().length<4) return;
+    const generation=this.sessionGeneration; this.busy=true; this.error='';
+    this.deletionRequest??={action:'confirm',operationId:randomId(),token:this.deletionPreview.token,reason:this.reason.trim()};
+    try {
+      const response=await this.service.deletion(this.deletionRequest);
+      if(generation!==this.sessionGeneration) return;
+      this.closeEditor(); await this.reload();
+      if(generation===this.sessionGeneration) {this.message=response.result?.message??'Consulta el seguimiento de la baja.';await this.loadPendingDeletions();}
+    } catch(e) { if(generation===this.sessionGeneration) this.error=this.errorText(e); }
+    finally { if(generation===this.sessionGeneration) this.busy=false; }
+  }
+  async loadPendingDeletions(): Promise<void> {
+    if(!this.general()) return;
+    const generation=this.sessionGeneration;this.pendingDeletions=null;this.deletionTrackingError='';
+    try {const response=await this.service.deletion({action:'pending'});if(generation===this.sessionGeneration)this.pendingDeletions=response.pending??[];}
+    catch(e){if(generation===this.sessionGeneration)this.deletionTrackingError=this.errorText(e);}
+  }
+  async retryDeletion(job: UserDeletionResult): Promise<void> {
+    if(!this.general() || this.busy) return;
+    const generation=this.sessionGeneration;this.busy=true;this.deletionTrackingError='';
+    try {const response=await this.service.deletion({action:'retry',operationId:job.operationId});if(generation===this.sessionGeneration){this.message=response.result?.message??'Consulta el seguimiento de la baja.';await this.loadPendingDeletions();}}
+    catch(e){if(generation===this.sessionGeneration)this.deletionTrackingError=this.errorText(e);}
+    finally{if(generation===this.sessionGeneration)this.busy=false;}
+  }
   openReviews(): void { if (!this.general()) return; this.rememberOpener(); this.closeEditor(); this.mode='reviews'; this.showDialog(); }
   regularize(): void { if (!this.general()) return; this.mappingRole=''; this.reason=''; this.mode='regularize'; this.showDialog(); }
   sourceId = ''; destinationId = ''; replaceAccess = false;

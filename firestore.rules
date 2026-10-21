@@ -12,7 +12,7 @@ service cloud.firestore {
   function rawUser() {
     let u = signedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data : {};
     let legacy = u.get('legacyAuthorization', {});
-    return u.get('permissionSchemaVersion', 0) == 2 ? u :
+    return u.get('deletedAt', null) != null ? {} : u.get('permissionSchemaVersion', 0) == 2 ? u :
       (u.get('status', '') == 'Activo' && u.get('identityAliasOf', null) == null && legacy.get('mappingVersion', '') == 'E2-R01-v0.4-1' && legacy.get('profileRevision', -1) == u.get('revision', 0) && legacy.get('expiresAtMillis', 0) > request.time.toMillis() && legacyMapping(u, legacy) ? legacy : {});
   }
   function safeList(d, key) { return d.get(key, []) is list ? d.get(key, []) : []; }
@@ -54,10 +54,10 @@ service cloud.firestore {
   function inProgram(program) { return within('programs', program); }
   function inCycle(cycle) { return within('cycles', cycle); }
   function delegatedFields() { return general() || user().get('scope', {}).get('fields', []).hasAny(['*']) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(user().get('scope', {}).get('fields', []).concat(['updatedAt', 'updatedBy', 'updatedByName', 'updatedByRole'])); }
-  function protectedIdentity() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authUid', 'updatedAt']) && resource.data.get('authUid', null) == null && request.resource.data.get('authUid', '') == request.auth.uid && resource.data.get('email', '') == request.auth.token.email && request.auth.token.get('email_verified', false) == true; }
+  function protectedIdentity() { return resource == null ? false : resource.data.get('deletedAt', null) != null ? false : request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authUid', 'updatedAt']) && resource.data.get('authUid', null) == null && request.resource.data.get('authUid', '') == request.auth.uid && resource.data.get('email', '') == request.auth.token.email && request.auth.token.get('email_verified', false) == true; }
   function bootstrap(userId) {
     let d = request.resource.data;
-    return signedIn() && userId == request.auth.uid && d.authUid == request.auth.uid && d.email == request.auth.token.email
+    return !signedIn() ? false : exists(/databases/$(database)/documents/bloqueos_identidad/$(request.auth.uid)) ? false : exists(/databases/$(database)/documents/bajas_correo/$(request.auth.token.email.lower())) ? false : userId == request.auth.uid && d.authUid == request.auth.uid && d.email == request.auth.token.email
       && d.role == 'Pendiente de autorizacion' && d.status == 'Inactivo' && d.assignedPrograms == []
       && d.access.values().hasOnly([false])
       && d.keys().hasOnly(['authUid', 'name', 'email', 'role', 'status', 'assignedPrograms', 'access', 'createdAt', 'updatedAt']);
@@ -70,6 +70,12 @@ service cloud.firestore {
     allow update: if signedIn() && protectedIdentity();
     allow delete: if false;
   }
+  match /bajas_usuarios/{id} { allow read, write: if false; }
+  match /bajas_correo/{id} { allow read, write: if false; }
+  match /bloqueos_identidad/{id} { allow read, write: if false; }
+  match /operaciones_baja/{id} { allow read, write: if false; }
+  match /eventos_baja/{id} { allow read, write: if false; }
+  match /intentos_baja/{id} { allow read, write: if false; }
   match /roles_personalizados/{id} { allow read: if general(); allow write: if false; }
   match /delegaciones/{id} { allow read: if general() || (signedIn() && resource.data.get('userId', '') == request.auth.uid); allow write: if false; }
   match /asignaciones_roles/{id} { allow read: if general() || (active() && resource.data.userId == request.auth.uid); allow write: if false; }

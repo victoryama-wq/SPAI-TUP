@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-21T23:28:22.344Z",
+  "results": [
+    {
+      "name": "Token anterior: lectura Firestore denegada sin aceptar errores del evaluador",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "The validation function is expected to return \"true\". Received false\n\nCaught error:\n\nFirebaseError: [code=permission-denied]: \nevaluation error at L187:20 for 'get' @ L187, false for 'get' @ L286, false for 'get' @ L187, false for 'get' @ L286"
+    },
+    {
+      "name": "Reingreso simulado: bootstrap directo bloqueado",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "The validation function is expected to return \"true\". Received false\n\nCaught error:\n\nFirebaseError: [code=permission-denied]: 7 PERMISSION_DENIED: \nevaluation error at L71:22 for 'create' @ L71, false for 'create' @ L286, evaluation error at L72:22 for 'update' @ L72, false for 'update' @ L286, false for 'create' @ L71, false for 'create' @ L286"
+    },
+    {
+      "name": "Preparacion sin cambios y confirmacion real Auth/Firestore; referencias preservadas",
+      "status": "PASS"
+    },
+    {
+      "name": "Operadores sin autoridad, firma alterada, caducidad, version y revocacion",
+      "status": "PASS"
+    },
+    {
+      "name": "Doble clic concurrente: una baja, evento y auditoria",
+      "status": "PASS"
+    },
+    {
+      "name": "Fallo Authentication, bloqueo inmediato, reintento por otro administrador y respuesta perdida",
+      "status": "PASS"
+    },
+    {
+      "name": "Atomicidad: fallo de evento no deja baja, bloqueo ni auditoria parciales",
+      "status": "PASS"
+    },
+    {
+      "name": "Limite de 200: inicio rechazado sin cambios y reintento iniciado recuperable sobre el limite",
+      "status": "PASS"
+    },
+    {
+      "name": "Ultimo administrador protegido ante bajas concurrentes",
+      "status": "PASS"
+    }
+  ]
+}
