@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-10-21T23:06:53.600Z",
+  "cause": "Documento ficticio incompleto; initials(undefined) rompe el render de esa fila y la siguiente",
+  "storedFields": [
+    "email",
+    "authUid"
+  ],
+  "missingFields": [
+    "name",
+    "role/baseRole",
+    "status"
+  ],
+  "canonicalRecords": 19,
+  "followingRecordRendered": true,
+  "reload": true,
+  "slowLoad": true,
+  "loadFailure": true,
+  "sessionChangeWithLateResponse": true,
+  "emptyIdentityButtonDisabled": true,
+  "threeTargetsVerified": true,
+  "usersUnchanged": true,
+  "runtimeErrors": []
+}

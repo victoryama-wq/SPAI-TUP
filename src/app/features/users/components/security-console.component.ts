@@ -36,7 +36,24 @@ export class SecurityConsoleComponent {
     const active = sections.filter(section => section.getBoundingClientRect().top <= top).at(-1) ?? sections[0];
     if (active) this.activeEditorSection = active.id;
   }
-  initials(name: string): string { return name.trim().split(/\s+/).slice(0, 2).map(part => part[0] ?? '').join('').toUpperCase(); }
+  initials(name?: string): string { return (typeof name === 'string' ? name : '').trim().split(/\s+/).slice(0, 2).map(part => part[0] ?? '').join('').toUpperCase(); }
+  private hasText(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
+  missingProfileFields(user: AppUser): string[] {
+    return [!this.hasText(user.name) && 'nombre', !this.hasText(user.email) && 'correo',
+      !this.hasText(user.baseRole) && !this.hasText(user.role) && 'perfil',
+      !['Activo', 'Inactivo'].includes(user.status) && 'estado de la cuenta'].filter((value): value is string => !!value);
+  }
+  personLabel(user: AppUser): string { return this.hasText(user.name) ? user.name : 'Registro de usuario incompleto'; }
+  profileLabel(user: AppUser): string { return this.roleLabels[user.baseRole ?? ''] || (this.hasText(user.role) ? user.role : 'Perfil no informado'); }
+  canViewPerson(user?: AppUser): boolean {
+    const actor = this.session.session()?.appUser;
+    if (this.directoryState() !== 'ready' || actor?.status !== 'Activo'
+      || !(this.general() || actor.capabilities?.includes('MANAGE_CUSTOM_ROLES'))
+      || !user || !this.hasText(user.id) || !this.hasText(user.email) || !this.profiles().includes(user)) return false;
+    const email = user.email.trim().toLocaleLowerCase();
+    return this.profiles().filter(item => item.id === user.id).length === 1
+      && this.profiles().filter(item => typeof item.email === 'string' && item.email.trim().toLocaleLowerCase() === email).length === 1;
+  }
   inheritanceTarget(): AppUser | undefined { return this.profiles().find(user => user.id === this.destinationId); }
   scopeText(scope: AppUser['scope']): string {
     return [['Programas',scope?.programs],['Ciclos',scope?.cycles],['Docentes',scope?.teachers],['Campos',scope?.fields]].map(([label, values]) => `${label}: ${this.displayScope(values as string[] | undefined)}`).join(' · ');
@@ -58,7 +75,8 @@ export class SecurityConsoleComponent {
   private readonly session = inject(UserSessionService);
   readonly directory = signal<SecurityDirectory | null>(null);
   readonly directoryState = signal<'loading' | 'ready' | 'error' | 'restricted'>('loading');
-  readonly profiles = computed(() => this.directory()?.usuarios.filter(user => !user.identityAliasOf) ?? []);
+  private directoryActor: AppUser | null = null;
+  readonly profiles = computed(() => this.directoryActor === this.session.session()?.appUser ? this.directory()?.usuarios.filter(user => !user.identityAliasOf) ?? [] : []);
   readonly activeProfiles = computed(() => this.profiles().filter(user => user.status === 'Activo'));
   readonly legacyProfiles = computed(() => this.profiles().filter(user => user.permissionSchemaVersion !== 2));
   readonly activeAssignments = computed(() => this.directory()?.asignaciones_roles.filter(item => item.status === 'ACTIVE') ?? []);
@@ -102,7 +120,7 @@ export class SecurityConsoleComponent {
       && !this.isOwnIdentity(user) && !user.identityAliasOf && user.permissionSchemaVersion === 2
       && !!user.baseRole && !['ADMIN_GENERAL', 'ADMIN_OPERATIVO'].includes(user.baseRole);
   }
-  canEditPerson(user?: AppUser): boolean { return !!user && (this.general() || this.canAssignPerson(user)); }
+  canEditPerson(user?: AppUser): boolean { return !!user && this.canViewPerson(user) && !this.missingProfileFields(user).length && (this.general() || this.canAssignPerson(user)); }
   editorPerson(): AppUser | undefined { return this.profiles().find(user => user.id === this.targetId); }
   assignmentRoles(): SecurityRecord[] {
     // The directory is filtered by the server against the operator's live delegation.
@@ -134,6 +152,7 @@ export class SecurityConsoleComponent {
       || ['VIEW', 'EDIT'].includes(user.effectiveAccess?.permissions[module] ?? ''));
   }
   effectiveState(user: AppUser): string {
+    if (!['Activo', 'Inactivo'].includes(user.status)) return 'Estado de la cuenta no informado; no se presenta el acceso como habilitado.';
     if (user.status !== 'Activo') return 'Cuenta inactiva: la configuración conservada no habilita acceso.';
     if (!user.effectiveAccess) return 'Acceso efectivo no disponible; vuelve a consultar el directorio.';
     if (!user.effectiveAccess.active) return user.baseRole === 'ADMIN_OPERATIVO'
@@ -205,15 +224,19 @@ export class SecurityConsoleComponent {
   }
   refreshDirectory(): void { if (!this.mode && !this.roleDirectory && !this.busy && this.directoryState() !== 'loading' && this.directoryState() !== 'restricted') void this.reload(); }
   async reload(): Promise<void> {
+    if (this.mode === 'person') this.closeEditor();
+    const actor = this.session.session()?.appUser;
+    this.directoryActor = actor ?? null;
     this.directory.set(null); this.directoryState.set('loading'); this.error = '';
     const generation = this.sessionGeneration;
     const request = ++this.directoryRequest;
-    try { const data = await this.service.directory(); if (generation === this.sessionGeneration && request === this.directoryRequest) { this.directory.set(data); this.directoryState.set('ready'); } }
-    catch (e) { if (generation === this.sessionGeneration && request === this.directoryRequest) { this.directory.set(null); this.directoryState.set('error'); this.error = this.errorText(e); } }
+    try { const data = await this.service.directory(); if (generation === this.sessionGeneration && request === this.directoryRequest && actor === this.session.session()?.appUser) { this.directory.set(data); this.directoryState.set('ready'); } }
+    catch (e) { if (generation === this.sessionGeneration && request === this.directoryRequest && actor === this.session.session()?.appUser) { this.directory.set(null); this.directoryState.set('error'); this.error = this.errorText(e); } }
   }
-  userName(id?: string): string { const user = this.directory()?.usuarios.find(u => u.id === id); return user ? `${user.name} (${user.email})` : 'Perfil fuera de esta vista'; }
+  userName(id?: string): string { const user = this.directory()?.usuarios.find(u => u.id === id); return user ? `${this.personLabel(user)} (${user.email || 'Correo no informado'})` : 'Perfil fuera de esta vista'; }
   roleName(id?: string): string { return this.directory()?.roles_personalizados.find(r => r.id === id)?.name ?? 'Rol conservado en historial'; }
   open(mode: 'user' | 'role' | 'delegation', record?: AppUser | SecurityRecord): void {
+    if (mode === 'user' && record && !this.canEditPerson(record as AppUser)) return;
     if (!this.general() && (mode !== 'user' || !this.canAssignPerson(record as AppUser))) return;
     this.editIntent = this.general() ? 'profile' : 'assignment';
     this.selectedRoleId = ''; this.selectedUserId = mode === 'user' ? record?.id ?? '' : '';
@@ -329,12 +352,13 @@ export class SecurityConsoleComponent {
   }
   readonly coordinators = computed(() => this.profiles().filter(u => u.baseRole === 'COORDINACION_ACADEMICA'));
   readonly availableRoles = computed(() => this.directory()?.roles_personalizados.filter(r => r.status === 'ACTIVE') ?? []);
-  selectedPerson(): AppUser | undefined { return this.profiles().find(u => u.id === this.selectedUserId); }
+  selectedPerson(): AppUser | undefined { return this.profiles().find(u => u.id === this.selectedUserId && this.canViewPerson(u)); }
   personAssignments(): SecurityRecord[] { return this.directory()?.asignaciones_roles.filter(a => a.userId === this.selectedUserId) ?? []; }
   activePersonAssignments(): number { return this.personAssignments().filter(a => a.status === 'ACTIVE').length; }
   personDelegations(): SecurityRecord[] { return this.directory()?.delegaciones.filter(a => a.userId === this.selectedUserId) ?? []; }
   accessSummary(user: AppUser, compact = true): string {
     if (!user) return '';
+    if (!['Activo', 'Inactivo'].includes(user.status)) return 'Acceso sin confirmar: estado no informado';
     if (user.status !== 'Activo') return 'Cuenta inactiva';
     if (user.permissionSchemaVersion !== 2) return 'Requiere regularización';
     if (user.effectiveAccess && !user.effectiveAccess.active) return 'Sin autorización vigente';
@@ -344,7 +368,7 @@ export class SecurityConsoleComponent {
     const entries=Object.entries(permissions ?? {}).filter(([,v]) => v==='VIEW' || v==='EDIT');
     return entries.length ? (compact ? entries.slice(0,3).map(([k])=>this.moduleLabels[k]).join(', ') + (entries.length>3 ? ' y '+(entries.length-3)+' más; ver ficha' : '') : entries.map(([k,v])=>this.moduleLabels[k]+' ('+this.levelLabel(v)+')').join(', ')) : 'Sin módulos vigentes';
   }
-  openPerson(user: AppUser): void { this.rememberOpener(); this.closeEditor(); this.selectedUserId=user.id; this.mode='person'; this.showDialog(); }
+  openPerson(user: AppUser): void { this.rememberOpener(); this.closeEditor(); if (!this.canViewPerson(user)) { this.error='No se puede abrir la ficha: la identidad no está confirmada en el directorio autorizado vigente.'; return; } this.error=''; this.selectedUserId=user.id; this.mode='person'; this.showDialog(); }
   openReviews(): void { if (!this.general()) return; this.rememberOpener(); this.closeEditor(); this.mode='reviews'; this.showDialog(); }
   regularize(): void { if (!this.general()) return; this.mappingRole=''; this.reason=''; this.mode='regularize'; this.showDialog(); }
   sourceId = ''; destinationId = ''; replaceAccess = false;

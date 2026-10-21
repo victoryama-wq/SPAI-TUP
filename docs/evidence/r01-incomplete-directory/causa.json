@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-21",
+  "rows": 19,
+  "malformed": [
+    {
+      "id": "stage1-legacy",
+      "keys": [
+        "email",
+        "authUid",
+        "id",
+        "effectiveAccess"
+      ],
+      "email": "stage1-legacy@tecplayacar.edu.mx"
+    }
+  ],
+  "runtimeError": "TypeError: Cannot read properties of undefined (reading trim), SecurityConsoleComponent.initials",
+  "fixtureSource": "tools/stage1/rules.mjs:138",
+  "scope": "Solo emuladores sinteticos aislados"
+}
