@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {chromium,expect} from '@playwright/test';
-import {root,config,isolatedTest,verifyHub} from '../local/config.mjs';
+import {root,config,isolatedTest,verifyHub,complementTest} from '../local/config.mjs';
 assert.equal(isolatedTest,true);await verifyHub();
-const base='http://127.0.0.1:4202';
-const output=resolve(root,'docs/evidence/e2-r02/header-review');mkdirSync(output,{recursive:true});
+assert.equal(complementTest,true);
+const base='http://127.0.0.1:4204';
+const output=resolve(root,'docs/evidence/e2-r02/header-simplified');mkdirSync(output,{recursive:true});
 const readCycles=async()=>{const r=await fetch(`http://127.0.0.1:${config.firestore}/v1/projects/demo-spai-tup/databases/(default)/documents/ciclos`,{headers:{authorization:'Bearer owner'}});assert.equal(r.status,200);return await r.json();};
 const before=await readCycles();const browser=await chromium.launch({headless:true});const commands=[];const errors=[];
 try {
@@ -16,7 +17,7 @@ try {
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base);await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();await page.goto(base+'/ciclos');
  const card=page.getByRole('region',{name:'Operaciones del ciclo'});const close=card.getByRole('button',{name:'Cerrar captura',exact:true});const dialog=page.getByRole('dialog');
- await expect(close).toBeEnabled();await expect(card.getByRole('heading',{name:'Captura',exact:true})).toBeVisible();await expect(card).toContainText('La captura académica está habilitada para el ciclo activo.');await expect(card).not.toContainText('Las acciones se confirman');
+ await expect(close).toBeEnabled();await expect(card.getByRole('heading',{name:'Captura',exact:true})).toBeVisible();await expect(card).not.toContainText('La captura académica está habilitada para el ciclo activo.');await expect(card.locator('p')).toHaveCount(0);await expect(card).not.toContainText('Las acciones se confirman');
  for(const width of [1280,390,320]){
   await page.setViewportSize({width,height:900});await card.scrollIntoViewIfNeeded();await card.screenshot({path:resolve(output,`tarjeta-${width}.png`)});
   const bounds=await card.boundingBox();assert.ok(bounds.x>=0 && bounds.x+bounds.width<=width+1);

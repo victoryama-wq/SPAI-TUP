@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { config, root, sessionFile, localEnvironment, verifyHub, isolatedTest, cliConfigFile, loggingPort, websocketPort } from './config.mjs';
+import { config, root, sessionFile, localEnvironment, verifyHub, isolatedTest, cliConfigFile, loggingPort, websocketPort, testOffset } from './config.mjs';
 import { seed } from './seed.mjs';
 
 const testMode = process.argv.includes('--test');
@@ -16,8 +16,8 @@ if (isolatedTest) {
   const cli = JSON.parse(readFileSync(resolve(root, 'firebase.local.json'), 'utf8'));
   for (const key of ['auth','firestore','functions','storage','hub','ui']) cli.emulators[key].port = config[key];
   cli.emulators.logging.port = loggingPort; cli.emulators.firestore.websocketPort = websocketPort;
-  cli.emulators.eventarc = {host:config.host, port:19299};
-  cli.emulators.tasks = {host:config.host, port:19499};
+  cli.emulators.eventarc = {host:config.host, port:9299 + testOffset};
+  cli.emulators.tasks = {host:config.host, port:9499 + testOffset};
   mkdirSync(resolve(root, '.local'), {recursive:true}); writeFileSync(cliConfigFile, JSON.stringify(cli,null,2));
 }
 // Environment tests always use fixtures; never ingest the owner's local copy.

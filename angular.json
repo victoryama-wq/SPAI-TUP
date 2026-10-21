@@ -55,19 +55,32 @@
               "outputPath": "dist/spai-tup-local"
             },
             "lan": {
-              "index": { "input": "src/index.lan.html", "output": "index.html" },
+              "index": {
+                "input": "src/index.lan.html",
+                "output": "index.html"
+              },
               "outputPath": "dist/spai-tup-lan",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": false,
-              "fileReplacements": [{ "replace": "src/environments/environment.ts", "with": "src/environments/environment.lan.ts" }]
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.lan.ts"
+                }
+              ]
             },
             "isolated": {
               "index": "src/index.local.html",
               "outputPath": "dist/spai-tup-isolated",
               "optimization": false,
               "sourceMap": true,
-              "fileReplacements": [{ "replace": "src/environments/environment.ts", "with": "src/environments/environment.isolated.ts" }]
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.isolated.ts"
+                }
+              ]
             },
             "local": {
               "index": "src/index.local.html",
@@ -75,6 +88,18 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "complement": {
+              "index": "src/index.local.html",
+              "outputPath": "dist/spai-tup-complement",
+              "optimization": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.complement.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -82,7 +107,9 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "isolated": { "buildTarget": "spai-tup-angular:build:isolated" },
+            "isolated": {
+              "buildTarget": "spai-tup-angular:build:isolated"
+            },
             "production": {
               "buildTarget": "spai-tup-angular:build:production"
             },
@@ -91,6 +118,9 @@
             },
             "local": {
               "buildTarget": "spai-tup-angular:build:local"
+            },
+            "complement": {
+              "buildTarget": "spai-tup-angular:build:complement"
             }
           },
           "defaultConfiguration": "local"

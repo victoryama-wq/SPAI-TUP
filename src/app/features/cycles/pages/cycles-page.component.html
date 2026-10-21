@@ -39,9 +39,7 @@
 @if (activeCycle(); as cycle) {
   <section class="operative-control" aria-label="Operaciones del ciclo">
     <div><span class="operative-kicker">Ciclo operativo {{ cycle.code }}</span><h3>{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</h3>
-      @if (cycle.status === 'Captura') {
-        <p>La captura académica está habilitada para el ciclo activo.</p>
-      } @else if (cycle.specialsEnabled && cycle.status === 'Captura cerrada') {
+      @if (cycle.specialsEnabled && cycle.status === 'Captura cerrada') {
         <p>Especiales habilitado. La captura ordinaria continúa bloqueada.</p>
       }
     </div>

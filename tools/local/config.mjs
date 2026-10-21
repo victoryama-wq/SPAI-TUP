@@ -5,11 +5,14 @@ import { resolve, dirname, delimiter } from 'node:path';
 export const root = fileURLToPath(new URL('../../', import.meta.url));
 export const isolatedTest = process.env.SPAI_LOCAL_TEST_ISOLATED === 'true';
 if (isolatedTest && process.env.SPAI_LOCAL_SYNTHETIC !== 'true') throw new Error('El ensayo aislado requiere fixtures sintéticos.');
+export const complementTest = process.env.SPAI_LOCAL_TEST_SLOT === 'complement';
+if (complementTest && !isolatedTest) throw new Error('El complemento solo admite emuladores aislados sinteticos.');
+export const testOffset = isolatedTest ? (complementTest ? 20000 : 10000) : 0;
 export const config = JSON.parse(readFileSync(resolve(root, 'src/environments/local-emulators.json'), 'utf8'));
-if (isolatedTest) for (const key of ['auth','firestore','functions','storage','hub','ui','control']) config[key] += 10000;
+if (isolatedTest) for (const key of ['auth','firestore','functions','storage','hub','ui','control']) config[key] += testOffset;
 export const cliConfigFile = resolve(root, isolatedTest ? '.local-emulators.isolated.json' : 'firebase.local.json');
-export const loggingPort = isolatedTest ? 14500 : 4500;
-export const websocketPort = isolatedTest ? 19150 : 9150;
+export const loggingPort = 4500 + testOffset;
+export const websocketPort = 9150 + testOffset;
 export const accounts = JSON.parse(readFileSync(resolve(root, 'src/environments/local-accounts.json'), 'utf8'));
 export const password = 'Demo-only-2026!';
 export const sessionFile = resolve(root, isolatedTest ? '.local/session-isolated.json' : '.local/session.json');
@@ -20,7 +23,7 @@ export function assertLocalConfig(candidate = config) {
   }
   const expected = { auth: 9099, firestore: 8080, functions: 5001, storage: 9199, hub: 4400, ui: 4000, control: 4310 };
   for (const [key, port] of Object.entries(expected)) {
-    if (candidate[key] !== port + (isolatedTest ? 10000 : 0)) throw new Error(`Puerto local inesperado: ${key}.`);
+    if (candidate[key] !== port + testOffset) throw new Error(`Puerto local inesperado: ${key}.`);
   }
 }
 
