@@ -1,0 +1,148 @@
+{
+  "at": "2026-10-22T00:54:51.996Z",
+  "status": "PASS",
+  "base": "http://127.0.0.1:4204",
+  "results": [
+    {
+      "width": 1280,
+      "geometry": [
+        {
+          "label": "Ver acceso",
+          "width": 44,
+          "height": 44,
+          "y": 575.96875,
+          "x": 1027.734375
+        },
+        {
+          "label": "Editar",
+          "width": 44,
+          "height": 44,
+          "y": 575.96875,
+          "x": 1079.734375
+        },
+        {
+          "label": "Eliminar usuario",
+          "width": 44,
+          "height": 44,
+          "y": 575.96875,
+          "x": 1131.734375
+        }
+      ],
+      "dismissal": "understood",
+      "keyboardTooltip": true,
+      "noticeOnceAfterRefresh": true,
+      "confirmationFromRow": true,
+      "noOverflow": true
+    },
+    {
+      "width": 768,
+      "geometry": [
+        {
+          "label": "Ver acceso",
+          "width": 44,
+          "height": 44,
+          "y": 584.234375,
+          "x": 520.390625
+        },
+        {
+          "label": "Editar",
+          "width": 44,
+          "height": 44,
+          "y": 584.234375,
+          "x": 572.390625
+        },
+        {
+          "label": "Eliminar usuario",
+          "width": 44,
+          "height": 44,
+          "y": 584.234375,
+          "x": 624.390625
+        }
+      ],
+      "dismissal": "close",
+      "keyboardTooltip": true,
+      "noticeOnceAfterRefresh": true,
+      "confirmationFromRow": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "geometry": [
+        {
+          "label": "Ver acceso",
+          "width": 44,
+          "height": 44,
+          "y": 615.015625,
+          "x": 152.390625
+        },
+        {
+          "label": "Editar",
+          "width": 44,
+          "height": 44,
+          "y": 615.015625,
+          "x": 204.390625
+        },
+        {
+          "label": "Eliminar usuario",
+          "width": 44,
+          "height": 44,
+          "y": 615.015625,
+          "x": 256.390625
+        }
+      ],
+      "dismissal": "escape",
+      "keyboardTooltip": true,
+      "noticeOnceAfterRefresh": true,
+      "confirmationFromRow": true,
+      "noOverflow": true
+    },
+    {
+      "width": 320,
+      "geometry": [
+        {
+          "label": "Ver acceso",
+          "width": 44,
+          "height": 44,
+          "y": 632.875,
+          "x": 86.390625
+        },
+        {
+          "label": "Editar",
+          "width": 44,
+          "height": 44,
+          "y": 632.875,
+          "x": 138.390625
+        },
+        {
+          "label": "Eliminar usuario",
+          "width": 44,
+          "height": 44,
+          "y": 632.875,
+          "x": 190.390625
+        }
+      ],
+      "dismissal": "understood",
+      "keyboardTooltip": true,
+      "noticeOnceAfterRefresh": true,
+      "confirmationFromRow": true,
+      "noOverflow": true
+    }
+  ],
+  "realCycle": {
+    "code": "27-1",
+    "captureDate": "2026-11-30"
+  },
+  "cyclesAndUsersUnchanged": true,
+  "confirmationFromNotice": true,
+  "realStaleVersionRejection": 409,
+  "commands": [
+    {
+      "action": "closeCapture",
+      "operationId": "40b6c94b-30be-4f9c-967c-3718d283e644",
+      "cycleId": "demo-27-1",
+      "expectedRevision": 1
+    }
+  ],
+  "errors": [],
+  "physicalSecondComputer": false
+}

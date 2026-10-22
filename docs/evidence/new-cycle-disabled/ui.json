@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-22T00:54:26.521Z",
+  "status": "PASS",
+  "widths": [
+    1280,
+    768,
+    390,
+    320
+  ],
+  "cases": [
+    {
+      "state": "Preparacion",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    },
+    {
+      "state": "Captura",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    },
+    {
+      "state": "Captura cerrada",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    },
+    {
+      "state": "Cerrado",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    },
+    {
+      "state": "multiple",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    },
+    {
+      "state": "error",
+      "status": "PASS",
+      "kind": "presentation in memory, no writes"
+    }
+  ],
+  "disabledAfterDismiss": true,
+  "noEnableDuringRealRefresh": true,
+  "keyboardAndHoverHelp": true,
+  "creationRequests": 0
+}

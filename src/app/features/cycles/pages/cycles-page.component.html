@@ -8,12 +8,15 @@
       <p>Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.</p>
     </div>
 
-    <button class="primary-action" type="button" [disabled]="!canManage() || !!activeCycle() || isSaving" (click)="openForm()">
+    <div class="new-cycle-control" [attr.tabindex]="!canCreateCycle() || isSaving ? 0 : null" [attr.role]="!canCreateCycle() || isSaving ? 'group' : null" [attr.aria-label]="!canCreateCycle() || isSaving ? 'Nuevo ciclo no disponible' : null" [attr.aria-describedby]="!canCreateCycle() || isSaving ? 'new-cycle-help' : null">
+    <button class="primary-action" type="button" [disabled]="!canCreateCycle() || isSaving" [attr.aria-describedby]="!canCreateCycle() || isSaving ? 'new-cycle-help' : null" (click)="openForm()">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 5v14M5 12h14"></path>
       </svg>
       <span>Nuevo ciclo</span>
     </button>
+    @if (!canCreateCycle() || isSaving) { <span class="new-cycle-help" id="new-cycle-help" role="tooltip">{{ createBlockedReason() || 'Espera a que termine la operación actual.' }}</span> }
+    </div>
   </section>
 
   <div class="cycle-summary">

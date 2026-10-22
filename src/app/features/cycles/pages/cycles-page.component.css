@@ -157,6 +157,15 @@ th {
 .cycles-overview .cycles-header p { color: #d5e8ff; font-size: 13px; line-height: 1.4; }
 .cycles-overview .cycles-header .primary-action { background: #ffffff; color: #0b3f8d; min-height: 40px; padding: 0 15px; }
 .cycles-overview .cycles-header .primary-action span { color: #0b3f8d; }
+.cycles-overview .cycles-header { overflow:visible; }
+.cycles-overview:has(.new-cycle-control) { overflow:visible; }
+.cycles-overview .cycles-header .primary-action:disabled { background:#f8fafc; border:1px solid #e2e8f0; color:#94a3b8; cursor:not-allowed; pointer-events:none; }
+.cycles-overview .cycles-header .primary-action:disabled span { color:inherit; }
+.new-cycle-control { position:relative; max-width:100%; border-radius:8px; }
+.new-cycle-control[tabindex] { cursor:not-allowed; }
+.new-cycle-control:focus-visible { outline:3px solid #6fe4ff; outline-offset:4px; }
+.cycles-overview .cycles-header .new-cycle-help { position:absolute; z-index:5; left:0; top:calc(100% + 8px); box-sizing:border-box; width:300px; max-width:calc(100vw - 96px); padding:12px; border:1px solid #bfd4ee; border-radius:8px; background:#fff; color:#17365b; font-size:13px; font-weight:600; line-height:1.5; letter-spacing:normal; text-transform:none; visibility:hidden; box-shadow:0 8px 24px #07163c30; }
+.cycles-overview .cycles-header .new-cycle-control:hover .new-cycle-help,.cycles-overview .cycles-header .new-cycle-control:focus-within .new-cycle-help { visibility:visible; }
 
 .cycles-overview .cycle-summary {
   align-content: stretch;

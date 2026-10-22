@@ -37,6 +37,17 @@ export class CyclesPageComponent {
   readonly cycleMessage = this.cyclesRepository.captureMessage;
   readonly contextReady = this.cyclesRepository.contextReady;
   readonly inconsistent = this.cyclesRepository.inconsistent;
+  readonly canCreateCycle = computed(() => this.cyclesRepository.ready()
+    && this.canManage() && this.cyclesRepository.operativeCycles().length === 0);
+  readonly createBlockedReason = computed(() => {
+    if (!this.cyclesRepository.ready()) return this.cyclesRepository.readMessage();
+    if (this.inconsistent()) return 'Hay varios ciclos operativos. Solicita revisión a Sistemas.';
+    if (this.cyclesRepository.contextError()) return this.cyclesRepository.contextError();
+    if (!this.contextReady()) return 'Verificando el estado de los ciclos…';
+    if (this.cyclesRepository.operativeCycles().length) return 'Ya existe un ciclo operativo. Debes cerrarlo definitivamente para crear otro.';
+    if (!this.canManage()) return 'No tienes autorización vigente para crear ciclos.';
+    return '';
+  });
   reopenReason: Record<string, string> = {};
   canOperate(cycle: AcademicCycle): boolean { const user=this.userSessionService.session()?.appUser; return this.canManage() && !this.isSaving && (user?.baseRole==='ADMIN_GENERAL' || Boolean(user?.scope?.cycles?.some(c=>c==='*'||c===cycle.code))); }
   setReason(id: string, event: Event): void { this.reopenReason[id]=(event.target as HTMLInputElement).value; }
@@ -142,7 +153,7 @@ export class CyclesPageComponent {
   }
 
   openForm(): void {
-    if (!this.canManage() || this.activeCycle()) { this.formError = 'Ya existe un ciclo operativo o no tienes autorización.'; return; }
+    if (!this.canCreateCycle() || this.isSaving) return;
     this.duplicateCode = false;
     this.formError = '';
     this.form.reset({
@@ -168,7 +179,7 @@ export class CyclesPageComponent {
   }
 
   async saveCycle(): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
+    if (!this.canCreateCycle() || this.isSaving) { this.formError = this.createBlockedReason() || 'Espera a que termine la operación actual.'; return; }
     this.formError = '';
 
     if (this.form.invalid) {

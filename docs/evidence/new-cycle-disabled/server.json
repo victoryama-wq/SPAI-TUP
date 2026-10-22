@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-22T00:54:28.575Z",
+  "status": "PASS",
+  "project": "demo-spai-tup",
+  "host": "127.0.0.1:28080",
+  "databaseId": "cycle-button-64e04334",
+  "realServerService": true,
+  "transport": "Admin SDK emulator transaction; not HTTP callable",
+  "otherActorCreatedBeforeConfirmation": true,
+  "rejection": "failed-precondition: Ya existe un ciclo operativo.",
+  "noPartialWrites": true,
+  "sharedDefaultDatabaseWritten": false
+}
