@@ -3,10 +3,10 @@ import { networkInterfaces } from 'node:os';
 import { BlockList } from 'node:net';
 import { readFileSync, statSync, createReadStream, writeFileSync } from 'node:fs';
 import { resolve, extname, sep } from 'node:path';
-import { config, root, sessionFile, verifyHub, isolatedTest } from './config.mjs';
+import { config, root, sessionFile, verifyHub, isolatedTest, complementTest } from './config.mjs';
 
 const host = process.argv[2];
-const lanPort = isolatedTest ? 4203 : 4201;
+const lanPort = complementTest ? 4205 : isolatedTest ? 4203 : 4201;
 const iface = Object.values(networkInterfaces()).flat().find((item) => item?.family === 'IPv4' && !item.internal && item.address === host);
 if (!iface || !/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host)) throw new Error('Indica una IPv4 privada de este equipo.');
 const clients = new BlockList();
