@@ -747,17 +747,38 @@ th {
 }
 
 /* R02: current-cycle controls remain visible without scrolling the history table. */
-.operative-control { margin:20px 0; padding:24px; border:1px solid #cfe0f6; border-left:4px solid #2ec4db; border-radius:8px; background:linear-gradient(135deg, #0b1f4b, #103b7c); color:#fff; display:grid; gap:18px; }
-.operative-kicker { font-size:.75rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:#a6edff; }
-.operative-control h3 { margin:6px 0; color:#fff; font-size:clamp(1.65rem, 3vw, 2rem); }
-.operative-control p { margin:0; line-height:1.5; }
-.operative-actions { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
-.operative-actions label { display:grid; gap:6px; font-weight:700; max-width:100%; }
-.operative-actions input { box-sizing:border-box; min-height:42px; padding:10px; border:1px solid #b7d2f7; border-radius:7px; width:100%; }
-.operative-actions button { white-space:normal; text-transform:uppercase; letter-spacing:.06em; }
-.operative-actions .primary-action { border:1px solid #8cbce8; }
-.operative-actions input { color:#17365b; background:#fff; }
-.operative-actions button:focus-visible { outline:3px solid #6fe4ff; outline-offset:3px; }
-@media(max-width:600px) { .operative-control {padding:16px;} .operative-actions {display:grid;grid-template-columns:minmax(0,1fr);} .operative-actions button {justify-content:center; width:100%;} }
-
-.cycles-header .primary-action:disabled {opacity:.55;cursor:not-allowed;}
+/* Dismissible cycle notice; native dialog supplies modal focus containment. */
+.cycle-notice { box-sizing:border-box; width:min(580px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:0; overflow:auto; border:1px solid #bfd4ee; border-radius:12px; background:#fff; color:#17365b; box-shadow:0 24px 70px #07163c45; }
+.cycle-notice::backdrop { background:rgb(7 22 60 / .48); }
+.notice-heading { padding:26px 66px 22px 26px; border-left:4px solid #2ec4db; background:linear-gradient(135deg,#0b1f4b,#103b7c); color:white; }
+.notice-heading > span { color:#a6edff; text-transform:uppercase; font-size:12px; font-weight:900; letter-spacing:.08em; }
+.notice-heading h3 { color:#fff; margin:8px 0 0; font-size:clamp(24px,4vw,30px); line-height:1.2; }
+.notice-close { position:absolute; top:16px; right:16px; width:44px; height:44px; display:grid; place-items:center; border:1px solid #90afd5; border-radius:8px; background:#244a78; color:white; cursor:pointer; }
+.notice-close svg,.cycle-close-action svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.notice-body { padding:24px 26px; }
+.notice-body p { margin:0; font-size:16px; line-height:1.6; }
+.cycle-facts { margin:0; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.cycle-facts div { padding:16px; border:1px solid #d7e4f8; border-radius:8px; background:#f8fbff; }
+.cycle-facts dt { color:#40577a; font-size:12px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; line-height:1.5; }
+.cycle-facts dd { margin:12px 0 0; font-size:18px; font-weight:800; }
+.notice-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:12px; padding:18px 26px; border-top:1px solid #d7e4f8; background:#f8fbff; }
+.notice-actions button { min-height:44px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.notice-actions .primary-action { background:#1e3a8a; color:#fff; }
+.notice-actions .secondary-action { background:#fff; color:#1d4ed8; }
+.cycle-row-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.cycle-row-actions label { display:grid; gap:6px; }
+.cycle-row-actions input { max-width:100%; box-sizing:border-box; min-height:42px; border:1px solid #b7d2f7; border-radius:6px; }
+.cycle-row-actions button { white-space:normal; }
+.cycle-close-action { position:relative; display:grid; place-items:center; width:44px; height:44px; padding:0; background:#eef6ff; color:#1457d6; border:1px solid #b7d2f7; border-radius:8px; cursor:pointer; }
+.cycle-close-action:hover { background:#dbeafe; }
+.cycle-close-action .action-tooltip { visibility:hidden; position:absolute; z-index:2; bottom:calc(100% + 5px); right:0; padding:6px 8px; border-radius:5px; background:#0b1f4b; color:white; font-size:12px; white-space:nowrap; pointer-events:none; }
+.cycle-close-action:hover .action-tooltip,.cycle-close-action:focus-visible .action-tooltip { visibility:visible; }
+.cycle-notice :focus-visible,.cycle-row-actions :focus-visible,#cycles-directory-title:focus-visible { outline:3px solid #088eb8; outline-offset:3px; }
+.notice-heading h3:focus-visible { outline-color:#6fe4ff; }
+@media(max-width:560px) {
+ .notice-heading { padding:22px 66px 20px 18px; }
+ .notice-body { padding:20px 18px; }
+ .cycle-facts { grid-template-columns:1fr; gap:12px; }
+ .notice-actions { padding:16px 18px; }
+ .notice-actions button { flex:1 1 180px; justify-content:center; }
+}

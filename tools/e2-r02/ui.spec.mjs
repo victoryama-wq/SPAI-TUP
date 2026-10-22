@@ -18,13 +18,14 @@ async function capture(page,name){await page.locator('main').evaluate(el=>el.scr
 async function noOverflow(page){expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
 test('Ciclo operativo: transiciones, motivo, Especiales y tamaños de revisión',async({page})=>{
   await login(page);await page.goto('/ciclos');
-  const row=page.getByRole('region',{name:'Operaciones del ciclo'});
+  await page.getByRole('dialog').getByRole('button',{name:'Entendido'}).click();
+  const row=page.locator('tbody tr').filter({has:page.locator('.cycle-code',{hasText:'27-1'})});
   await expect(row.getByRole('button',{name:'Cerrar captura',exact:true})).toBeEnabled();
   await page.setViewportSize({width:1280,height:960});await capture(page,'01-ciclo-captura-1280');
   await row.getByRole('button',{name:'Cerrar captura',exact:true}).click();
   await expect(page.getByRole('dialog')).toBeVisible();await capture(page,'02-confirmar-cierre-1280');
   await page.getByRole('dialog').getByRole('button',{name:'Cerrar captura',exact:true}).click();
-  await expect(row.locator('h3')).toHaveText('Captura cerrada');
+  await expect(row.locator('.status-badge')).toHaveText('Captura cerrada');
   await row.getByRole('button',{name:'Reabrir captura',exact:true}).click();await expect(page.getByRole('alert')).toContainText('motivo');
   await row.getByRole('button',{name:'Habilitar Especiales',exact:true}).click();
   await page.getByRole('dialog').getByRole('button',{name:'Habilitar Especiales',exact:true}).click();

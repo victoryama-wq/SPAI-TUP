@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-22T00:40:05.858Z",
+  "status": "PASS",
+  "presentation": [
+    {
+      "scenario": "Preparacion",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "Captura",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "Captura cerrada",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "Cerrado",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "none",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "multiple",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "no-date",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "read-only",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "no-permission",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    },
+    {
+      "scenario": "revoked",
+      "status": "PASS",
+      "kind": "in-memory presentation only"
+    }
+  ],
+  "realRestrictedRoute": true,
+  "realServerPermissionDenial": 403,
+  "remoteValidation": false
+}

@@ -36,27 +36,18 @@
   </div>
 </section>
 
-@if (activeCycle(); as cycle) {
-  <section class="operative-control" aria-label="Operaciones del ciclo">
-    <div><span class="operative-kicker">Ciclo operativo {{ cycle.code }}</span><h3>{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</h3>
-      @if (cycle.specialsEnabled && cycle.status === 'Captura cerrada') {
-        <p>Especiales habilitado. La captura ordinaria continúa bloqueada.</p>
-      }
-    </div>
-    @if (canOperate(cycle)) {
-      <div class="operative-actions">
-        @if (cycle.status === 'Preparacion') { <button class="primary-action" type="button" (click)="startCapture(cycle)">Iniciar captura</button> }
-        @if (cycle.status === 'Captura') { <button class="primary-action" type="button" (click)="closeCapture(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path></svg><span>Cerrar captura</span></button> }
-        @if (cycle.status === 'Captura cerrada') {
-          <label>Motivo para reabrir<input type="text" maxlength="1000" [value]="reopenReason[cycle.id] || ''" (input)="setReason(cycle.id, $event)" /></label>
-          <button type="button" class="primary-action" (click)="reopenCapture(cycle)">Reabrir captura</button>
-          <button type="button" class="secondary-action" (click)="toggleSpecials(cycle)">{{ cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales' }}</button>
-          <button type="button" class="secondary-action" (click)="closeCycle(cycle)">Cerrar ciclo</button>
-        }
-      </div>
-    }
-  </section>
-}
+<dialog #cycleDialog class="cycle-notice" aria-labelledby="cycle-dialog-title" (cancel)="cancelCycleDialog($event)" (keydown)="onDialogKeydown($event)">
+  <button class="notice-close" type="button" aria-label="Cerrar" (click)="cancelCycleDialog()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+  @if (confirmation(); as item) {
+    <header class="notice-heading"><span>Confirmación del ciclo</span><h3 id="cycle-dialog-title" tabindex="-1" data-initial-focus>{{ item.title }}</h3></header>
+    <div class="notice-body"><p>{{ item.message }}</p></div>
+    <footer class="notice-actions">@if (item.showCancel) { <button type="button" class="secondary-action" (click)="cancelCycleDialog()">{{ item.cancelLabel }}</button> }<button type="button" class="primary-action" (click)="acceptConfirmation()">{{ item.confirmLabel }}</button></footer>
+  } @else if (informationCycle(); as cycle) {
+    <header class="notice-heading"><span>Ciclo operativo</span><h3 id="cycle-dialog-title" tabindex="-1" data-initial-focus>Ciclo {{ cycle.code }}</h3></header>
+    <div class="notice-body"><dl class="cycle-facts"><div><dt>Estado actual</dt><dd><span class="status-badge" [class.capture]="cycle.status === 'Captura'">{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</span></dd></div><div><dt>Cierre de captura registrado</dt><dd>{{ cycle.tentativeCaptureCloseAt ? formatDate(cycle.tentativeCaptureCloseAt) : 'Sin fecha definida' }}</dd></div></dl></div>
+    <footer class="notice-actions"><button class="secondary-action" type="button" (click)="dismissInformation()">Entendido</button>@if (cycle.status === 'Captura' && canOperate(cycle)) { <button class="primary-action" type="button" (click)="closeCapture(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></svg>Cerrar captura</button> }</footer>
+  }
+</dialog>
 
 @if (isFormOpen) {
   <div class="modal-backdrop" role="presentation" (click)="closeForm()">
@@ -143,7 +134,7 @@
   <div class="panel-title">
     <div>
       <span>Control operativo</span>
-      <h3>Ciclos académicos</h3>
+      <h3 id="cycles-directory-title" tabindex="-1">Ciclos académicos</h3>
     </div>
     @if (activeCycle(); as cycle) {
       <aside class="directory-cycle-status" aria-label="Estado del ciclo activo">
@@ -210,7 +201,18 @@
               <span class="notes">{{ cycle.notes || 'Sin observaciones' }}</span>
             </td>
             <td>
-              <span>{{ cycle.id === activeCycle()?.id ? 'Controles del ciclo arriba' : 'Solo consulta' }}</span>
+              @if (cycle.id === activeCycle()?.id && canOperate(cycle)) {
+                <div class="cycle-row-actions">
+                  @if (cycle.status === 'Captura') { <button class="cycle-close-action" type="button" aria-label="Cerrar captura" (click)="closeCapture(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></svg><span class="action-tooltip" aria-hidden="true">Cerrar captura</span></button> }
+                  @if (cycle.status === 'Preparacion') { <button class="secondary-action" type="button" (click)="startCapture(cycle)">Iniciar captura</button> }
+                  @if (cycle.status === 'Captura cerrada') {
+                    <label>Motivo para reabrir<input type="text" maxlength="1000" [value]="reopenReason[cycle.id] || ''" (input)="setReason(cycle.id, $event)" /></label>
+                    <button class="secondary-action" type="button" (click)="reopenCapture(cycle)">Reabrir captura</button>
+                    <button class="secondary-action" type="button" (click)="toggleSpecials(cycle)">{{ cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales' }}</button>
+                    <button class="secondary-action" type="button" (click)="closeCycle(cycle)">Cerrar ciclo</button>
+                  }
+                </div>
+              } @else { <span>Solo consulta</span> }
             </td>
           </tr>
         }

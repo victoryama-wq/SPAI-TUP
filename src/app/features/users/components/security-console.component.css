@@ -384,8 +384,9 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 .directory-table .role-badge { background:#edf4ff; color:#1d4ed8; }
 .directory-table .state-badge { background:#f1f5f9; color:#40577a; }
 .directory-table .active-badge { background:#e8f7ef; color:#137545; }
-.directory-table .row-actions { min-width:0; align-items:center; gap:6px; }
-.directory-table .row-actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:38px; padding:0 12px; border:1px solid #b7d2f7; border-radius:8px; background:#eef6ff; color:#1457d6; font-size:12px; font-weight:900; white-space:nowrap; }
+.directory-table th:last-child,.directory-table td:last-child { text-align:center; }
+.directory-table .row-actions { min-width:148px; align-items:center; justify-content:center; flex-wrap:nowrap; gap:8px; }
+.directory-table .row-actions button { position:relative; display:inline-flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; min-height:44px; padding:0; border:1px solid #b7d2f7; border-radius:8px; background:#eef6ff; color:#1457d6; font-size:12px; font-weight:900; white-space:nowrap; }
 .directory-table .row-actions button .ui-icon { width:18px; height:18px; margin:0; stroke-width:2.2; }
 .directory-table .row-actions button:hover:not(:disabled) { background:#edf4ff; border-color:#9fc2f8; }
 .directory-table .row-actions button:disabled { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; cursor:not-allowed; }
@@ -393,4 +394,6 @@ tbody tr:nth-child(even) { background:#f8fbff; }
 
 .directory-table .row-actions .delete-user-action:not(:disabled) { color:#a61635; border-color:#efbbc5; background:#fff3f5; }
 .directory-table .row-actions .delete-user-action:hover:not(:disabled) { background:#ffe4e9; border-color:#dc8c9e; }
+.directory-table .action-tooltip { visibility:hidden; opacity:0; position:absolute; z-index:2; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); padding:6px 8px; border-radius:5px; background:#0b1f4b; color:#fff; font-size:12px; font-weight:700; line-height:1.3; white-space:nowrap; pointer-events:none; }
+.directory-table button:hover .action-tooltip,.directory-table button:focus-visible .action-tooltip { visibility:visible; opacity:1; }
 .deletion-tracking { margin-top:16px; }

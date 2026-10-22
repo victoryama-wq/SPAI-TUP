@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-22T00:40:41.610Z",
+  "status": "PASS",
+  "origin": "http://192.168.42.1:4205",
+  "login": "Sistemas DEMO",
+  "deletionPreviewAndCancel": true,
+  "cycleModalAndCancel": true,
+  "usersDelegationsCyclesUnchanged": true,
+  "adminRoutesBlocked": true,
+  "commands": [
+    "prepare"
+  ],
+  "errors": [],
+  "physicalSecondComputer": false
+}
