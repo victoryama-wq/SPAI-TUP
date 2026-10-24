@@ -49,7 +49,10 @@ try {
     const before=await db.collection('ciclos').get(); assert.equal((await inspect()).data.state,'INCONSISTENT');
     await denied(create(),'failed-precondition'); assert.deepEqual((await db.collection('ciclos').get()).docs.map(d=>d.data()),before.docs.map(d=>d.data()));
   });
-  for(const [id] of cyclesBackup) await db.doc(`ciclos/${id}`).update({status:'Cerrado'});
+  // The approved two-cycle limit replaces the former multi-history setup.
+  // Clear only academic fixtures in this guarded isolated suite, then retain one empty history.
+  for(const col of ['ciclos','grupos','asignaciones','solicitudes_compartidas','solicitudes_sistemas','ligas_meet','notificaciones','agenda_operativa_equipo'])for(const d of (await db.collection(col).get()).docs)await d.ref.delete();
+  await db.doc('ciclos/r02-history').set({id:'r02-history',code:'27-1',label:'Histórico ficticio',status:'Cerrado',revision:1,specialsEnabled:false});
   await check('No operative cycle / concurrent creation / unique code',async()=>{
     assert.equal((await inspect()).data.state,'NONE');
     const results=await Promise.allSettled([create(),create()]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
@@ -188,7 +191,9 @@ try {
     await command('close',cycle);cycle=await get(cycle.id);await db.doc(`ciclos/${cycle.id}`).update({specialsEnabled:true});
     await denied(updateDoc(doc(ca.db,'asignaciones/r02-special'),{studentEnrollments:'CERRADO'}));
     for(const action of ['start','closeCapture','reopen','close','specials']) await denied(command(action,cycle,{enabled:true,reason:'Ensayo'}),'failed-precondition');
-    await denied(create(),'already-exists');
+    await denied(create(),'failed-precondition'); // Two histories: capacity checked before code uniqueness.
+    const history=await get('r02-history');await command('purge',history,{reason:'Histórico ficticio vacío, renovación aislada'});
+    await denied(create(),'already-exists'); // Once capacity exists, duplicate code remains forbidden.
     const next=await command('create',null,{payload:{code:'28-2',label:'Siguiente ficticio'}});assert.equal(next.status,'Preparacion');
     await denied(setDoc(doc(ca.db,'asignaciones/r02-preparation'),{...assignment,cycle:'28-2'}));
   });

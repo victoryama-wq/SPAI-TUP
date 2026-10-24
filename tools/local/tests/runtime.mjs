@@ -7,7 +7,9 @@ import { config, root } from '../config.mjs';
 const source = readFileSync(resolve(root, 'src/app/core/firebase/firebase.runtime.ts'), 'utf8');
 const output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText;
 mkdirSync(resolve(root, '.local'), { recursive: true });
-const path = resolve(root, '.local/firebase-runtime.mjs');
+// Node's test runner loads suites in parallel; never import another process's
+// partially written module.
+const path = resolve(root, `.local/firebase-runtime-${process.pid}.mjs`);
 writeFileSync(path, output);
 export const runtime = await import(pathToFileURL(path).href);
 export const localConfig = {

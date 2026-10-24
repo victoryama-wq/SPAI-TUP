@@ -18,12 +18,14 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   private readonly functions = inject(FIREBASE_FUNCTIONS);
   readonly cycles = this.items;
   readonly operativeCycles = computed(() => this.cycles().filter(c => ['Preparacion','Captura','Captura cerrada'].includes(c.status)));
-  readonly inconsistent = computed(() => this.operativeCycles().length > 1);
+  readonly multipleOperative = computed(() => this.operativeCycles().length > 1);
+  readonly overLimit = computed(() => this.cycles().length > 2);
+  readonly inconsistent = computed(() => this.multipleOperative() || this.overLimit());
   readonly activeCycle = computed(() => this.operativeCycles().length === 1 ? this.operativeCycles()[0] : null);
   readonly contextError = signal('');
   readonly contextReady = signal(false);
   readonly captureMessage = computed(() => !this.ready() ? this.readMessage() : this.contextError() || (this.inconsistent()
-    ? 'Inconsistencia: hay varios ciclos operativos. No se seleccionó ninguno; solicita revisión a Sistemas.'
+    ? (this.overLimit() ? 'Inconsistencia: hay más de dos ciclos registrados. No se eliminará ningún registro automáticamente; solicita revisión a Sistemas.' : 'Inconsistencia: hay varios ciclos operativos. No se seleccionó ninguno; solicita revisión a Sistemas.')
     : !this.activeCycle() ? 'No hay ciclo operativo. Los históricos continúan disponibles para consulta.'
     : this.activeCycle()?.status === 'Captura' ? '' : `Ciclo en ${this.activeCycle()?.status}: captura académica ordinaria bloqueada.`));
   constructor() {

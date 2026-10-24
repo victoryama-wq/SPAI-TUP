@@ -8,6 +8,7 @@
       <p>Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.</p>
     </div>
 
+    @if (mayCreate()) {
     <div class="new-cycle-control" [attr.tabindex]="!canCreateCycle() || isSaving ? 0 : null" [attr.role]="!canCreateCycle() || isSaving ? 'group' : null" [attr.aria-label]="!canCreateCycle() || isSaving ? 'Nuevo ciclo no disponible' : null" [attr.aria-describedby]="!canCreateCycle() || isSaving ? 'new-cycle-help' : null">
     <button class="primary-action" type="button" [disabled]="!canCreateCycle() || isSaving" [attr.aria-describedby]="!canCreateCycle() || isSaving ? 'new-cycle-help' : null" (click)="openForm()">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -17,6 +18,7 @@
     </button>
     @if (!canCreateCycle() || isSaving) { <span class="new-cycle-help" id="new-cycle-help" role="tooltip">{{ createBlockedReason() || 'Espera a que termine la operación actual.' }}</span> }
     </div>
+    }
   </section>
 
   <div class="cycle-summary">
@@ -43,8 +45,8 @@
   <button class="notice-close" type="button" aria-label="Cerrar" (click)="cancelCycleDialog()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
   @if (confirmation(); as item) {
     <header class="notice-heading"><span>Confirmación del ciclo</span><h3 id="cycle-dialog-title" tabindex="-1" data-initial-focus>{{ item.title }}</h3></header>
-    <div class="notice-body"><p>{{ item.message }}</p></div>
-    <footer class="notice-actions">@if (item.showCancel) { <button type="button" class="secondary-action" (click)="cancelCycleDialog()">{{ item.cancelLabel }}</button> }<button type="button" class="primary-action" (click)="acceptConfirmation()">{{ item.confirmLabel }}</button></footer>
+    <div class="notice-body"><p>{{ item.message }}</p>@if (deletionTarget()) { <label class="deletion-reason">Motivo de eliminación<textarea rows="3" maxlength="1000" [value]="deleteReason" (input)="setDeleteReason($event)"></textarea><small>Entre 4 y 1000 caracteres; no se aceptan solo espacios.</small></label> }</div>
+    <footer class="notice-actions">@if (item.showCancel) { <button type="button" class="secondary-action" (click)="cancelCycleDialog()">{{ item.cancelLabel }}</button> }<button type="button" class="primary-action" [class.danger]="item.tone === 'danger'" [disabled]="deletionTarget() !== null && !validDeleteReason()" (click)="acceptConfirmation()">{{ item.confirmLabel }}</button></footer>
   } @else if (informationCycle(); as cycle) {
     <header class="notice-heading"><span>Ciclo operativo</span><h3 id="cycle-dialog-title" tabindex="-1" data-initial-focus>Ciclo {{ cycle.code }}</h3></header>
     <div class="notice-body"><dl class="cycle-facts"><div><dt>Estado actual</dt><dd><span class="status-badge" [class.capture]="cycle.status === 'Captura'">{{ cycle.status === 'Preparacion' ? 'Preparación' : cycle.status }}</span></dd></div><div><dt>Cierre de captura registrado</dt><dd>{{ cycle.tentativeCaptureCloseAt ? formatDate(cycle.tentativeCaptureCloseAt) : 'Sin fecha definida' }}</dd></div></dl></div>
@@ -74,6 +76,7 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="saveCycle()" class="cycle-form">
+        @if (creationLimitReached()) { <p class="form-error full-field" role="alert">Ya hay dos ciclos registrados. Cancela y elimina el histórico anterior mediante su acción explícita antes de crear otro. El último histórico se conserva para consulta.</p> }
         <label>
           <span>Código de ciclo</span>
           <input type="text" formControlName="code" placeholder="Ej. 26-3" />
@@ -124,7 +127,7 @@
 
         <div class="form-actions">
           <button class="secondary-action" type="button" [disabled]="isSaving" (click)="closeForm()">Cancelar</button>
-          <button class="primary-action" type="submit" [disabled]="isSaving">
+          <button class="primary-action" type="submit" [disabled]="isSaving || !canCreateCycle() || creationLimitReached()">
             {{ isSaving ? 'Guardando...' : 'Guardar ciclo' }}
           </button>
         </div>
@@ -210,11 +213,18 @@
                   @if (cycle.status === 'Preparacion') { <button class="secondary-action" type="button" (click)="startCapture(cycle)">Iniciar captura</button> }
                   @if (cycle.status === 'Captura cerrada') {
                     <label>Motivo para reabrir<input type="text" maxlength="1000" [value]="reopenReason[cycle.id] || ''" (input)="setReason(cycle.id, $event)" /></label>
-                    <button class="secondary-action" type="button" (click)="reopenCapture(cycle)">Reabrir captura</button>
-                    <button class="secondary-action" type="button" (click)="toggleSpecials(cycle)">{{ cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales' }}</button>
-                    <button class="secondary-action" type="button" (click)="closeCycle(cycle)">Cerrar ciclo</button>
+                    <div class="cycle-icon-actions">
+                      <span class="cycle-action-help" [attr.tabindex]="!validReopenReason(cycle) ? 0 : null" [attr.aria-label]="!validReopenReason(cycle) ? 'Reabrir captura: indica un motivo de 4 a 1000 caracteres' : null">
+                        <button class="cycle-close-action" type="button" aria-label="Reabrir captura" [disabled]="!validReopenReason(cycle)" (click)="reopenCapture(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg></button>
+                        <span class="action-tooltip" role="tooltip">Reabrir captura{{ !validReopenReason(cycle) ? ': indica un motivo de 4 a 1000 caracteres' : '' }}</span>
+                      </span>
+                      <button class="cycle-close-action" type="button" [attr.aria-label]="cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales'" [attr.aria-pressed]="cycle.specialsEnabled === true" (click)="toggleSpecials(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.8 6.4.9-4.6 4.5 1.1 6.4-5.7-3-5.7 3 1.1-6.4L2.8 9.7l6.4-.9Z"/></svg><span class="action-tooltip" aria-hidden="true">{{ cycle.specialsEnabled ? 'Deshabilitar Especiales' : 'Habilitar Especiales' }}</span></button>
+                      <button class="cycle-close-action danger" type="button" aria-label="Cerrar ciclo" (click)="closeCycle(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><span class="action-tooltip" aria-hidden="true">Cerrar ciclo</span></button>
+                    </div>
                   }
                 </div>
+              } @else if (canDeleteCycle(cycle)) {
+                <button class="cycle-close-action danger" type="button" aria-label="Eliminar ciclo histórico" (click)="deleteCycle(cycle)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg><span class="action-tooltip" aria-hidden="true">Eliminar ciclo histórico</span></button>
               } @else { <span>Solo consulta</span> }
             </td>
           </tr>

@@ -112,6 +112,13 @@ service cloud.firestore {
       || (c.get('status','') == 'Captura cerrada' && c.get('specialsEnabled',false) == true
           && d.get('assignmentType','') == 'ESPECIAL' && admittedSpecialGroup(d) && d.get('group','') in c.get('specialGroups',[]) && d.get('sharedGroups',[]).hasOnly(c.get('specialGroups',[]))));
   }
+  function retainedCycle(d) {
+    let code = d.get('cycle', d.get('cycleCode', ''));
+    let id = d.get('cycleId', d.get('entity', '') == 'ciclos' ? d.get('entityId', '') : '');
+    return (code == '' || !exists(/databases/$(database)/documents/ciclos_retirados/$('code_' + code)))
+      && (id == '' || !exists(/databases/$(database)/documents/ciclos_retirados/$('id_' + id)));
+  }
+  match /ciclos_retirados/{id} { allow read, write: if false; }
   match /ciclo_control/{id} { allow read, write: if false; }
   match /ciclos/{id} {
     allow read: if module('ciclos', false) || module('asignaciones', false) || module('dashboard', false) || module('docentes', false) || module('grupos', false);
@@ -203,8 +210,8 @@ service cloud.firestore {
   }
   match /solicitudes_sistemas/{id} {
     allow read: if systemRequestRead();
-    allow create: if module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE';
-    allow update: if institutionalModule('solicitudes', true) && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.requestedBy == resource.data.requestedBy;
+    allow create: if !retainedCycle(request.resource.data) ? false : module('solicitudes', true) && request.resource.data.requestedBy == request.auth.uid && request.resource.data.status == 'PENDIENTE';
+    allow update: if !retainedCycle(request.resource.data) ? false : institutionalModule('solicitudes', true) && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.requestedBy == resource.data.requestedBy;
     allow delete: if institutionalModule('solicitudes', true);
   }
   function institutionalModule(key, edit) {
@@ -225,8 +232,8 @@ service cloud.firestore {
   function validMeet(id) { let d = request.resource.data; return d.assignmentId == id && d.assignmentId is string && d.cycle is string && d.meetUrl is string && d.status in ['PENDIENTE', 'REVISADA', 'GENERADA'] && d.observations is string && d.createdBy is string && d.createdByName is string && d.createdByRole is string && d.createdAt is string && d.updatedBy == request.auth.uid && d.updatedByName is string && d.updatedByRole is string && d.updatedAt is string; }
   match /ligas_meet/{id} {
     allow read: if module('ligasMeet', false) && (academic() || within('programs', '*') || inCycle(resource.data.cycle));
-    allow create: if systems() && module('ligasMeet', true) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && validMeet(id);
-    allow update: if systems() && module('ligasMeet', true) && inCycle(resource.data.cycle) && inCycle(request.resource.data.cycle) && validMeet(id) && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdAt == resource.data.createdAt;
+    allow create: if !retainedCycle(request.resource.data) ? false : systems() && module('ligasMeet', true) && inCycle(request.resource.data.cycle) && request.resource.data.createdBy == request.auth.uid && validMeet(id);
+    allow update: if !retainedCycle(request.resource.data) ? false : systems() && module('ligasMeet', true) && inCycle(resource.data.cycle) && inCycle(request.resource.data.cycle) && validMeet(id) && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdAt == resource.data.createdAt;
     allow delete: if systems() && module('ligasMeet', true) && inCycle(resource.data.cycle);
   }
   function moodleRead() {
@@ -265,20 +272,20 @@ service cloud.firestore {
   }
   match /notificaciones/{id} {
     allow read: if general() || (delegated() && within('programs', '*')) || (active() && resource.data.get('targetUserId', '') == request.auth.uid);
-    allow create: if active() && request.resource.data.actorId == request.auth.uid && request.resource.data.type in ['DOCENTE_NUEVO', 'DOCENTE_VALIDADO', 'ASIGNACIONES_HITO', 'CLASE_COMPARTIDA', 'SOLICITUD_SISTEMAS', 'AGENDA_EQUIPO', 'ASIGNACION_MODIFICADA'] && (request.resource.data.target == 'SISTEMAS' || general());
-    allow update: if (general() || (active() && resource.data.get('targetUserId', '') == request.auth.uid)) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
+    allow create: if !retainedCycle(request.resource.data) ? false : active() && request.resource.data.actorId == request.auth.uid && request.resource.data.type in ['DOCENTE_NUEVO', 'DOCENTE_VALIDADO', 'ASIGNACIONES_HITO', 'CLASE_COMPARTIDA', 'SOLICITUD_SISTEMAS', 'AGENDA_EQUIPO', 'ASIGNACION_MODIFICADA'] && (request.resource.data.target == 'SISTEMAS' || general());
+    allow update: if !retainedCycle(request.resource.data) ? false : (general() || (active() && resource.data.get('targetUserId', '') == request.auth.uid)) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
     allow delete: if false;
   }
   match /agenda_operativa_equipo/{id} {
     allow read: if systems() && module('dashboard', false);
-    allow create: if systems() && module('dashboard', true) && request.resource.data.createdBy == request.auth.uid && request.resource.data.scope == 'EQUIPO' && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
-    allow update: if systems() && module('dashboard', true) && request.resource.data.scope == 'EQUIPO' && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt && delegatedFields();
+    allow create: if !retainedCycle(request.resource.data) ? false : systems() && module('dashboard', true) && request.resource.data.createdBy == request.auth.uid && request.resource.data.scope == 'EQUIPO' && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
+    allow update: if !retainedCycle(request.resource.data) ? false : systems() && module('dashboard', true) && request.resource.data.scope == 'EQUIPO' && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt && delegatedFields();
     allow delete: if systems() && module('dashboard', true);
   }
   match /agenda_operativa_privada/{owner}/actividades/{id} {
     allow read: if systems() && module('dashboard', false) && owner == request.auth.uid;
-    allow create: if systems() && module('dashboard', true) && owner == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == request.auth.uid && request.resource.data.createdBy == request.auth.uid && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
-    allow update: if systems() && module('dashboard', true) && owner == request.auth.uid && resource.data.ownerId == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == resource.data.ownerId && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt;
+    allow create: if !retainedCycle(request.resource.data) ? false : systems() && module('dashboard', true) && owner == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == request.auth.uid && request.resource.data.createdBy == request.auth.uid && request.resource.data.title is string && request.resource.data.column is string && request.resource.data.priority is string;
+    allow update: if !retainedCycle(request.resource.data) ? false : systems() && module('dashboard', true) && owner == request.auth.uid && resource.data.ownerId == request.auth.uid && request.resource.data.scope == 'PRIVADA' && request.resource.data.ownerId == resource.data.ownerId && request.resource.data.createdBy == resource.data.createdBy && request.resource.data.createdByName == resource.data.createdByName && request.resource.data.createdAt == resource.data.createdAt;
     allow delete: if systems() && module('dashboard', true) && owner == request.auth.uid && resource.data.ownerId == request.auth.uid;
   }
   match /{document=**} { allow read, write: if false; }

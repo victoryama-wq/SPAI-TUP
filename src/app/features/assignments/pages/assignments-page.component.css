@@ -3196,11 +3196,6 @@ td[colspan] {
   }
 }
 
-.cycle-selection { background:#fff; border:1px solid #d4e4f5; border-radius:8px; padding:16px; margin-bottom:16px; color:#163758; }
-.cycle-selection label { display:flex; flex-wrap:wrap; gap:12px; align-items:center; font-weight:700; }
-.cycle-selection select { max-width:100%; min-height:44px; padding:8px; border:1px solid #94b8df; border-radius:6px; }
-.cycle-selection p { margin:12px 0 0; }
-
 /* CO-01: selected-cycle controls use normal flow, never cover the title or filters. */
 @media(min-width:900px) {
  .table-panel > .panel-title {display:grid; height:auto; min-height:0; row-gap:16px; padding-bottom:22px;}
@@ -3211,4 +3206,32 @@ td[colspan] {
  .table-panel > .panel-title .filters {width:100%;}
 
  .table-panel > .panel-title .panel-heading-actions {justify-self:start; flex-wrap:wrap; gap:10px;}
+}
+
+.assignment-create-control { display:inline-flex; position:relative; border-radius:8px; }
+.assignment-create-control:focus-visible { outline:3px solid #30c4dc; outline-offset:3px; }
+.assignment-create-control .primary-action:disabled { background:#d9e2ed; color:#435771; border-color:#b8c8dc; opacity:1; cursor:not-allowed; }
+.assignment-create-help { display:none; position:absolute; z-index:8; top:calc(100% + 6px); left:0; width:min(300px,70vw); padding:10px 12px; border-radius:6px; background:#10254d; color:white; font-size:13px; font-weight:500; line-height:1.4; }
+.assignment-create-control:hover .assignment-create-help,.assignment-create-control:focus-within .assignment-create-help { display:block; }
+
+/* Consulta por ciclo: un solo control en la fila institucional de filtros. */
+.table-panel > .panel-title .filters {
+  grid-template-columns: minmax(0, 1fr) 150px 210px;
+  align-items: start;
+  gap: 14px;
+  max-width: none;
+}
+.table-panel > .panel-title .filters > * { min-width: 0; }
+.table-panel > .panel-title .cycle-selection { display: grid; gap: 7px; min-width: 0; }
+.table-panel > .panel-title .filters .search-box,
+.table-panel > .panel-title .filters select { height: 44px; min-height: 44px; box-sizing: border-box; background: #fff; border-color: rgba(255,255,255,.72); border-radius: 8px; }
+.table-panel > .panel-title .cycle-selection p { margin: 0; color: #d5e8ff; font-size: .85rem; }
+.table-panel > .panel-title .cycle-selection .cycle-readonly { justify-self: start; background: #eaf3ff; color: #163758; border: 1px solid #b8d6f3; border-radius: 20px; padding: 3px 9px; font-size: .75rem; font-weight: 700; }
+.cycle-selection select:focus-visible, .cycle-selection button:focus-visible { outline: 3px solid #30c4dc; outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .table-panel > .panel-title .filters { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .table-panel > .panel-title .assignment-search { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  .table-panel > .panel-title .filters { grid-template-columns: minmax(0,1fr); }
 }

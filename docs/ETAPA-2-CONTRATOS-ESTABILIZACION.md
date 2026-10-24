@@ -2,6 +2,8 @@
 
 Versión: **v0.4**
 
+**Complemento acotado aprobado el 23/10/2026:** [E2-R02 — Ciclos y Asignaciones](E2-R02-COMPLEMENTO-2026-10-23.md). Sustituye las cláusulas de cantidad/retención de E2-D05 y E2-C02: máximo dos registrados, uno operativo, histórico inmediato conservado y eliminación explícita solo del anterior sin dependencias. No autoriza cascadas ni da por implementado E2-C05/R04. Los excesos existentes se conservan con inconsistencia y bloqueo de nuevas altas, nunca se borran automáticamente.
+
 Fecha: 2026-10-09.
 Proyecto: **SPAI TUP — Sistema de Planeación Académica Institucional**.
 
@@ -16,7 +18,7 @@ Cada contrato usa un identificador único `E2-Cxx`; las referencias sin prefijo 
 | ID | Definición | Estado y efecto |
 |---|---|---|
 | E2-D04 | Una eliminación operativa no destruye inmediatamente una asignación. Se mueve a una recuperación privada de Sistemas. | Confirmada. Coordinación Académica no ve Papelera, Restaurar ni recibe aviso de recuperabilidad. |
-| E2-D05 | Firestore operativo conserva como objetivo normal un ciclo actual y el último ciclo cerrado para consulta. Los ciclos anteriores se respaldan fuera de la base operativa antes de depurarse. | Confirmada. Si el respaldo de `E2-C05` falla o no puede verificarse, los datos se conservan temporalmente aunque se exceda ese objetivo; no se borra información sin recuperación comprobada. |
+| E2-D05 | Máximo dos ciclos registrados y uno operativo; se conserva el histórico inmediato para consulta. Dos históricos bloquean confirmar un tercero hasta retirar explícitamente el anterior. | Complemento confirmado 23/10/2026: R02 solo permite retirar el anterior sin dependencias con PURGE_CYCLE y bitácora íntegra. Con dependencias sigue bloqueado hasta E2-C05/R04; los excesos preexistentes no se corrigen automáticamente. |
 | E2-D06 | Las plantillas Moodle son un catálogo operativo vigente, no un histórico de ciclos. Sistemas puede reemplazarlas masivamente. | Confirmada. Reemplazar el catálogo no modifica cursos ya existentes en Moodle. |
 | E2-D07 | La autoridad se define por capacidades y ámbito en servidor, no por coincidencias de texto en el nombre de un rol ni por controles ocultos en la interfaz. | Confirmada. La delegación de auxiliares se concede y revoca desde Sistemas. |
 | E2-D08 | Una corrección posterior a una carga Moodle conserva el estado principal CARGADO_MOODLE; su seguimiento se maneja con una marca secundaria de conciliación. | Confirmada. El ID Moodle y la materia permanecen protegidos. |
@@ -133,8 +135,9 @@ La vista previa conserva `previewId`, `profileRevision`, `delegationRevision` y 
 ### Selección y retención
 
 - Solo puede haber un ciclo actual: Preparacion, Captura o Captura cerrada.
-- Firestore operativo conserva como objetivo normal el ciclo actual y el último ciclo con estado Cerrado. Si `E2-C05` bloquea una depuración por respaldo no verificado, puede conservarse temporalmente un ciclo adicional hasta resolver la incidencia.
-- Si no existe ciclo actual, se conserva solamente el último histórico hasta crear el siguiente.
+- Desde el complemento del 23/10/2026, Firestore admite como máximo dos ciclos registrados: un operativo y hasta un histórico, o temporalmente dos históricos sin operativo. La creación comprueba ambos límites en servidor.
+- Con dos históricos, el alta explica el límite y bloquea confirmar. Solo se libera espacio mediante la eliminación explícita del anterior, por actor con `PURGE_CYCLE` y ámbito vigente. El histórico inmediato se conserva para consulta.
+- En el alcance R02 únicamente puede eliminarse un histórico anterior sin dependencias, conservando su documento íntegro en bitácora, motivo, evento e idempotencia. Si tiene dependencias, se conserva hasta implementar la depuración y recuperación de E2-C05; no se ejecuta cascada. Una base existente excedida se informa y no admite nuevas altas ni borrados automáticos.
 - Más de un candidato actual es una inconsistencia: SPAI debe informarla y no elegir uno por orden de llegada.
 - La Coordinación Académica no puede modificar asignaciones ordinarias fuera de Captura. Con especiales habilitados solo puede operar asignaciones marcadas como ESPECIAL; la marca nunca habilita ciclos Cerrado.
 - El apartado Especiales solo admite grupos clasificados como Especiales. Debe excluir de su selector los grupos de Escolarizado y Ejecutivo; por tanto, no puede crear ni operar desde ese apartado una asignación ordinaria de dichas modalidades.
@@ -195,6 +198,8 @@ La recuperación evita pérdida accidental sin convertir la restauración en una
 Cada eliminación conserva deletedAt, deletedByUid, deletedByName, deletedByRole, deletedReason y el contenido necesario para restaurar. Las vistas, reportes, auditorías operativas Moodle y CSV excluyen registros eliminados. Las incidencias privadas de conciliación Moodle permanecen visibles para Sistemas hasta resolverse y no se confunden con la auditoría operativa normal.
 
 ## E2-C05 — Depuración de ciclos y respaldos externos
+
+El complemento aprobado el 23/10/2026 permite en R02 la eliminación explícita de históricos anteriores **sin dependencias**, conservando íntegro el documento en bitácora. El histórico inmediato permanece para consulta. El procedimiento siguiente continúa pendiente para históricos con información asociada; no se implementa ni se acredita por esa eliminación vacía. No hay depuración automática al cerrar un ciclo.
 
 Al completar el cierre de un ciclo nuevo, el histórico más antiguo se procesa como un lote controlado y reanudable:
 

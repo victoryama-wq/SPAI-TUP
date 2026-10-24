@@ -27,12 +27,16 @@ export class CyclesPageComponent {
   readonly confirmation = this.confirmationDialogService.dialog;
   readonly informationDismissed = signal(false);
   private informationShown = false;
+  private entranceResolved = false;
+  private entranceCycleId: string | null = null;
   private dialogStep: unknown = null;
   private dialogOpener: HTMLElement | null = null;
   readonly informationCycle = computed(() => this.cyclesRepository.ready()
     && this.contextReady() && hasAccess(this.userSessionService.session()?.appUser, 'ciclos')
-    ? this.activeCycle() : null);
+    && !this.inconsistent() && this.activeCycle()?.status === 'Captura' ? this.activeCycle() : null);
 
+  readonly mayCreate = computed(() => hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES'));
+  readonly creationLimitReached = computed(() => this.cycles().length >= 2);
   readonly canManage = computed(() => this.cyclesRepository.contextReady() && hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES') && !this.cyclesRepository.inconsistent());
   readonly cycleMessage = this.cyclesRepository.captureMessage;
   readonly contextReady = this.cyclesRepository.contextReady;
@@ -41,7 +45,7 @@ export class CyclesPageComponent {
     && this.canManage() && this.cyclesRepository.operativeCycles().length === 0);
   readonly createBlockedReason = computed(() => {
     if (!this.cyclesRepository.ready()) return this.cyclesRepository.readMessage();
-    if (this.inconsistent()) return 'Hay varios ciclos operativos. Solicita revisión a Sistemas.';
+    if (this.inconsistent()) return this.cycleMessage();
     if (this.cyclesRepository.contextError()) return this.cyclesRepository.contextError();
     if (!this.contextReady()) return 'Verificando el estado de los ciclos…';
     if (this.cyclesRepository.operativeCycles().length) return 'Ya existe un ciclo operativo. Debes cerrarlo definitivamente para crear otro.';
@@ -50,6 +54,7 @@ export class CyclesPageComponent {
   });
   reopenReason: Record<string, string> = {};
   canOperate(cycle: AcademicCycle): boolean { const user=this.userSessionService.session()?.appUser; return this.canManage() && !this.isSaving && (user?.baseRole==='ADMIN_GENERAL' || Boolean(user?.scope?.cycles?.some(c=>c==='*'||c===cycle.code))); }
+  validReopenReason(cycle: AcademicCycle): boolean { const reason=(this.reopenReason[cycle.id] || '').trim(); return reason.length >= 4 && reason.length <= 1000; }
   setReason(id: string, event: Event): void { this.reopenReason[id]=(event.target as HTMLInputElement).value; }
   readonly cycles = this.cyclesRepository.cycles;
   readonly currentAccessDiagnostic = computed(() => {
@@ -107,7 +112,11 @@ export class CyclesPageComponent {
       if (!dialog) return;
       const confirmation = this.confirmation();
       const cycle = this.informationCycle();
-      const showInformation = !!cycle && !this.informationDismissed();
+      if (!this.entranceResolved && this.cyclesRepository.ready() && this.contextReady()) {
+        this.entranceResolved = true;
+        this.entranceCycleId = cycle?.id ?? null;
+      }
+      const showInformation = !!cycle && cycle.id === this.entranceCycleId && !this.informationDismissed();
       if (confirmation || showInformation && (!this.informationShown || dialog.open)) {
         if (!dialog.open) {
           this.dialogOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -135,10 +144,10 @@ export class CyclesPageComponent {
     if (this.confirmation()) this.confirmationDialogService.cancel();
     else this.dismissInformation();
   }
-  acceptConfirmation(): void { this.confirmationDialogService.accept(); }
+  acceptConfirmation(): void { if(this.deletionTarget() && !this.validDeleteReason()) return; this.confirmationDialogService.accept(); }
   onDialogKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Tab') return;
-    const buttons = Array.from(this.cycleDialog()?.nativeElement.querySelectorAll<HTMLButtonElement>('button:not([disabled])') ?? []);
+    const buttons = Array.from(this.cycleDialog()?.nativeElement.querySelectorAll<HTMLElement>('button:not([disabled]), textarea:not([disabled]), input:not([disabled])') ?? []);
     const first = buttons[0], last = buttons[buttons.length - 1];
     const active = document.activeElement;
     if (first && (!buttons.some(button => button === active) || event.shiftKey && active === first || !event.shiftKey && active === last)) {
@@ -181,6 +190,7 @@ export class CyclesPageComponent {
   async saveCycle(): Promise<void> {
     if (!this.canCreateCycle() || this.isSaving) { this.formError = this.createBlockedReason() || 'Espera a que termine la operación actual.'; return; }
     this.formError = '';
+    if (this.creationLimitReached()) { this.formError = 'Ya hay dos ciclos registrados. Cancela y elimina el histórico anterior mediante su acción explícita antes de crear otro.'; return; }
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -227,32 +237,29 @@ export class CyclesPageComponent {
     finally {this.isSaving=false;delete this.reopenReason[cycle.id];}
   }
 
-  async deleteCycle(cycle: AcademicCycle): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
-    if (!this.canDeleteCycle(cycle)) {
-      await this.confirmationDialogService.alert({
-        title: 'No se puede eliminar',
-        message: 'Solo se pueden eliminar ciclos en preparacion o ciclos historicos cerrados.',
-      });
-      return;
-    }
-
-    const confirmed = await this.confirmationDialogService.confirm({
-      title: 'Eliminar ciclo',
-      message: `Eliminar el ciclo ${cycle.code}? Esta accion quitara el ciclo del catalogo de ciclos.`,
-      confirmLabel: 'Eliminar',
-      cancelLabel: 'Cancelar',
-      tone: 'danger',
-    });
-
-    if (confirmed) {
-      void this.cyclesRepository.deleteCycle(cycle.id);
-    }
-  }
-
+  deleteReason = '';
+  deletionTarget = signal<AcademicCycle | null>(null);
+  readonly purgeAllowed = computed(() => hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'PURGE_CYCLE'));
   canDeleteCycle(cycle: AcademicCycle): boolean {
-    return false; // R04: nunca depurar desde R02.
+    const user=this.userSessionService.session()?.appUser;
+    return this.contextReady() && this.purgeAllowed() && !this.isSaving && cycle.status === 'Cerrado'
+      && !this.cyclesRepository.multipleOperative()
+      && this.cycles().some(other => other.status === 'Cerrado' && other.code > cycle.code)
+      && (user?.baseRole === 'ADMIN_GENERAL' || !!user?.scope?.cycles?.some(code=>code === '*' || code === cycle.code));
   }
+  async deleteCycle(cycle: AcademicCycle): Promise<void> {
+    if (!this.canDeleteCycle(cycle)) return;
+    this.deleteReason = ''; this.deletionTarget.set(cycle); this.dismissInformation();
+    this.isSaving = true; this.formError = '';
+    const command=this.cyclesRepository.prepare('purge',cycle);
+    try {
+      const accepted=await this.confirmationDialogService.confirm({title:'Eliminar ciclo histórico',message:`${cycle.code} · ${cycle.label}. Se eliminará únicamente un histórico anterior sin dependencias. El último histórico se conserva para consulta. Si existen registros asociados, el servidor bloqueará la eliminación. La bitácora conservará el documento completo y el motivo.`,confirmLabel:'Eliminar ciclo',cancelLabel:'Cancelar',tone:'danger'});
+      if (accepted) await this.cyclesRepository.confirm({...command,reason:this.deleteReason.trim()});
+    } catch(error) { this.formError=this.getSaveErrorMessage(error); }
+    finally {this.isSaving=false;this.deleteReason='';this.deletionTarget.set(null);}
+  }
+  validDeleteReason(): boolean {return this.deleteReason.trim().length >= 4 && this.deleteReason.trim().length <= 1000;}
+  setDeleteReason(event: Event): void {this.deleteReason=(event.target as HTMLTextAreaElement).value;}
 
   async updateTentativeCaptureClose(cycle: AcademicCycle, event: Event): Promise<void> {
     if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }

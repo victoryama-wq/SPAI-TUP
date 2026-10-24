@@ -1,7 +1,7 @@
 import { createServer as createHttpServer } from 'node:http';
 import { createServer } from 'node:net';
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -10,6 +10,10 @@ import { seed } from './seed.mjs';
 
 const testMode = process.argv.includes('--test');
 const reviewMode = process.argv.includes('--review');
+const r02Review = process.argv.includes('--r02-review');
+if (r02Review && (!reviewMode || !isolatedTest || testOffset !== 10000)) throw new Error('R02 requiere --review, datos sintéticos y la sesión aislada 10000.');
+if (r02Review && existsSync(resolve(root, '.local/r02-review/latest.json'))) throw new Error('Existe una copia R02 guardada. Usa tools/local/recover.mjs --r02; no regeneres fixtures.');
+if (process.env.SPAI_LOCAL_TEST_SLOT === 'recovery') throw new Error('Recuperacion sin fixtures: usa tools/local/recover.mjs.');
 if (reviewMode && (!isolatedTest || testMode)) throw new Error('La revisión humana requiere un entorno aislado independiente de la suite.');
 if (isolatedTest && !testMode && !reviewMode) throw new Error('El preset aislado solo admite ensayos sintéticos; no modifica la demo compartida.');
 if (isolatedTest) {
@@ -84,7 +88,8 @@ async function startEmulators() {
     } catch (error) { lastError = error; await delay(1000); }
   }
   if (!servicesReady) throw new Error(`Emuladores no disponibles: ${lastError?.message}`);
-  await seed(); // Fail once on a data error; never retry a partially loaded snapshot.
+  if (r02Review) await (await import('../e2-r02/prepare-review.mjs')).prepareReview();
+  else await seed(); // Fail once on a data error; never retry a partially loaded snapshot.
   ready = true;
   console.log(`DEMO listo. UI http://127.0.0.1:${config.ui}${isolatedTest ? (reviewMode ? ' — revisión humana aislada; detener con Ctrl+C' : ' — ensayo aislado; cierre automatico al terminar') : ' — web: npm start — detener: npm run local:stop'}`);
 }
@@ -95,6 +100,7 @@ const server = createHttpServer(async (request, response) => {
   if (request.headers.origin || request.headers.authorization !== `Bearer ${token}`) return reply(403, { error: 'Control local no autorizado.' });
   if (request.method === 'GET' && request.url === '/health') return reply(200, { projectId: config.projectId, ready });
   if (request.method !== 'POST' || !['/stop', '/reset', '/seed'].includes(request.url)) return reply(404, { error: 'Accion no reconocida.' });
+  if (r02Review && request.url !== '/stop') return reply(403, { error: 'La revisión R02 no admite reset ni recarga de fixtures.' });
   if ((changing || !ready) && request.url !== '/stop') return reply(409, { error: 'La sesion aun no esta lista o esta cambiando.' });
   changing = true;
   try {
@@ -125,11 +131,12 @@ try {
   await new Promise((ok, fail) => { server.once('error', fail); server.listen(config.control, config.host, ok); });
   if (testMode) await runNode(['--test', 'tools/local/tests/config.test.mjs', 'tools/local/tests/snapshot.test.mjs']);
   await startEmulators();
-  if (reviewMode) {
+  if (reviewMode && !r02Review) {
     await runNode(['tools/e2-r01/prepare-demo.mjs']);
     await runNode(['tools/e2-r01/prepare-t10.mjs']);
     console.log('Revisión T10 preparada. En otra terminal: npx ng serve --configuration isolated --host 127.0.0.1 --port 4202. Ctrl+C aquí detiene únicamente esta sesión aislada.');
   }
+  if (r02Review) console.log('R02: dos ciclos sintéticos. Frontend: ng serve --configuration isolated --host 127.0.0.1 --port 4202. La recuperación del túnel permanece independiente.');
   if (testMode && !stopping) {
     await runNode(['tools/local/tests/integration.mjs']);
     if (process.argv.includes('--r01')) await runNode(['tools/e2-r01/integration.mjs']);

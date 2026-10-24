@@ -100,6 +100,22 @@
                   "with": "src/environments/environment.complement.ts"
                 }
               ]
+            },
+            "tunnel": {
+              "index": {
+                "input": "src/index.tunnel.html",
+                "output": "index.html"
+              },
+              "outputPath": "dist/spai-tup-tunnel",
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.tunnel.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

@@ -34,14 +34,14 @@ const teacherUi = sourceMembers('src/app/features/teachers/pages/teachers-page.c
 report.check('UI-TEACHER-OWNERSHIP', 'F02', 2, ['test-a', 'test-b'].map((createdBy) => teacherUi.canDeleteOwnPendingNewTeacher({ status: 'PENDIENTE', origin: 'MANUAL', lifecycleStatus: 'NUEVO', createdBy })), [true, false], [true, false], 'TeachersPageComponent.canDeleteOwnPendingNewTeacher');
 
 let cycles = [{ id:'a', code:'27-1', status:'Captura cerrada' }];
-const cr=sourceMembers(cycleFile,'CyclesRepository',['operativeCycles','inconsistent','activeCycle'],{cycles:()=>cycles});
+const cr=sourceMembers(cycleFile,'CyclesRepository',['operativeCycles','multipleOperative','overLimit','inconsistent','activeCycle'],{cycles:()=>cycles});
 report.check('CYCLE-CLOSED-CAPTURE-ACTIVE','F05',3,cr.activeCycle().id,'a','a',evidence(cycleFile,'activeCycle'));
 const r02=JSON.parse(readFileSync(resolve(root,'.local/test-results/r02.json'),'utf8'));
 const cycleConcurrent=r02.cases.find(c=>c.name==='No operative cycle / concurrent creation / unique code');
 report.check('CYCLE-MULTIPLE-OPERATIVE','F05',3,cycleConcurrent?.status==='PASS'?1:'UNVERIFIED',2,1,'tools/e2-r02/integration.mjs: actual concurrent callable creation');
 cycles.push({id:'b',code:'27-2',status:'Preparacion'});cycles.reverse();
 report.check('CYCLE-SELECTION-ORDER','F05',3,cr.inconsistent() && cr.activeCycle()===null?'ERROR_AMBIGUOUS_CYCLE':cr.activeCycle()?.id,'b','ERROR_AMBIGUOUS_CYCLE',evidence(cycleFile,'operativeCycles/inconsistent/activeCycle'));
-const gate=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canCaptureAssignments'],{activeCycle:()=>({code:'27-1',status:'Captura cerrada'}),cyclesRepository:{inconsistent:()=>false,contextReady:()=>true},allowedCycle:()=>true,modeTab:()=> 'Escolarizado'});
+const gate=sourceMembers('src/app/features/assignments/pages/assignments-page.component.ts','AssignmentsPageComponent',['canCaptureAssignments'],{activeCycle:()=>({id:'a',code:'27-1',status:'Captura cerrada'}),operativeCycle:()=>({id:'a',code:'27-1',status:'Captura cerrada'}),cyclesRepository:{inconsistent:()=>false,contextReady:()=>true},allowedCycle:()=>true,modeTab:()=> 'Escolarizado'});
 report.check('UI-CAPTURE-CLOSED','F04',3,gate.canCaptureAssignments(),false,false,'AssignmentsPageComponent.canCaptureAssignments');
 
 const write = deferred();
@@ -104,7 +104,7 @@ await assert.rejects(failedSave, (e) => e.code === 'permission-denied');
 report.check('SHARE-FIRST-WRITE-FAILS', 'F06', 3, failUi.closed, false, false, 'First write rejects: acceptRequest does not close modal (caller saveResponse still discards promise)');
 
 const cycleSave = deferred();
-const cycleUi = sourceMembers('src/app/features/cycles/pages/cycles-page.component.ts', 'CyclesPageComponent', ['saveCycle'], { canManage: () => true, form: { invalid: false, getRawValue: () => ({ code: '27-1' }) }, cyclesRepository: { hasCycleCode: () => false, createCycle: () => cycleSave.promise }, closeForm() { this.closed = true; }, getSaveErrorMessage: (e) => e.code, closed: false }, { console: { error() {} } });
+const cycleUi = sourceMembers('src/app/features/cycles/pages/cycles-page.component.ts', 'CyclesPageComponent', ['saveCycle'], { canCreateCycle: () => true, creationLimitReached: () => false, canManage: () => true, form: { invalid: false, getRawValue: () => ({ code: '27-1' }) }, cyclesRepository: { hasCycleCode: () => false, createCycle: () => cycleSave.promise }, closeForm() { this.closed = true; }, getSaveErrorMessage: (e) => e.code, closed: false }, { console: { error() {} } });
 const saving = cycleUi.saveCycle();
 assert.equal(cycleUi.isSaving, true);
 cycleSave.reject(Object.assign(new Error('denied'), { code: 'permission-denied' })); await saving;

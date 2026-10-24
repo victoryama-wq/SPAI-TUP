@@ -1,13 +1,4 @@
-<section class="cycle-selection" aria-label="Consulta por ciclo">
-  <label>Ciclo de consulta
-    <select (change)="selectCycle($event)" [value]="historical() ? activeCycle()?.id : ''">
-      <optgroup label="Ciclo operativo"><option value="">{{ operativeCycle()?.code || 'Sin ciclo operativo' }}</option></optgroup>
-      <optgroup label="Ciclos históricos">@for (cycle of historicalCycles(); track cycle.id) { <option [value]="cycle.id">{{ cycle.code }} — {{ cycle.label }}</option> }</optgroup>
-    </select>
-  </label>
-  @if (historical()) { <p role="status">Consulta histórica de {{ activeCycle()?.code }}. Solo consulta y reporte; captura académica bloqueada.</p> }
-  @else if (cycleIssue()) { <p role="status">{{ cycleIssue() }}</p> }
-</section>
+
 @if (formMessage && !isAssignmentModalOpen) {
   <div class="feedback standalone-feedback">
     <strong>{{ formMessage }}</strong>
@@ -44,14 +35,16 @@
   </aside>
 }
 
+
+
 <section class="table-panel" aria-label="Tabla de asignaciones">
   <div class="panel-title">
         <div class="panel-heading-row">
           <div class="panel-heading-copy">
             <span>Planeacion academica</span>
-            <h3>Asignaciones academicas</h3>
+            <h3>Asignaciones académicas</h3>
             <p>Relaciona grupos del ciclo seleccionado con asignaturas, docentes e ID Moodle para revision institucional.</p>
-            <small>{{ catalogScopeLabel() }}</small>
+            <small>{{ catalogScopeLabel() }} · {{ historical() ? "Consulta histórica" : "Consulta operativa" }} {{ activeCycle()?.code || "sin selección" }}</small>
           </div>
 
           <div class="panel-heading-actions">
@@ -76,11 +69,12 @@
                 <span>{{ session()?.appUser?.baseRole === 'ADMIN_OPERATIVO' ? 'Ámbito delegado' : 'Catalogo global' }}</span>
               </span>
             }
-            <span class="cycle-chip" [class.pending]="!activeCycle()">
-              {{ historical() ? 'Ciclo histórico' : 'Ciclo operativo' }}
-              <strong>{{ activeCycleCode() }}</strong>
+            <span class="cycle-chip" [class.pending]="!operativeCycle()">
+              {{ operativeCycle() ? 'Ciclo operativo' : 'Sin ciclo activo' }}
+              <strong>{{ operativeCycle()?.code || '—' }}</strong>
             </span>
             @if (canManageAssignments()) {
+              <span class="assignment-create-control" [attr.tabindex]="!canCaptureAssignments() || !creationDataReady() ? 0 : null" [attr.aria-label]="!canCaptureAssignments() || !creationDataReady() ? (captureBlockedMessage() || 'Cargando entidades autorizadas para la asignación') : null">
               <button
                 class="primary-action"
                 type="button"
@@ -93,6 +87,8 @@
                 </svg>
                 <span>Asignacion</span>
               </button>
+              @if (!canCaptureAssignments() || !creationDataReady()) { <span class="assignment-create-help" role="tooltip">{{ captureBlockedMessage() || 'Cargando entidades autorizadas para la asignación' }}</span> }
+              </span>
             }
           </div>
         </div>
@@ -123,15 +119,24 @@
           </div>
           <label class="status-filter">
             <span>Estado</span>
-            <select [value]="statusFilter()" (change)="selectStatusFilter($event)">
+            <select aria-label="Estado" [ngModel]="statusFilter()" (change)="selectStatusFilter($event)">
               <option value="TODOS">Todos</option>
-              <option value="EN_CAPTURA">En captura</option>
-              <option value="EN_REVISION">En revision</option>
-              @if (canSeeMoodleLoadedStatus()) {
-                <option value="CARGADO_MOODLE">Cargado en Moodle</option>
-              }
+              @for (option of availableStatusFilters(); track option[0]) { <option [value]="option[0]">{{ option[1] }}</option> }
             </select>
           </label>
+<div class="cycle-selection">
+  <label for="assignment-consultation-cycle"><span>Ciclo de consulta</span></label>
+  <select id="assignment-consultation-cycle" (change)="selectCycle($event)" [ngModel]="activeCycle()?.id || ''" [disabled]="!cyclesReady() || !consultableCycles().length">
+    @if (!cyclesReady() || !consultableCycles().length) { <option value="">{{ !cyclesReady() ? (cyclesReadState() === 'loading' ? 'Cargando ciclos…' : 'Consulta no disponible') : 'Sin ciclos consultables' }}</option> }
+    @if (selectableOperative(); as cycle) { <optgroup label="Ciclo operativo"><option [value]="cycle.id">{{ cycle.code }} — Operativo</option></optgroup> }
+    @if (historicalCycles().length) { <optgroup label="Ciclos históricos">@for (cycle of historicalCycles(); track cycle.id) { <option [value]="cycle.id">{{ cycle.code }} — Histórico</option> }</optgroup> }
+  </select>
+  @if (!cyclesReady()) { <p role="status">{{ cyclesReadMessage() }}</p> }
+  @else if (!consultableCycles().length) { <p role="status">No hay ciclos consultables dentro de tu ámbito autorizado.</p> }
+  @else if (historical()) { <small class="cycle-readonly" role="status">Solo lectura</small> }
+  @else if (cycleIssue()) { <p role="status">{{ cycleIssue() }}</p> }
+  @if (cyclesReadState() === 'error') { <button type="button" (click)="retryCycles()">Reintentar ciclos</button> }
+</div>
         </div>
 
         <aside class="assignments-side-panel" aria-label="Seguimiento de asignaciones">
@@ -456,7 +461,7 @@
               class="special-type-button"
               type="button"
               [class.is-active]="assignmentForm.specialType === 'propedeutic'"
-              [disabled]="activeCycle()?.status !== 'Captura'"
+              [disabled]="true"
               (click)="selectSpecialType('propedeutic')"
             >
               <strong>Propedeutico</strong>
@@ -852,7 +857,7 @@
           <button
             class="secondary-action continue-action"
             type="button"
-            [disabled]="!canCaptureAssignments() || isSavingAssignment"
+            [disabled]="!canSaveAssignmentForm() || isSavingAssignment"
             (click)="saveAssignment(true)"
           >
             {{ isSavingAssignment ? 'Guardando...' : 'Guardar y continuar agregando' }}

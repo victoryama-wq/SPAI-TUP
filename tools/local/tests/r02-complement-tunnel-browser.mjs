@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {chromium,expect} from '@playwright/test';
+import {root} from '../config.mjs';
+import {tunnelOrigin} from '../tunnel-policy.mjs';
+const origin=tunnelOrigin(JSON.parse(readFileSync(resolve(root,'.local/tunnel-recovery/origin.json'))).origin);
+const version=await fetch(origin+'/demo-version.json').then(r=>r.json());assert.equal(version.revision,'tunnel-r02-complement-20261023-01');
+const preserved=async()=>{const result={};for(const name of ['ciclos','usuarios','delegaciones','asignaciones','grupos','operaciones_ciclo','ciclos_retirados']){const r=await fetch('http://127.0.0.1:18080/v1/projects/demo-spai-tup/databases/(default)/documents/'+name+'?pageSize=1000',{headers:{authorization:'Bearer owner'}});assert.ok(r.ok);const v=await r.json();assert.ok(!v.nextPageToken);result[name]=(v.documents||[]).map(d=>({name:d.name,fields:d.fields})).sort((a,b)=>a.name.localeCompare(b.name));}return result;};
+const before=await preserved();
+const browser=await chromium.launch({headless:true});
+try {
+ const page=await browser.newPage({viewport:{width:1280,height:950}}),errors=[],requests=[];page.setDefaultTimeout(30000);
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',r=>{const u=new URL(r.request().url());requests.push({origin:u.origin,path:u.pathname});return u.origin===origin?r.continue():r.abort();});
+ await page.goto(origin);const interstitial=page.getByText('Continue',{exact:true});if(await interstitial.isVisible())await interstitial.click();await page.getByLabel('Cuenta ficticia del emulador').selectOption('demo.sistemas@tecplayacar.edu.mx');requests.length=0;await page.getByRole('button',{name:'Ingresar a DEMO',exact:true}).click();await expect(page.locator('nav')).toBeVisible();
+ await page.goto(origin+'/ciclos');await expect(page.locator('tbody tr')).toHaveCount(2);
+ const row=page.getByRole('row').filter({has:page.locator('.cycle-code',{hasText:'27-1'})});
+ await expect(row).toContainText('Captura cerrada');await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Nuevo ciclo',exact:true})).toBeDisabled();
+ await expect(row.getByRole('button',{name:'Reabrir captura',exact:true})).toBeDisabled();
+ await expect(row.getByRole('button',{name:'Cerrar ciclo',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:'Eliminar ciclo histórico',exact:true})).toHaveCount(0);
+ await page.screenshot({path:resolve(root,'docs/evidence/r02-complement/tunnel-ciclos.png'),fullPage:true});
+ await page.goto(origin+'/asignaciones');await expect(page.locator('spai-assignments-page')).toBeVisible();
+ await expect(page.getByRole('button',{name:'Asignacion',exact:true})).toBeDisabled();
+ await page.screenshot({path:resolve(root,'docs/evidence/r02-complement/tunnel-asignaciones.png'),fullPage:true});
+ assert.deepEqual(await preserved(),before);
+ for(const path of ['/emulator/v1/projects/demo-spai-tup/accounts','/v1/projects/demo-spai-tup/databases/(default)/documents','/reset','/stop'])assert.equal((await fetch(origin+path)).status,404);
+ assert.equal((await fetch(origin+'/demo-spai-tup/us-central1/cycleContext',{method:'POST',headers:{authorization:'Bearer owner','content-type':'application/json'},body:'{"data":{}}'})).status,403);
+ assert.deepEqual(errors,[]);assert.ok(requests.every(r=>r.origin===origin));assert.ok(requests.some(r=>r.path.includes('accounts:signInWithPassword')));assert.ok(requests.some(r=>r.path.includes('google.firestore.v1.Firestore')));assert.ok(requests.some(r=>r.path.endsWith('/cycleContext')));assert.ok(!requests.some(r=>r.path.endsWith('/cycleCommand')));
+ const result={at:new Date().toISOString(),status:'PASS',origin,version,realPublicTunnel:true,checkedFrom:'host computer browser, not a second physical computer',login:true,twoCycles:true,closedCaptureNoModal:true,contextualActions:true,sharedDataUnchanged:true,newCycleDisabled:true,httpsSameOrigin:true,adminEndpointsBlocked:true,cycleCommands:0,errors};writeFileSync(resolve(root,'docs/evidence/r02-complement/tunnel.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
+}finally{await browser.close();}

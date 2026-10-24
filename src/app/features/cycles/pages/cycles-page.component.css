@@ -791,3 +791,19 @@ th {
  .notice-actions { padding:16px 18px; }
  .notice-actions button { flex:1 1 180px; justify-content:center; }
 }
+
+/* R02 complement: one accessible operation strip; table scroll keeps it intact. */
+.cycle-icon-actions { display:flex; flex-wrap:nowrap; align-items:center; gap:8px; min-width:148px; padding:6px 0; }
+.cycle-icon-actions .cycle-close-action { flex:0 0 44px; width:44px; height:44px; }
+.cycle-action-help { position:relative; display:inline-flex; flex:0 0 44px; width:44px; border-radius:8px; }
+.cycle-action-help .action-tooltip { visibility:hidden; position:absolute; z-index:3; bottom:calc(100% + 5px); left:0; width:210px; box-sizing:border-box; padding:8px; border-radius:5px; background:#0b1f4b; color:#fff; font-size:12px; line-height:1.4; pointer-events:none; }
+.cycle-action-help:hover .action-tooltip,.cycle-action-help:focus-within .action-tooltip { opacity:1; visibility:visible; }
+.cycle-action-help:focus-visible { outline:3px solid #0b9dc2; outline-offset:3px; }
+.cycle-close-action:disabled { background:#edf1f6; color:#687b94; border-color:#c4d2e4; cursor:not-allowed; }
+.cycle-close-action.danger { color:#b42342; background:#fff4f5; border-color:#efbec8; }
+.cycle-close-action[aria-pressed="true"] { background:#dceeff; border-color:#2563a6; }
+.notice-actions .danger { background:#b42342; color:white; }
+
+.deletion-reason { display:grid; gap:8px; margin-top:20px; font-weight:700; }
+.deletion-reason textarea { width:100%; box-sizing:border-box; border:1px solid #bdd1ed; border-radius:8px; padding:12px; font:inherit; }
+.deletion-reason small { font-weight:400; color:#40577a; }

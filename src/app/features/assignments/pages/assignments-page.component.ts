@@ -1,6 +1,6 @@
 import { hasAccess, isSystems, hasCapability } from '../../users/data/module-permission.service';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Component, computed, effect, inject, linkedSignal, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { AuditLogRepository } from '../../../core/data/audit-log.repository';
@@ -20,6 +20,7 @@ import {
   AssignmentStatus,
   AssignmentType,
   AssignmentsRepository,
+  REMEMBER_ASSIGNMENT_CYCLE,
   UpsertAssignmentPayload,
 } from '../data/assignments.repository';
 
@@ -114,6 +115,7 @@ interface AssignmentStatusSummary {
   selector: 'spai-assignments-page',
   imports: [CommonModule, FormsModule],
   providers: [
+    { provide: REMEMBER_ASSIGNMENT_CYCLE, useValue: true },
     AssignmentsRepository,
     AuditLogRepository,
     GroupsRepository,
@@ -143,9 +145,9 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   readonly assignments = this.assignmentsRepository.assignments;
   readonly assignmentsReadError = this.assignmentsRepository.readError;
-  readonly assignmentsReady = this.assignmentsRepository.ready;
-  readonly assignmentsReadState = this.assignmentsRepository.readState;
-  readonly assignmentsReadMessage = this.assignmentsRepository.readMessage;
+  readonly assignmentsReady = computed(() => this.cyclesRepository.ready() && !!this.activeCycle() && this.assignmentsRepository.ready());
+  readonly assignmentsReadState = computed(() => !this.cyclesRepository.ready() ? this.cyclesRepository.readState() : !this.activeCycle() ? 'restricted' : this.assignmentsRepository.readState());
+  readonly assignmentsReadMessage = computed(() => !this.cyclesRepository.ready() ? this.cyclesRepository.readMessage() : !this.activeCycle() ? 'No hay ciclos consultables dentro de tu ámbito autorizado.' : this.assignmentsRepository.readMessage());
   retryAssignments(): void { void this.assignmentsRepository.refreshFromServer().catch(() => undefined); }
   readonly creationDataReady = computed(() => this.assignmentsReady() && this.cyclesRepository.ready() && this.groupsRepository.ready() && this.subjectsRepository.ready() && this.teachersRepository.ready());
   readonly assignmentsById = computed(() => {
@@ -243,7 +245,15 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly users = this.usersRepository.users;
   readonly session = this.userSessionService.session;
 
-  statusFilter = signal<AssignmentStatusFilter>('TODOS');
+  readonly availableStatusFilters = computed(() => {
+    const present = new Set(this.catalogAssignmentsForActiveCycle().map(a => this.displayAssignmentStatus(a.status, a)));
+    return ([['EN_CAPTURA', 'En captura'], ['EN_REVISION', 'En revisión'], ['CARGADO_MOODLE', 'Cargado en Moodle']] as const)
+      .filter(([value]) => present.has(value) && (value !== 'CARGADO_MOODLE' || this.canSeeMoodleLoadedStatus()));
+  });
+  statusFilter = linkedSignal<{ ready: boolean; options: readonly string[] }, AssignmentStatusFilter>({
+    source: () => ({ ready: this.assignmentsReady(), options: this.availableStatusFilters().map(([value]) => value) }),
+    computation: (source, previous) => !source.ready || source.options.includes(previous?.value ?? 'TODOS') ? previous?.value ?? 'TODOS' : 'TODOS',
+  });
   searchQuery = signal('');
   readonly normalizedSearchQuery = computed(() => this.normalizeSearch(this.searchQuery()));
   readonly normalizedSearchTokens = computed(() => this.normalizedSearchQuery().split(' ').filter(Boolean));
@@ -276,13 +286,19 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly activeCycle = this.assignmentsRepository.selectedCycle;
   readonly operativeCycle = this.cyclesRepository.activeCycle;
   readonly cycleIssue = this.cyclesRepository.captureMessage;
-  readonly historicalCycles = computed(() => this.cycles().filter(c=>c.status==='Cerrado' && this.allowedCycle(c.code)));
+  readonly consultableCycles = this.assignmentsRepository.consultableCycles;
+  readonly cyclesReadState = this.cyclesRepository.readState;
+  readonly cyclesReadMessage = this.cyclesRepository.readMessage;
+  readonly cyclesReady = this.cyclesRepository.ready;
+  readonly selectableOperative = computed(() => this.consultableCycles().find(c => c.id === this.operativeCycle()?.id));
+  readonly historicalCycles = computed(() => this.consultableCycles().filter(c => c.status === 'Cerrado'));
+  retryCycles(): void { void this.cyclesRepository.refreshFromServer().catch(() => undefined); }
   allowedCycle(code: string): boolean { const u=this.session()?.appUser; return u?.baseRole==='ADMIN_GENERAL' || Boolean(u?.scope?.cycles?.some(c=>c==='*'||c===code)); }
   selectCycle(event: Event): void { this.closeAssignmentModal(); this.currentPage.set(1); this.assignmentsRepository.selectCycle((event.target as HTMLSelectElement).value || null); }
   readonly historical = computed(() => this.activeCycle()?.status==='Cerrado');
   assignmentCaptureAllowed(assignment: AcademicAssignment): boolean {
     const c=this.activeCycle();
-    if(!c || !this.cyclesRepository.contextReady() || this.cyclesRepository.inconsistent() || c.code!==assignment.cycle || !this.allowedCycle(c.code)) return false;
+    if(!c || c.id !== this.operativeCycle()?.id || !this.cyclesRepository.contextReady() || this.cyclesRepository.inconsistent() || c.code!==assignment.cycle || !this.allowedCycle(c.code)) return false;
     if(c.status==='Captura') return true;
     const group=this.groupsByFullGroup().get(assignment.group);
     return c.status==='Captura cerrada' && c.specialsEnabled===true && assignment.assignmentType==='ESPECIAL' && !!group && this.isSpecialGroup(group);
@@ -290,9 +306,15 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   readonly activeCycleCode = computed(() => this.activeCycle()?.code ?? 'Pendiente de configurar');
 
+  constructor() {
+    effect(() => {
+      const code = this.activeCycle()?.code;
+      if (this.isAssignmentModalOpen && this.assignmentForm.cycle !== code) this.closeAssignmentModal();
+    });
+  }
+
   ngOnDestroy(): void {
     this.clearFormMessageTimeout();
-    this.assignmentsRepository.selectCycle(null);
   }
 
   // All rows returned by the scoped repository, never institutional authority.
@@ -352,7 +374,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       || this.isAcademicCoordinationRole(role);
   });
 
-  readonly canCaptureAssignments = computed(() => !this.cyclesRepository.inconsistent() && this.cyclesRepository.contextReady() && !!this.activeCycle() && this.allowedCycle(this.activeCycle()!.code) && (this.activeCycle()?.status === 'Captura' || (this.activeCycle()?.status === 'Captura cerrada' && this.activeCycle()?.specialsEnabled === true && this.modeTab() === 'Especiales')));
+  readonly canCaptureAssignments = computed(() => !this.cyclesRepository.inconsistent() && this.cyclesRepository.contextReady() && !!this.activeCycle() && this.activeCycle()?.id === this.operativeCycle()?.id && this.allowedCycle(this.activeCycle()!.code) && (this.activeCycle()?.status === 'Captura' || (this.activeCycle()?.status === 'Captura cerrada' && this.activeCycle()?.specialsEnabled === true && this.modeTab() === 'Especiales')));
 
   readonly assignedProgramCodes = computed(() => {
     const appUser = this.session()?.appUser;
@@ -369,6 +391,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   });
 
   readonly captureBlockedMessage = computed(() => {
+    if (this.historical()) return `Consulta histórica de ${this.activeCycle()?.code}. Solo lectura; captura académica bloqueada.`;
     if (!this.cyclesRepository.contextReady()) return this.cyclesRepository.captureMessage() || 'Verificando el ciclo y tus permisos…';
     const activeCycle = this.activeCycle();
 
@@ -377,6 +400,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       return 'No hay ciclo activo operativo. Coordinacion de Sistemas debe abrir un ciclo en Captura antes de registrar asignaciones.';
     }
 
+    if (activeCycle.status === 'Captura cerrada' && this.modeTab() !== 'Especiales') return 'La captura está cerrada. Solo pueden registrarse asignaciones especiales autorizadas.';
     if (!this.canCaptureAssignments()) {
       return `El ciclo ${activeCycle.code} esta en estado ${activeCycle.status}. La captura y edicion de asignaciones estan bloqueadas.`;
     }
@@ -710,7 +734,8 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly moodleLoadedCount = computed(() => this.visibleAssignmentSummary().moodleLoaded);
 
   readonly nextAssignmentAction = computed(() => {
-    if (!this.assignmentsReady()) return 'Pendiente de una consulta autorizada y completada.';
+    if (!this.assignmentsReady()) return this.assignmentsReadMessage();
+    if (this.historical()) return `Seguimiento del ciclo ${this.activeCycleCode()}. Consulta histórica de solo lectura.`;
     if (this.reviewCount() > 0) {
       return 'Hay asignaciones en revision listas para seguimiento desde el panel Moodle.';
     }
@@ -733,7 +758,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (!this.activeCycle()) {
-      return 'Sin ciclo activo';
+      return 'Sin ciclos consultables';
     }
 
     if (!this.catalogAssignmentsForActiveCycle().length) {
@@ -756,7 +781,7 @@ export class AssignmentsPageComponent implements OnDestroy {
     }
 
     if (!this.activeCycle()) {
-      return 'Configura un ciclo activo para consultar asignaciones operativas.';
+      return 'No hay ciclos disponibles dentro de tu ámbito autorizado.';
     }
 
     if (!this.catalogAssignmentsForActiveCycle().length) {
@@ -892,7 +917,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       tone: 'danger',
     });
 
-    if (!confirmed) {
+    if (!confirmed || !this.canDeleteAssignment(assignment)) {
       return;
     }
 
@@ -954,7 +979,8 @@ export class AssignmentsPageComponent implements OnDestroy {
 
   canSaveAssignmentForm(): boolean {
     const current=this.editingAssignmentId ? this.assignments().find(a=>a.id===this.editingAssignmentId) : null;
-    return this.editingAssignmentId ? !!current && this.canEditAssignment(current) : this.canManageAssignments() && this.canCaptureAssignments();
+    if (this.assignmentForm.cycle !== this.activeCycle()?.code) return false;
+    return this.editingAssignmentId ? !!current && this.canEditAssignment(current) : this.canManageAssignments() && this.canCaptureAssignments() && this.assignmentForm.cycle === this.activeCycle()?.code;
   }
 
   async saveAssignment(continueAdding = false): Promise<void> {
@@ -980,6 +1006,8 @@ export class AssignmentsPageComponent implements OnDestroy {
         return;
       }
     }
+
+    if (!this.canSaveAssignmentForm()) { this.formErrors = ['El ciclo de consulta o tus permisos cambiaron. Revisa la asignación.']; return; }
 
     if (this.isAcademicCoordinatorEnrollmentOnlyEdit()) {
       await this.saveAcademicCoordinatorEnrollmentOnlyEdit();
@@ -1370,7 +1398,7 @@ export class AssignmentsPageComponent implements OnDestroy {
       tone: 'danger',
     });
 
-    if (!confirmed) {
+    if (!confirmed || !this.canDeleteAssignment(assignment)) {
       return;
     }
 
@@ -1459,6 +1487,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   selectModeTab(tab: AssignmentModeTab): void {
+    if (this.isAssignmentModalOpen) this.closeAssignmentModal();
     this.modeTab.set(tab);
     this.searchQuery.set('');
     this.resetPagination();
@@ -1972,6 +2001,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   selectSpecialType(type: SpecialAssignmentOption): void {
+    if (type === 'propedeutic' && (this.modeTab() === 'Especiales' || this.activeCycle()?.status !== 'Captura')) return;
     this.assignmentForm.specialType = type;
     this.assignmentForm.special = type !== 'group';
     this.assignmentForm.propedeutic = type === 'propedeutic';
@@ -2037,6 +2067,7 @@ export class AssignmentsPageComponent implements OnDestroy {
   }
 
   private assignmentTypeForForm(): AssignmentType {
+    if (!this.editingAssignmentId && this.modeTab() === 'Especiales') return 'ESPECIAL';
     if (this.assignmentForm.propedeutic) {
       return 'PROPEDEUTICO';
     }

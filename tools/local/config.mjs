@@ -6,16 +6,18 @@ export const root = fileURLToPath(new URL('../../', import.meta.url));
 export const isolatedTest = process.env.SPAI_LOCAL_TEST_ISOLATED === 'true';
 if (isolatedTest && process.env.SPAI_LOCAL_SYNTHETIC !== 'true') throw new Error('El ensayo aislado requiere fixtures sintéticos.');
 export const complementTest = process.env.SPAI_LOCAL_TEST_SLOT === 'complement';
+export const recoveryTest = process.env.SPAI_LOCAL_TEST_SLOT === 'recovery';
+if (recoveryTest && !isolatedTest) throw new Error('La recuperacion requiere emuladores aislados sinteticos.');
 if (complementTest && !isolatedTest) throw new Error('El complemento solo admite emuladores aislados sinteticos.');
-export const testOffset = isolatedTest ? (complementTest ? 20000 : 10000) : 0;
+export const testOffset = isolatedTest ? (recoveryTest ? 40000 : complementTest ? 20000 : 10000) : 0;
 export const config = JSON.parse(readFileSync(resolve(root, 'src/environments/local-emulators.json'), 'utf8'));
 if (isolatedTest) for (const key of ['auth','firestore','functions','storage','hub','ui','control']) config[key] += testOffset;
-export const cliConfigFile = resolve(root, isolatedTest ? '.local-emulators.isolated.json' : 'firebase.local.json');
+export const cliConfigFile = resolve(root, recoveryTest ? '.local-emulators.recovery.json' : complementTest ? '.local-emulators.complement.json' : isolatedTest ? '.local-emulators.isolated.json' : 'firebase.local.json');
 export const loggingPort = 4500 + testOffset;
 export const websocketPort = 9150 + testOffset;
 export const accounts = JSON.parse(readFileSync(resolve(root, 'src/environments/local-accounts.json'), 'utf8'));
 export const password = 'Demo-only-2026!';
-export const sessionFile = resolve(root, isolatedTest ? '.local/session-isolated.json' : '.local/session.json');
+export const sessionFile = resolve(root, recoveryTest ? '.local/tunnel-recovery/session.json' : complementTest ? '.local/session-complement.json' : isolatedTest ? '.local/session-isolated.json' : '.local/session.json');
 
 export function assertLocalConfig(candidate = config) {
   if (candidate.projectId !== 'demo-spai-tup' || candidate.host !== '127.0.0.1') {

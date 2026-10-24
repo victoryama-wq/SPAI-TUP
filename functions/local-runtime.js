@@ -10,7 +10,7 @@ function resolveLocalRuntime(env = process.env) {
   if (!local) return null;
   // Firebase's discovery worker does not forward arbitrary SPAI_* variables.
   // Complete, explicit loopback tuples only; the complement cannot use LAN data.
-  const offset = [0, 10000, 20000].find(value =>
+  const offset = [0, 10000, 20000, 40000].find(value =>
     env.FIRESTORE_EMULATOR_HOST === `127.0.0.1:${8080 + value}`
     && env.FIREBASE_AUTH_EMULATOR_HOST === `127.0.0.1:${9099 + value}`
     && env.FIREBASE_STORAGE_EMULATOR_HOST === `127.0.0.1:${9199 + value}`);

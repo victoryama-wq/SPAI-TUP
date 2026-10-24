@@ -1,6 +1,8 @@
+import { hasAccess } from '../../users/data/module-permission.service';
 import { CyclesRepository } from '../../cycles/data/cycles.repository';
 import { UserSessionService } from '../../../core/auth/user-session.service';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { AuthService } from '../../../core/auth/auth.service';
+import { computed, inject, Injectable, InjectionToken, linkedSignal, signal } from '@angular/core';
 import { doc, getDocFromServer, orderBy, setDoc, waitForPendingWrites, where } from 'firebase/firestore';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB } from '../../../core/firebase/firebase.tokens';
@@ -109,20 +111,59 @@ const ASSIGNMENT_SAVE_TIMEOUT_MS = 30000;
 const ASSIGNMENT_VERIFY_TIMEOUT_MS = 10000;
 const ASSIGNMENT_DELETE_TIMEOUT_MS = 12000;
 
+// Only the Assignments page remembers a choice across profile-driven recreation.
+// Other consumers keep their own operative view; no rows are stored here.
+export const REMEMBER_ASSIGNMENT_CYCLE = new InjectionToken<boolean>('Remember assignment consultation cycle');
+@Injectable({ providedIn: 'root' })
+export class AssignmentCycleChoice {
+  private readonly auth = inject(AuthService);
+  readonly id = linkedSignal<string | undefined, string | null>({ source: () => this.auth.user()?.uid, computation: () => null });
+}
+
 @Injectable({ providedIn: 'root' })
 export class AssignmentsRepository extends FirestoreRepository<AcademicAssignment> {
   private readonly cycleRepository = inject(CyclesRepository);
   private readonly selectionSession = inject(UserSessionService);
-  readonly selectedCycleId = signal<string | null>(null);
-  readonly selectedCycle = computed(() => this.selectedCycleId() ? this.cycleRepository.cycles().find(c=>c.id===this.selectedCycleId()) ?? null : this.cycleRepository.activeCycle());
+  private readonly selectionAuth = inject(AuthService);
+  private readonly rememberChoice = inject(REMEMBER_ASSIGNMENT_CYCLE, { optional: true });
+  private readonly requestedCycleId = this.rememberChoice ? inject(AssignmentCycleChoice).id : signal<string | null>(null);
+  readonly consultableCycles = computed(() => {
+    const user = this.selectionSession.session()?.appUser;
+    if (!hasAccess(user, 'asignaciones')) return [];
+    const operative = this.cycleRepository.activeCycle();
+    return this.cycleRepository.cycles().filter(c =>
+      (c.status === 'Cerrado' || c.id === operative?.id)
+      && (user?.baseRole === 'ADMIN_GENERAL' || user?.scope?.cycles?.some(code => code === '*' || code === c.code)));
+  });
+  private readonly selectionSource = computed(() => ({
+    uid: this.selectionAuth.user()?.uid,
+    requested: this.requestedCycleId(),
+    ready: !!this.selectionSession.session() && this.cycleRepository.ready(),
+    ids: this.consultableCycles().map(c => c.id),
+    operativeId: this.cycleRepository.activeCycle()?.id,
+  }));
+  readonly selectedCycleId = linkedSignal<ReturnType<typeof this.selectionSource>, string | null>({
+    source: this.selectionSource,
+    computation: (source, previous) => {
+      const prior = source.uid === previous?.source.uid ? previous?.value ?? null : null;
+      if (!source.ready) return source.requested ?? prior;
+      const fallback = source.ids.find(id => id === source.operativeId) ?? (this.rememberChoice ? source.ids[0] : null) ?? null;
+      if (!previous || source.requested !== previous.source.requested) return source.requested && source.ids.includes(source.requested) ? source.requested : fallback;
+      if (prior && source.ids.includes(prior)) return prior;
+      return fallback;
+    },
+  });
+  readonly selectedCycle = computed(() => this.consultableCycles().find(c => c.id === this.selectedCycleId()) ?? null);
   protected override selectionKey(): string { return this.selectedCycle()?.code ?? '_no_selected_cycle_'; }
   protected override selectionConstraints() { return [where('cycle', '==', this.selectedCycle()?.code ?? '_no_selected_cycle_')]; }
-  selectCycle(id: string | null): void { this.selectedCycleId.set(id); }
+  selectCycle(id: string | null): void {
+    if (id && this.consultableCycles().some(c => c.id === id)) this.requestedCycleId.set(id);
+    else if (!id) this.requestedCycleId.set(null);
+  }
   readonly assignments = computed(() => this.items().filter((assignment) => !assignment.deletedAt));
 
   constructor() {
     super(inject(FIREBASE_DB), ASSIGNMENTS_COLLECTION, orderBy('updatedAt', 'desc'));
-    effect(() => { this.selectionSession.session(); this.selectedCycleId.set(null); });
   }
 
   async upsertAssignment(payload: UpsertAssignmentPayload): Promise<string> {
