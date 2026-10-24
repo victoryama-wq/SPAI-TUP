@@ -1,0 +1,140 @@
+TAP version 13
+# Subtest: Una baja histórica no recupera acceso por estado Activo, rol general o delegación conservada
+ok 1 - Una baja histórica no recupera acceso por estado Activo, rol general o delegación conservada
+  ---
+  duration_ms: 56.9311
+  type: 'test'
+  ...
+# Subtest: VIEW nunca equivale a EDIT; desconocidos no se normalizan a acceso
+ok 2 - VIEW nunca equivale a EDIT; desconocidos no se normalizan a acceso
+  ---
+  duration_ms: 0.3966
+  type: 'test'
+  ...
+# Subtest: Nombre Sistemas no concede autoridad; inactivo y ausente no operan
+ok 3 - Nombre Sistemas no concede autoridad; inactivo y ausente no operan
+  ---
+  duration_ms: 0.1714
+  type: 'test'
+  ...
+# Subtest: Caducidad determinista, revisión y mapeo vigente en política de servidor
+ok 4 - Caducidad determinista, revisión y mapeo vigente en política de servidor
+  ---
+  duration_ms: 1.6673
+  type: 'test'
+  ...
+# Subtest: La delegación debe ser activa, propia y referida por el perfil
+ok 5 - La delegación debe ser activa, propia y referida por el perfil
+  ---
+  duration_ms: 0.3797
+  type: 'test'
+  ...
+# Subtest: Definiciones personalizadas no conceden administración ni acciones sensibles
+ok 6 - Definiciones personalizadas no conceden administración ni acciones sensibles
+  ---
+  duration_ms: 0.3485
+  type: 'test'
+  ...
+# Subtest: Auxiliar no puede asignarse, asignar a administradores o superar su techo
+ok 7 - Auxiliar no puede asignarse, asignar a administradores o superar su techo
+  ---
+  duration_ms: 0.7042
+  type: 'test'
+  ...
+# Subtest: Migración preserva NONE y false; ausente no concede; etiqueta no verifica rol
+ok 8 - Migración preserva NONE y false; ausente no concede; etiqueta no verifica rol
+  ---
+  duration_ms: 0.4312
+  type: 'test'
+  ...
+# Subtest: UI real permite EDIT personalizado propio, pero no VIEW ni ámbito ajeno
+ok 9 - UI real permite EDIT personalizado propio, pero no VIEW ni ámbito ajeno
+  ---
+  duration_ms: 109.4769
+  type: 'test'
+  ...
+# Subtest: CO-02 dashboard real solo enumera módulos explícitamente concedidos
+ok 10 - CO-02 dashboard real solo enumera módulos explícitamente concedidos
+  ---
+  duration_ms: 36.0237
+  type: 'test'
+  ...
+# No se pudo leer asignaciones { code: 'permission-denied', message: 'Null value diagnostic' }
+# No se pudo leer asignaciones { code: 'unavailable', message: 'technical diagnostic' }
+# No se pudo leer solicitudes_sistemas { code: 'permission-denied', message: 'Null value diagnostic' }
+# No se pudo leer solicitudes_sistemas { code: 'unavailable', message: 'internal technical detail' }
+# Subtest: Consulta vacía confirmada, carga, denegación y fallo técnico no se confunden
+ok 11 - Consulta vacía confirmada, carga, denegación y fallo técnico no se confunden
+  ---
+  duration_ms: 128.2991
+  type: 'test'
+  ...
+# Subtest: CO-01: cambiar ciclo retira datos antes del efecto y descarta respuestas tardías
+ok 12 - CO-01: cambiar ciclo retira datos antes del efecto y descarta respuestas tardías
+  ---
+  duration_ms: 38.4823
+  type: 'test'
+  ...
+# Subtest: Perfil vigente ignora caché y escrituras optimistas no confirmadas; una identidad nueva no hereda autorización
+ok 13 - Perfil vigente ignora caché y escrituras optimistas no confirmadas; una identidad nueva no hereda autorización
+  ---
+  duration_ms: 39.9501
+  type: 'test'
+  ...
+# Subtest: Repositorio base borra datos al cambiar identidad antes de cleanup y descarta callbacks atrasados tras revocación
+ok 14 - Repositorio base borra datos al cambiar identidad antes de cleanup y descarta callbacks atrasados tras revocación
+  ---
+  duration_ms: 25.0413
+  type: 'test'
+  ...
+# Subtest: Solicitudes no inicia lectura sin módulo y cancela/limpia la sesión anterior
+ok 15 - Solicitudes no inicia lectura sin módulo y cancela/limpia la sesión anterior
+  ---
+  duration_ms: 30.0123
+  type: 'test'
+  ...
+# Subtest: Solicitudes distingue caché, vacío confirmado, denegación y error técnico sin publicar diagnósticos
+ok 16 - Solicitudes distingue caché, vacío confirmado, denegación y error técnico sin publicar diagnósticos
+  ---
+  duration_ms: 25.4608
+  type: 'test'
+  ...
+# Subtest: Agenda y notificaciones retiran datos al salir y descartan entregas de la identidad anterior
+ok 17 - Agenda y notificaciones retiran datos al salir y descartan entregas de la identidad anterior
+  ---
+  duration_ms: 41.7072
+  type: 'test'
+  ...
+# Subtest: La reapertura solicitada espera al servidor y no anuncia éxito si el comando se rechaza
+ok 18 - La reapertura solicitada espera al servidor y no anuncia éxito si el comando se rechaza
+  ---
+  duration_ms: 93.0254
+  type: 'test'
+  ...
+# Subtest: Reproducible two-cycle scenario, academic and notification references resolve
+ok 19 - Reproducible two-cycle scenario, academic and notification references resolve
+  ---
+  duration_ms: 3.9005
+  type: 'test'
+  ...
+# Subtest: Negative multi-operative fixtures unchanged; no new capture date
+ok 20 - Negative multi-operative fixtures unchanged; no new capture date
+  ---
+  duration_ms: 1.5166
+  type: 'test'
+  ...
+# Subtest: Broken references and extra operative cycles fail validation
+ok 21 - Broken references and extra operative cycles fail validation
+  ---
+  duration_ms: 1.8842
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 797.399

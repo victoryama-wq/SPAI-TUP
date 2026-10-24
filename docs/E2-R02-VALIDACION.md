@@ -1,8 +1,12 @@
 # E2-R02 — Entrega local de Ciclo, captura y Especiales
 
+**Revalidación vigente (23/10/2026):** [matriz final, escenarios y limitaciones](E2-R02-REVISION-TECNICA-FINAL-2026-10-23.md). Código evaluado `6b67bd9fb6edd7982f24d40f48863a17b441a092`. Gate 72 = 56 acreditados / 10 R03 abiertos / 6 R02 inconclusos, salida 1. Los ocho históricos R02 se contrastaron individualmente: dos PASS y seis INCONCLUSIVE_EVALUATOR. Complemento Eliminar usuario: 8 PASS y 2 inconclusos, separado. [Informe manual](E2-R02-REVISION-MANUAL-2026-10-23.md) incorporado sin aceptación funcional. **NO VALIDADA LOCALMENTE como entrega completa; aceptación humana pendiente; producción bloqueada.** Se preserva el historial de evidencia debajo.
+
 Fecha: 21/10/2026 (America/Cancun). Implementación y comprobaciones: Codex. Autorización: encargo del propietario `b83232d7-1880-412c-953c-5fc10d816863/Texto pegado.txt`.
 
 **Estado: IMPLEMENTACIÓN LOCAL CON PENDIENTES / NO VALIDADA LOCALMENTE.** La aceptación humana y la preparación para producción permanecen pendientes. Los errores del evaluador de Rules impiden acreditar seis contratos necesarios de R02. No se atribuye aceptación a capturas ni ensayos automatizados.
+
+**Actualización 23/10/2026:** implementado el [complemento de Ciclos y Asignaciones](E2-R02-COMPLEMENTO-2026-10-23.md): máximo dos, histórico inmediato protegido, eliminación explícita del anterior vacío con `PURGE_CYCLE`, modal solo al entrar en Captura y acciones compactas. Siete grupos de servidor y seis UI pasan; 14/14 unitarias pasan. El ensayo estricto de Rules conserva salida 1 por ocho diagnósticos inconclusos de esta nueva muestra. No cambia el estado global, los seis IDs inconclusos históricos ni los diez pendientes de R03. Evidencia nueva separada en `evidence/r02-complement/`; las ejecuciones anteriores se conservan.
 
 ## Base y conservación
 
@@ -124,3 +128,9 @@ Recorrido breve, pendiente del propietario:
 6. Revisar 320/390/768/1280 px y acceso por teclado a motivo, confirmación y selector. No repetir aceptación de Usuarios R01.
 
 Reversión de esta revisión: Ctrl+C en el frontend y `review.ps1 stop` para la sesión de emuladores de **este checkout**, o Ctrl+C en su terminal. No hace falta resetear Git ni borrar datos compartidos. La LAN continúa con R01. El descarte/restauración de estos fixtures aislados no equivale a una reversión de producción ensayada.
+
+## Corrección posterior del escenario — 22/10/2026
+
+El procedimiento de revisión del 21/10 anterior queda como histórico. Para el escenario de **exactamente dos ciclos**, usar el checkout actual `SPAI-TUP-BAJA-20261021` y el arranque descrito en [Corrección DEMO de dos ciclos](E2-R02-DEMO-DOS-CICLOS-2026-10-22.md). La preparación ya no sobreescribe ciclos ni resembrará una sesión existente. No modifica la copia importada del túnel.
+
+La evidencia dirigida está en [resultados](evidence/r02-two-cycles/results.json) y [capturas](evidence/r02-two-cycles/index.html). Acredita la corrección del escenario sintético y los comportamientos especificados, **no la validación completa ni la aceptación humana de R02**. Se conservan los pendientes y resultados anteriores de esta ficha.

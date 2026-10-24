@@ -1,0 +1,7 @@
+PASS One selector inside blue header filters; current and historical data, filters, counts and operative indicator
+PASS A same-session profile refresh preserves an authorized historical selection
+PASS Rapid switches clear old rows synchronously; latest selection wins
+PASS Open draft closes on cycle change; closed capture and Specials restrictions preserved
+PASS Desktop, tablet and mobile selector inside blue header filters without overflow
+PASS Loading, empty and query error are distinct presentation states; not zero-confirmed
+PASS Restricted real session sees only its authorized cycle; unavailable IDs cannot be selected

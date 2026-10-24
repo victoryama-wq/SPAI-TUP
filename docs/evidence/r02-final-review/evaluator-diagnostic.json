@@ -1,0 +1,26 @@
+[
+  {
+    "expression": "exists(/databases/$(database)/documents/ciclo_control/operativo)",
+    "result": "ALLOWED"
+  },
+  {
+    "expression": "get(/databases/$(database)/documents/ciclo_control/operativo).data.get('state','') == 'READY'",
+    "result": "7 PERMISSION_DENIED: \nevaluation error at L291:39 for 'create' @ L291, false for 'create' @ L291, false for 'update' @ L291, false for 'create' @ L291, false for 'create' @ L291"
+  },
+  {
+    "expression": "currentCycle().get('code','_none') == '25-1'",
+    "result": "7 PERMISSION_DENIED: \nevaluation error at L291:39 for 'create' @ L291, false for 'create' @ L291, false for 'update' @ L291, false for 'create' @ L291, false for 'create' @ L291"
+  },
+  {
+    "expression": "exists(/databases/$(database)/documents/ciclos_retirados/code_25-1)",
+    "result": "ALLOWED"
+  },
+  {
+    "expression": "!exists(/databases/$(database)/documents/ciclos_retirados/code_25-1)",
+    "result": "7 PERMISSION_DENIED: \nevaluation error at L291:39 for 'create' @ L291, false for 'create' @ L291, false for 'update' @ L291, false for 'create' @ L291, false for 'create' @ L291"
+  },
+  {
+    "expression": "request.resource.data.cycle == '27-1'",
+    "result": "7 PERMISSION_DENIED: \nfalse for 'create' @ L291, false for 'create' @ L291, false for 'update' @ L291"
+  }
+]

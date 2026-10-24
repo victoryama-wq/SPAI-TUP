@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-24T01:01:57.911Z",
+  "results": [
+    {
+      "name": "One selector inside blue header filters; current and historical data, filters, counts and operative indicator",
+      "status": "PASS"
+    },
+    {
+      "name": "A same-session profile refresh preserves an authorized historical selection",
+      "status": "PASS"
+    },
+    {
+      "name": "Rapid switches clear old rows synchronously; latest selection wins",
+      "status": "PASS"
+    },
+    {
+      "name": "Open draft closes on cycle change; closed capture and Specials restrictions preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop, tablet and mobile selector inside blue header filters without overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "Loading, empty and query error are distinct presentation states; not zero-confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "Restricted real session sees only its authorized cycle; unavailable IDs cannot be selected",
+      "status": "PASS"
+    }
+  ],
+  "environment": "isolated 28080 / 4204",
+  "presentationFaultInjection": "loading/error/empty only; real session and selection otherwise",
+  "humanAcceptance": false
+}

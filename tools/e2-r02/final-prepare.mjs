@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import {writeFileSync,mkdirSync} from 'node:fs';
 import {config,root,complementTest,localEnvironment,verifyHub} from '../local/config.mjs';
 import {control} from '../local/control.mjs';
-import {fixtures} from '../local/fixtures.mjs';
+import {fixtures,fixtureTime} from '../local/fixtures.mjs';
 import {reviewFixtures,validateReviewFixtures} from './review-fixtures.mjs';
 assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();
 const scenario=process.argv[2]||'capture';
@@ -32,7 +32,7 @@ try {
  for(const d of docs)batch.set(db.doc(d.path),d.data);
  await batch.commit();
  const state={preparation:'Preparacion',capture:'Captura','closed-capture':'Captura cerrada',specials:'Captura cerrada',closed:'Cerrado',renewal:'Cerrado'}[scenario];
- await db.doc('ciclos/demo-27-1').update({status:state,specialsEnabled:scenario==='specials'});
+ await db.doc('ciclos/demo-27-1').update({status:state,specialsEnabled:scenario==='specials',createdAt:fixtureTime,captureStartedAt:state==='Preparacion'?null:fixtureTime,captureClosedAt:['Captura cerrada','Cerrado'].includes(state)?fixtureTime:null,closedAt:state==='Cerrado'?fixtureTime:null,tentativeCaptureCloseAt:null});
  // Renewal is generated without older academic fixture records; never applied to shared data.
  const context=await require('./cycles/service').createCycleService(db).inspect({uid:'demo-sistemas'});
  const cycles=(await db.collection('ciclos').get()).docs.map(d=>({id:d.id,...d.data()}));

@@ -1,5 +1,9 @@
 # R02 — Trazabilidad de las comprobaciones
 
+**Revalidación vigente (23/10/2026):** [matriz final, escenarios y limitaciones](E2-R02-REVISION-TECNICA-FINAL-2026-10-23.md). Código evaluado `6b67bd9fb6edd7982f24d40f48863a17b441a092`. Gate 72 = 56 acreditados / 10 R03 abiertos / 6 R02 inconclusos, salida 1. Los ocho históricos R02 se contrastaron individualmente: dos PASS y seis INCONCLUSIVE_EVALUATOR. Complemento Eliminar usuario: 8 PASS y 2 inconclusos, separado. [Informe manual](E2-R02-REVISION-MANUAL-2026-10-23.md) incorporado sin aceptación funcional. **NO VALIDADA LOCALMENTE como entrega completa; aceptación humana pendiente; producción bloqueada.** Se preserva el historial de evidencia debajo.
+
+Complemento del 23/10/2026: [matriz y evidencia nuevas](E2-R02-COMPLEMENTO-2026-10-23.md). Siete grupos servidor, seis grupos UI y 14 unitarias PASS; ocho observaciones de denegación Rules inconclusas en una muestra separada. El contrato ahora limita a dos ciclos y permite eliminar explícitamente el histórico anterior sin dependencias; estos requisitos no forman parte del conteo histórico de 72 casos que se conserva debajo. No se ha reejecutado ni convertido en verde ese gate para esta entrega.
+
 21/10/2026. Responsable técnico: Codex. Datos ficticios y emuladores aislados. Esta matriz **no** acredita aceptación humana ni producción. Resultados completos y fechas UTC: [resumen](E2-R02-RESULTADOS.json) y `evidence/e2-r02/results/`.
 
 Los nombres de pruebas de servidor remiten a `tools/e2-r02/integration.mjs`; UI a `tools/e2-r02/ui.spec.mjs`. Un grupo que contiene una denegación con error del evaluador queda INCONCLUSIVE_EVALUATOR, aunque sus pasos positivos posteriores sí hayan terminado. No se contabiliza como PASS global.

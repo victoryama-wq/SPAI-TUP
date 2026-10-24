@@ -1,0 +1,26 @@
+[2026-10-24T01:01:49.080Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba39 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'delete' @ L125, false for 'delete' @ L291
+[2026-10-24T01:01:49.102Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3a error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L125, false for 'create' @ L291, false for 'update' @ L125, false for 'update' @ L291
+PASS No direct cycle writes or purge for consultation actor through callable
+[2026-10-24T01:01:50.849Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-24T01:01:50.889Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3c error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+INCONCLUSIVE_EVALUATOR Capture allowed; ordinary denied in closed capture; Specials denied disabled and allowed enabled
+[2026-10-24T01:01:51.034Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3e error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-24T01:01:51.054Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3d error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-24T01:01:51.085Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba3f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-24T01:01:51.187Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba40 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-24T01:01:51.292Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba41 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+INCONCLUSIVE_EVALUATOR Specials: VIEW, wrong group, outside program, preparation and closed rejected without effects
+[2026-10-24T01:01:51.383Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba42 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L213:22 for 'create' @ L213, false for 'create' @ L291, evaluation error at L214:22 for 'update' @ L214, false for 'update' @ L291, false for 'create' @ L213, false for 'create' @ L291
+[2026-10-24T01:01:51.415Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x7391ba43 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L121, false for 'create' @ L291, false for 'update' @ L121, false for 'update' @ L291
+INCONCLUSIVE_EVALUATOR Retired cycle tombstone blocks late linked requests; ordinary active request still works

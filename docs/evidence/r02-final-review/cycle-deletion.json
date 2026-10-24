@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-24T00:55:42.621Z",
+  "isolatedDatabase": "complement-1792803325013",
+  "results": [
+    {
+      "name": "Two historical cycles: context NONE; create cannot commit third",
+      "status": "PASS"
+    },
+    {
+      "name": "Latest historical and operative cycles cannot be deleted",
+      "status": "PASS"
+    },
+    {
+      "name": "Permission, delegated scope, revocation, expiry, stale revision and reason reject atomically",
+      "status": "PASS"
+    },
+    {
+      "name": "All current mutable dependency collections and private agenda block deletion",
+      "status": "PASS"
+    },
+    {
+      "name": "Delegated PURGE_CYCLE scoped to older cycle succeeds; full audit and retry are atomic",
+      "status": "PASS"
+    },
+    {
+      "name": "Concurrent creations after explicit deletion: only one commits and total stays two",
+      "status": "PASS"
+    },
+    {
+      "name": "Existing violations remain visible and cannot be silently modified",
+      "status": "PASS"
+    }
+  ],
+  "productionValidation": false
+}

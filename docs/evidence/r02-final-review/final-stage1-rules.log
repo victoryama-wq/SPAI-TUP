@@ -1,0 +1,124 @@
+CONTRACT_PASS AUTH-anonymous-READ AUTH
+[2026-10-24T00:58:21.091Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2265 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L194, false for 'update' @ L291
+CONTRACT_PASS AUTH-anonymous-WRITE AUTH
+CONTRACT_PASS AUTH-inactive-READ AUTH
+[2026-10-24T00:58:21.246Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2267 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+CONTRACT_PASS AUTH-inactive-WRITE AUTH
+CONTRACT_PASS INACTIVE-OWN-PROFILE AUTH
+CONTRACT_PASS FUNCTION-ANONYMOUS AUTH
+CONTRACT_PASS FUNCTION-INACTIVE-STAYS-INACTIVE AUTH
+CONTRACT_PASS OFF-READ-ciclos F01
+CONTRACT_PASS OFF-READ-grupos F01
+CONTRACT_PASS OFF-READ-docentes F01
+CONTRACT_PASS OFF-READ-asignaturas F01
+CONTRACT_PASS OFF-READ-usuarios F01
+[2026-10-24T00:58:21.809Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2269 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L125, false for 'update' @ L291
+CONTRACT_PASS OFF-WRITE-aux-off F01
+[2026-10-24T00:58:21.841Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc226a error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L125, false for 'update' @ L291
+CONTRACT_PASS OFF-WRITE-custom-view F01
+[2026-10-24T00:58:21.883Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc226b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L141:22 for 'update' @ L141, false for 'update' @ L291, false for 'update' @ L141, false for 'update' @ L291
+CONTRACT_PASS CUSTOM-EDIT-GROUP F01
+CONTRACT_PASS ACADEMIC-LEGACY-FLAGS F01
+CONTRACT_PASS TEACHER-EDIT-own F02
+CONTRACT_PASS TEACHER-DELETE-own F02
+[2026-10-24T00:58:22.017Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc226d error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291
+CONTRACT_PASS TEACHER-EDIT-other F02
+[2026-10-24T00:58:22.047Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc226e error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L166:22 for 'delete' @ L166, false for 'delete' @ L291, false for 'delete' @ L166, false for 'delete' @ L291
+CONTRACT_PASS TEACHER-DELETE-other F02
+[2026-10-24T00:58:22.086Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc226f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291
+CONTRACT_PASS TEACHER-OFF-EDIT F02
+[2026-10-24T00:58:22.110Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2270 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291
+CONTRACT_PASS TEACHER-VALIDATED-PROTECTED F02
+CONTRACT_PASS REQUEST-READ-academic-a F03
+CONTRACT_PASS REQUEST-RESOLVE-academic-a F03
+CONTRACT_PASS REQUEST-READ-academic-b F03
+[2026-10-24T00:58:22.227Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2274 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L206:22 for 'update' @ L206, false for 'update' @ L291, false for 'update' @ L206, false for 'update' @ L291
+CONTRACT_PASS REQUEST-RESOLVE-academic-b F03
+CONTRACT_PASS REQUEST-READ-academic-c F03
+[2026-10-24T00:58:22.300Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2276 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L206:22 for 'update' @ L206, false for 'update' @ L291, false for 'update' @ L206, false for 'update' @ L291
+CONTRACT_PASS REQUEST-RESOLVE-academic-c F03
+KNOWN_CONTRACT_FAILURE REQUEST-TERMINAL-REWRITE F07
+[2026-10-24T00:58:22.322Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2272 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L205, false for 'create' @ L291, false for 'update' @ L206, false for 'update' @ L291
+CONTRACT_PASS REQUEST-FORGED-OWNER F03
+CONTRACT_PASS SYSTEM-REQUEST-FOREIGN-READ F03
+[2026-10-24T00:58:22.341Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2277 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L215:22 for 'delete' @ L215, false for 'delete' @ L291, false for 'delete' @ L215, false for 'delete' @ L291
+CONTRACT_PASS SYSTEM-REQUEST-FOREIGN-DELETE F03
+[2026-10-24T00:58:22.455Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2278 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+BASELINE_CHANGED CYCLE-WRITE-Preparacion F04
+[2026-10-24T00:58:22.488Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2279 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+BASELINE_CHANGED CYCLE-CREATE-Preparacion F04
+CONTRACT_PASS CYCLE-WRITE-Captura F04
+CONTRACT_PASS CYCLE-CREATE-Captura F04
+[2026-10-24T00:58:22.721Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227a error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+BASELINE_CHANGED CYCLE-WRITE-Captura cerrada F04
+[2026-10-24T00:58:22.751Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+BASELINE_CHANGED CYCLE-CREATE-Captura cerrada F04
+[2026-10-24T00:58:22.859Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227c error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+BASELINE_CHANGED CYCLE-WRITE-Cerrado F04
+[2026-10-24T00:58:22.881Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227d error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+BASELINE_CHANGED CYCLE-CREATE-Cerrado F04
+CONTRACT_PASS SYSTEMS-CLOSED-OPERATIONS F04
+[2026-10-24T00:58:23.005Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+CONTRACT_PASS ACADEMIC-FOREIGN-TEACHER F09
+CONTRACT_PASS ACADEMIC-OWN-ENROLLMENTS F11
+CONTRACT_PASS ACADEMIC-FOREIGN-ENROLLMENTS F11
+[2026-10-24T00:58:23.058Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2281 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+CONTRACT_PASS ACADEMIC-FOREIGN-CREATE F09
+[2026-10-24T00:58:23.076Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc227e error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+CONTRACT_PASS MOODLE-IDENTITY-PROTECTED F08
+KNOWN_CONTRACT_FAILURE MOODLE-STATUS-RESET-ALLOWED F08
+[2026-10-24T00:58:23.100Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2280 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L291, false for 'update' @ L70, false for 'update' @ L291
+CONTRACT_PASS PROFILE-SELF-ESCALATION-DENIED-ACADEMIC F10
+[2026-10-24T00:58:23.128Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2283 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L291, false for 'update' @ L70, false for 'update' @ L291
+CONTRACT_PASS PROFILE-AUX-SELF-ESCALATION F10
+[2026-10-24T00:58:23.136Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2284 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'delete' @ L79, false for 'delete' @ L291
+CONTRACT_PASS PROFILE-ESCALATED-CAPABILITY F10
+[2026-10-24T00:58:23.167Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2285 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L291, false for 'update' @ L70, false for 'update' @ L291
+CONTRACT_PASS PROFILE-LEGACY-ADDED-FIELDS F10
+[2026-10-24T00:58:23.185Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x76dc2286 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'update' @ L125, false for 'update' @ L291
+CONTRACT_PASS PROFILE-LEGACY-CAPABILITY F10
+{"cases":52,"characterizationPassed":46,"contractPassed":44,"knownContractFailures":2,"decisionsPending":6}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Comportamiento distinto del caracterizado: revisar reporte; no actualizar expectativas sin investigar.
+    at Object.finish (file:///C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-BAJA-20261021/.local/r02-complement-20261023/tools/stage1/report.mjs:30:14)
+    at file:///C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-BAJA-20261021/.local/r02-complement-20261023/tools/stage1/rules.mjs:143:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.23.2

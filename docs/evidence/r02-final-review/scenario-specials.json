@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-24T01:09:01.697Z",
+  "scenario": "specials",
+  "context": {
+    "state": "READY",
+    "cycleId": "demo-27-1",
+    "code": "27-1"
+  },
+  "cycles": [
+    {
+      "code": "26-3",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    },
+    {
+      "code": "27-1",
+      "status": "Captura cerrada",
+      "specialsEnabled": true
+    }
+  ],
+  "references": "VALID",
+  "environment": "synthetic complement 28080",
+  "humanAcceptance": false
+}

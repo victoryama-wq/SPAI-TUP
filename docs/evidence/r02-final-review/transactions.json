@@ -1,0 +1,107 @@
+{
+  "at": "2026-10-24T01:00:58.292Z",
+  "environment": "named isolated database r02-final-1792803652698",
+  "results": [
+    {
+      "action": "create",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "7d3fad1b-a829-4825-811b-302c26e1bd6c",
+      "previous": null,
+      "next": "Preparacion",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "start",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "8fa8bf9f-e46f-41f4-9fff-ca61c31644cc",
+      "previous": "Preparacion",
+      "next": "Captura",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "closeCapture",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "23b33cb4-9c46-4def-9b56-27e660167e81",
+      "previous": "Captura",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "specials",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "9cd7de54-a389-43e6-8e45-77efc71d5b53",
+      "previous": "Captura cerrada",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "specials",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "ba574ded-244d-4c2a-b89f-4d6b26250d0d",
+      "previous": "Captura cerrada",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "reopen",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "29afa8d3-38da-492e-8d2e-441355167042",
+      "previous": "Captura cerrada",
+      "next": "Captura",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "closeCapture",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "cf7da6e4-35e2-4bdc-b183-6653a3b484d8",
+      "previous": "Captura",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "close",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "f2e6e0a8-648c-4203-abaf-50d2a8699dcc",
+      "previous": "Captura cerrada",
+      "next": "Cerrado",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "purge",
+      "code": "26-3",
+      "status": "PASS",
+      "operationId": "e2e92422-203d-4489-b371-ab14f9bdc072",
+      "previous": "Cerrado",
+      "next": null,
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "create",
+      "code": "27-2",
+      "status": "PASS",
+      "operationId": "347de5e0-bb21-41c4-a481-fe1e0d19a5ff",
+      "previous": null,
+      "next": "Preparacion",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    }
+  ],
+  "humanAcceptance": false
+}

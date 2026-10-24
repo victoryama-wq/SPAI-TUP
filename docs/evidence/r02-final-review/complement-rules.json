@@ -1,0 +1,71 @@
+{
+  "at": "2026-10-24T01:01:51.416Z",
+  "results": [
+    {
+      "name": "No direct cycle writes or purge for consultation actor through callable",
+      "status": "PASS"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Capture allowed; ordinary denied in closed capture; Specials denied disabled and allowed enabled",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Specials: VIEW, wrong group, outside program, preparation and closed rejected without effects",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L213:22 for 'create' @ L213, false for 'create' @ L291, evaluation error at L214:22 for 'update' @ L214, false for 'update' @ L291, false for 'create' @ L213, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Retired cycle tombstone blocks late linked requests; ordinary active request still works",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    }
+  ],
+  "evaluatorErrorsCredited": false,
+  "environment": "isolated 28080"
+}

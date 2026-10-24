@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-24T01:10:03.008Z",
+  "status": "PASS",
+  "url": "http://127.0.0.1:4204/ciclos",
+  "scenario": "preparation",
+  "cycle": "27-1",
+  "history": "26-3",
+  "checkedFrom": "host",
+  "mutations": 0
+}

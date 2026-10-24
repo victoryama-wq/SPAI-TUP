@@ -1,0 +1,12 @@
+Token anterior: lectura Firestore denegada sin aceptar errores del evaluador: INCONCLUSIVE_EVALUATOR
+[2026-10-24T00:57:12.938Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x8a5e843f error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L69:22 for 'create' @ L69, false for 'create' @ L291, evaluation error at L70:22 for 'update' @ L70, false for 'update' @ L291, false for 'create' @ L69, false for 'create' @ L291
+Reingreso simulado: bootstrap directo bloqueado: INCONCLUSIVE_EVALUATOR
+Preparacion sin cambios y confirmacion real Auth/Firestore; referencias preservadas: PASS
+Operadores sin autoridad, firma alterada, caducidad, version y revocacion: PASS
+Identidad incompleta o ambigua rechazada sin bajas ni efectos: PASS
+Doble clic concurrente: una baja, evento y auditoria: PASS
+Fallo Authentication, bloqueo inmediato, reintento por otro administrador y respuesta perdida: PASS
+Atomicidad: fallo de evento no deja baja, bloqueo ni auditoria parciales: PASS
+Limite de 200: inicio rechazado sin cambios y reintento iniciado recuperable sobre el limite: PASS
+Ultimo administrador protegido ante bajas concurrentes: PASS

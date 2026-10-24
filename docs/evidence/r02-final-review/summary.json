@@ -1,0 +1,326 @@
+{
+  "dateLocal": "2026-10-23",
+  "timezone": "America/Cancun",
+  "branch": "codex/usuarios-baja-complemento",
+  "evaluatedApplicationCommit": "6b67bd9fb6edd7982f24d40f48863a17b441a092",
+  "technicalValidation": "NO_VALIDADA_LOCAL",
+  "humanAcceptance": "PENDIENTE_NO_PROCEDE_CIERRE",
+  "productionReadiness": "BLOQUEADA",
+  "gate": {
+    "total": 72,
+    "pass": 56,
+    "fail": 10,
+    "inconclusive": 6,
+    "exitCode": 1
+  },
+  "r02Eight": [
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-WRITE-Preparacion",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-CREATE-Preparacion",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-WRITE-Cerrado",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": true,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-CREATE-Cerrado",
+      "finding": "F04",
+      "stage": 3,
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "baseline": false,
+      "expected": false,
+      "baselineMatches": false,
+      "contractMatches": null,
+      "evidence": "firestore.rules"
+    },
+    {
+      "historicalBaseline": 2,
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-MULTIPLE-OPERATIVE",
+      "finding": "F05",
+      "stage": 3,
+      "actual": 1,
+      "baseline": 1,
+      "expected": 1,
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "tools/e2-r02/integration.mjs: actual concurrent callable creation"
+    },
+    {
+      "historicalBaseline": "b",
+      "contractVersion": "E2-v0.4-R02",
+      "id": "CYCLE-SELECTION-ORDER",
+      "finding": "F05",
+      "stage": 3,
+      "actual": "ERROR_AMBIGUOUS_CYCLE",
+      "baseline": "ERROR_AMBIGUOUS_CYCLE",
+      "expected": "ERROR_AMBIGUOUS_CYCLE",
+      "baselineMatches": true,
+      "contractMatches": true,
+      "evidence": "src/app/features/cycles/data/cycles.repository.ts#operativeCycles/inconsistent/activeCycle"
+    }
+  ],
+  "r03Unchanged": [
+    "REQUEST-TERMINAL-REWRITE",
+    "MOODLE-STATUS-RESET-ALLOWED",
+    "REQUEST-CREATE-AWAITS",
+    "REQUEST-RESOLVE-AWAITS",
+    "REQUEST-DUPLICATE-CREATE",
+    "UI-PREMATURE-SUCCESS",
+    "SHARE-PRESERVES-MOODLE",
+    "SHARE-PARTIAL-AND-SUCCESS",
+    "REQUEST-DOUBLE-ACCEPT",
+    "SHARE-CONCURRENT-LOST-GROUP"
+  ],
+  "integration": {
+    "groups": 19,
+    "pass": 11,
+    "inconclusive": 8,
+    "fail": 0
+  },
+  "cycleDeletionGroupsPass": 7,
+  "atomicOperationsPass": 10,
+  "cycleUiGroupsPass": 6,
+  "selectorUiGroupsPass": 7,
+  "unitPassed": 21,
+  "userDeletion": {
+    "pass": 8,
+    "inconclusive": 2,
+    "functionalAcceptance": "PENDIENTE"
+  },
+  "sharedTunnel": "PRESERVADO_SIN_REINICIO_NI_RESEED",
+  "isolatedUrl": "http://127.0.0.1:4204/ciclos",
+  "applicationSourcesChangedDuringReview": false,
+  "openProductionGates": [
+    "200 documentos administrativos",
+    "6 objetivos R02 inconclusos en Rules",
+    "10 incumplimientos R03 sin cambios",
+    "2 rechazos Rules del complemento Eliminar usuario inconclusos",
+    "DiagnÃ³sticos Rules de referencias retiradas y Ã¡mbitos: no acreditados por errores del evaluador",
+    "ValidaciÃ³n remota e Ã­ndices",
+    "MigraciÃ³n, respaldo externo, restauraciÃ³n y reversiÃ³n",
+    "R04: depuraciÃ³n con dependencias y renovaciÃ³n de ciclos con datos reales",
+    "AceptaciÃ³n humana R02 y complemento de baja"
+  ],
+  "scenarios": [
+    {
+      "at": "2026-10-24T01:08:26.884Z",
+      "scenario": "capture",
+      "context": {
+        "state": "READY",
+        "cycleId": "demo-27-1",
+        "code": "27-1"
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Captura",
+          "specialsEnabled": false
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    },
+    {
+      "at": "2026-10-24T01:08:44.083Z",
+      "scenario": "closed-capture",
+      "context": {
+        "state": "READY",
+        "cycleId": "demo-27-1",
+        "code": "27-1"
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Captura cerrada",
+          "specialsEnabled": false
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    },
+    {
+      "at": "2026-10-24T01:09:19.135Z",
+      "scenario": "closed",
+      "context": {
+        "state": "NONE",
+        "cycleId": null,
+        "code": null
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    },
+    {
+      "at": "2026-10-24T01:09:56.279Z",
+      "scenario": "preparation",
+      "context": {
+        "state": "READY",
+        "cycleId": "demo-27-1",
+        "code": "27-1"
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Preparacion",
+          "specialsEnabled": false
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    },
+    {
+      "at": "2026-10-24T01:09:36.222Z",
+      "scenario": "renewal",
+      "context": {
+        "state": "NONE",
+        "cycleId": null,
+        "code": null
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    },
+    {
+      "at": "2026-10-24T01:09:01.697Z",
+      "scenario": "specials",
+      "context": {
+        "state": "READY",
+        "cycleId": "demo-27-1",
+        "code": "27-1"
+      },
+      "cycles": [
+        {
+          "code": "26-3",
+          "status": "Cerrado",
+          "specialsEnabled": false
+        },
+        {
+          "code": "27-1",
+          "status": "Captura cerrada",
+          "specialsEnabled": true
+        }
+      ],
+      "references": "VALID",
+      "environment": "synthetic complement 28080",
+      "humanAcceptance": false
+    }
+  ],
+  "access": {
+    "at": "2026-10-24T01:10:03.008Z",
+    "status": "PASS",
+    "url": "http://127.0.0.1:4204/ciclos",
+    "scenario": "preparation",
+    "cycle": "27-1",
+    "history": "26-3",
+    "checkedFrom": "host",
+    "mutations": 0
+  },
+  "builds": {
+    "production": "REUSED_UNCHANGED_APPLICATION_SOURCE",
+    "tunnel": "REUSED_UNCHANGED_APPLICATION_SOURCE",
+    "isolatedDev": "PASS",
+    "budgetWarning": "785.56 kB / 750 kB"
+  }
+}
