@@ -15,12 +15,22 @@ const require=createRequire(resolve(root,'functions/package.json')),A=require('f
 const app=A.initializeApp({projectId:config.projectId},'final-prepare'),db=require('firebase-admin/firestore').getFirestore(app);
 try {
  const reference=require('./cycles/dependencies').references;
- const docs=reviewFixtures().filter(d=>scenario!=='renewal' || d.path.startsWith('ciclos/') || !reference(d.data,{id:'demo-26-3',code:'26-3'}));
+ let docs=reviewFixtures().filter(d=>scenario!=='renewal' || d.path.startsWith('ciclos/') || !reference(d.data,{id:'demo-26-3',code:'26-3'}));
+ if(scenario==='renewal') {
+  // Fixture notifications/links to omitted historical records must be omitted too.
+  // This is scenario construction, not a cascade against an existing application database.
+  let previousLength;
+  do {
+   previousLength=docs.length;const paths=new Set(docs.map(d=>d.path));
+   docs=docs.filter(({data:d})=>(!d.entity||!d.entityId||paths.has(`${d.entity}/${d.entityId}`)) && ['sourceAssignmentId','destinationAssignmentId'].every(k=>!d[k]||paths.has('asignaciones/'+d[k])));
+  } while(docs.length!==previousLength);
+ }
  docs.push({path:'grupos/27_1_ADM_11_C_A',data:{id:'27_1_ADM_11_C_A',fullGroup:'27-1 ADM 11 C.A',cycleCode:'27-1',programAbbreviation:'ADM',programName:'Administración ficticia',section:'C.A',modality:'Virtual',status:'Activo'}});
+ validateReviewFixtures(docs);
  const retained=new Set(docs.map(d=>d.path));const batch=db.batch();
  for(const d of fixtures())if(!retained.has(d.path))batch.delete(db.doc(d.path));
  for(const d of docs)batch.set(db.doc(d.path),d.data);
- await batch.commit();validateReviewFixtures(docs);
+ await batch.commit();
  const state={preparation:'Preparacion',capture:'Captura','closed-capture':'Captura cerrada',specials:'Captura cerrada',closed:'Cerrado',renewal:'Cerrado'}[scenario];
  await db.doc('ciclos/demo-27-1').update({status:state,specialsEnabled:scenario==='specials'});
  // Renewal is generated without older academic fixture records; never applied to shared data.
