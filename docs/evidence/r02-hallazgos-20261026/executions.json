@@ -1,0 +1,51 @@
+[
+  {
+    "name": "cycle-integration",
+    "started": "2026-10-26T16:22:09.646Z",
+    "finished": "2026-10-26T16:22:25.126Z",
+    "exitCode": 1,
+    "error": null
+  },
+  {
+    "name": "cycle-atomic-identity",
+    "started": "2026-10-26T16:22:25.128Z",
+    "finished": "2026-10-26T16:22:31.857Z",
+    "exitCode": 0,
+    "error": null
+  },
+  {
+    "name": "cycle-dependencies",
+    "started": "2026-10-26T16:22:31.858Z",
+    "finished": "2026-10-26T16:22:51.092Z",
+    "exitCode": 0,
+    "error": null
+  },
+  {
+    "name": "stage1-rules",
+    "started": "2026-10-26T16:22:51.093Z",
+    "finished": "2026-10-26T16:22:52.287Z",
+    "exitCode": 1,
+    "error": null
+  },
+  {
+    "name": "stage1-logic",
+    "started": "2026-10-26T16:22:52.288Z",
+    "finished": "2026-10-26T16:22:53.232Z",
+    "exitCode": 0,
+    "error": null
+  },
+  {
+    "name": "contract-gate",
+    "started": "2026-10-26T16:22:53.234Z",
+    "finished": "2026-10-26T16:22:53.353Z",
+    "exitCode": 1,
+    "error": null
+  },
+  {
+    "name": "user-deletion",
+    "started": "2026-10-26T16:22:53.354Z",
+    "finished": "2026-10-26T16:23:43.728Z",
+    "exitCode": 1,
+    "error": null
+  }
+]

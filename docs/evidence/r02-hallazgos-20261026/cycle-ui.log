@@ -1,0 +1,6 @@
+PASS Automatic notice only Captura; dismiss by button, cross and Escape without cycle writes
+PASS No late auto-opening when entering closed capture then state changes to Captura
+PASS Closed capture actions, whitespace reason, keyboard tooltip, responsive evidence and cancel
+PASS Two histories: creation flow opens, confirmation blocked; explicit deletion modal and cancel
+PASS Assignment tabs: closed ordinary blocked; Specials only when enabled; live removal blocks open form
+PASS Real deletion flow on empty older history; server revision rejection leaves target intact

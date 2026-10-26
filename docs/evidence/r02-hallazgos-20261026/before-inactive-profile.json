@@ -1,0 +1,156 @@
+[
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/usuarios/demo-inactivo",
+    "fields": {
+      "assignedPrograms": {
+        "arrayValue": {}
+      },
+      "createdAt": {
+        "stringValue": "2026-09-01T15:00:00.000Z"
+      },
+      "updatedAt": {
+        "stringValue": "2026-09-01T15:00:00.000Z"
+      },
+      "permissionSchemaVersion": {
+        "integerValue": "2"
+      },
+      "revision": {
+        "integerValue": "1"
+      },
+      "area": {
+        "stringValue": "Académica DEMO"
+      },
+      "baseRole": {
+        "stringValue": "COORDINACION_ACADEMICA"
+      },
+      "permissions": {
+        "mapValue": {
+          "fields": {
+            "dashboard": {
+              "stringValue": "VIEW"
+            },
+            "usuarios": {
+              "stringValue": "NONE"
+            },
+            "ciclos": {
+              "stringValue": "NONE"
+            },
+            "nomenclaturas": {
+              "stringValue": "VIEW"
+            },
+            "grupos": {
+              "stringValue": "VIEW"
+            },
+            "docentes": {
+              "stringValue": "EDIT"
+            },
+            "asignaturas": {
+              "stringValue": "VIEW"
+            },
+            "asignaciones": {
+              "stringValue": "EDIT"
+            },
+            "solicitudes": {
+              "stringValue": "EDIT"
+            },
+            "ligasMeet": {
+              "stringValue": "NONE"
+            },
+            "moodle": {
+              "stringValue": "NONE"
+            },
+            "bitacora": {
+              "stringValue": "NONE"
+            }
+          }
+        }
+      },
+      "scope": {
+        "mapValue": {
+          "fields": {
+            "programs": {
+              "arrayValue": {}
+            },
+            "teachers": {
+              "arrayValue": {}
+            },
+            "fields": {
+              "arrayValue": {}
+            },
+            "cycles": {
+              "arrayValue": {
+                "values": [
+                  {
+                    "stringValue": "*"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "authUid": {
+        "stringValue": "demo-inactivo"
+      },
+      "name": {
+        "stringValue": "Usuario inactivo DEMO"
+      },
+      "email": {
+        "stringValue": "demo.inactivo@tecplayacar.edu.mx"
+      },
+      "role": {
+        "stringValue": "Coordinación Académica"
+      },
+      "greetingGender": {
+        "stringValue": "Femenino"
+      },
+      "access": {
+        "mapValue": {
+          "fields": {
+            "dashboard": {
+              "booleanValue": true
+            },
+            "usuarios": {
+              "booleanValue": false
+            },
+            "ciclos": {
+              "booleanValue": false
+            },
+            "nomenclaturas": {
+              "booleanValue": true
+            },
+            "grupos": {
+              "booleanValue": true
+            },
+            "docentes": {
+              "booleanValue": true
+            },
+            "asignaturas": {
+              "booleanValue": true
+            },
+            "asignaciones": {
+              "booleanValue": true
+            },
+            "solicitudes": {
+              "booleanValue": true
+            },
+            "ligasMeet": {
+              "booleanValue": false
+            },
+            "moodle": {
+              "booleanValue": false
+            },
+            "bitacora": {
+              "booleanValue": false
+            }
+          }
+        }
+      },
+      "status": {
+        "stringValue": "Inactivo"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  }
+]

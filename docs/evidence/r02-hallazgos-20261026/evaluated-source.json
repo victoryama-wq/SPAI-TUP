@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-26T17:07:08.242785+00:00",
+  "branch": "codex/usuarios-baja-complemento",
+  "commit": "7c475f7892cdeb50d21743b6c8b5426b93dd810b",
+  "files": {
+    "functions/cycles/service.js": "374fb3da96c5a812ccf69456e308513dea7f5d7e06032ce3f8fc6f209725a5f6",
+    "src/app/core/data/audit-display.ts": "b69ade2a3e91b99013308866c12fad7476ba7bc7332378fc34c80e0d94f0bf3a",
+    "src/app/core/data/audit-log.repository.ts": "479c45ae1bf1b0e0330a0fd7d90a2ca968332c05e23098c4781a2315152da048",
+    "src/app/features/users/components/security-console.component.html": "2fe2571487f8359e57d639209f00f96b37c622c71bb4e0b03754edf8a37353f8",
+    "src/app/features/users/components/security-console.component.ts": "114d093777bc8db53952726064ebcd29fde32715613b817745fb8e7d5d727ab0",
+    "tools/e2-r02/final-transaction-proof.mjs": "07b19eebcc1b8b954faf913fa9034120796c2269f911b69454e82f5960f95f27",
+    "tools/e2-r02/hallazgos-ui.mjs": "eed440d5345b74e263e640602a11601a4bed99a2fd78b92602a557ecb402fc1d",
+    "tools/e2-r02/hallazgos.test.mjs": "e3775b6f6a3151ef7662d9647f06c91492fffbd46acbeb775b1a20abe7a6542c",
+    "tools/e2-r02/integration.mjs": "a974fd6328babbde3685668cda532b01dac056f4d933245ff3dab432feb36b4b",
+    "tools/users-deletion/integration.mjs": "44b77aa35d20a7796253cde1f0a11bafe5285c4092c461ab5a5edd10c4af7b22"
+  },
+  "humanAcceptance": false,
+  "productionReady": false
+}

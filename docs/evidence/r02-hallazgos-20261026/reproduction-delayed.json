@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-26T16:54:14.490Z",
+  "cycleAuditRecords": 15,
+  "modalText": "CONTROL DE ACCESOS\nEliminar usuario\n\nRevisa el acceso y las consecuencias antes de confirmar.\n\n×\nPersona que se dará de baja\n\nUsuario inactivo DEMO\ndemo.inactivo@tecplayacar.edu.mx\n\nSe retirará el acceso a SPAI y se eliminará la cuenta de acceso de Firebase Authentication. Se conservarán el historial y las referencias institucionales. La cuenta institucional de Google no se modificará.\n\nMotivo de la baja\n\nVerificando identidad y autorización…\n\nCancelar\nEliminar usuario",
+  "cancelDisabled": true,
+  "responses": [],
+  "escapeStillOpen": true,
+  "transportSimulation": "Demora simulada en la respuesta de preparaci�n; sin confirmaci�n ni baja"
+}

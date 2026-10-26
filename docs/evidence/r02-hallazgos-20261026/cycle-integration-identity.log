@@ -1,0 +1,59 @@
+PASS Multiple existing operative cycles: no selection or mutation
+PASS No operative cycle / concurrent creation / unique code
+[2026-10-26T16:46:48.336Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826d6 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+false for 'update' @ L125, false for 'update' @ L291
+[2026-10-26T16:46:48.353Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826d7 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+false for 'create' @ L122, false for 'create' @ L291, false for 'update' @ L122, false for 'update' @ L291
+PASS No direct cycle write or forged control, no module-only management
+PASS No create in preparation / forbidden jumps
+PASS Start capture; idempotent replay and version conflict
+PASS Code and dates: invalid calendar or previous date has no effects
+PASS Capture positive: create and edit
+PASS Two commands on same version: exactly one commits
+[2026-10-26T16:46:53.650Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826d8 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:53.695Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826da error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:53.727Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826db error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+[2026-10-26T16:46:53.742Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826d9 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L141:22 for 'update' @ L141, false for 'update' @ L291, false for 'update' @ L141, false for 'update' @ L291
+[2026-10-26T16:46:53.763Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826dc error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291
+[2026-10-26T16:46:53.819Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826dd error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L141:22 for 'update' @ L141, false for 'update' @ L291, evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+INCONCLUSIVE D1: prepared write rejected after closure; loaded assignments too
+PASS Request for reopening and cancellation are not academic capture
+[2026-10-26T16:46:54.298Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826de error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+INCONCLUSIVE Reopen requires reason; reopening and concurrent close/write
+[2026-10-26T16:46:54.326Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826df error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+INCONCLUSIVE Specials: disabled denied, enabled admitted group allowed
+[2026-10-26T16:46:54.551Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e0 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:54.564Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e1 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:54.695Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e2 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:54.779Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e3 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+INCONCLUSIVE Specials does not permit ordinary/reclassification/Escolarizado/Ejecutivo
+[2026-10-26T16:46:55.261Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e5 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:55.564Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e8 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+INCONCLUSIVE Specials actors: academic foreign enrollment, CUSTOM and delegated scope
+[2026-10-26T16:46:55.640Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e4 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L195:22 for 'delete' @ L195, false for 'delete' @ L291, false for 'delete' @ L195, false for 'delete' @ L291
+INCONCLUSIVE Specials own deletion is allowed; outside scope remains denied
+[2026-10-26T16:46:55.791Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826e9 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+INCONCLUSIVE Disable Specials: open-form confirmation denied
+PASS Atomic rejection on audit and event collision
+PASS Delegated cycle management: scope, capability, revocation and expiry
+[2026-10-26T16:46:57.016Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826ea error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291
+[2026-10-26T16:46:58.065Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x239826eb error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291
+INCONCLUSIVE Final close / residual Specials / no transition from historical / next preparation

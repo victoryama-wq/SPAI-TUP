@@ -1,0 +1,2219 @@
+[
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_01b89e2b-cc38-4dc0-a15d-cef2dadcb502",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "reopen"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.215Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:33:36.215Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "2"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.550Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "3"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:33:36.550Z"
+      },
+      "reason": {
+        "stringValue": "Revisión técnica aislada; conservar Captura para demostración"
+      },
+      "operationId": {
+        "stringValue": "01b89e2b-cc38-4dc0-a15d-cef2dadcb502"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "reopen: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_4e67e6f4-b462-48e1-9595-4e9161870481",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "closeCapture"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:36:14.136Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "14"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:41:55.575Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-23T21:41:55.575Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "15"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-23T21:41:55.575Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "4e67e6f4-b462-48e1-9595-4e9161870481"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "closeCapture: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_5c800ff9-f08e-4d24-be24-05580a33aa05",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "specials"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T22:13:02.025Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "12"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:27:34.804Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "13"
+            },
+            "specialsEnabled": {
+              "booleanValue": true
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-23T21:27:34.804Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "5c800ff9-f08e-4d24-be24-05580a33aa05"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "specials: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_609e1ac5-90d9-4477-afd6-40e084ce8dc5",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "closeCapture"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "1"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.215Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:33:36.215Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "2"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:33:36.215Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "609e1ac5-90d9-4477-afd6-40e084ce8dc5"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "closeCapture: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_6c60d8f2-6894-46f3-b23e-063792b3e58f",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "schedule"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:21.272Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "6"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:21.563Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "7"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:34:21.563Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "6c60d8f2-6894-46f3-b23e-063792b3e58f"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "schedule: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_79ff9fc5-e3e2-42a4-87ff-6ecfafaa2535",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "reopen"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:20.907Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:34:20.907Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "5"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:21.272Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "6"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:34:21.272Z"
+      },
+      "reason": {
+        "stringValue": "Revisión técnica aislada; conservar Captura para demostración"
+      },
+      "operationId": {
+        "stringValue": "79ff9fc5-e3e2-42a4-87ff-6ecfafaa2535"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "reopen: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_7d2087b4-3218-4910-a930-456217ff15f4",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "reopen"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:27:34.804Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "13"
+            },
+            "specialsEnabled": {
+              "booleanValue": true
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:36:14.136Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "14"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-23T21:36:14.136Z"
+      },
+      "reason": {
+        "stringValue": "nueva captura"
+      },
+      "operationId": {
+        "stringValue": "7d2087b4-3218-4910-a930-456217ff15f4"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "reopen: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_88fcae4a-3f1d-43f6-8881-5a006f90d43c",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "schedule"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.550Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "3"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.865Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "4"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:33:36.865Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "88fcae4a-3f1d-43f6-8881-5a006f90d43c"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "schedule: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_8ca5723a-4db1-4ec9-bab9-efaee179b2ff",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "schedule"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:22.450Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "nullValue": null
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "8"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:23.122Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "9"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:34:23.122Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "8ca5723a-4db1-4ec9-bab9-efaee179b2ff"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "schedule: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_a17ba6e9-64a9-4ce3-909a-f789e70fe832",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "close"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:41:55.575Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-23T21:41:55.575Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "15"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-23T21:42:05.422Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Cerrado"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-23T21:41:55.575Z"
+            },
+            "closedAt": {
+              "stringValue": "2026-10-23T21:42:05.422Z"
+            },
+            "revision": {
+              "integerValue": "16"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-23T21:42:05.422Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "a17ba6e9-64a9-4ce3-909a-f789e70fe832"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "close: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_a99c81bb-86aa-44fb-b985-126a49792de5",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "specials"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T22:06:38.855Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "11"
+            },
+            "specialsEnabled": {
+              "booleanValue": true
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T22:13:02.025Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "12"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T22:13:02.025Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "a99c81bb-86aa-44fb-b985-126a49792de5"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "specials: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_ae4e2c76-0bdd-47b2-a88d-f8566cafb845",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "closeCapture"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:33:36.865Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "4"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:20.907Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:34:20.907Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "5"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:34:20.907Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "ae4e2c76-0bdd-47b2-a88d-f8566cafb845"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "closeCapture: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_c3a924f5-9f0d-45de-9712-b610b13e43be",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "schedule"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:21.563Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "7"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:22.450Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "nullValue": null
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "8"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:34:22.450Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "c3a924f5-9f0d-45de-9712-b610b13e43be"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "schedule: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_e3f52fdb-16a3-4b85-9e84-df9f3f8b9929",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "specials"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "10"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T22:06:38.855Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "11"
+            },
+            "specialsEnabled": {
+              "booleanValue": true
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T22:06:38.855Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "e3f52fdb-16a3-4b85-9e84-df9f3f8b9929"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "specials: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  },
+  {
+    "name": "projects/demo-spai-tup/databases/(default)/documents/bitacora/ciclo_demo-sistemas_e6925d5b-ed8c-4c56-8025-f51c9f56005a",
+    "fields": {
+      "actorId": {
+        "stringValue": "demo-sistemas"
+      },
+      "actorName": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "actorArea": {
+        "stringValue": "Sistemas DEMO"
+      },
+      "cycleId": {
+        "stringValue": "demo-27-1"
+      },
+      "cycle": {
+        "stringValue": "27-1"
+      },
+      "action": {
+        "stringValue": "closeCapture"
+      },
+      "previous": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:34:23.122Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "nullValue": null
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "9"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "next": {
+        "mapValue": {
+          "fields": {
+            "createdAt": {
+              "stringValue": "2026-09-02T15:00:00.000Z"
+            },
+            "updatedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "code": {
+              "stringValue": "27-1"
+            },
+            "label": {
+              "stringValue": "Ciclo DEMO 27-1"
+            },
+            "status": {
+              "stringValue": "Captura cerrada"
+            },
+            "notes": {
+              "stringValue": "Ficticio para pruebas locales"
+            },
+            "captureStartedAt": {
+              "stringValue": "2026-09-01T15:00:00.000Z"
+            },
+            "tentativeCaptureCloseAt": {
+              "stringValue": "2026-09-30"
+            },
+            "captureClosedAt": {
+              "stringValue": "2026-10-22T21:55:40.719Z"
+            },
+            "closedAt": {
+              "nullValue": null
+            },
+            "revision": {
+              "integerValue": "10"
+            },
+            "specialsEnabled": {
+              "booleanValue": false
+            },
+            "id": {
+              "stringValue": "demo-27-1"
+            },
+            "updatedBy": {
+              "stringValue": "demo-sistemas"
+            }
+          }
+        }
+      },
+      "createdAt": {
+        "stringValue": "2026-10-22T21:55:40.719Z"
+      },
+      "reason": {
+        "stringValue": ""
+      },
+      "operationId": {
+        "stringValue": "e6925d5b-ed8c-4c56-8025-f51c9f56005a"
+      },
+      "module": {
+        "stringValue": "Ciclos"
+      },
+      "entity": {
+        "stringValue": "ciclos"
+      },
+      "entityId": {
+        "stringValue": "demo-27-1"
+      },
+      "description": {
+        "stringValue": "closeCapture: 27-1"
+      },
+      "source": {
+        "stringValue": "SERVIDOR"
+      },
+      "integrity": {
+        "stringValue": "VERIFICADO"
+      }
+    },
+    "createTime": "2026-10-26T14:48:04.427410Z",
+    "updateTime": "2026-10-26T14:48:04.427410Z"
+  }
+]

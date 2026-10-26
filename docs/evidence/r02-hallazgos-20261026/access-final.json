@@ -1,0 +1,72 @@
+{
+  "at": "2026-10-26T17:08:06.317083+00:00",
+  "access": {
+    "4204": {
+      "status": 200,
+      "title": [
+        "SPAI TUP \u2014 DEMO LOCAL"
+      ],
+      "checkedFrom": "host"
+    },
+    "4206": {
+      "status": 200,
+      "title": [
+        "SPAI TUP \u2014 DEMO R02 \u00b7 T\u00daNEL"
+      ],
+      "checkedFrom": "host"
+    }
+  },
+  "cycles": {
+    "18080": [
+      {
+        "code": {
+          "stringValue": "26-3"
+        },
+        "status": {
+          "stringValue": "Cerrado"
+        },
+        "revision": {
+          "integerValue": "1"
+        }
+      },
+      {
+        "code": {
+          "stringValue": "27-1"
+        },
+        "status": {
+          "stringValue": "Cerrado"
+        },
+        "revision": {
+          "integerValue": "16"
+        }
+      }
+    ],
+    "28080": [
+      {
+        "code": {
+          "stringValue": "26-3"
+        },
+        "status": {
+          "stringValue": "Cerrado"
+        },
+        "revision": {
+          "integerValue": "1"
+        }
+      },
+      {
+        "code": {
+          "stringValue": "27-1"
+        },
+        "status": {
+          "stringValue": "Captura"
+        },
+        "revision": {
+          "integerValue": "5"
+        }
+      }
+    ]
+  },
+  "sharedCycleAuditUnchanged": 15,
+  "sharedFrontendUpdated": false,
+  "remoteTest": false
+}

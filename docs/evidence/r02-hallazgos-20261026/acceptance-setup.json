@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-26T16:58:30.365Z",
+  "environment": "isolated 28080",
+  "rows": [
+    {
+      "action": "closeCapture",
+      "result": {
+        "cycleId": "demo-27-1",
+        "revision": 2,
+        "status": "Captura cerrada",
+        "operationId": "e0beb1e4-bc81-4581-9416-faacdf1854ed"
+      }
+    },
+    {
+      "action": "specials",
+      "result": {
+        "cycleId": "demo-27-1",
+        "revision": 3,
+        "status": "Captura cerrada",
+        "operationId": "50d0511a-97bf-4100-9336-15a9a21d7326"
+      }
+    },
+    {
+      "action": "specials",
+      "result": {
+        "cycleId": "demo-27-1",
+        "revision": 4,
+        "status": "Captura cerrada",
+        "operationId": "17809c3b-888e-46c0-b5a7-e7f247248427"
+      }
+    },
+    {
+      "action": "reopen",
+      "result": {
+        "cycleId": "demo-27-1",
+        "revision": 5,
+        "status": "Captura",
+        "operationId": "eb00b2c2-c567-4ec5-9a84-0134cf189be9"
+      }
+    }
+  ],
+  "finalState": "Captura",
+  "humanAcceptance": false
+}

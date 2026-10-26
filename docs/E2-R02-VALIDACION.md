@@ -134,3 +134,8 @@ Reversión de esta revisión: Ctrl+C en el frontend y `review.ps1 stop` para la 
 El procedimiento de revisión del 21/10 anterior queda como histórico. Para el escenario de **exactamente dos ciclos**, usar el checkout actual `SPAI-TUP-BAJA-20261021` y el arranque descrito en [Corrección DEMO de dos ciclos](E2-R02-DEMO-DOS-CICLOS-2026-10-22.md). La preparación ya no sobreescribe ciclos ni resembrará una sesión existente. No modifica la copia importada del túnel.
 
 La evidencia dirigida está en [resultados](evidence/r02-two-cycles/results.json) y [capturas](evidence/r02-two-cycles/index.html). Acredita la corrección del escenario sintético y los comportamientos especificados, **no la validación completa ni la aceptación humana de R02**. Se conservan los pendientes y resultados anteriores de esta ficha.
+
+
+## Revisión vigente — 26/10/2026
+
+Código evaluado `7c475f7892cdeb50d21743b6c8b5426b93dd810b`. [Matriz, causas, evidencia y guion actualizado](E2-R02-HALLAZGOS-2026-10-26.md). H-01 y H-02 corregidos y verificados localmente con los límites descritos. **Entrega R02 no validada como completa; aceptación humana pendiente; producción bloqueada.** Gate: 56 PASS, 10 R03 pendientes, 6 R02 inconclusos de 72. Eliminar usuario: 9 PASS, 2 inconclusos, complemento separado. Revisión actual en 4204; las direcciones y estados anteriores se conservan como historia. Continúan el límite de 200 documentos y R04 para renovación con dependencias.

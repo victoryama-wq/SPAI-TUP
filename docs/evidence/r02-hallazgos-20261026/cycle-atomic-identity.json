@@ -1,0 +1,111 @@
+{
+  "at": "2026-10-26T16:22:31.840Z",
+  "environment": "named isolated database r02-final-1793031745367",
+  "results": [
+    {
+      "action": "create",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "0475ed0b-e6fd-4710-82aa-682cb5aba10d",
+      "previous": null,
+      "next": "Preparacion",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "start",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "44419715-5b98-438a-9112-2922e8d8ffd7",
+      "previous": "Preparacion",
+      "next": "Captura",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "closeCapture",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "3c842b9c-8454-47be-b457-9cbcd7f473ea",
+      "previous": "Captura",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "specials",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "ef0d79ee-92d0-4470-b3fb-bba243957b67",
+      "previous": "Captura cerrada",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "specials",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "4b618ed0-7bf1-410d-b12b-1bc83e7685a1",
+      "previous": "Captura cerrada",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "reopen",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "56601112-b7d6-4aee-a49c-961ce8bf3e53",
+      "previous": "Captura cerrada",
+      "next": "Captura",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "closeCapture",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "e3333715-feac-43e2-941e-4a18936ee593",
+      "previous": "Captura",
+      "next": "Captura cerrada",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "close",
+      "code": "27-1",
+      "status": "PASS",
+      "operationId": "fd2c3d5e-924e-4b7c-a8bd-7c4921e8de1a",
+      "previous": "Captura cerrada",
+      "next": "Cerrado",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "purge",
+      "code": "26-3",
+      "status": "PASS",
+      "operationId": "57e074dc-b391-4c74-be3d-335fa18e4c20",
+      "previous": "Cerrado",
+      "next": null,
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "action": "create",
+      "code": "27-2",
+      "status": "PASS",
+      "operationId": "14a322ed-8f61-4b4b-87b9-d970124d3a39",
+      "previous": null,
+      "next": "Preparacion",
+      "atomicRecords": 3,
+      "replayUnchanged": true
+    },
+    {
+      "name": "Identidad histórica conservada tras inactivación y eliminación del perfil; actor cliente ignorado",
+      "status": "PASS"
+    }
+  ],
+  "humanAcceptance": false
+}

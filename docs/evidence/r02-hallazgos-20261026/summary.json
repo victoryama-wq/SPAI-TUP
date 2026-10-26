@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-26",
+  "commit": "7c475f7892cdeb50d21743b6c8b5426b93dd810b",
+  "technicalStatus": "PARTIAL_NOT_VALIDATED_AS_COMPLETE",
+  "humanAcceptance": "PENDING",
+  "production": "BLOCKED",
+  "unit": {
+    "pass": 25
+  },
+  "hallazgosUI": {
+    "pass": 6
+  },
+  "cycleUI": {
+    "pass": 6
+  },
+  "cycleIntegration": {
+    "pass": 11,
+    "inconclusive": 8,
+    "fail": 0
+  },
+  "atomicIdentity": {
+    "pass": 11
+  },
+  "historicalDependencies": {
+    "pass": 7
+  },
+  "userDeletion": {
+    "pass": 9,
+    "inconclusive": 2
+  },
+  "contractGate": {
+    "total": 72,
+    "pass": 56,
+    "R03Failures": 10,
+    "R02Inconclusive": 6,
+    "exitCode": 1
+  },
+  "build": "PASS_WITH_EXISTING_BUDGET_WARNING_785.56kB_750kB",
+  "H01": "CORRECTED_AND_LOCALLY_VERIFIED",
+  "H02": "PENDING_TRANSPORT_LOCK_REPRODUCED_AND_CORRECTED; ORIGINAL_NETWORK_CAUSE_NOT_DETERMINED",
+  "administrativeDocumentLimit": 200,
+  "isolatedURL": "http://127.0.0.1:4204/ciclos",
+  "sharedFrontend": "4206 unchanged static frontend"
+}

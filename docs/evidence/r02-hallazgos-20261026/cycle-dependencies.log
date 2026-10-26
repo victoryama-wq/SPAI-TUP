@@ -1,0 +1,9 @@
+PASS Two historical cycles: context NONE; create cannot commit third
+PASS Latest historical and operative cycles cannot be deleted
+PASS Permission, delegated scope, revocation, expiry, stale revision and reason reject atomically
+PASS All current mutable dependency collections and private agenda block deletion
+PASS Delegated PURGE_CYCLE scoped to older cycle succeeds; full audit and retry are atomic
+PASS Concurrent creations after explicit deletion: only one commits and total stays two
+PASS Existing violations remain visible and cannot be silently modified
+
+

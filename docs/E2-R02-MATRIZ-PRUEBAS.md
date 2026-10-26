@@ -66,3 +66,8 @@ Sin cambios en sus expectativas ni caracterizaciones: REQUEST-TERMINAL-REWRITE, 
 El reporte combinado contiene 72 casos: 56 contratos acreditados, 10 incumplimientos reproducidos y 6 inconclusos. Comparado con los 18 incumplimientos anteriores, **solo dos objetivos R02 están acreditados**; los otros seis siguen abiertos con diagnóstico inconcluso, no resueltos. El gate global conserva salida **1**.
 
 La suite R01 mantiene su propio criterio y diagnósticos históricos: un PASS de esa suite no convierte los errores de Rules de R02 en denegaciones válidas. La aceptación humana R01 se conserva sobre su SHA original, no se reasigna al código R02.
+
+
+## Revisión vigente — 26/10/2026
+
+Código evaluado `7c475f7892cdeb50d21743b6c8b5426b93dd810b`. [Matriz, causas, evidencia y guion actualizado](E2-R02-HALLAZGOS-2026-10-26.md). H-01 y H-02 corregidos y verificados localmente con los límites descritos. **Entrega R02 no validada como completa; aceptación humana pendiente; producción bloqueada.** Gate: 56 PASS, 10 R03 pendientes, 6 R02 inconclusos de 72. Eliminar usuario: 9 PASS, 2 inconclusos, complemento separado. Revisión actual en 4204; las direcciones y estados anteriores se conservan como historia. Continúan el límite de 200 documentos y R04 para renovación con dependencias.

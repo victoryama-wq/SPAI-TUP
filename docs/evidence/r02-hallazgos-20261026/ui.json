@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-26T16:40:03.862Z",
+  "results": [
+    {
+      "name": "H01: actor persistido sin perfil actual; desconocido no atribuido al consultante",
+      "status": "PASS"
+    },
+    {
+      "name": "H02: cancelar verificación mediante Cancelar a 1280px",
+      "status": "PASS"
+    },
+    {
+      "name": "H02: cancelar verificación mediante Cerrar editor a 390px",
+      "status": "PASS"
+    },
+    {
+      "name": "H02: cancelar verificación mediante Escape a 768px",
+      "status": "PASS"
+    },
+    {
+      "name": "H02: destinatarios y respuestas tardías aislados",
+      "status": "PASS"
+    },
+    {
+      "name": "H02: timeout 15s, error técnico y reintento real; no confirmar tras fallo",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "actions": [
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare",
+    "prepare"
+  ],
+  "transportSimulation": "Only deletion prepare delays/failure; retry uses real isolated Functions. No deletion confirmed in this UI suite.",
+  "humanAcceptance": false
+}

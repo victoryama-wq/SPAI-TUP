@@ -1,0 +1,58 @@
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error: 5 NOT_FOUND: no entity to update: app: "dev~demo-spai-tup"
+path <
+  Element {
+    type: "ciclos"
+    name: "demo-27-1"
+  }
+>
+
+    at callErrorFromStatus (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\call.js:32:19)
+    at Object.onReceiveStatus (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\client.js:193:76)
+    at Object.onReceiveStatus (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\client-interceptors.js:367:141)
+    at Object.onReceiveStatus (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\client-interceptors.js:327:181)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:84:11)
+for call at
+    at ServiceClientImpl.makeUnaryRequest (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\client.js:161:32)
+    at ServiceClientImpl.<anonymous> (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@grpc\grpc-js\build\src\make-client.js:105:19)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\v1\firestore_client.js:242:33
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\normalCalls\timeout.js:44:16
+    at repeat (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\normalCalls\retries.js:82:25)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\normalCalls\retries.js:125:13
+    at OngoingCallPromise.call (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\call.js:67:27)
+    at NormalApiCaller.call (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\normalCalls\normalApiCaller.js:34:19)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\google-gax\build\src\createApiCall.js:112:30
+Caused by: Error
+    at _firestore._traceUtil.startActiveSpan (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\write-batch.js:438:27)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\telemetry\enabled-trace-util.js:110:30
+    at NoopContextManager.with (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@opentelemetry\api\build\src\context\NoopContextManager.js:14:19)
+    at ContextAPI.with (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@opentelemetry\api\build\src\api\context.js:51:46)
+    at NoopTracer.startActiveSpan (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@opentelemetry\api\build\src\trace\NoopTracer.js:54:31)
+    at ProxyTracer.startActiveSpan (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@opentelemetry\api\build\src\trace\ProxyTracer.js:27:24)
+    at EnabledTraceUtil.startActiveSpan (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\telemetry\enabled-trace-util.js:102:28)
+    at WriteBatch.commit (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\write-batch.js:436:43)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\reference\document-reference.js:392:18
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\functions\node_modules\@google-cloud\firestore\build\src\telemetry\enabled-trace-util.js:110:30 {
+  code: 5,
+  details: 'no entity to update: app: "dev~demo-spai-tup"\n' +
+    'path <\n' +
+    '  Element {\n' +
+    '    type: "ciclos"\n' +
+    '    name: "demo-27-1"\n' +
+    '  }\n' +
+    '>\n',
+  metadata: Metadata {
+    internalRepr: Map(1) { 'content-type' => [ 'application/grpc' ] },
+    opaqueData: Map(0) {},
+    options: {}
+  },
+  note: 'Exception occurred in retry method that was not classified as transient'
+}
+
+Node.js v22.23.2
+
