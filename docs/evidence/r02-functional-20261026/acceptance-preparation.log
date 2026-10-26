@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-26T21:36:29.413Z",
+  "scenario": "preparation",
+  "context": {
+    "state": "READY",
+    "cycleId": "demo-27-1",
+    "code": "27-1"
+  },
+  "cycles": [
+    {
+      "code": "26-3",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    },
+    {
+      "code": "27-1",
+      "status": "Preparacion",
+      "specialsEnabled": false
+    }
+  ],
+  "references": "VALID",
+  "environment": "synthetic complement 28080",
+  "humanAcceptance": false
+}

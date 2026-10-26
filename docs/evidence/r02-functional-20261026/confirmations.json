@@ -1,0 +1,69 @@
+{
+  "at": "2026-10-26T21:31:06.795Z",
+  "results": [
+    {
+      "name": "Confirmación UI start",
+      "status": "PASS",
+      "operationId": "f121ce2c-12bd-4ae2-ba2f-c3e32aeda587",
+      "state": "Captura"
+    },
+    {
+      "name": "Actor autenticado distinto del consultante; snapshot conservado tras baja Auth/perfil",
+      "status": "PASS",
+      "operationId": "f4bd411c-daca-4d18-ba8c-8c537f2193f7",
+      "actorId": "historical-80981e88"
+    },
+    {
+      "name": "Duplicación visual eliminada sin modificar snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "Confirmación UI closeCapture",
+      "status": "PASS",
+      "operationId": "b2898577-9d51-49c0-84bf-ba9ed5b12907",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI specials",
+      "status": "PASS",
+      "operationId": "46ef2606-c412-4762-90d2-c4d9c12f0e90",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI specials",
+      "status": "PASS",
+      "operationId": "f4b4e70b-6643-494c-95f2-6481499d6e96",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI reopen",
+      "status": "PASS",
+      "operationId": "15145211-70e0-4ddb-83e6-15fab58d0fee",
+      "state": "Captura"
+    },
+    {
+      "name": "Confirmación UI closeCapture",
+      "status": "PASS",
+      "operationId": "502bce37-6d63-4d35-bae7-8c157532efd5",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI close",
+      "status": "PASS",
+      "operationId": "865e0f6b-a59b-4c97-8e9f-89cffa0350d8",
+      "state": "Cerrado"
+    },
+    {
+      "name": "Confirmación UI de histórico con dependencias rechazada sin cambios",
+      "status": "PASS"
+    },
+    {
+      "name": "Baja confirmada por modal: cuenta ficticia retirada de Auth y perfil histórico conservado",
+      "status": "PASS",
+      "target": "functional-delete-2375631c"
+    }
+  ],
+  "errors": [],
+  "environment": "isolated 28080/4204",
+  "humanAcceptance": false
+}

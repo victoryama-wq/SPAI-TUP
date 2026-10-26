@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-26T21:45:29.698367+00:00",
+  "commit": "344ebc7e31689a4645359a46501d518f21da03a5",
+  "branch": "codex/usuarios-baja-complemento",
+  "baseline": "54162eb1f564deb5c10ae18d1067d55fa47a4475",
+  "files": {
+    "src/app/core/data/audit-display.ts": "6d9cd4a552be377932e9be36d56e91f4156af492b6d81681de3124d2691681ab",
+    "tools/e2-r02/hallazgos.test.mjs": "2bd7a9efd23c9b7f1303d20b23852f75c2163b637ca9a412777a99a13c1dd5a1",
+    "tools/e2-r02/functional-confirmations.mjs": "200e041b6fd3e267b98e29c707bdc96f3b0cbc81de82526b0832406de7b5d3f9",
+    "tools/e2-r02/rules-trace.mjs": "f6f720ea63ac430133e27b4239e1217511fc2d41995a20d488ddf5993c3a99d8",
+    "tools/e2-r02/rules-minimal-diagnostic.mjs": "15493f0a2716fbb11c66805ac8331cb32bfe977108e8bd2bf85c1431ddecba80"
+  },
+  "reusedEvidenceCodeCommit": "7c475f7892cdeb50d21743b6c8b5426b93dd810b",
+  "unchangedPathsForReuse": [
+    "functions",
+    "firestore.rules",
+    "src/app/features/cycles",
+    "src/app/features/assignments",
+    "src/app/features/users",
+    "tools/e2-r02/integration.mjs",
+    "tools/e2-r02/final-transaction-proof.mjs",
+    "tools/e2-r02/complement-ui.mjs",
+    "tools/users-deletion",
+    "tools/stage1"
+  ],
+  "gitDiffForReuse": "",
+  "applicationChange": "audit-display.ts only; duplicate presentation suppressed; original events unchanged"
+}

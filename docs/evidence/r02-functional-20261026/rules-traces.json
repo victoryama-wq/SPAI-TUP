@@ -1,0 +1,114 @@
+{
+  "at": "2026-10-26T21:34:53.727Z",
+  "results": [
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CAPTURE-POSITIVE",
+      "type": "update",
+      "expected": "allow",
+      "status": 200,
+      "strictStatus": "PASS",
+      "unchangedOnRejection": false,
+      "diagnostic": "",
+      "causes": []
+    },
+    {
+      "id": "SPECIAL-POSITIVE",
+      "type": "create",
+      "expected": "allow",
+      "status": 200,
+      "strictStatus": "PASS",
+      "unchangedOnRejection": false,
+      "diagnostic": "",
+      "causes": []
+    },
+    {
+      "id": "SPECIAL-DISABLED-BEFORE-COMMIT",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "AUTH-REVOKED-BEFORE-COMMIT",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    }
+  ],
+  "expectationsUnchanged": true,
+  "environment": "isolated 28080",
+  "humanAcceptance": false,
+  "rawCoverageArchive": {
+    "path": "rules-traces.raw.json.gz",
+    "uncompressedSha256": "c7ffd92ea3ea18e19f216f435012af620fce016a8479b14013965751ec5b9b1d",
+    "uncompressedBytes": 19196708,
+    "note": "Full rule source, per-expression values and request claims retained in compressed evidence; no bearer tokens."
+  }
+}

@@ -1,0 +1,40 @@
+> Building...
+√ Building...
+Initial chunk files   | Names                        |  Raw size | Estimated transfer size
+chunk-JKRJWGXO.js     | -                            | 506.27 kB |               131.38 kB
+chunk-ATOLPVKV.js     | -                            | 157.22 kB |                45.98 kB
+main-T2J72XBI.js      | main                         |  76.74 kB |                15.85 kB
+polyfills-PGCJO57G.js | polyfills                    |  34.59 kB |                11.33 kB
+chunk-LPPOVWSW.js     | -                            |   4.99 kB |                 1.56 kB
+chunk-WTNO7I2M.js     | -                            |   3.38 kB |                 1.29 kB
+chunk-KLMSN36P.js     | -                            |   1.10 kB |               550 bytes
+chunk-QHZNJGBM.js     | -                            | 771 bytes |               771 bytes
+styles-QW2KTD5M.css   | styles                       | 496 bytes |               496 bytes
+
+                      | Initial total                | 785.56 kB |               209.22 kB
+
+Lazy chunk files      | Names                        |  Raw size | Estimated transfer size
+chunk-AH3MBX7A.js     | assignments-page-component   | 205.61 kB |                34.70 kB
+chunk-5UXKRBYS.js     | moodle-page-component        | 153.17 kB |                25.93 kB
+chunk-SHF44NLQ.js     | security-console-component   | 131.11 kB |                26.40 kB
+chunk-CHKBYYAW.js     | dashboard-page-component     | 119.87 kB |                21.11 kB
+chunk-U5LE2UIJ.js     | teachers-page-component      | 114.21 kB |                21.31 kB
+chunk-Q4V5MKQD.js     | requests-page-component      |  77.40 kB |                15.00 kB
+chunk-RP6A5TNM.js     | subjects-page-component      |  74.62 kB |                14.36 kB
+chunk-HEK2ZS3Y.js     | groups-page-component        |  66.49 kB |                12.98 kB
+chunk-GUTJFGTQ.js     | nomenclatures-page-component |  51.71 kB |                11.11 kB
+chunk-IR52S7X6.js     | cycles-page-component        |  49.85 kB |                10.57 kB
+chunk-LUO4M2GA.js     | -                            |  46.80 kB |                 9.40 kB
+chunk-BRB4VDGH.js     | audit-log-page-component     |  38.41 kB |                 8.60 kB
+chunk-3C3P5RJR.js     | meet-links-page-component    |  34.81 kB |                 8.13 kB
+chunk-7CUQZGK2.js     | -                            |  11.67 kB |                 3.08 kB
+chunk-S7ZZCATN.js     | -                            |   6.65 kB |                 2.06 kB
+...and 8 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [12.374 seconds] - 2026-10-26T21:31:53.167Z
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 750.00 kB was not met by 35.56 kB with a total of 785.56 kB.
+
+
+Output location: C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-BAJA-20261021\dist\spai-tup-angular
+

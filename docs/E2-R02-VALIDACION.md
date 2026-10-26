@@ -139,3 +139,8 @@ La evidencia dirigida está en [resultados](evidence/r02-two-cycles/results.json
 ## Revisión vigente — 26/10/2026
 
 Código evaluado `7c475f7892cdeb50d21743b6c8b5426b93dd810b`. [Matriz, causas, evidencia y guion actualizado](E2-R02-HALLAZGOS-2026-10-26.md). H-01 y H-02 corregidos y verificados localmente con los límites descritos. **Entrega R02 no validada como completa; aceptación humana pendiente; producción bloqueada.** Gate: 56 PASS, 10 R03 pendientes, 6 R02 inconclusos de 72. Eliminar usuario: 9 PASS, 2 inconclusos, complemento separado. Revisión actual en 4204; las direcciones y estados anteriores se conservan como historia. Continúan el límite de 200 documentos y R04 para renovación con dependencias.
+
+
+## Continuación funcional del 26/10/2026
+
+[Informe, matriz y guion vigente](E2-R02-VERIFICACION-FUNCIONAL-2026-10-26.md), código `344ebc7e31689a4645359a46501d518f21da03a5`. H-01/H-02 siguen corregidos y confirmados en interfaz por el informe recibido. Nueva evidencia: 11 comprobaciones con confirmaciones reales/actor histórico, 4 unitarias, trazas Rules (2 positivos y 8 negativos estrictamente inconclusos). Los ocho históricos R02 siguen 2 PASS + 6 inconclusos; R03 conserva diez incumplimientos. Eliminar usuario permanece separado (9 PASS/2 inconclusos de servidor, nueva baja real por UI). No se declara aceptación ni producción.

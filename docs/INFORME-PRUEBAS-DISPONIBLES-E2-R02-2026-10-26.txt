@@ -1,0 +1,36 @@
+Informe de pruebas técnicas disponibles — E2-R02
+Fecha: 26 de octubre de 2026
+Entorno: DEMO R02 · TÚNEL — r02-two-cycles-v1
+Perfil: Sistemas DEMO / Coordinación de Sistemas
+Dictamen: cobertura ampliada, pero E2-R02 continúa pendiente de aceptación.
+Método
+Se usó la interfaz del túnel y observación de tráfico del navegador. No se creó, modificó ni eliminó ningún ciclo, asignación, histórico o cuenta. Las únicas acciones de UI fueron abrir/cancelar formularios, cambiar de ficha y cerrar modales.
+
+El espacio local revisado no contiene el repositorio de SPAI, firestore.rules, Functions, emulador Firebase, colección Postman ni suite de integración; tampoco es un repositorio Git. Por tanto, las garantías de servidor no pueden acreditarse desde estos archivos.
+Pruebas ejecutadas
+ID	Garantía	Resultado	Evidencia
+PT-01	Límite de dos ciclos	Conforme en UI	Con 27-1 y 26-3 cerrados, NUEVO CICLO abre el formulario, advierte que ya hay dos ciclos y mantiene GUARDAR CICLO deshabilitado. La operación se canceló sin guardar.
+PT-02	Protección del último histórico	Conforme en UI	27-1 solo muestra Solo consulta; el control Eliminar ciclo histórico aparece únicamente para 26-3.
+PT-03	Histórico sin captura ordinaria	Conforme en UI	En 27-1 — Histórico, Asignación, Editar asignación y Eliminar asignación permanecen deshabilitados.
+PT-04	Especiales no elude el cierre	Conforme en el escenario cerrado	Al elegir la ficha ESPECIALES del histórico, la pantalla continúa en solo lectura, no muestra registros de esa ficha y no habilita captura, edición ni eliminación.
+PT-05	No mezclar datos entre consultas	Conforme en UI	El selector permanece dentro del panel azul, a la derecha de ESTADO; la consulta de 27-1 muestra exclusivamente demo-asignacion-a y demo-asignacion-b. La revalidación anterior ya documentó el conjunto distinto de 26-3.
+PT-06	Consulta histórica no dispara escrituras	Conforme para la ruta observada	Durante la carga de Asignaciones históricas se observaron solicitudes de lectura Firestore Listen; no hubo solicitudes de escritura generadas por abrir, consultar o cambiar a Especiales. Esto no sustituye una prueba de Firebase Rules.
+PT-07	Actor visible en bitácora	Conforme en presentación	Los 19 eventos visibles de ciclo atribuyen Schedule, CloseCapture, Reopen, Specials y Close a Sistemas DEMO; la última actividad también identifica a ese actor.
+PT-08	H-02: prevalidación y salida segura de baja	Conforme en UI	El modal inicia con la confirmación deshabilitada; Cancelar, × y Escape cierran el modal mientras aparece Verificando identidad y autorización…. Al completar la comprobación, habilita el motivo y mantiene la eliminación bloqueada hasta capturarlo. No se confirmó una baja.
+
+
+Pruebas que no son ejecutables en esta demo sin preparación adicional
+Garantía requerida	Por qué no se ejecutó	Precondición para ejecutarla correctamente
+Transiciones permitidas, saltos prohibidos y modal automático solo en CAPTURA	No existe ciclo operativo; hay dos históricos protegidos como referencia.	Escenario aislado con un único ciclo nuevo y sin referencias que permita recorrer el mismo ciclo.
+Especiales positivo, revocación antes de confirmar y deshabilitar Especiales con formulario abierto	Requiere CAPTURA_CERRADA y una autorización temporal.	Fixture aislado con esa fase, rol autorizado y grupos Especiales.
+Concurrencia por versión e idempotencia	Requiere dos sesiones y una operación de transición confirmable.	Dos sesiones contra el mismo fixture y evidencia de versión, evento y bitácora.
+Denegación de escrituras directas por Rules y validación de Functions	Una lectura de UI no acredita la política de servidor; no hay Rules, Functions ni emulador accesibles.	Proyecto fuente o emulador Firebase con pruebas de integración que intenten la escritura directa y las operaciones autorizadas.
+Atomicidad de cambio, bitácora y evento	Exige forzar fallos parciales y leer los documentos persistidos.	Suite de integración/emulador con inyección de fallo y consultas de verificación.
+Rechazo de borrar histórico con dependencias y borrado de histórico elegible	Confirmar el borrado es una operación destructiva; no hay un fixture elegible identificado.	Dos históricos ficticios aislados: uno con dependencias y otro sin ellas; confirmación explícita antes de cada borrado.
+Eliminación final de Firebase Authentication y recuperación ante fallo parcial	Eliminar una cuenta es destructivo y el flujo no debe ejercerse sobre la demo compartida.	Cuenta ficticia aislada y confirmación explícita inmediata antes del borrado.
+
+
+Hallazgo de presentación menor
+La identidad Sistemas DEMO aparece dos veces consecutivas en las filas de bitácora antes de la referencia técnica del ciclo. El actor ya es recuperable y por ello H-01 no se reabre, pero el formato puede simplificarse antes de la revisión visual final.
+Conclusión
+Se completaron todas las verificaciones técnicas que pueden hacerse de forma segura y no destructiva sobre el estado actual del túnel. Las pruebas restantes no se infieren como fallidas: requieren el repositorio con Rules/Functions o un fixture aislado que permita modificar el ciclo sin tocar los dos históricos de referencia. En consecuencia, R02 sigue pendiente de aceptación humana y de esa evidencia de integración.

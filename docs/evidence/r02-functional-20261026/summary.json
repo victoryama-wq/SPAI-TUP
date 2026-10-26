@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-26T21:45:29.868914+00:00",
+  "commit": "344ebc7e31689a4645359a46501d518f21da03a5",
+  "humanAcceptance": "PENDING",
+  "production": "BLOCKED",
+  "technicalStatus": "PARTIAL_WITH_STRICT_EVALUATOR_GATES",
+  "newUnits": 4,
+  "newFunctionalUI": 11,
+  "newRulesTrace": {
+    "pass": 2,
+    "inconclusive": 8,
+    "exitCode": 1
+  },
+  "historicalR02": {
+    "CYCLE-WRITE-Preparacion": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-CREATE-Preparacion": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-WRITE-Captura cerrada": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-CREATE-Captura cerrada": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-WRITE-Cerrado": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-CREATE-Cerrado": "INCONCLUSIVE_EVALUATOR",
+    "CYCLE-MULTIPLE-OPERATIVE": "PASS_REUSED",
+    "CYCLE-SELECTION-ORDER": "PASS_REUSED"
+  },
+  "historicalR03Unchanged": 10,
+  "strictGateReused": {
+    "total": 72,
+    "pass": 56,
+    "R03Failure": 10,
+    "R02Inconclusive": 6,
+    "exitCode": 1
+  },
+  "userDeletionReused": {
+    "pass": 9,
+    "inconclusive": 2
+  },
+  "newUserDeletionProductConfirmation": "PASS on fresh isolated account",
+  "tunnelVersionObserved": "tunnel-r02-139bf707a6e8-20261026190724",
+  "isolatedURL": "http://127.0.0.1:4204/ciclos",
+  "administrativeLimit": 200
+}

@@ -1,0 +1,664 @@
+[
+  {
+    "expression": "false",
+    "status": 403,
+    "result": {
+      "error": {
+        "code": 403,
+        "message": "\nfalse for 'create' @ L1",
+        "status": "PERMISSION_DENIED"
+      }
+    },
+    "coverage": {
+      "rules": {
+        "files": [
+          {
+            "content": "rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /probe/{id} { allow write: if false; } } }",
+            "name": "firestore.rules"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "expression": "exists(/databases/$(database)/documents/probe-control/fixed)",
+    "status": 200,
+    "result": {
+      "writeResults": [
+        {
+          "updateTime": "2026-10-26T21:20:53.165308Z"
+        }
+      ],
+      "commitTime": "2026-10-26T21:20:53.165308Z"
+    },
+    "coverage": {
+      "rules": {
+        "files": [
+          {
+            "content": "rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /probe/{id} { allow write: if exists(/databases/$(database)/documents/probe-control/fixed); } } }",
+            "name": "firestore.rules"
+          }
+        ]
+      },
+      "report": [
+        {
+          "sourcePosition": {
+            "line": 1,
+            "column": 124,
+            "currentOffset": 123,
+            "endOffset": 181
+          },
+          "values": [
+            {
+              "value": {
+                "undefined": {}
+              },
+              "count": 1
+            },
+            {
+              "value": {
+                "boolValue": true
+              },
+              "count": 1
+            }
+          ],
+          "children": [
+            {
+              "sourcePosition": {
+                "line": 1,
+                "column": 131,
+                "currentOffset": 130,
+                "endOffset": 181
+              },
+              "values": [
+                {
+                  "value": {
+                    "pathValue": {
+                      "segments": [
+                        {
+                          "simple": "databases"
+                        },
+                        {
+                          "simple": "(default)"
+                        },
+                        {
+                          "simple": "documents"
+                        },
+                        {
+                          "simple": "probe-control"
+                        },
+                        {
+                          "simple": "fixed"
+                        }
+                      ]
+                    }
+                  },
+                  "count": 2
+                }
+              ],
+              "children": [
+                {
+                  "sourcePosition": {
+                    "line": 1,
+                    "column": 144,
+                    "currentOffset": 143,
+                    "endOffset": 150
+                  },
+                  "values": [
+                    {
+                      "value": {
+                        "stringValue": "(default)"
+                      },
+                      "count": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "expression": "!exists(/databases/$(database)/documents/probe-control/fixed)",
+    "status": 403,
+    "result": {
+      "error": {
+        "code": 403,
+        "message": "\nevaluation error at L1:124 for 'create' @ L1, false for 'create' @ L1",
+        "status": "PERMISSION_DENIED"
+      }
+    },
+    "coverage": {
+      "rules": {
+        "files": [
+          {
+            "content": "rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /probe/{id} { allow write: if !exists(/databases/$(database)/documents/probe-control/fixed); } } }",
+            "name": "firestore.rules"
+          }
+        ]
+      },
+      "report": [
+        {
+          "sourcePosition": {
+            "line": 1,
+            "column": 124,
+            "currentOffset": 123,
+            "endOffset": 182
+          },
+          "values": [
+            {
+              "value": {
+                "undefined": {}
+              },
+              "count": 1
+            },
+            {
+              "value": {
+                "boolValue": false
+              },
+              "count": 1
+            }
+          ],
+          "children": [
+            {
+              "sourcePosition": {
+                "line": 1,
+                "column": 125,
+                "currentOffset": 124,
+                "endOffset": 182
+              },
+              "values": [
+                {
+                  "value": {
+                    "undefined": {}
+                  },
+                  "count": 1
+                },
+                {
+                  "value": {
+                    "boolValue": true
+                  },
+                  "count": 1
+                }
+              ],
+              "children": [
+                {
+                  "sourcePosition": {
+                    "line": 1,
+                    "column": 132,
+                    "currentOffset": 131,
+                    "endOffset": 182
+                  },
+                  "values": [
+                    {
+                      "value": {
+                        "pathValue": {
+                          "segments": [
+                            {
+                              "simple": "databases"
+                            },
+                            {
+                              "simple": "(default)"
+                            },
+                            {
+                              "simple": "documents"
+                            },
+                            {
+                              "simple": "probe-control"
+                            },
+                            {
+                              "simple": "fixed"
+                            }
+                          ]
+                        }
+                      },
+                      "count": 2
+                    }
+                  ],
+                  "children": [
+                    {
+                      "sourcePosition": {
+                        "line": 1,
+                        "column": 145,
+                        "currentOffset": 144,
+                        "endOffset": 151
+                      },
+                      "values": [
+                        {
+                          "value": {
+                            "stringValue": "(default)"
+                          },
+                          "count": 2
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "expression": "get(/databases/$(database)/documents/probe-control/fixed).data.allowed",
+    "status": 403,
+    "result": {
+      "error": {
+        "code": 403,
+        "message": "\nevaluation error at L1:124 for 'create' @ L1, false for 'create' @ L1",
+        "status": "PERMISSION_DENIED"
+      }
+    },
+    "coverage": {
+      "rules": {
+        "files": [
+          {
+            "content": "rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /probe/{id} { allow write: if get(/databases/$(database)/documents/probe-control/fixed).data.allowed; } } }",
+            "name": "firestore.rules"
+          }
+        ]
+      },
+      "report": [
+        {
+          "sourcePosition": {
+            "line": 1,
+            "column": 124,
+            "currentOffset": 123,
+            "endOffset": 192
+          },
+          "values": [
+            {
+              "value": {
+                "undefined": {}
+              },
+              "count": 1
+            },
+            {
+              "value": {
+                "boolValue": false
+              },
+              "count": 1
+            }
+          ],
+          "children": [
+            {
+              "sourcePosition": {
+                "line": 1,
+                "column": 124,
+                "currentOffset": 123,
+                "endOffset": 184
+              },
+              "values": [
+                {
+                  "value": {
+                    "undefined": {}
+                  },
+                  "count": 1
+                },
+                {
+                  "value": {
+                    "mapValue": {
+                      "fields": {
+                        "allowed": {
+                          "boolValue": false
+                        }
+                      }
+                    }
+                  },
+                  "count": 1
+                }
+              ],
+              "children": [
+                {
+                  "sourcePosition": {
+                    "line": 1,
+                    "column": 124,
+                    "currentOffset": 123,
+                    "endOffset": 178
+                  },
+                  "values": [
+                    {
+                      "value": {
+                        "undefined": {}
+                      },
+                      "count": 1
+                    },
+                    {
+                      "value": {
+                        "mapValue": {
+                          "fields": {
+                            "data": {
+                              "mapValue": {
+                                "fields": {
+                                  "allowed": {
+                                    "boolValue": false
+                                  }
+                                }
+                              }
+                            },
+                            "__name__": {
+                              "pathValue": {
+                                "segments": [
+                                  {
+                                    "simple": "databases"
+                                  },
+                                  {
+                                    "simple": "(default)"
+                                  },
+                                  {
+                                    "simple": "documents"
+                                  },
+                                  {
+                                    "simple": "probe-control"
+                                  },
+                                  {
+                                    "simple": "fixed"
+                                  }
+                                ]
+                              }
+                            },
+                            "id": {
+                              "stringValue": "fixed"
+                            }
+                          }
+                        }
+                      },
+                      "count": 1
+                    }
+                  ],
+                  "children": [
+                    {
+                      "sourcePosition": {
+                        "line": 1,
+                        "column": 128,
+                        "currentOffset": 127,
+                        "endOffset": 178
+                      },
+                      "values": [
+                        {
+                          "value": {
+                            "pathValue": {
+                              "segments": [
+                                {
+                                  "simple": "databases"
+                                },
+                                {
+                                  "simple": "(default)"
+                                },
+                                {
+                                  "simple": "documents"
+                                },
+                                {
+                                  "simple": "probe-control"
+                                },
+                                {
+                                  "simple": "fixed"
+                                }
+                              ]
+                            }
+                          },
+                          "count": 2
+                        }
+                      ],
+                      "children": [
+                        {
+                          "sourcePosition": {
+                            "line": 1,
+                            "column": 141,
+                            "currentOffset": 140,
+                            "endOffset": 147
+                          },
+                          "values": [
+                            {
+                              "value": {
+                                "stringValue": "(default)"
+                              },
+                              "count": 2
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "expression": "get(/databases/$(database)/documents/probe-control/fixed).data.missing == true",
+    "status": 403,
+    "result": {
+      "error": {
+        "code": 403,
+        "message": "\nevaluation error at L1:124 for 'create' @ L1, Property missing is undefined on object. for 'create' @ L1",
+        "status": "PERMISSION_DENIED"
+      }
+    },
+    "coverage": {
+      "rules": {
+        "files": [
+          {
+            "content": "rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /probe/{id} { allow write: if get(/databases/$(database)/documents/probe-control/fixed).data.missing == true; } } }",
+            "name": "firestore.rules"
+          }
+        ]
+      },
+      "report": [
+        {
+          "sourcePosition": {
+            "line": 1,
+            "column": 124,
+            "currentOffset": 123,
+            "endOffset": 200
+          },
+          "values": [
+            {
+              "value": {
+                "undefined": {}
+              },
+              "count": 1
+            },
+            {
+              "value": {
+                "undefined": {
+                  "sourcePosition": {
+                    "line": 1,
+                    "column": 124,
+                    "currentOffset": 123,
+                    "endOffset": 125
+                  },
+                  "causeMessage": "Property missing is undefined on object."
+                }
+              },
+              "count": 1
+            }
+          ],
+          "children": [
+            {
+              "sourcePosition": {
+                "line": 1,
+                "column": 124,
+                "currentOffset": 123,
+                "endOffset": 192
+              },
+              "values": [
+                {
+                  "value": {
+                    "undefined": {}
+                  },
+                  "count": 1
+                },
+                {
+                  "value": {
+                    "undefined": {
+                      "sourcePosition": {
+                        "line": 1,
+                        "column": 124,
+                        "currentOffset": 123,
+                        "endOffset": 125
+                      },
+                      "causeMessage": "Property missing is undefined on object."
+                    }
+                  },
+                  "count": 1
+                }
+              ],
+              "children": [
+                {
+                  "sourcePosition": {
+                    "line": 1,
+                    "column": 124,
+                    "currentOffset": 123,
+                    "endOffset": 184
+                  },
+                  "values": [
+                    {
+                      "value": {
+                        "undefined": {}
+                      },
+                      "count": 1
+                    },
+                    {
+                      "value": {
+                        "mapValue": {
+                          "fields": {
+                            "allowed": {
+                              "boolValue": false
+                            }
+                          }
+                        }
+                      },
+                      "count": 1
+                    }
+                  ],
+                  "children": [
+                    {
+                      "sourcePosition": {
+                        "line": 1,
+                        "column": 124,
+                        "currentOffset": 123,
+                        "endOffset": 178
+                      },
+                      "values": [
+                        {
+                          "value": {
+                            "undefined": {}
+                          },
+                          "count": 1
+                        },
+                        {
+                          "value": {
+                            "mapValue": {
+                              "fields": {
+                                "data": {
+                                  "mapValue": {
+                                    "fields": {
+                                      "allowed": {
+                                        "boolValue": false
+                                      }
+                                    }
+                                  }
+                                },
+                                "__name__": {
+                                  "pathValue": {
+                                    "segments": [
+                                      {
+                                        "simple": "databases"
+                                      },
+                                      {
+                                        "simple": "(default)"
+                                      },
+                                      {
+                                        "simple": "documents"
+                                      },
+                                      {
+                                        "simple": "probe-control"
+                                      },
+                                      {
+                                        "simple": "fixed"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "id": {
+                                  "stringValue": "fixed"
+                                }
+                              }
+                            }
+                          },
+                          "count": 1
+                        }
+                      ],
+                      "children": [
+                        {
+                          "sourcePosition": {
+                            "line": 1,
+                            "column": 128,
+                            "currentOffset": 127,
+                            "endOffset": 178
+                          },
+                          "values": [
+                            {
+                              "value": {
+                                "pathValue": {
+                                  "segments": [
+                                    {
+                                      "simple": "databases"
+                                    },
+                                    {
+                                      "simple": "(default)"
+                                    },
+                                    {
+                                      "simple": "documents"
+                                    },
+                                    {
+                                      "simple": "probe-control"
+                                    },
+                                    {
+                                      "simple": "fixed"
+                                    }
+                                  ]
+                                }
+                              },
+                              "count": 2
+                            }
+                          ],
+                          "children": [
+                            {
+                              "sourcePosition": {
+                                "line": 1,
+                                "column": 141,
+                                "currentOffset": 140,
+                                "endOffset": 147
+                              },
+                              "values": [
+                                {
+                                  "value": {
+                                    "stringValue": "(default)"
+                                  },
+                                  "count": 2
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

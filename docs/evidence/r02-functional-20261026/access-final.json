@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-26T21:49:33.264728+00:00",
+  "access": {
+    "http://127.0.0.1:4204/": {
+      "status": 200,
+      "title": [
+        "SPAI TUP â€” DEMO LOCAL"
+      ],
+      "buildMarkers": [],
+      "checkedFrom": "host"
+    },
+    "http://127.0.0.1:4206/": {
+      "status": 200,
+      "title": [
+        "SPAI TUP â€” DEMO R02 Â· TÃšNEL"
+      ],
+      "buildMarkers": [],
+      "checkedFrom": "host"
+    },
+    "https://q16qrh63-4206.usw3.devtunnels.ms/": {
+      "status": 200,
+      "title": [
+        "SPAI TUP â€” DEMO R02 Â· TÃšNEL"
+      ],
+      "buildMarkers": [],
+      "checkedFrom": "host"
+    }
+  },
+  "isolatedExport": {
+    "path": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-BAJA-20261021\\.local\\r02-complement-20261023\\.local\\r02-review\\saved-shutdown-20261023-1793051321821",
+    "at": "2026-10-26T21:48:41.956Z",
+    "files": {
+      "auth_export\\accounts.json": "5e1fbd56738886cf32decae868c0f64f30c95560771d07ae4088ef2e9142736f",
+      "auth_export\\config.json": "a06ad971dd56d46b5975ab34f3308384ff3231d81c70b82b7099fb9b3d312ca8",
+      "firebase-export-metadata.json": "06312c9da75ffbb601dd494ef2bb43142496a223843d5821d47ab3b15e6e23c7",
+      "firestore_export\\all_namespaces\\all_kinds\\all_namespaces_all_kinds.export_metadata": "cfbc82f9484583cb75cfc70ad9fe0fe69ea119e4de83685e68503a75ece7635d",
+      "firestore_export\\all_namespaces\\all_kinds\\output-0": "d245727ed43c054d0b2f21fcf5ec1f654a099a11a0a77d35d53cbb1510036d4c",
+      "firestore_export\\firestore_export.overall_export_metadata": "155781dbe0e2193c24dfde2ea23a4eac768ecdb9f68c368fddb9677d38fe88f3",
+      "storage_export\\buckets.json": "195199204ec70350e039234c50da1a915d83470bcd516bde786fa288a68bf41c"
+    },
+    "scenario": "r02-functional-preparation-20261026",
+    "authUsers": 5
+  },
+  "sharedFrontendUpdated": false,
+  "remoteComputerTest": false,
+  "tunnelVersion": {
+    "revision": "tunnel-r02-139bf707a6e8-20261026190724",
+    "baseCommit": "139bf707a6e86629664781602c5e92eeddf377ad",
+    "localChanges": true,
+    "builtAt": "2026-10-26T19:07:24.233Z",
+    "dataSource": "r02-two-cycles-v1; sesión sintética preservada 18080",
+    "humanAcceptance": "pendiente"
+  }
+}
