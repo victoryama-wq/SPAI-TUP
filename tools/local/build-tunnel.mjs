@@ -15,7 +15,8 @@ if(r02Review){
   const index=resolve(root,staged,'browser/index.html');
   writeFileSync(index,readFileSync(index,'utf8').replaceAll('DEMO HISTÓRICA','DEMO R02').replace('Captura recuperada del 16 de octubre','Escenario de dos ciclos · r02-two-cycles-v1'));
 }
-writeFileSync(resolve(root,staged,'browser/demo-version.json'),JSON.stringify({revision:r02Review?'tunnel-r02-complement-20261023-01':'tunnel-recovery-20261022-01',baseCommit,localChanges,builtAt:new Date().toISOString(),dataSource:r02Review?'r02-two-cycles-v1; sesión sintética preservada 18080':'Captura 2026-10-16 recuperada',humanAcceptance:'pendiente'},null,2));
+const builtAt=new Date().toISOString();
+writeFileSync(resolve(root,staged,'browser/demo-version.json'),JSON.stringify({revision:r02Review?`tunnel-r02-${baseCommit.slice(0,12)}-${builtAt.replace(/\D/g,'').slice(0,14)}`:'tunnel-recovery-20261022-01',baseCommit,localChanges,builtAt,dataSource:r02Review?'r02-two-cycles-v1; sesión sintética preservada 18080':'Captura 2026-10-16 recuperada',humanAcceptance:'pendiente'},null,2));
 const source=resolve(root,staged,'browser'),destination=resolve(root,output,'browser');
 mkdirSync(destination,{recursive:true});
 // Keep the old hashed assets for browsers already open. Switch the entry last.

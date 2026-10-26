@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-26T19:09:06.723Z",
+  "origin": "https://q16qrh63-4206.usw3.devtunnels.ms",
+  "version": {
+    "revision": "tunnel-r02-139bf707a6e8-20261026190724",
+    "baseCommit": "139bf707a6e86629664781602c5e92eeddf377ad",
+    "localChanges": true,
+    "builtAt": "2026-10-26T19:07:24.233Z",
+    "dataSource": "r02-two-cycles-v1; sesión sintética preservada 18080",
+    "humanAcceptance": "pendiente"
+  },
+  "checkedFrom": "Host browser through real public HTTPS tunnel; not a second computer",
+  "status": "PASS",
+  "auditIdentityVisible": true,
+  "prepareCancelable": true,
+  "escapeDismisses": true,
+  "realPreparationSucceeded": true,
+  "noDeletionConfirmed": true,
+  "collectionsUnchanged": true,
+  "errors": [],
+  "actions": [
+    "prepare",
+    "prepare"
+  ]
+}
