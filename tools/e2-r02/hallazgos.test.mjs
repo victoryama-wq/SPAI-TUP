@@ -9,6 +9,11 @@ test('H01: identidad persistida, formatos anteriores y ausencia real; nunca se c
  for(const row of [{actorName:'Sistemas DEMO',actorId:'old',actorRole:'Sistemas'},{actor:{uid:'old',name:'Sistemas DEMO',role:'Sistemas'}},{user:'Sistemas DEMO',userRole:'Sistemas'}]) assert.equal(auditIdentity(row).user,'Sistemas DEMO');
  assert.equal(auditIdentity({actorEmail:'actor@example.invalid'}).user,'actor@example.invalid');
  assert.equal(auditIdentity({actorId:'unresolved'}).user,'');assert.equal(auditIdentity({actorName:null,user:42}).user,'');
+ const original={actorId:'previous',actorName:'Sistemas DEMO',actorArea:'Sistemas DEMO'};
+ assert.equal(auditIdentity(original).userRole,'');assert.equal(original.actorArea,'Sistemas DEMO');
+ assert.equal(auditIdentity({actorName:'Sistemas DEMO',actorArea:'sistemas  demo'}).userRole,'');
+ assert.equal(auditIdentity({actorName:'Otra persona',actorRole:'Coordinación de Sistemas'}).userRole,'Coordinación de Sistemas');
+ assert.equal(auditIdentity({actorName:'Persona histórica',user:'Persona consultante'}).user,'Persona histórica');
 });
 function harness(){
  let expire;const requests=[];
