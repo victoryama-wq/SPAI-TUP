@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { randomId } from '../../../core/utils/random-id';
-import { Component, computed, effect, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, signal, ElementRef, viewChild, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CycleScopePickerComponent } from './cycle-scope-picker.component';
 import { UserSessionService } from '../../../core/auth/user-session.service';
@@ -12,7 +12,7 @@ import { SecurityService, SecurityDirectory, SecurityRecord, SECURITY_MODULES, M
   selector: 'spai-security-console', imports: [CommonModule, FormsModule, CycleScopePickerComponent],
   templateUrl: './security-console.component.html', styleUrl: './security-console.component.css',
 })
-export class SecurityConsoleComponent {
+export class SecurityConsoleComponent implements OnDestroy {
   readonly editorSteps = [
     { id: 'access-data', number: 1, label: 'Datos de acceso' },
     { id: 'academic-scope', number: 2, label: 'Alcance académico' },
@@ -197,14 +197,19 @@ export class SecurityConsoleComponent {
       target?.focus();
     });
   }
-  cancelEditor(event: Event): void { event.preventDefault(); if (!this.busy) this.closeEditor(); }
+  get editorCloseBlocked(): boolean { return this.busy && !(this.mode === 'delete-user' && !this.deletionSubmitted); }
+  cancelEditor(event: Event): void { event.preventDefault(); if (!this.editorCloseBlocked) this.closeEditor(); }
   closeEditor(): void {
+    this.deletionPreparation++;
+    this.cancelDeletionWait?.(); this.cancelDeletionWait = null;
+    if (this.mode === 'delete-user' && !this.deletionSubmitted) this.busy = false;
     this.editorDialog()?.nativeElement.close();
     this.selectedUserId = ''; this.selectedRoleId = ''; this.mappingRole = ''; this.preview = null;
     this.inheritancePreview = null; this.sourceId = ''; this.destinationId = ''; this.replaceAccess = false;
     this.deletionPreview = null; this.deletionRequest = null; this.deletionTarget = null;
     this.mode = null; this.editIntent = 'profile'; this.roleDirectory = false; this.operation = null; this.confirmation = null; this.reason = ''; this.pendingRequest = null;
-    queueMicrotask(() => {
+    // Wait for Angular to re-enable the opener after cancelling preparation.
+    setTimeout(() => {
       if (!this.mode && !this.roleDirectory) {
         if (this.dialogOpener?.isConnected && !this.dialogOpener.hasAttribute('disabled')) this.dialogOpener.focus();
         else this.element.nativeElement.querySelector<HTMLButtonElement>('.panel-actions button, .section-navigation button')?.focus();
@@ -374,6 +379,9 @@ export class SecurityConsoleComponent {
   deletionPreview: UserDeletionPreview | null = null;
   deletionTarget: AppUser | null = null;
   private deletionRequest: Record<string, unknown> | null = null;
+  private deletionPreparation = 0;
+  private cancelDeletionWait: (() => void) | null = null;
+  ngOnDestroy(): void { this.sessionGeneration++; this.deletionPreparation++; this.cancelDeletionWait?.(); }
   get deletionSubmitted(): boolean { return this.deletionRequest !== null; }
   pendingDeletions: UserDeletionResult[] | null = null;
   deletionTrackingError = '';
@@ -381,12 +389,32 @@ export class SecurityConsoleComponent {
   async openDeletion(user: AppUser): Promise<void> {
     if (!this.canDeletePerson(user) || this.busy) return;
     this.rememberOpener(); this.closeEditor(); this.deletionTarget=user; this.mode='delete-user'; this.error=''; this.reason=''; this.showDialog();
-    const generation=this.sessionGeneration; this.busy=true;
+    await this.prepareDeletion();
+  }
+  async prepareDeletion(): Promise<void> {
+    const user = this.deletionTarget;
+    if (this.busy || this.mode !== 'delete-user' || !user || this.deletionSubmitted || !this.canDeletePerson(user)) return;
+    const generation=this.sessionGeneration, request=++this.deletionPreparation;
+    const current=()=>generation===this.sessionGeneration && request===this.deletionPreparation && this.mode==='delete-user' && this.deletionTarget===user;
+    this.busy=true; this.error=''; this.reason=''; this.deletionPreview=null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const response=await this.service.deletion({action:'prepare',targetId:user.id});
-      if(generation===this.sessionGeneration && this.mode==='delete-user') this.deletionPreview=response.preview??null;
-    } catch(e) { if(generation===this.sessionGeneration) this.error=this.errorText(e); }
-    finally { if(generation===this.sessionGeneration) this.busy=false; }
+      const deadline = new Promise<never>((_resolve,reject)=>{
+        timer=setTimeout(()=>reject(new Error('La verificación tardó demasiado. No se ha eliminado la cuenta. Reintenta la verificación.')),15000);
+        this.cancelDeletionWait=()=>reject(new Error('Verificación cancelada.'));
+      });
+      const response=await Promise.race([this.service.deletion({action:'prepare',targetId:user.id}),deadline]);
+      if(!current()) return;
+      const preview=response.preview;
+      if(!preview || preview.targetId!==user.id || !preview.token || preview.expiresAt<=Date.now()) throw new Error('No se pudo confirmar la identidad y autorización vigentes. Reintenta la verificación.');
+      this.deletionPreview=preview;
+    } catch(e) { if(current()) {
+      this.deletionPreview=null;
+      const code=(e as {code?: string})?.code;
+      this.error=code && ['functions/internal','functions/unavailable','functions/deadline-exceeded'].includes(code)
+        ? 'No se pudo verificar la identidad y autorización. No se ha eliminado la cuenta. Reintenta la verificación.' : this.errorText(e);
+    } }
+    finally { clearTimeout(timer); if(current()) {this.busy=false;this.cancelDeletionWait=null;} }
   }
   async confirmDeletion(): Promise<void> {
     if(this.busy || !this.general() || !this.deletionPreview || this.reason.trim().length<4) return;

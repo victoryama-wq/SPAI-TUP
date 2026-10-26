@@ -55,6 +55,13 @@ function createCycleService(db, {nowMillis=Date.now}={}) {
       };
       authorize();
       if(previous.exists) { P.assert(previous.data().requestHash===hash(data),'Identificador reutilizado con otra petición.','already-exists'); return previous.data().result; }
+      // Identity comes only from the authenticated UID and its server-read profile.
+      // Keep a snapshot so history does not depend on a future directory/Auth lookup.
+      const identityText = value => typeof value === 'string' ? value.trim() : '';
+      const actorEmail = identityText(profile.email) || identityText(auth.token?.email);
+      const actorName = identityText(profile.name) || actorEmail;
+      P.assert(actorName, 'Completa la identidad institucional del actor antes de operar ciclos.', 'failed-precondition');
+      const actor = {actorId:auth.uid,actorName,actorEmail,actorRole:identityText(profile.role)||identityText(profile.baseRole),actorArea:identityText(profile.area)};
       P.assert(current.length<=1,'CICLO_INCONSISTENTE: hay varios ciclos operativos. No se modificaron datos.','failed-precondition');
       const now=new Date(nowMillis()).toISOString();
       let next,ref;
@@ -71,7 +78,7 @@ function createCycleService(db, {nowMillis=Date.now}={}) {
         await assertNoDependencies(tx,db,existing);
         authorize();
         const result={cycleId:existing.id,code,status:'ELIMINADO',operationId:data.operationId};
-        const event={actorId:auth.uid,actorName:profile.name||'',actorArea:profile.area||'',cycleId:existing.id,cycle:code,action:'purge',previous:existing,next:null,createdAt:new Date(nowMillis()).toISOString(),reason:data.reason.trim(),operationId:data.operationId};
+        const event={...actor,cycleId:existing.id,cycle:code,action:'purge',previous:existing,next:null,createdAt:new Date(nowMillis()).toISOString(),reason:data.reason.trim(),operationId:data.operationId};
         tx.delete(db.doc(`ciclos/${existing.id}`));
         tx.create(tombstone,{cycleId:existing.id,code,deletedAt:event.createdAt,operationId:data.operationId});
         tx.create(idTombstone,{cycleId:existing.id,code,deletedAt:event.createdAt,operationId:data.operationId});
@@ -114,7 +121,7 @@ function createCycleService(db, {nowMillis=Date.now}={}) {
       authorize(); // Recheck wall-clock expiry after all awaited reads.
       next.updatedAt=now; next.updatedBy=auth.uid;
       const result={cycleId:ref.id,revision:next.revision,status:next.status,operationId:data.operationId};
-      const event={actorId:auth.uid,actorName:profile.name||'',actorArea:profile.area||'',cycleId:ref.id,cycle:code,action:data.action,previous:existing||null,next,createdAt:now,reason:String(data.reason||'').trim(),operationId:data.operationId};
+      const event={...actor,cycleId:ref.id,cycle:code,action:data.action,previous:existing||null,next,createdAt:now,reason:String(data.reason||'').trim(),operationId:data.operationId};
       if(existing) tx.set(ref,next); else tx.create(ref,next);
       tx.set(fence,context([...cycles.filter(c=>c.id!==ref.id),next],groups));
       tx.create(db.doc(`bitacora/ciclo_${opId}`),{...event,module:'Ciclos',entity:'ciclos',entityId:ref.id,description:`${data.action}: ${code}`,source:'SERVIDOR',integrity:'VERIFICADO'});

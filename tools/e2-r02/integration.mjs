@@ -20,7 +20,15 @@ const service=require('./cycles/service.js').createCycleService(db);
 const clients=[]; const cases=[];
 async function client(uid) {const a=accounts.find(a=>a.uid===uid); const c=runtime.initializeFirebaseRuntime(localConfig,`r02-${uid}-${randomUUID()}`);clients.push(c);await signInWithEmailAndPassword(c.auth,a.email,password);return c;}
 const system=await client('demo-sistemas'); const ca=await client(accounts[2].uid);
-const command=async(action,cycle,extra={},who=system)=> (await httpsCallable(who.functions,'cycleCommand')({action,operationId:randomUUID(),...(cycle?{cycleId:cycle.id,expectedRevision:cycle.revision??0}:{}),...extra})).data;
+const command=async(action,cycle,extra={},who=system)=> {
+  const request={action,operationId:randomUUID(),...(cycle?{cycleId:cycle.id,expectedRevision:cycle.revision??0}:{}),...extra,actorId:'forged-client',actorName:'Actor falso del cliente'};
+  const result=(await httpsCallable(who.functions,'cycleCommand')(request)).data;
+  const uid=who.auth.currentUser.uid,profile=(await db.doc(`usuarios/${uid}`).get()).data(),key=`${uid}_${request.operationId}`;
+  const audit=(await db.doc(`bitacora/ciclo_${key}`).get()).data(),event=(await db.doc(`eventos_ciclo/${key}`).get()).data();
+  assert.equal(audit.actorId,uid);assert.equal(event.actorId,uid);assert.equal(audit.actorName,profile.name);assert.equal(event.actorName,profile.name);
+  assert.equal(audit.createdAt,event.createdAt);assert.equal(audit.operationId,request.operationId);
+  return result;
+};
 const inspect=()=>httpsCallable(system.functions,'cycleContext')({});
 async function check(name,body) {
   const before=cases.length;

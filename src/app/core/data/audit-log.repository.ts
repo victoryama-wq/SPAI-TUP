@@ -1,4 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
+import { auditIdentity } from './audit-display';
 import { orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../firebase/firebase.tokens';
 import { FirestoreRepository } from './firestore.repository';
@@ -33,7 +34,9 @@ export const AUDIT_LOG_COLLECTION = 'bitacora';
 
 @Injectable({ providedIn: 'root' })
 export class AuditLogRepository extends FirestoreRepository<AuditLogEntry> {
-  readonly entries = this.items;
+  readonly entries = computed(() => this.items().map(entry => ({
+    ...entry, ...auditIdentity(entry as unknown as Record<string, unknown>),
+  })));
   readonly entriesReadError = this.readError;
 
   constructor() {
