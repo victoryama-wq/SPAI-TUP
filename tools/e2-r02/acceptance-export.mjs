@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import {readFileSync,writeFileSync,existsSync,mkdirSync,readdirSync,statSync} from 'node:fs';import {createHash} from 'node:crypto';import {resolve,relative} from 'node:path';import {config,root,acceptanceSlot,verifyHub} from '../local/config.mjs';
-assert([41000,42000].includes(acceptanceSlot));assert(!existsSync(resolve(root,'.local/FROZEN.json')),'Instancia ya entregada; no preparar de nuevo');await verifyHub();
+assert([43000,44000].includes(acceptanceSlot));assert(!existsSync(resolve(root,'.local/FROZEN.json')),'Instancia ya entregada; no preparar de nuevo');await verifyHub();
 const dir=resolve(root,'.local/acceptance-saved');mkdirSync(dir,{recursive:true});const destination=resolve(dir,'initial-'+Date.now());
 const r=await fetch(`http://127.0.0.1:${config.hub}/_admin/export`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({path:destination,initiatedBy:'SPAI isolated acceptance preparation',targets:['auth','firestore','storage']}),signal:AbortSignal.timeout(120000)});assert.equal(r.status,200,await r.text());
 const metadata=JSON.parse(readFileSync(resolve(destination,'firebase-export-metadata.json')));for(const k of ['auth','firestore','storage'])assert(metadata[k]);

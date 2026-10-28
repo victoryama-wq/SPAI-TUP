@@ -6,7 +6,7 @@ export const root = fileURLToPath(new URL('../../', import.meta.url));
 export const isolatedTest = process.env.SPAI_LOCAL_TEST_ISOLATED === 'true';
 if (isolatedTest && process.env.SPAI_LOCAL_SYNTHETIC !== 'true') throw new Error('El ensayo aislado requiere fixtures sintéticos.');
 export const diagnosticTest = process.env.SPAI_LOCAL_TEST_SLOT === 'rules-diagnostic';
-export const acceptanceSlot = ({'acceptance-a':41000,'acceptance-b':42000})[process.env.SPAI_LOCAL_TEST_SLOT] || 0;
+export const acceptanceSlot = ({'acceptance-a':43000,'acceptance-b':44000})[process.env.SPAI_LOCAL_TEST_SLOT] || 0;
 export const preproductionTest = process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction';
 export const complementTest = process.env.SPAI_LOCAL_TEST_SLOT === 'complement' || preproductionTest || diagnosticTest || acceptanceSlot > 0;
 export const recoveryTest = process.env.SPAI_LOCAL_TEST_SLOT === 'recovery';

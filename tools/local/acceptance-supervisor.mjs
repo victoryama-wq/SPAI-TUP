@@ -10,7 +10,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { config, root, localEnvironment, recoveryTest, isolatedTest, testOffset, cliConfigFile, sessionFile, verifyHub, loggingPort, websocketPort, acceptanceSlot } from './config.mjs';
 
 const r02Review = true;
-assert(isolatedTest && [41000,42000].includes(acceptanceSlot), 'Solo instancias independientes de aceptación A/B.');
+assert(isolatedTest && [43000,44000].includes(acceptanceSlot), 'Solo instancias independientes de aceptación A/B.');
 assert.equal(process.versions.node.split('.')[0], '22');
 const dir = resolve(root, '.local/acceptance-saved');
 const latestFile = resolve(dir, 'latest.json');

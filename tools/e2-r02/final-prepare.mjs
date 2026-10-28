@@ -8,7 +8,7 @@ import {control} from '../local/control.mjs';
 import {fixtures,fixtureTime} from '../local/fixtures.mjs';
 import {reviewFixtures,validateReviewFixtures} from './review-fixtures.mjs';
 if(acceptanceSlot && existsSync(resolve(root,'.local/FROZEN.json')))throw Error('Instancia entregada: fixtures congelados.');
-assert.equal(complementTest,true);assert.ok([28080,39080,49080,50080].includes(config.firestore));await verifyHub();
+assert.equal(complementTest,true);assert.ok([28080,39080,51080,52080].includes(config.firestore));await verifyHub();
 const scenario=process.argv[2]||'capture';
 assert.ok(['preparation','capture','closed-capture','specials','closed','renewal'].includes(scenario));
 await control('reset');Object.assign(process.env,localEnvironment());
