@@ -1,3 +1,4 @@
+import { confirmedMetric } from '../../../core/data/confirmed-metric';
 import { hasAccess, isSystems } from '../../users/data/module-permission.service';
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { UserSessionService } from '../../../core/auth/user-session.service';
@@ -272,26 +273,22 @@ export class DashboardPageComponent implements OnDestroy {
       const consultationMetrics: MetricCard[] = [
         {
           label: 'Usuarios activos',
-          value: String(users.filter((user) => user.status === 'Activo').length),
-          hint: 'Coleccion usuarios',
+          ...confirmedMetric(String(users.filter((user) => user.status === 'Activo').length), 'Coleccion usuarios', this.usersRepository),
           icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6',
         },
         {
           label: 'Ciclos registrados',
-          value: String(cycles.length),
-          hint: 'Coleccion ciclos',
+          ...confirmedMetric(String(cycles.length), 'Coleccion ciclos', this.cyclesRepository),
           icon: 'M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
         },
         {
           label: 'Ciclo activo',
-          value: activeCycle?.code ?? '--',
-          hint: this.activeCycleHint(activeCycle),
+          ...confirmedMetric(activeCycle?.code ?? '--', this.activeCycleHint(activeCycle), this.cyclesRepository),
           icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
         },
         {
           label: 'Roles personalizados',
-          value: String(this.customRolesRepository.roleTemplates().length),
-          hint: 'Coleccion roles_personalizados',
+          ...confirmedMetric(String(this.customRolesRepository.roleTemplates().length), 'Coleccion roles_personalizados', this.customRolesRepository),
           icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
         },
       ];
@@ -299,8 +296,7 @@ export class DashboardPageComponent implements OnDestroy {
       if (this.hasModuleAccess(appUser, 'docentes')) {
         consultationMetrics.push({
           label: 'Docentes totales',
-          value: String(teachers.length),
-          hint: 'Catalogo global de docentes',
+          ...confirmedMetric(String(teachers.length), 'Catalogo global de docentes', this.teachersRepository),
           icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
         });
       }
@@ -308,8 +304,7 @@ export class DashboardPageComponent implements OnDestroy {
       if (this.hasModuleAccess(appUser, 'asignaciones')) {
         consultationMetrics.push({
           label: 'Asignaciones registradas',
-          value: String(assignments.length),
-          hint: 'Catalogo global de asignaciones',
+          ...confirmedMetric(String(assignments.length), 'Catalogo global de asignaciones', this.assignmentsRepository),
           icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
         });
       }
@@ -324,20 +319,17 @@ export class DashboardPageComponent implements OnDestroy {
       return [
         {
           label: 'Docentes registrados',
-          value: String(teachers.length),
-          hint: 'Catalogo global de docentes',
+          ...confirmedMetric(String(teachers.length), 'Catalogo global de docentes', this.teachersRepository),
           icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
         },
         {
           label: 'Ciclos registrados',
-          value: String(cycles.length),
-          hint: 'Consulta operativa',
+          ...confirmedMetric(String(cycles.length), 'Consulta operativa', this.cyclesRepository),
           icon: 'M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
         },
         {
           label: 'Ciclo activo',
-          value: activeCycle?.code ?? '--',
-          hint: this.activeCycleHint(activeCycle),
+          ...confirmedMetric(activeCycle?.code ?? '--', this.activeCycleHint(activeCycle), this.cyclesRepository),
           icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
         },
         {
@@ -352,26 +344,22 @@ export class DashboardPageComponent implements OnDestroy {
     return [
       {
         label: 'Usuarios activos',
-        value: String(users.filter((user) => user.status === 'Activo').length),
-        hint: 'Coleccion usuarios',
+        ...confirmedMetric(String(users.filter((user) => user.status === 'Activo').length), 'Coleccion usuarios', this.usersRepository),
         icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6',
       },
       {
         label: 'Ciclos registrados',
-        value: String(cycles.length),
-        hint: 'Coleccion ciclos',
+        ...confirmedMetric(String(cycles.length), 'Coleccion ciclos', this.cyclesRepository),
         icon: 'M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
       },
       {
         label: 'Ciclo activo',
-        value: activeCycle?.code ?? '--',
-        hint: this.activeCycleHint(activeCycle),
+        ...confirmedMetric(activeCycle?.code ?? '--', this.activeCycleHint(activeCycle), this.cyclesRepository),
         icon: 'M12 8v4l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
       },
       {
         label: 'Roles personalizados',
-        value: String(this.customRolesRepository.roleTemplates().length),
-        hint: 'Coleccion roles_personalizados',
+        ...confirmedMetric(String(this.customRolesRepository.roleTemplates().length), 'Coleccion roles_personalizados', this.customRolesRepository),
         icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
       },
     ];
@@ -540,8 +528,7 @@ export class DashboardPageComponent implements OnDestroy {
     const progressCards: RealProgressCard[] = [
       {
         label: isAcademicCoordinator ? 'Programas asignados' : 'Usuarios registrados',
-        value: isAcademicCoordinator ? String(assignedProgramsCount) : String(users.length),
-        hint: isAcademicCoordinator ? 'Programas visibles para tu coordinacion' : `${activeUsers} activos en Firestore`,
+        ...confirmedMetric(isAcademicCoordinator ? String(assignedProgramsCount) : String(users.length), isAcademicCoordinator ? 'Programas visibles para tu coordinacion' : `${activeUsers} activos en Firestore`, ...(isAcademicCoordinator ? [] : [this.usersRepository])),
         icon: isAcademicCoordinator
           ? 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z'
           : 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6',
@@ -553,8 +540,7 @@ export class DashboardPageComponent implements OnDestroy {
           : [
               {
                 label: 'Nomenclaturas',
-                value: String(nomenclatures.length),
-                hint: `${activeNomenclatures} activas`,
+                ...confirmedMetric(String(nomenclatures.length), `${activeNomenclatures} activas`, this.nomenclaturesRepository),
                 icon: 'M7 7h10M7 12h10M7 17h7M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z',
                 tone: activeNomenclatures > 0 ? 'success' : 'info',
               } satisfies RealProgressCard,
@@ -562,38 +548,33 @@ export class DashboardPageComponent implements OnDestroy {
       ),
       {
         label: 'Grupos del ciclo activo',
-        value: String(cycleGroups.length),
-        hint: activeCycleCode ? `Ciclo ${activeCycleCode}` : 'Sin ciclo activo',
+        ...confirmedMetric(String(cycleGroups.length), activeCycleCode ? `Ciclo ${activeCycleCode}` : 'Sin ciclo activo', this.cyclesRepository, this.groupsRepository),
         icon: 'M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M21 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
         tone: cycleGroups.length > 0 ? 'success' : 'info',
       },
       {
         label: 'Docentes',
-        value: String(teachers.length),
-        hint: `${validatedTeachers} validados, ${pendingTeachers} pendientes`,
+        ...confirmedMetric(String(teachers.length), `${validatedTeachers} validados, ${pendingTeachers} pendientes`, this.teachersRepository),
         icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
         tone: pendingTeachers > 0 ? 'warning' : validatedTeachers > 0 ? 'success' : 'info',
       },
       {
         label: 'Asignaturas',
-        value: String(isAcademicCoordinator ? coordinatorSubjectCount : subjects.length),
-        hint: isAcademicCoordinator
+        ...confirmedMetric(String(isAcademicCoordinator ? coordinatorSubjectCount : subjects.length), isAcademicCoordinator
           ? `${coordinatorAssignments.length} asignaciones en tus programas`
-          : `${activeSubjects} activas en catalogo`,
+          : `${activeSubjects} activas en catalogo`, ...(isAcademicCoordinator ? [this.assignmentsRepository] : [this.subjectsRepository])),
         icon: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z',
         tone: (isAcademicCoordinator ? coordinatorSubjectCount : activeSubjects) > 0 ? 'success' : 'info',
       },
       {
         label: 'Asignaciones del ciclo',
-        value: String(cycleAssignments.length),
-        hint: `${moodleLoadedAssignments} cargadas en Moodle`,
+        ...confirmedMetric(String(cycleAssignments.length), `${moodleLoadedAssignments} cargadas en Moodle`, this.cyclesRepository, this.assignmentsRepository),
         icon: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
         tone: cycleAssignments.length > 0 ? 'success' : 'info',
       },
       {
         label: 'Solicitudes pendientes',
-        value: String(pendingRequests),
-        hint: `${requests.length} solicitudes registradas`,
+        ...confirmedMetric(String(pendingRequests), `${requests.length} solicitudes registradas`, this.sharedRequestsRepository),
         icon: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
         tone: pendingRequests > 0 ? 'warning' : 'success',
       },

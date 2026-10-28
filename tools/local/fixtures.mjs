@@ -25,8 +25,9 @@ export function fixtures() {
   }
   // Base roles remain the current role strings in usuarios, not invented role IDs.
   add('roles_personalizados/demo-consulta', {
-    name: 'Consulta DEMO', description: 'Plantilla ficticia de consulta', status: 'Activo',
-    permissions: Object.fromEntries(modules.map((key) => [key, key === 'dashboard' ? 'view' : 'none'])),
+    name: 'Consulta DEMO', description: 'Plantilla ficticia de consulta', status: 'ACTIVE', revision: 1,
+    approvedBy: 'demo-sistemas', capabilities: [], scope: {programs:['ADM'],cycles:['27-1'],teachers:[],fields:[]},
+    permissions: Object.fromEntries(modules.map((key) => [key, key === 'dashboard' ? 'VIEW' : 'NONE'])),
   });
   for (const [code, status] of [['27-2', 'Preparacion'], ['27-1', 'Captura'], ['26-3', 'Captura cerrada'], ['26-2', 'Cerrado']]) {
     add(`ciclos/demo-${code}`, {

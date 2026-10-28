@@ -74,12 +74,17 @@ function createUserDeletionService(db, authAdmin, {nowMillis=Date.now, previewKe
       const reserved=await Promise.all([tx.get(emailRef),tx.get(uidRef),tx.get(tombstone)]);
       P.assert(reserved.every(s=>!s.exists),'La identidad ya tiene una baja registrada. Consulta su seguimiento.','already-exists');
       const now=new Date(nowMillis()).toISOString();
-      const job={operationId,requestHash,targetId:target.id,name:target.name,email:preview.identity.email,authIdentity:preview.identity,actorId:caller.uid,reason,createdAt:now,status:'PENDING_AUTH',attempts:0,lastError:null};
+      // Snapshot the authenticated requester's identity now; later completion must
+      // not depend on a live profile or on the administrator viewing/retrying it.
+      const actorName=(typeof state.actor.name === 'string' ? state.actor.name.trim() : '') || emailOf(state.actor.email);
+      P.assert(actorName,'La identidad del solicitante requiere revisión institucional.','failed-precondition');
+      const actor={id:caller.uid,name:actorName,email:emailOf(state.actor.email),role:state.actor.role || state.actor.baseRole};
+      const job={operationId,requestHash,targetId:target.id,name:target.name,email:preview.identity.email,authIdentity:preview.identity,actorId:caller.uid,actor,reason,createdAt:now,status:'PENDING_AUTH',attempts:0,lastError:null};
       tx.update(db.doc('usuarios/'+target.id),{status:'Inactivo',deletedAt:now,deletionOperationId:operationId,revision:(target.revision??0)+1,updatedAt:now});
       tx.create(tombstone,{...job,profile:target});
       tx.create(emailRef,{targetId:target.id,operationId,createdAt:now});tx.create(uidRef,{targetId:target.id,operationId,createdAt:now});
-      tx.create(db.doc('bitacora/baja_'+operationId),{module:'Usuarios',action:'BAJA_USUARIO_INICIADA',actorId:caller.uid,user:state.actor.name,entity:'usuarios',entityId:target.id,reason,createdAt:now,operationId,source:'SERVIDOR',before:{status:target.status??null},after:{status:'Inactivo',deletedAt:now}});
-      tx.create(db.doc('eventos_baja/'+operationId),{operationId,targetId:target.id,actorId:caller.uid,reason,createdAt:now,status:'PENDING_AUTH',delivery:'NO_EMAIL'});
+      tx.create(db.doc('bitacora/baja_'+operationId),{module:'Usuarios',action:'BAJA_USUARIO_INICIADA',actorId:caller.uid,actor,user:actor.name,description:`${actor.name} solicitó la baja de ${target.name} (${preview.identity.email}). Acceso a SPAI bloqueado; Authentication pendiente.`,entity:'usuarios',entityId:target.id,reason,createdAt:now,operationId,source:'SERVIDOR',before:{status:target.status??null},after:{status:'Inactivo',deletedAt:now}});
+      tx.create(db.doc('eventos_baja/'+operationId),{operationId,targetId:target.id,targetName:target.name,targetEmail:preview.identity.email,actorId:caller.uid,actor,reason,createdAt:now,status:'PENDING_AUTH',delivery:'NO_EMAIL'});
       tx.create(op,job);tx.set(state.fence,{revision:(state.lock.data()?.revision??0)+1});
       return operationId;
     });
@@ -87,10 +92,17 @@ function createUserDeletionService(db, authAdmin, {nowMillis=Date.now, previewKe
   async function process(operationId, retryCaller = null) {
     const op=db.doc('operaciones_baja/'+operationId),attemptId=randomUUID();
     const claimed=await db.runTransaction(async tx=>{
-      if(retryCaller) await administrator(tx,retryCaller);
+      const retryProfile=retryCaller ? await administrator(tx,retryCaller) : null;
       const snap=await tx.get(op);P.assert(snap.exists,'Baja no encontrada.','not-found');const job=snap.data();
       if(job.status==='COMPLETED'||job.leaseUntil>nowMillis())return {job,claimed:false};
-      const next={status:'PROCESSING_AUTH',leaseUntil:nowMillis()+30000,attemptId,attemptActorId:retryCaller?.uid??job.actorId,attempts:job.attempts+1};
+      // Legacy pending jobs may recover only the snapshot already recorded at
+      // initiation. Never infer a missing identity from today's user directory.
+      const initial=job.actor ? null : (await tx.get(db.doc('bitacora/baja_'+operationId))).data();
+      const actor=job.actor ?? (initial?.actorId===job.actorId && typeof initial.user==='string'
+        ? {id:job.actorId,name:initial.user} : {id:job.actorId});
+      const executor=retryCaller ? {kind:'ADMIN_RETRY',id:retryCaller.uid,name:retryProfile.name}
+        : {kind:'SERVER',id:'user-deletion-worker'};
+      const next={status:'PROCESSING_AUTH',leaseUntil:nowMillis()+30000,attemptId,actor,executor,attemptActorId:retryCaller?.uid??null,attempts:job.attempts+1};
       tx.update(op,next);tx.update(db.doc('bajas_usuarios/'+job.targetId),next);tx.update(db.doc('eventos_baja/'+operationId),next);
       return {job:{...job,...next},claimed:true};
     });
@@ -108,10 +120,10 @@ function createUserDeletionService(db, authAdmin, {nowMillis=Date.now, previewKe
     }catch(e){failure=String(e.code??'auth/processing-failed').slice(0,100);}
     return db.runTransaction(async tx=>{
       const snap=await tx.get(op),current=snap.data();if(current.attemptId!==attemptId)return publicResult(current);
-      const now=new Date(nowMillis()).toISOString(),patch={status:failure?'PENDING_AUTH':'COMPLETED',lastError:failure,leaseUntil:0,updatedAt:now,...(!failure?{completedAt:now}:{})};
+      const now=new Date(nowMillis()).toISOString(),patch={status:failure?'PENDING_AUTH':'COMPLETED',lastError:failure,leaseUntil:0,updatedAt:now,...(!failure?{completedAt:now,authResult:'CONFIRMED_ABSENT'}:{})};
       tx.update(op,patch);tx.update(db.doc('bajas_usuarios/'+job.targetId),patch);tx.update(db.doc('eventos_baja/'+operationId),patch);
-      tx.create(db.doc('intentos_baja/'+attemptId),{operationId,actorId:current.attemptActorId,attempt:current.attempts,status:patch.status,error:failure,processedAt:now});
-      if(!failure)tx.create(db.doc('bitacora/baja_auth_'+operationId),{module:'Usuarios',action:'BAJA_AUTH_COMPLETADA',actorId:job.actorId,entity:'usuarios',entityId:job.targetId,operationId,createdAt:now,source:'SERVIDOR'});
+      tx.create(db.doc('intentos_baja/'+attemptId),{operationId,actorId:job.actorId,actor:job.actor,executor:job.executor,attempt:current.attempts,status:patch.status,error:failure,processedAt:now});
+      if(!failure)tx.create(db.doc('bitacora/baja_auth_'+operationId),{module:'Usuarios',action:'BAJA_AUTH_COMPLETADA',actorId:job.actorId,actor:job.actor,executor:job.executor,description:`Baja de ${job.name} (${job.email}) solicitada por ${job.actor.name || 'solicitante sin identidad legible registrada'}. Authentication: ausencia de la cuenta confirmada.`,targetName:job.name,targetEmail:job.email,entity:'usuarios',entityId:job.targetId,operationId,reason:job.reason,authResult:patch.authResult,createdAt:now,source:'SERVIDOR'});
       return publicResult({...current,...patch});
     });
   }

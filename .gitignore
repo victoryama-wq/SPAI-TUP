@@ -40,3 +40,6 @@ temp/
 .local/
 .local-emulators.isolated.json
 functions/.secret.local
+
+# Separate synthetic validation configuration (never shared data)
+.local-emulators.complement.json

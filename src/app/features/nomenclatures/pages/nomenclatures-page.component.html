@@ -1,3 +1,6 @@
+@if (!directoryReady()) {
+  <section class="form-note" [attr.aria-busy]="directoryReadState() === 'loading'" [attr.role]="directoryReadState() === 'error' || directoryReadState() === 'denied' ? 'alert' : 'status'">{{ directoryReadMessage() }}</section>
+} @else {
 <section class="nomenclatures-overview">
   <section class="nomenclatures-header">
     <div>
@@ -360,3 +363,5 @@
     </div>
   }
 </section>
+
+}

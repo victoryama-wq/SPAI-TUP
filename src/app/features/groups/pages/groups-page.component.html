@@ -1,3 +1,6 @@
+@if (!directoryReady()) {
+  <section class="form-note" [attr.aria-busy]="directoryReadState() === 'loading'" [attr.role]="directoryReadState() === 'error' || directoryReadState() === 'denied' ? 'alert' : 'status'">{{ directoryReadMessage() }}</section>
+} @else {
 @if (captureMessage()) { <p class="feedback" role="status">{{ captureMessage() }}</p> }
 <section class="groups-overview">
   <section class="groups-header">
@@ -82,7 +85,7 @@
     </article>
     <article>
       <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"></path></svg></span>
-      <div><strong>{{ nomenclatures().length }}</strong><span>Nomenclaturas</span></div>
+      <div><strong>{{ nomenclaturesReady() ? nomenclatures().length : '—' }}</strong><span>Nomenclaturas</span></div>
     </article>
   </div>
 </section>
@@ -474,3 +477,5 @@
     </div>
   }
 </section>
+
+}

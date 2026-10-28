@@ -116,6 +116,18 @@
                   "with": "src/environments/environment.tunnel.ts"
                 }
               ]
+            },
+            "preproduction": {
+              "index": "src/index.preproduction.html",
+              "outputPath": "dist/spai-tup-preproduction",
+              "optimization": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.preproduction.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -137,6 +149,9 @@
             },
             "complement": {
               "buildTarget": "spai-tup-angular:build:complement"
+            },
+            "preproduction": {
+              "buildTarget": "spai-tup-angular:build:preproduction"
             }
           },
           "defaultConfiguration": "local"

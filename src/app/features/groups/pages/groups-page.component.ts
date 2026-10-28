@@ -50,6 +50,10 @@ export class GroupsPageComponent implements OnDestroy {
   private readonly programsRepository = inject(ProgramsRepository);
   private readonly userSessionService = inject(UserSessionService);
 
+  readonly directoryReady = this.groupsRepository.ready;
+  readonly directoryReadMessage = this.groupsRepository.readMessage;
+  readonly directoryReadState = this.groupsRepository.readState;
+  readonly nomenclaturesReady = this.nomenclaturesRepository.ready;
   readonly groups = this.groupsRepository.groups;
   readonly cycles = this.cyclesRepository.cycles;
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;

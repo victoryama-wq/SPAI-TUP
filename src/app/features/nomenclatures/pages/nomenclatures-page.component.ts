@@ -53,6 +53,9 @@ export class NomenclaturesPageComponent {
   private readonly confirmationDialogService = inject(ConfirmationDialogService);
   private readonly cyclesRepository = inject(CyclesRepository);
 
+  readonly directoryReady = this.nomenclaturesRepository.ready;
+  readonly directoryReadMessage = this.nomenclaturesRepository.readMessage;
+  readonly directoryReadState = this.nomenclaturesRepository.readState;
   readonly nomenclatures = this.nomenclaturesRepository.nomenclatures;
   readonly activeCycle = this.cyclesRepository.activeCycle;
   readonly programs = this.programsRepository.programs;

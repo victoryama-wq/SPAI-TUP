@@ -9,7 +9,8 @@
 <article title="Definiciones activas disponibles en tu directorio autorizado"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8z M2 12l10 5 10-5 M2 16l10 5 10-5" /></svg></span><div><strong>{{ directory() ? availableRoles().length : '—' }}</strong><span>Roles disponibles</span></div></article>
 </div>
 </div>
-<p class="scope-note">{{ general() ? 'Directorio institucional autorizado; perfiles canónicos, sin duplicar alias de identidad.' : 'Directorio limitado a los perfiles autorizados por tu delegación; estas cifras no son totales institucionales.' }} Coordinadores cuenta perfiles de Coordinación Académica. Roles disponibles cuenta definiciones activas.</p>
+<p class="scope-note">{{ general() ? 'Directorio institucional autorizado; perfiles canónicos, sin duplicar alias de identidad.' : 'Directorio limitado a los perfiles autorizados por tu delegación; estas cifras no son totales institucionales.' }} Coordinadores cuenta perfiles de Coordinación Académica. Roles disponibles cuenta definiciones activas (ACTIVE) del directorio autorizado.</p>
+@if (legacyDefinitions().length) { <p role="status" class="scope-note">{{ legacyDefinitions().length }} definición(es) con formato heredado requieren revisión; no cuentan como disponibles ni conceden acceso.</p> }
 @if (error && !mode && !roleDirectory) { <p role="alert">{{ error }}</p> }
 @if (message) { <p role="status">{{ message }}</p> }
 @if (directoryState() === 'error') { <button (click)="reload()">Reintentar consulta</button> }
@@ -119,7 +120,7 @@
     <div class="editor-body role-directory">
       <div class="role-directory-intro"><p>Consulta las definiciones y sus módulos. Las que están en uso conservan sus restricciones de edición.</p><button class="primary-action" type="button" [disabled]="busy" (click)="open('role')"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14 M5 12h14" /></svg>Crear rol</button></div>
       @for (role of directory()?.roles_personalizados; track role.id) {
-        <article><div class="role-card-heading"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8z M2 12l10 5 10-5 M2 16l10 5 10-5" /></svg></span><div><h4>{{ role.name }}</h4><p>{{ roleSummary(role) }}</p></div></div><p>Definición: <span class="state-badge">{{ statusLabel(role.status) }}</span></p>
+        <article><div class="role-card-heading"><span class="metric-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8z M2 12l10 5 10-5 M2 16l10 5 10-5" /></svg></span><div><h4>{{ role.name }}</h4><p>{{ roleSummary(role) }}</p></div></div><p>Definición: <span class="state-badge">{{ definitionStatus(role) }}</span></p>
           @if (general() && role.status === 'ACTIVE') { <button type="button" [disabled]="busy || roleInUse(role.id)" (click)="open('role', role)">Editar</button><details class="danger-zone"><summary>Acción sensible sobre la definición</summary><p>Retirar impide nuevas asignaciones y conserva el historial. No se permite si hay asignaciones vigentes.</p><button type="button" class="danger-action" [disabled]="busy || roleInUse(role.id)" (click)="action('deleteRole', role)">Retirar definición</button>@if (roleInUse(role.id)) { <p>Definición en uso: primero deben revisarse sus asignaciones.</p> }</details> }
         </article>
       } @empty { <p>No hay definiciones disponibles.</p> }

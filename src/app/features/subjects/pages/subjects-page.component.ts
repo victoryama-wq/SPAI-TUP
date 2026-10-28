@@ -49,6 +49,9 @@ export class SubjectsPageComponent {
   private readonly userSessionService = inject(UserSessionService);
   private readonly cyclesRepository = inject(CyclesRepository);
 
+  readonly directoryReady = this.subjectsRepository.ready;
+  readonly directoryReadMessage = this.subjectsRepository.readMessage;
+  readonly directoryReadState = this.subjectsRepository.readState;
   readonly subjects = this.subjectsRepository.subjects;
   readonly subjectsReadError = this.subjectsRepository.readError;
   readonly session = this.userSessionService.session;

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {config,complementTest,verifyHub,password} from '../local/config.mjs';
-assert(complementTest);assert.equal(config.firestore,28080);await verifyHub();
-const root='http://127.0.0.1:28080', original=readFileSync('firestore.rules','utf8');
+assert(complementTest);assert.ok([28080,39080].includes(config.firestore));await verifyHub();
+const root=`http://127.0.0.1:${config.firestore}`, original=readFileSync('firestore.rules','utf8');
 const load=async content=>{const r=await fetch(root+'/emulator/v1/projects/demo-spai-tup:securityRules',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({rules:{files:[{name:'firestore.rules',content}]}})});assert.equal(r.status,200,await r.text());};
-const auth=await fetch('http://127.0.0.1:29099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'demo.sistemas@tecplayacar.edu.mx',password,returnSecureToken:true})}).then(r=>r.json());assert(auth.idToken);
+const auth=await fetch(`http://127.0.0.1:${config.auth}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'demo.sistemas@tecplayacar.edu.mx',password,returnSecureToken:true})}).then(r=>r.json());assert(auth.idToken);
 const doc=root+'/v1/projects/demo-spai-tup/databases/(default)/documents/probe-control/fixed';
 await fetch(doc,{method:'PATCH',headers:{authorization:'Bearer owner','content-type':'application/json'},body:JSON.stringify({fields:{allowed:{booleanValue:false}}})});
 const results=[];

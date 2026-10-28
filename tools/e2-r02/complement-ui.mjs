@@ -4,10 +4,10 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {chromium,expect} from '@playwright/test';
 import {config,root,localEnvironment,verifyHub,complementTest} from '../local/config.mjs';
-assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();Object.assign(process.env,localEnvironment());
+assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json')),admin=require('firebase-admin/app'),fs=require('firebase-admin/firestore');
 const app=admin.initializeApp({projectId:config.projectId},'complement-ui'),db=fs.getFirestore(app),service=require('./cycles/service').createCycleService(db);
-const base='http://127.0.0.1:4204',out=resolve(root,'docs/evidence/r02-complement');mkdirSync(out,{recursive:true});
+const base=(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'http://127.0.0.1:4207' : 'http://127.0.0.1:4204'),out=resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028' : 'docs/evidence/r02-complement'));mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1280,height:950}}),results=[];
 page.setDefaultTimeout(30000);expect.configure({timeout:30000});
 const allowed=new Set([base,...['auth','firestore','functions','storage'].map(k=>`http://127.0.0.1:${config[k]}`)]);
@@ -67,5 +67,5 @@ try {
   await ready();await page.getByRole('button',{name:'Eliminar ciclo histórico',exact:true}).click();await expect(dialog().getByLabel('Motivo de eliminación',{exact:false})).toHaveValue('');await dialog().getByLabel('Motivo de eliminación',{exact:false}).fill('Confirmación aislada sin dependencias');await dialog().getByRole('button',{name:'Eliminar ciclo',exact:true}).click();await expect(page.locator('tbody tr')).toHaveCount(1,{timeout:30000});assert.equal((await db.doc('ciclos/ui-empty-25').get()).exists,true);
  });
  await cycles('Captura');await page.setViewportSize({width:1280,height:950});await enter();await page.screenshot({path:resolve(out,'modal-captura-1280.png')});await page.setViewportSize({width:390,height:844});await page.screenshot({path:resolve(out,'modal-captura-390.png')});
- writeFileSync(resolve(out,'ui.json'),JSON.stringify({at:new Date().toISOString(),results,environment:'isolated complement 28080 / 4204',humanAcceptance:false},null,2));
+ writeFileSync(resolve(out,'ui.json'),JSON.stringify({at:new Date().toISOString(),results,environment:`isolated ${config.firestore}/${config.functions}; frontend ${process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 4207 : 4204}`,humanAcceptance:false},null,2));
 }catch(e){await page.screenshot({path:resolve(out,'failure.png'),fullPage:true});throw e;}finally{await browser.close();await admin.deleteApp(app);}

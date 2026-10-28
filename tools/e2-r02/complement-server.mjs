@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {config,root,localEnvironment,verifyHub,complementTest} from '../local/config.mjs';
 import {resolve} from 'node:path';
-assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();Object.assign(process.env,localEnvironment());
+assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json'));
 const {initializeApp,deleteApp}=require('firebase-admin/app'),{getFirestore}=require('firebase-admin/firestore');
 const {createCycleService}=require('./cycles/service'),{COLLECTIONS}=require('./cycles/dependencies');
@@ -67,5 +67,5 @@ try {
   await db.doc('ciclos/another').set(cycle('another','29-2','Captura'));assert.equal((await service.inspect(actor)).state,'INCONSISTENT');
   await noChange(()=>service.execute(actor,command('closeCapture',cycle('another','29-2','Captura'))),'failed-precondition',/CICLO_INCONSISTENTE/);
  });
- mkdirSync(resolve(root,'docs/evidence/r02-complement'),{recursive:true});writeFileSync(resolve(root,'docs/evidence/r02-complement/server.json'),JSON.stringify({at:new Date().toISOString(),isolatedDatabase:db.databaseId,results,productionValidation:false},null,2));
+ mkdirSync(resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028' : 'docs/evidence/r02-complement')),{recursive:true});writeFileSync(resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028/server.json' : 'docs/evidence/r02-complement/server.json')),JSON.stringify({at:new Date().toISOString(),isolatedDatabase:db.databaseId,results,productionValidation:false},null,2));
 }finally{await deleteApp(app);}

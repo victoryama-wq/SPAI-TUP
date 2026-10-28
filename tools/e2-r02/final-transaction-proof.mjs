@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {root,config,complementTest,verifyHub,localEnvironment} from '../local/config.mjs';
-assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();Object.assign(process.env,localEnvironment());
+assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json')),A=require('firebase-admin/app');
 const app=A.initializeApp({projectId:config.projectId},randomUUID()),db=require('firebase-admin/firestore').getFirestore(app,'r02-final-'+Date.now());
 const service=require('./cycles/service').createCycleService(db),actor={uid:'proof-admin'},results=[];
@@ -37,5 +37,5 @@ try{
  const history=await snapshot();await db.doc('usuarios/'+actor.uid).update({status:'Inactivo'});assert.deepEqual(await snapshot(),history);
  await db.doc('usuarios/'+actor.uid).delete();assert.deepEqual(await snapshot(),history);
  results.push({name:'Identidad histórica conservada tras inactivación y eliminación del perfil; actor cliente ignorado',status:'PASS'});
- mkdirSync(resolve(root,'docs/evidence/r02-final-review'),{recursive:true});writeFileSync(resolve(root,'docs/evidence/r02-final-review/transactions.json'),JSON.stringify({at:new Date().toISOString(),environment:'named isolated database '+db.databaseId,results,humanAcceptance:false},null,2));console.log('PASS '+results.length+' operaciones con ciclo, operación, bitácora y evento coherentes; reintentos sin efectos');
+ mkdirSync(resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028' : 'docs/evidence/r02-final-review')),{recursive:true});writeFileSync(resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028/transactions.json' : 'docs/evidence/r02-final-review/transactions.json')),JSON.stringify({at:new Date().toISOString(),environment:'named isolated database '+db.databaseId,results,humanAcceptance:false},null,2));console.log('PASS '+results.length+' operaciones con ciclo, operación, bitácora y evento coherentes; reintentos sin efectos');
 }finally{await A.deleteApp(app);}

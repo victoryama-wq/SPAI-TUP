@@ -21,22 +21,22 @@
     }
   </section>
 
-  <div class="cycle-summary">
+  <div class="cycle-summary" [attr.aria-busy]="cyclesReadState() === 'loading'">
     <article>
       <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg></span>
-      <div><strong>{{ cycles().length }}</strong><span>Ciclos registrados</span></div>
+      <div><strong>{{ cyclesReady() ? cycles().length : '—' }}</strong><span>Ciclos registrados</span></div>
     </article>
     <article>
       <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
-      <div><strong>{{ planningCycles().length }}</strong><span>En preparación</span></div>
+      <div><strong>{{ cyclesReady() ? planningCycles().length : '—' }}</strong><span>En preparación</span></div>
     </article>
     <article>
       <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg></span>
-      <div><strong>{{ captureCycles().length }}</strong><span>En captura</span></div>
+      <div><strong>{{ cyclesReady() ? captureCycles().length : '—' }}</strong><span>En captura</span></div>
     </article>
     <article>
       <span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15v-4M12 15V7M16 15v-6"></path></svg></span>
-      <div><strong>{{ closedCycles().length }}</strong><span>Históricos</span></div>
+      <div><strong>{{ cyclesReady() ? closedCycles().length : '—' }}</strong><span>Históricos</span></div>
     </article>
   </div>
 </section>
@@ -175,6 +175,7 @@
         </tr>
       </thead>
       <tbody>
+        @if (!cyclesReady()) { <tr><td colspan="10" [attr.role]="cyclesReadState() === 'error' || cyclesReadState() === 'denied' ? 'alert' : 'status'">{{ cyclesReadMessage() }}</td></tr> } @else if (!cycles().length) { <tr><td colspan="10">No hay ciclos en la consulta autorizada.</td></tr> }
         @for (cycle of cycles(); track cycle.id) {
           <tr>
             <td><strong class="cycle-code">{{ cycle.code }}</strong></td>

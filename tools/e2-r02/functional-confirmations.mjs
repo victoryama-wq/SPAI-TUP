@@ -11,12 +11,12 @@ import {deleteApp} from 'firebase/app';
 import {terminate} from 'firebase/firestore';
 import {config,root,complementTest,verifyHub,localEnvironment,password} from '../local/config.mjs';
 import {runtime,localConfig} from '../local/tests/runtime.mjs';
-assert(complementTest);assert.equal(config.firestore,28080);await verifyHub();Object.assign(process.env,localEnvironment());
+assert(complementTest);assert.ok([28080,39080].includes(config.firestore));await verifyHub();Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json')),A=require('firebase-admin/app'),app=A.initializeApp({projectId:config.projectId},randomUUID());
 const db=require('firebase-admin/firestore').getFirestore(app),auth=require('firebase-admin/auth').getAuth(app),P=require('./security/policy');
-const out=resolve(root,'docs/evidence/r02-functional-20261026');mkdirSync(out,{recursive:true});
+const out=resolve(root,(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'docs/evidence/r02-preproduction-20261028' : 'docs/evidence/r02-functional-20261026'));mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1280,height:950}}),clients=[];
-const base='http://127.0.0.1:4204',allowed=new Set([base,...['auth','firestore','functions','storage'].map(k=>`http://127.0.0.1:${config[k]}`)]);
+const base=(process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 'http://127.0.0.1:4207' : 'http://127.0.0.1:4204'),allowed=new Set([base,...['auth','firestore','functions','storage'].map(k=>`http://127.0.0.1:${config[k]}`)]);
 await page.route('**/*',r=>allowed.has(new URL(r.request().url()).origin)?r.continue():r.abort());page.setDefaultTimeout(30000);const check=expect.configure({timeout:30000});
 const results=[],requests=[],errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().endsWith('/cycleCommand'))requests.push(r.postDataJSON().data);});
 const getCycle=async()=>(await db.doc('ciclos/demo-27-1').get()).data();
@@ -72,5 +72,5 @@ try{
  results.push({name:'Baja confirmada por modal: cuenta ficticia retirada de Auth y perfil histórico conservado',status:'PASS',target});
  assert.deepEqual(errors,[]);
 }catch(e){await page.screenshot({path:resolve(out,'functional-failure.png'),fullPage:true});throw e;}
-finally{writeFileSync(resolve(out,'confirmations.json'),JSON.stringify({at:new Date().toISOString(),results,errors,environment:'isolated 28080/4204',humanAcceptance:false},null,2));await browser.close();for(const c of clients){await terminate(c.db);await deleteApp(c.app);}await A.deleteApp(app);}
+finally{writeFileSync(resolve(out,'confirmations.json'),JSON.stringify({at:new Date().toISOString(),results,errors,environment:`isolated ${config.firestore}/${config.functions}; frontend ${process.env.SPAI_LOCAL_TEST_SLOT === 'preproduction' ? 4207 : 4204}`,humanAcceptance:false},null,2));await browser.close();for(const c of clients){await terminate(c.db);await deleteApp(c.app);}await A.deleteApp(app);}
 console.log('PASS '+results.length+' comprobaciones de confirmaciones reales y actor histórico');

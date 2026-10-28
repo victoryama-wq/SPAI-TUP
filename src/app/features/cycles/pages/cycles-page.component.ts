@@ -57,6 +57,9 @@ export class CyclesPageComponent {
   validReopenReason(cycle: AcademicCycle): boolean { const reason=(this.reopenReason[cycle.id] || '').trim(); return reason.length >= 4 && reason.length <= 1000; }
   setReason(id: string, event: Event): void { this.reopenReason[id]=(event.target as HTMLInputElement).value; }
   readonly cycles = this.cyclesRepository.cycles;
+  readonly cyclesReady = this.cyclesRepository.ready;
+  readonly cyclesReadState = this.cyclesRepository.readState;
+  readonly cyclesReadMessage = this.cyclesRepository.readMessage;
   readonly currentAccessDiagnostic = computed(() => {
     const session = this.userSessionService.session();
     const appUser = session?.appUser;

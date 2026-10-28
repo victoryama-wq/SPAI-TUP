@@ -8,7 +8,7 @@ import {updateDoc,doc,terminate} from 'firebase/firestore';
 import {deleteApp} from 'firebase/app';
 import {config,root,password,complementTest,verifyHub} from '../local/config.mjs';
 import {runtime,localConfig} from '../local/tests/runtime.mjs';
-assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();
+assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();
 const current=readFileSync(resolve(root,'firestore.rules'),'utf8');
 const baseline=execFileSync('git',['show','775dc7e:firestore.rules'],{cwd:root,encoding:'utf8'});
 const load=async content=>{const r=await fetch(`http://127.0.0.1:${config.firestore}/emulator/v1/projects/demo-spai-tup:securityRules`,{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({rules:{files:[{name:'firestore.rules',content}]}})});assert.equal(r.status,200,await r.text());};

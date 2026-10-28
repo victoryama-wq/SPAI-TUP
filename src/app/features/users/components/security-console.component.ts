@@ -70,6 +70,10 @@ export class SecurityConsoleComponent implements OnDestroy {
     const labels = Object.entries(role.permissions ?? {}).filter(([,level]) => level === 'VIEW' || level === 'EDIT').map(([module]) => this.moduleLabels[module]);
     return labels.length ? 'Módulos: ' + labels.join(', ') : 'Sin módulos concedidos';
   }
+  definitionStatus(role: SecurityRecord): string {
+    return role.status === 'ACTIVE' ? 'Activa' : role.status === 'RETIRED' ? 'Retirada' : 'Formato heredado: requiere revisión';
+  }
+  readonly legacyDefinitions = computed(() => this.directory()?.roles_personalizados.filter(r => !['ACTIVE', 'RETIRED'].includes(r.status ?? '')) ?? []);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly service = inject(SecurityService);
   private readonly session = inject(UserSessionService);

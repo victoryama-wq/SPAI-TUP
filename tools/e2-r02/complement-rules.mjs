@@ -8,7 +8,7 @@ import {deleteApp} from 'firebase/app';
 import {httpsCallable} from 'firebase/functions';
 import {config,root,localEnvironment,verifyHub,complementTest,password} from '../local/config.mjs';
 import {runtime,localConfig} from '../local/tests/runtime.mjs';
-assert.equal(complementTest,true);assert.equal(config.firestore,28080);await verifyHub();Object.assign(process.env,localEnvironment());
+assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();Object.assign(process.env,localEnvironment());
 const require=createRequire(resolve(root,'functions/package.json')),admin=require('firebase-admin/app'),fs=require('firebase-admin/firestore');
 const app=admin.initializeApp({projectId:config.projectId},'complement-rules'),db=fs.getFirestore(app),service=require('./cycles/service').createCycleService(db),clients=[],results=[];
 async function login(email){const c=runtime.initializeFirebaseRuntime(localConfig,email);clients.push(c);await signInWithEmailAndPassword(c.auth,email,password);return c;}
