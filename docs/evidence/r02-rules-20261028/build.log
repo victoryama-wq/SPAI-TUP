@@ -1,0 +1,37 @@
+> Building...
+√ Building...
+Initial chunk files | Names                        |  Raw size
+chunk-6KDISOBI.js   | -                            |   1.38 MB | 
+chunk-KJLT7H5M.js   | -                            | 904.88 kB | 
+main.js             | main                         | 190.63 kB | 
+polyfills.js        | polyfills                    |  89.74 kB | 
+chunk-5AUHV6RY.js   | -                            |   9.77 kB | 
+chunk-4C4JLFWU.js   | -                            |   6.61 kB | 
+chunk-J57Z42FW.js   | -                            |   3.70 kB | 
+chunk-BOE3PUQB.js   | -                            |   1.92 kB | 
+styles.css          | styles                       | 691 bytes | 
+
+                    | Initial total                |   2.59 MB
+
+Lazy chunk files    | Names                        |  Raw size
+chunk-LQNVL32M.js   | assignments-page-component   | 453.83 kB | 
+chunk-5DMFZBHJ.js   | moodle-page-component        | 368.85 kB | 
+chunk-ZL2C6ADS.js   | security-console-component   | 339.00 kB | 
+chunk-H4EVELYA.js   | dashboard-page-component     | 287.43 kB | 
+chunk-ZGTOS6ZC.js   | teachers-page-component      | 280.20 kB | 
+chunk-5WDIILYJ.js   | -                            | 228.48 kB | 
+chunk-MYDHGG2O.js   | subjects-page-component      | 187.99 kB | 
+chunk-HYSQKGKB.js   | groups-page-component        | 167.31 kB | 
+chunk-AP3PGNNT.js   | requests-page-component      | 162.45 kB | 
+chunk-AWEMHRXO.js   | nomenclatures-page-component | 130.19 kB | 
+chunk-E5XQNCA5.js   | cycles-page-component        | 126.25 kB | 
+chunk-3S5QLPEY.js   | audit-log-page-component     |  97.24 kB | 
+chunk-IMBGS664.js   | meet-links-page-component    |  85.72 kB | 
+chunk-WIJDHKVQ.js   | -                            |  21.38 kB | 
+chunk-VL52S4MA.js   | -                            |  13.25 kB | 
+...and 8 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [19.143 seconds] - 2026-10-28T19:24:41.316Z
+
+Output location: C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-R02-RULES-20261028\.local\acceptance-build
+

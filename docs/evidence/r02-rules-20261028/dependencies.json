@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-28T19:39:42.622310+00:00",
+  "method": "Copied dependencies, lock and runtime package manifests; not a full byte audit of all dependency files",
+  "files": {
+    "node_modules/.package-lock.json": "ffcda7fe6798804d75bb3673a652d5d51f0f73e41c5cd78d3e948dc62b8f1960",
+    "functions/node_modules/.package-lock.json": "312ad7538c2d3cfb4332936d2e51189640aa6d68b4c60223bd37f39efd81849d",
+    "node_modules/firebase-tools/package.json": "c423583b30b000346a394563e6e2c20e6a2f6c12fade945f4d529ebab42c098b",
+    "functions/node_modules/firebase-admin/package.json": "eeea23150ca753f4d3b82e4bd1cfd194b8b4771d6a008be9ff8ae98ff669e490",
+    "functions/node_modules/firebase-functions/package.json": "6d9abf5582e22e9938cffb8469b64ef6b05f65ed99119e8fb5013911ad9e2675"
+  },
+  "versions": {
+    "node_modules/firebase-tools/package.json": "15.30.0",
+    "functions/node_modules/firebase-admin/package.json": "13.10.0",
+    "functions/node_modules/firebase-functions/package.json": "6.6.0"
+  },
+  "copyVerification": "robocopy totals: no failed files; original dependencies not changed"
+}

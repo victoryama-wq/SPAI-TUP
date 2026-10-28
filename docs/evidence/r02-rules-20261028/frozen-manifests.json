@@ -1,0 +1,246 @@
+[
+  {
+    "frozenAt": "2026-10-28T19:44:26.655328+00:00",
+    "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+    "branch": "codex/e2-r02-rules-diagnostico",
+    "buildId": "r02-rules-aa532cbef655-a",
+    "url": "https://q16qrh63-4208.usw3.devtunnels.ms",
+    "scenario": "preparation",
+    "scenarioPreparedAt": "2026-10-28T19:28:53.701Z",
+    "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+    "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+    "dependencies": {
+      "at": "2026-10-28T19:39:42.622310+00:00",
+      "method": "Copied dependencies, lock and runtime package manifests; not a full byte audit of all dependency files",
+      "files": {
+        "node_modules/.package-lock.json": "ffcda7fe6798804d75bb3673a652d5d51f0f73e41c5cd78d3e948dc62b8f1960",
+        "functions/node_modules/.package-lock.json": "312ad7538c2d3cfb4332936d2e51189640aa6d68b4c60223bd37f39efd81849d",
+        "node_modules/firebase-tools/package.json": "c423583b30b000346a394563e6e2c20e6a2f6c12fade945f4d529ebab42c098b",
+        "functions/node_modules/firebase-admin/package.json": "eeea23150ca753f4d3b82e4bd1cfd194b8b4771d6a008be9ff8ae98ff669e490",
+        "functions/node_modules/firebase-functions/package.json": "6d9abf5582e22e9938cffb8469b64ef6b05f65ed99119e8fb5013911ad9e2675"
+      },
+      "versions": {
+        "node_modules/firebase-tools/package.json": "15.30.0",
+        "functions/node_modules/firebase-admin/package.json": "13.10.0",
+        "functions/node_modules/firebase-functions/package.json": "6.6.0"
+      },
+      "copyVerification": "robocopy totals: no failed files; original dependencies not changed"
+    },
+    "configurationHashes": {
+      "tools/local/config.mjs": "bfadd4a101ff069ccb848f1861ac7a766f46a0effc368ab88f29b07e4c8430e3",
+      "tools/local/acceptance-gateway.mjs": "47b52ff40e623108f489fe7458252f4bc6e098654c2e1074cc42f800a74e6c17",
+      "tools/local/acceptance-supervisor.mjs": "7e6662bf426853fdfcbaf1890edcccca696bb74863847ba18f13eaff0078be8f",
+      "functions/local-runtime.js": "dec25c7be2990e51030a3cc02d88654ee501da777178fa537caec66dadc5ffa2",
+      "functions/.secret.local": "b5f968f9c6a6dd59b529353197150459a4e8a971f4a4e235bd15d7ac38f851ed",
+      ".local/acceptance-origin.json": "8cbbafe57356e246dd185084142b582e34ac9a96c9a8222553050150dff1e7b9",
+      ".local-emulators.complement.json": "a8081a4edf5d5eefe6d9ac2aa34bccb9be33646bbd30f064b8fb4866909e9f59"
+    },
+    "assets": {
+      "chunk-2N4P4GPO.js": "6d9069c69ad550d883e9906b6d0d156a8caaf894083afefbc1842528b72168e2",
+      "chunk-2PKAXLAP.js": "47a0104a9f003bb0d9db894350a3674ecebad434e0bf588a46d06695918dc4aa",
+      "chunk-3S5QLPEY.js": "0ad73cda4d5d7b44f785629ad4f11fe4863eb98279970d751bec03d51c3e0451",
+      "chunk-4C4JLFWU.js": "ecca30ed7e8d70312f9900acd87cd8b4e29441f6899fbdc051cc4487f711f4a2",
+      "chunk-5AUHV6RY.js": "359d25e4016bf4b413ba13c5161300d29fa7657b0ece386a826ab43fe596547c",
+      "chunk-5DMFZBHJ.js": "15b409a54b1a20593be978a35577b988e7de4caaaf6c4363b3bdb939d34f304b",
+      "chunk-5WDIILYJ.js": "d4bf33f982a07ca381da4e878650552941f09f5713e6ee8ee5eb0395497abb53",
+      "chunk-6CKIOZKK.js": "c5d6b6944ce6d96009c9576780d106b51867cf300fe5a7ba46579084effc069a",
+      "chunk-6KDISOBI.js": "4b19fd892f29c6662008d50a2e13d553cd687e22520a61bd7cda209acee22054",
+      "chunk-AP3PGNNT.js": "9ddf2ecf0c9b00a244ccca6b55a3f854b0c552bb24652abef6f644352bd995d4",
+      "chunk-AWEMHRXO.js": "c41e0af06e0ef4e24d54515d2eaec80915735bdad92d9af8b836a1ad25a0c35a",
+      "chunk-BOE3PUQB.js": "183881e320cfb314c42f59ce4ba968f5737a2e5ad57c9fc3640783fb9dc3febb",
+      "chunk-E5XQNCA5.js": "c94c1e191d3a573488a64b4c0c8997a95ecbaf817d63cffa021f871eef092fde",
+      "chunk-F5WH6CXA.js": "18528599a57b4b6a6320a5f1c501109df09e77255fbaa68a7c9500bc3b95012d",
+      "chunk-H4EVELYA.js": "a2d7a680262e26cf7a01787a2e16683f128d1d86475d306c82cd40389fb2dd8d",
+      "chunk-HYSQKGKB.js": "7a82e07c5ddd66dd04504cfe9366edd19333939de429c0fd37b4545506abe4a4",
+      "chunk-IMBGS664.js": "45fcf50d8f4b00fa63eb1841e7a89bb537f930a04128162105af62daa0b26b92",
+      "chunk-J57Z42FW.js": "43d07d7223e78b93b2afc91ee5a269d48d3273cdc077a76c054d10c550365361",
+      "chunk-KJLT7H5M.js": "5b3b8582d9e633aabb1c43c732d7dfa8253ac6b98d478866a96540e558d56eda",
+      "chunk-LMBVY4VH.js": "e2468ea5311897a7cc1eae0beff6e0f9129b799a6a295ec3602db3027a721ee3",
+      "chunk-LQNVL32M.js": "4f6f3e1ff1c672aca7166e26f6e2ca8508de168cf6a53be04e3a58a4fb904ac4",
+      "chunk-MYDHGG2O.js": "23cd4111fd60c44f71f20a1abddc6a5dfb5978c1244d73af9b011015d8cc75e6",
+      "chunk-UANDM4UV.js": "feb94cad9d542959d51f31a20fff1a2b3c51270b66b496e091b08e5bf8460a4e",
+      "chunk-VL52S4MA.js": "aaff0b70816868018d788d6fa52db65766c3096324b7af9d7eb1cb0589a127cf",
+      "chunk-WIJDHKVQ.js": "daca1e7b1a659b6ca9bc6ea9eec09d95d4b83eaea834d0f0862a1eda463f6a6b",
+      "chunk-XRGKRATN.js": "db9f5b12aca0e01d16df1ec03bbf69c9ad12d0dfb31a2811f804f6ee6f27f88d",
+      "chunk-YGCYSKJF.js": "b62c81447e29fe7684e1e9465e24c0f628a6963b06250818a536833d12615d80",
+      "chunk-ZGTOS6ZC.js": "1dbfa9225436eed8e44e3f2be2ba856ad9712c9fa4602a18073454000b09a8bd",
+      "chunk-ZL2C6ADS.js": "cc39294b6583243ee76682e02053eac821747097e4b490509135cea60e36af7c",
+      "demo-version.json": "84b772f288ecb06dc97e5ff97eac027f410a7bdacb386b97e7120a4553e2807d",
+      "index.html": "3e4ec992366dc8b5c945db5cc9523bc99040aa9918c70bc078e62e3480cbe4e8",
+      "main.js": "7cf0d1c137c03d18444e61a642694c013b6243bcfd8193c4743aa2e1bdba347b",
+      "polyfills.js": "21fe6a24a98271dcf463c201b2b87df230db555eb731c133d1a13e850bc60145",
+      "styles.css": "48a9602f6e955f99ea75cc21cda2fcc62ffdbeea4ec0b7b4eb50137ff3d72f45",
+      "brand/moodle-flyer.svg": "858f948c62bbfb22a74a2b5d12a7ee0c832a4f031b8c53ad451a91af9f49141d",
+      "brand/tup-button-logo.png": "533155a4c105c775390814dd815f004e822f92d5517da2746a6064710251b389",
+      "brand/tup-logo-full.png": "eccac2a3f07b0bdded859694aeb3caa139c836c0b4967b9e1fc5caf911cde7e8",
+      "brand/tup-logo.png": "e130e8c6e3e2aef841c46d8146636d7bda9021efbed0ba39c687fae827445107",
+      "brand/tup-mascot-login.png": "faa2a616ef40025e55921daacd73b5bf04a8037f4637738680e2fd2a2b4f816f",
+      "brand/tup-mascot-pose-base.png": "faa2a616ef40025e55921daacd73b5bf04a8037f4637738680e2fd2a2b4f816f",
+      "brand/tup-mascot-pose-presentando.png": "394e53395faac198a80edc0028377da5c0d0a499778dcf6e881dcc99473b3bee",
+      "brand/tup-mascot-pose-saludo.png": "059ffc9d0eb398358cb30170eeb79478a672835fb5950ffe9e1f1b3ebf0d5a02",
+      "brand/tup-mascot-pose-senalando.png": "81b18031a6ca9ad2d675d6a03c5a399f1c3592ef20b9c6812612b36e19ac1036",
+      "brand/tup-playacar-logo.png": "971da52c36bfc84c0b4916b657e1fa8f8bd8f562a7c8302f79b45b6871026829"
+    },
+    "services": {
+      "auth": 52099,
+      "firestore": 51080,
+      "functions": 48001,
+      "storage": 52199,
+      "gateway": 4208
+    },
+    "initialCycles": [
+      {
+        "id": "demo-26-3",
+        "code": "26-3",
+        "status": "Cerrado"
+      },
+      {
+        "id": "demo-27-1",
+        "code": "27-1",
+        "status": "Preparacion"
+      }
+    ],
+    "dependencies26_3": [
+      "grupos",
+      "asignaciones",
+      "solicitudes_sistemas"
+    ],
+    "initialExport": {
+      "path": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-RULES-20261028\\.local\\review-a\\.local\\acceptance-saved\\initial-1793215733344",
+      "at": "2026-10-28T19:28:53.701Z",
+      "files": {
+        "auth_export\\accounts.json": "d861ae6f73b704b90b44f5da646056e2aa2d5fae83e92c303569ba1ee1eaef1d",
+        "auth_export\\config.json": "a06ad971dd56d46b5975ab34f3308384ff3231d81c70b82b7099fb9b3d312ca8",
+        "firebase-export-metadata.json": "06312c9da75ffbb601dd494ef2bb43142496a223843d5821d47ab3b15e6e23c7",
+        "firestore_export\\all_namespaces\\all_kinds\\all_namespaces_all_kinds.export_metadata": "adbaaccba239c395ba63f517f5fe0192ed192eb14414c9a8e0ddc675995e2a8a",
+        "firestore_export\\all_namespaces\\all_kinds\\output-0": "11e214a76feeaebb7e21ee5b759366042f989da2db9a569dd641d810e0a0c6dc",
+        "firestore_export\\firestore_export.overall_export_metadata": "6e00c2b0c8e85627cf3bddff9f436d58ded4d90cb6641d044afa1c1974d2b272",
+        "storage_export\\buckets.json": "195199204ec70350e039234c50da1a915d83470bcd516bde786fa288a68bf41c"
+      }
+    },
+    "technicalGate": "PASS_LOCAL",
+    "humanAcceptance": "PENDIENTE",
+    "production": "PENDIENTE",
+    "policy": "No replacement, reseed, automated tests or service restart after handoff without owner authorization. Functional user writes remain allowed. Autosave only, every 5 minutes."
+  },
+  {
+    "frozenAt": "2026-10-28T19:44:27.436094+00:00",
+    "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+    "branch": "codex/e2-r02-rules-diagnostico",
+    "buildId": "r02-rules-aa532cbef655-b",
+    "url": "https://q16qrh63-4209.usw3.devtunnels.ms",
+    "scenario": "renewal",
+    "scenarioPreparedAt": "2026-10-28T19:29:20.637Z",
+    "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+    "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+    "dependencies": {
+      "at": "2026-10-28T19:39:42.622310+00:00",
+      "method": "Copied dependencies, lock and runtime package manifests; not a full byte audit of all dependency files",
+      "files": {
+        "node_modules/.package-lock.json": "ffcda7fe6798804d75bb3673a652d5d51f0f73e41c5cd78d3e948dc62b8f1960",
+        "functions/node_modules/.package-lock.json": "312ad7538c2d3cfb4332936d2e51189640aa6d68b4c60223bd37f39efd81849d",
+        "node_modules/firebase-tools/package.json": "c423583b30b000346a394563e6e2c20e6a2f6c12fade945f4d529ebab42c098b",
+        "functions/node_modules/firebase-admin/package.json": "eeea23150ca753f4d3b82e4bd1cfd194b8b4771d6a008be9ff8ae98ff669e490",
+        "functions/node_modules/firebase-functions/package.json": "6d9abf5582e22e9938cffb8469b64ef6b05f65ed99119e8fb5013911ad9e2675"
+      },
+      "versions": {
+        "node_modules/firebase-tools/package.json": "15.30.0",
+        "functions/node_modules/firebase-admin/package.json": "13.10.0",
+        "functions/node_modules/firebase-functions/package.json": "6.6.0"
+      },
+      "copyVerification": "robocopy totals: no failed files; original dependencies not changed"
+    },
+    "configurationHashes": {
+      "tools/local/config.mjs": "bfadd4a101ff069ccb848f1861ac7a766f46a0effc368ab88f29b07e4c8430e3",
+      "tools/local/acceptance-gateway.mjs": "47b52ff40e623108f489fe7458252f4bc6e098654c2e1074cc42f800a74e6c17",
+      "tools/local/acceptance-supervisor.mjs": "7e6662bf426853fdfcbaf1890edcccca696bb74863847ba18f13eaff0078be8f",
+      "functions/local-runtime.js": "dec25c7be2990e51030a3cc02d88654ee501da777178fa537caec66dadc5ffa2",
+      "functions/.secret.local": "b65d1bdbeaab5eba143f5af632be53c4fb585f6133dbcec15f9f56b9bb93e4b5",
+      ".local/acceptance-origin.json": "bd4325e0575449b4d685687e0db8c36dd256e752bbc066687c1df6b0ff837e20",
+      ".local-emulators.complement.json": "81aff3fff8c6ccc32ff6a40137084121b13d58e3147fb86e3b7b5e8d1e238f7f"
+    },
+    "assets": {
+      "chunk-2N4P4GPO.js": "6d9069c69ad550d883e9906b6d0d156a8caaf894083afefbc1842528b72168e2",
+      "chunk-2PKAXLAP.js": "47a0104a9f003bb0d9db894350a3674ecebad434e0bf588a46d06695918dc4aa",
+      "chunk-3S5QLPEY.js": "0ad73cda4d5d7b44f785629ad4f11fe4863eb98279970d751bec03d51c3e0451",
+      "chunk-4C4JLFWU.js": "ecca30ed7e8d70312f9900acd87cd8b4e29441f6899fbdc051cc4487f711f4a2",
+      "chunk-5AUHV6RY.js": "359d25e4016bf4b413ba13c5161300d29fa7657b0ece386a826ab43fe596547c",
+      "chunk-5DMFZBHJ.js": "15b409a54b1a20593be978a35577b988e7de4caaaf6c4363b3bdb939d34f304b",
+      "chunk-5WDIILYJ.js": "d4bf33f982a07ca381da4e878650552941f09f5713e6ee8ee5eb0395497abb53",
+      "chunk-6CKIOZKK.js": "c5d6b6944ce6d96009c9576780d106b51867cf300fe5a7ba46579084effc069a",
+      "chunk-6KDISOBI.js": "4b19fd892f29c6662008d50a2e13d553cd687e22520a61bd7cda209acee22054",
+      "chunk-AP3PGNNT.js": "9ddf2ecf0c9b00a244ccca6b55a3f854b0c552bb24652abef6f644352bd995d4",
+      "chunk-AWEMHRXO.js": "c41e0af06e0ef4e24d54515d2eaec80915735bdad92d9af8b836a1ad25a0c35a",
+      "chunk-BOE3PUQB.js": "183881e320cfb314c42f59ce4ba968f5737a2e5ad57c9fc3640783fb9dc3febb",
+      "chunk-E5XQNCA5.js": "c94c1e191d3a573488a64b4c0c8997a95ecbaf817d63cffa021f871eef092fde",
+      "chunk-F5WH6CXA.js": "18528599a57b4b6a6320a5f1c501109df09e77255fbaa68a7c9500bc3b95012d",
+      "chunk-H4EVELYA.js": "a2d7a680262e26cf7a01787a2e16683f128d1d86475d306c82cd40389fb2dd8d",
+      "chunk-HYSQKGKB.js": "7a82e07c5ddd66dd04504cfe9366edd19333939de429c0fd37b4545506abe4a4",
+      "chunk-IMBGS664.js": "45fcf50d8f4b00fa63eb1841e7a89bb537f930a04128162105af62daa0b26b92",
+      "chunk-J57Z42FW.js": "43d07d7223e78b93b2afc91ee5a269d48d3273cdc077a76c054d10c550365361",
+      "chunk-KJLT7H5M.js": "5b3b8582d9e633aabb1c43c732d7dfa8253ac6b98d478866a96540e558d56eda",
+      "chunk-LMBVY4VH.js": "e2468ea5311897a7cc1eae0beff6e0f9129b799a6a295ec3602db3027a721ee3",
+      "chunk-LQNVL32M.js": "4f6f3e1ff1c672aca7166e26f6e2ca8508de168cf6a53be04e3a58a4fb904ac4",
+      "chunk-MYDHGG2O.js": "23cd4111fd60c44f71f20a1abddc6a5dfb5978c1244d73af9b011015d8cc75e6",
+      "chunk-UANDM4UV.js": "feb94cad9d542959d51f31a20fff1a2b3c51270b66b496e091b08e5bf8460a4e",
+      "chunk-VL52S4MA.js": "aaff0b70816868018d788d6fa52db65766c3096324b7af9d7eb1cb0589a127cf",
+      "chunk-WIJDHKVQ.js": "daca1e7b1a659b6ca9bc6ea9eec09d95d4b83eaea834d0f0862a1eda463f6a6b",
+      "chunk-XRGKRATN.js": "db9f5b12aca0e01d16df1ec03bbf69c9ad12d0dfb31a2811f804f6ee6f27f88d",
+      "chunk-YGCYSKJF.js": "b62c81447e29fe7684e1e9465e24c0f628a6963b06250818a536833d12615d80",
+      "chunk-ZGTOS6ZC.js": "1dbfa9225436eed8e44e3f2be2ba856ad9712c9fa4602a18073454000b09a8bd",
+      "chunk-ZL2C6ADS.js": "cc39294b6583243ee76682e02053eac821747097e4b490509135cea60e36af7c",
+      "demo-version.json": "493ba2a0ac87e11799ad8ae3f1b21f0eecc33715438215d9b79b1760545ac85a",
+      "index.html": "79d5afde178f9f87910c0e90e6285423befb2a2fd15632adf45483153a4737ba",
+      "main.js": "7cf0d1c137c03d18444e61a642694c013b6243bcfd8193c4743aa2e1bdba347b",
+      "polyfills.js": "21fe6a24a98271dcf463c201b2b87df230db555eb731c133d1a13e850bc60145",
+      "styles.css": "48a9602f6e955f99ea75cc21cda2fcc62ffdbeea4ec0b7b4eb50137ff3d72f45",
+      "brand/moodle-flyer.svg": "858f948c62bbfb22a74a2b5d12a7ee0c832a4f031b8c53ad451a91af9f49141d",
+      "brand/tup-button-logo.png": "533155a4c105c775390814dd815f004e822f92d5517da2746a6064710251b389",
+      "brand/tup-logo-full.png": "eccac2a3f07b0bdded859694aeb3caa139c836c0b4967b9e1fc5caf911cde7e8",
+      "brand/tup-logo.png": "e130e8c6e3e2aef841c46d8146636d7bda9021efbed0ba39c687fae827445107",
+      "brand/tup-mascot-login.png": "faa2a616ef40025e55921daacd73b5bf04a8037f4637738680e2fd2a2b4f816f",
+      "brand/tup-mascot-pose-base.png": "faa2a616ef40025e55921daacd73b5bf04a8037f4637738680e2fd2a2b4f816f",
+      "brand/tup-mascot-pose-presentando.png": "394e53395faac198a80edc0028377da5c0d0a499778dcf6e881dcc99473b3bee",
+      "brand/tup-mascot-pose-saludo.png": "059ffc9d0eb398358cb30170eeb79478a672835fb5950ffe9e1f1b3ebf0d5a02",
+      "brand/tup-mascot-pose-senalando.png": "81b18031a6ca9ad2d675d6a03c5a399f1c3592ef20b9c6812612b36e19ac1036",
+      "brand/tup-playacar-logo.png": "971da52c36bfc84c0b4916b657e1fa8f8bd8f562a7c8302f79b45b6871026829"
+    },
+    "services": {
+      "auth": 53099,
+      "firestore": 52080,
+      "functions": 49001,
+      "storage": 53199,
+      "gateway": 4209
+    },
+    "initialCycles": [
+      {
+        "id": "demo-26-3",
+        "code": "26-3",
+        "status": "Cerrado"
+      },
+      {
+        "id": "demo-27-1",
+        "code": "27-1",
+        "status": "Cerrado"
+      }
+    ],
+    "dependencies26_3": [],
+    "initialExport": {
+      "path": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-RULES-20261028\\.local\\review-b\\.local\\acceptance-saved\\initial-1793215760361",
+      "at": "2026-10-28T19:29:20.637Z",
+      "files": {
+        "auth_export\\accounts.json": "335eec58aac316ced1496ce2b1f1a4edde19b8d2794d4ff11f3723346d79dc73",
+        "auth_export\\config.json": "a06ad971dd56d46b5975ab34f3308384ff3231d81c70b82b7099fb9b3d312ca8",
+        "firebase-export-metadata.json": "06312c9da75ffbb601dd494ef2bb43142496a223843d5821d47ab3b15e6e23c7",
+        "firestore_export\\all_namespaces\\all_kinds\\all_namespaces_all_kinds.export_metadata": "343179f7a0abd1bfb20539a6c8c87a386511740349749ae88cf1d3076222cbfc",
+        "firestore_export\\all_namespaces\\all_kinds\\output-0": "9292a6ab8bc4f0cfc1ecf92cd759d9c9bac042bd93bf8a52f97bd619d7079177",
+        "firestore_export\\firestore_export.overall_export_metadata": "b9b070adda56042081e242fbcee5f315970d96e36174fdf96308304e5ba2c19a",
+        "storage_export\\buckets.json": "195199204ec70350e039234c50da1a915d83470bcd516bde786fa288a68bf41c"
+      }
+    },
+    "technicalGate": "PASS_LOCAL",
+    "humanAcceptance": "PENDIENTE",
+    "production": "PENDIENTE",
+    "policy": "No replacement, reseed, automated tests or service restart after handoff without owner authorization. Functional user writes remain allowed. Autosave only, every 5 minutes."
+  }
+]

@@ -1,0 +1,430 @@
+{
+  "at": "2026-10-28T19:37:17.392Z",
+  "slot": "b",
+  "url": "https://q16qrh63-4209.usw3.devtunnels.ms",
+  "from": "Host laptop via public HTTPS; not a second physical computer",
+  "results": [
+    {
+      "name": "DEMO login + authorized Firestore cycles through public origin",
+      "status": "PASS"
+    },
+    {
+      "name": "Two-history guard; purge and create through real product confirmations over HTTPS",
+      "status": "PASS"
+    },
+    {
+      "name": "Audited actor readable and no localhost/private/other-origin browser requests",
+      "status": "PASS"
+    },
+    {
+      "name": "Version exact; emulator administration and local controls not exposed",
+      "status": "PASS"
+    }
+  ],
+  "version": {
+    "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+    "branch": "codex/e2-r02-rules-diagnostico",
+    "scenario": "renewal",
+    "port": 4209,
+    "buildId": "r02-rules-aa532cbef655-b",
+    "builtAt": "2026-10-28T19:30:35.454682+00:00",
+    "scenarioPreparedAt": "2026-10-28T19:29:20.637Z",
+    "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+    "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+    "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+    "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+    "dataSource": "exclusive synthetic b",
+    "url": "https://q16qrh63-4209.usw3.devtunnels.ms"
+  },
+  "status": "PASS",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/styles.css"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-J57Z42FW.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-4C4JLFWU.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-5AUHV6RY.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-BOE3PUQB.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-6KDISOBI.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-KJLT7H5M.js"
+    },
+    {
+      "method": "GET",
+      "path": "/polyfills.js"
+    },
+    {
+      "method": "GET",
+      "path": "/main.js"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-logo-full.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-base.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-saludo.png"
+    },
+    {
+      "method": "POST",
+      "path": "/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+    },
+    {
+      "method": "POST",
+      "path": "/identitytoolkit.googleapis.com/v1/accounts:lookup"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-H4EVELYA.js"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/ciclos"
+    },
+    {
+      "method": "GET",
+      "path": "/styles.css"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-J57Z42FW.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-4C4JLFWU.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-5AUHV6RY.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-BOE3PUQB.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-6KDISOBI.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-KJLT7H5M.js"
+    },
+    {
+      "method": "GET",
+      "path": "/polyfills.js"
+    },
+    {
+      "method": "GET",
+      "path": "/main.js"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-logo-full.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-base.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-saludo.png"
+    },
+    {
+      "method": "POST",
+      "path": "/identitytoolkit.googleapis.com/v1/accounts:lookup"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-E5XQNCA5.js"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-5WDIILYJ.js"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleContext"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleCommand"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleContext"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleCommand"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleContext"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/bitacora"
+    },
+    {
+      "method": "GET",
+      "path": "/styles.css"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-J57Z42FW.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-4C4JLFWU.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-5AUHV6RY.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-BOE3PUQB.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-6KDISOBI.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-KJLT7H5M.js"
+    },
+    {
+      "method": "GET",
+      "path": "/polyfills.js"
+    },
+    {
+      "method": "GET",
+      "path": "/main.js"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-logo-full.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-base.png"
+    },
+    {
+      "method": "GET",
+      "path": "/brand/tup-mascot-pose-saludo.png"
+    },
+    {
+      "method": "POST",
+      "path": "/identitytoolkit.googleapis.com/v1/accounts:lookup"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-3S5QLPEY.js"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-6CKIOZKK.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-2N4P4GPO.js"
+    },
+    {
+      "method": "GET",
+      "path": "/chunk-5WDIILYJ.js"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/demo-spai-tup/us-central1/cycleContext"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "POST",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    },
+    {
+      "method": "GET",
+      "path": "/google.firestore.v1.Firestore/Listen/channel"
+    }
+  ],
+  "blocked": [],
+  "commands": [
+    {
+      "action": "purge",
+      "operationId": "b563a9e8-162e-4ba3-a717-a9f9111362c9"
+    },
+    {
+      "action": "create",
+      "operationId": "64edbf20-0f9f-4d28-b989-53e8e0829126"
+    }
+  ],
+  "errors": []
+}

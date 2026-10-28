@@ -1,0 +1,316 @@
+{
+  "at": "2026-10-28T19:40:44.212Z",
+  "from": "Host laptop over HTTPS; remote physical computer not tested",
+  "instances": [
+    {
+      "slot": "a",
+      "version": {
+        "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+        "branch": "codex/e2-r02-rules-diagnostico",
+        "scenario": "preparation",
+        "port": 4208,
+        "buildId": "r02-rules-aa532cbef655-a",
+        "builtAt": "2026-10-28T19:30:35.454682+00:00",
+        "scenarioPreparedAt": "2026-10-28T19:28:53.701Z",
+        "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+        "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+        "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+        "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+        "dataSource": "exclusive synthetic a",
+        "url": "https://q16qrh63-4208.usw3.devtunnels.ms"
+      },
+      "cycles": [
+        {
+          "id": "demo-26-3",
+          "code": "26-3",
+          "status": "Cerrado"
+        },
+        {
+          "id": "demo-27-1",
+          "code": "27-1",
+          "status": "Preparacion"
+        }
+      ],
+      "dependencies26_3": [
+        "grupos",
+        "asignaciones",
+        "solicitudes_sistemas"
+      ],
+      "accounts": [
+        {
+          "uid": "demo-auxiliar",
+          "email": "demo.auxiliar@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-coord-a",
+          "email": "demo.coordinacion.a@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-coord-b",
+          "email": "demo.coordinacion.b@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-inactivo",
+          "email": "demo.inactivo@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-r01-consulta",
+          "email": "demo.r01.consulta@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-sistemas",
+          "email": "demo.sistemas@tecplayacar.edu.mx"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "demo-auxiliar",
+          "name": "Auxiliar DEMO",
+          "baseRole": "ADMIN_OPERATIVO",
+          "status": "Activo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-coord-a",
+          "name": "Coordinación A DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "ADM"
+            ],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-coord-b",
+          "name": "Coordinación B DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "DER"
+            ],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-inactivo",
+          "name": "Usuario inactivo DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Inactivo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-r01-consulta",
+          "name": "Consulta R01 DEMO",
+          "baseRole": "CUSTOM",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "ADM"
+            ],
+            "cycles": [
+              "27-1"
+            ]
+          },
+          "capabilities": []
+        },
+        {
+          "id": "demo-sistemas",
+          "name": "Sistemas DEMO",
+          "baseRole": "ADMIN_GENERAL",
+          "status": "Activo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        }
+      ],
+      "externalRequests": [],
+      "status": "READY",
+      "restoration": "Original own initial export restored after HTTPS preflight; no shared fixtures used"
+    },
+    {
+      "slot": "b",
+      "version": {
+        "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+        "branch": "codex/e2-r02-rules-diagnostico",
+        "scenario": "renewal",
+        "port": 4209,
+        "buildId": "r02-rules-aa532cbef655-b",
+        "builtAt": "2026-10-28T19:30:35.454682+00:00",
+        "scenarioPreparedAt": "2026-10-28T19:29:20.637Z",
+        "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+        "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+        "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+        "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+        "dataSource": "exclusive synthetic b",
+        "url": "https://q16qrh63-4209.usw3.devtunnels.ms"
+      },
+      "cycles": [
+        {
+          "id": "demo-26-3",
+          "code": "26-3",
+          "status": "Cerrado"
+        },
+        {
+          "id": "demo-27-1",
+          "code": "27-1",
+          "status": "Cerrado"
+        }
+      ],
+      "dependencies26_3": [],
+      "accounts": [
+        {
+          "uid": "demo-auxiliar",
+          "email": "demo.auxiliar@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-coord-a",
+          "email": "demo.coordinacion.a@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-coord-b",
+          "email": "demo.coordinacion.b@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-inactivo",
+          "email": "demo.inactivo@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-r01-consulta",
+          "email": "demo.r01.consulta@tecplayacar.edu.mx"
+        },
+        {
+          "uid": "demo-sistemas",
+          "email": "demo.sistemas@tecplayacar.edu.mx"
+        }
+      ],
+      "profiles": [
+        {
+          "id": "demo-auxiliar",
+          "name": "Auxiliar DEMO",
+          "baseRole": "ADMIN_OPERATIVO",
+          "status": "Activo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-coord-a",
+          "name": "Coordinación A DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "ADM"
+            ],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-coord-b",
+          "name": "Coordinación B DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "DER"
+            ],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-inactivo",
+          "name": "Usuario inactivo DEMO",
+          "baseRole": "COORDINACION_ACADEMICA",
+          "status": "Inactivo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        },
+        {
+          "id": "demo-r01-consulta",
+          "name": "Consulta R01 DEMO",
+          "baseRole": "CUSTOM",
+          "status": "Activo",
+          "scope": {
+            "teachers": [],
+            "fields": [],
+            "programs": [
+              "ADM"
+            ],
+            "cycles": [
+              "27-1"
+            ]
+          },
+          "capabilities": []
+        },
+        {
+          "id": "demo-sistemas",
+          "name": "Sistemas DEMO",
+          "baseRole": "ADMIN_GENERAL",
+          "status": "Activo",
+          "scope": {
+            "programs": [],
+            "teachers": [],
+            "fields": [],
+            "cycles": [
+              "*"
+            ]
+          }
+        }
+      ],
+      "externalRequests": [],
+      "status": "READY",
+      "restoration": "Original own initial export restored after HTTPS preflight; no shared fixtures used"
+    }
+  ]
+}

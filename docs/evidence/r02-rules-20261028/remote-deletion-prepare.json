@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-28T19:42:37.485Z",
+  "results": [
+    {
+      "slot": "a",
+      "status": "PASS",
+      "action": "Deletion prepare via real HTTPS Functions; canceled, no deletion confirmed"
+    },
+    {
+      "slot": "b",
+      "status": "PASS",
+      "action": "Deletion prepare via real HTTPS Functions; canceled, no deletion confirmed"
+    }
+  ]
+}
