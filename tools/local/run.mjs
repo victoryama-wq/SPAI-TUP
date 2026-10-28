@@ -8,6 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { config, root, sessionFile, localEnvironment, verifyHub, isolatedTest, cliConfigFile, loggingPort, websocketPort, testOffset } from './config.mjs';
 import { seed } from './seed.mjs';
 
+if (existsSync(resolve(root, '.local/FROZEN.json'))) throw Error('Instancia congelada: usar recuperación sin fixtures.');
 const testMode = process.argv.includes('--test');
 const reviewMode = process.argv.includes('--review');
 const r02Review = process.argv.includes('--r02-review');

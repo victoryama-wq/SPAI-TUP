@@ -2,12 +2,13 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-import {writeFileSync,mkdirSync} from 'node:fs';
-import {config,root,complementTest,localEnvironment,verifyHub} from '../local/config.mjs';
+import {writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import {config,root,complementTest,acceptanceSlot,localEnvironment,verifyHub} from '../local/config.mjs';
 import {control} from '../local/control.mjs';
 import {fixtures,fixtureTime} from '../local/fixtures.mjs';
 import {reviewFixtures,validateReviewFixtures} from './review-fixtures.mjs';
-assert.equal(complementTest,true);assert.ok([28080,39080].includes(config.firestore));await verifyHub();
+if(acceptanceSlot && existsSync(resolve(root,'.local/FROZEN.json')))throw Error('Instancia entregada: fixtures congelados.');
+assert.equal(complementTest,true);assert.ok([28080,39080,49080,50080].includes(config.firestore));await verifyHub();
 const scenario=process.argv[2]||'capture';
 assert.ok(['preparation','capture','closed-capture','specials','closed','renewal'].includes(scenario));
 await control('reset');Object.assign(process.env,localEnvironment());

@@ -1,0 +1,282 @@
+{
+  "at": "2026-10-28T19:09:33.082Z",
+  "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+  "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "results": [
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-WRITE-Preparacion.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-CREATE-Preparacion.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-WRITE-Captura_cerrada.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-CREATE-Captura_cerrada.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-WRITE-Cerrado.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "scope": "R02",
+      "origin": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CYCLE-CREATE-Cerrado.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-DISABLED-BEFORE-COMMIT",
+      "scope": "R02",
+      "origin": "rules-trace.mjs; integration.mjs Specials disabled/create",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-DISABLED-BEFORE-COMMIT.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "AUTH-REVOKED-BEFORE-COMMIT",
+      "scope": "R02",
+      "origin": "rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "AUTH-REVOKED-BEFORE-COMMIT.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "D1-LOADED-ENROLLMENT",
+      "scope": "R02",
+      "origin": "integration.mjs D1 loaded; Reopen then close",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "D1-LOADED-ENROLLMENT.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "D1-GROUP-WRITE",
+      "scope": "R02",
+      "origin": "integration.mjs D1",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "D1-GROUP-WRITE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "D1-TEACHER-WRITE",
+      "scope": "R02",
+      "origin": "integration.mjs D1",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "D1-TEACHER-WRITE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "D1-BATCH",
+      "scope": "R02",
+      "origin": "integration.mjs D1 atomic batch",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "INCONCLUSIVE_EVALUATOR",
+      "control": "PASS",
+      "reason": "No conclusive false root for generic diagnostic",
+      "evidence": "D1-BATCH.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-NOT-ORDINARY",
+      "scope": "R02",
+      "origin": "integration.mjs Specials ordinary",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-NOT-ORDINARY.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-NOT-RECLASSIFY",
+      "scope": "R02",
+      "origin": "integration.mjs Specials reclassification",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-NOT-RECLASSIFY.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-MODALITY-Escolarizado",
+      "scope": "R02",
+      "origin": "integration.mjs Specials modality",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-MODALITY-Escolarizado.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-MODALITY-Ejecutivo",
+      "scope": "R02",
+      "origin": "integration.mjs Specials modality",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-MODALITY-Ejecutivo.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CUSTOM-FOREIGN-ENROLLMENT",
+      "scope": "R02",
+      "origin": "integration.mjs CUSTOM scope",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CUSTOM-FOREIGN-ENROLLMENT.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "CUSTOM-OUTSIDE-CYCLE",
+      "scope": "R02",
+      "origin": "integration.mjs cycle scope",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "CUSTOM-OUTSIDE-CYCLE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "ACADEMIC-OUTSIDE-CYCLE",
+      "scope": "R02",
+      "origin": "integration.mjs cycle scope",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "ACADEMIC-OUTSIDE-CYCLE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "AUX-FOREIGN-ENROLLMENT",
+      "scope": "R02",
+      "origin": "integration.mjs auxiliary scope",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "AUX-FOREIGN-ENROLLMENT.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-FOREIGN-DELETE",
+      "scope": "R02",
+      "origin": "integration.mjs Specials deletion",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-FOREIGN-DELETE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-DISABLED-UPDATE",
+      "scope": "R02",
+      "origin": "integration.mjs Disable Specials",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-DISABLED-UPDATE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "SPECIAL-FINAL-CLOSE",
+      "scope": "R02",
+      "origin": "integration.mjs Final close residual Specials",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "SPECIAL-FINAL-CLOSE.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "DELETION-OLD-TOKEN-READ",
+      "scope": "USER_DELETION",
+      "origin": "tools/users-deletion/integration.mjs token anterior",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "DELETION-OLD-TOKEN-READ.json.gz",
+      "unchanged": true
+    },
+    {
+      "id": "DELETION-REENTRY-BOOTSTRAP",
+      "scope": "USER_DELETION",
+      "origin": "tools/users-deletion/integration.mjs reingreso",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "DELETION-REENTRY-BOOTSTRAP.json.gz",
+      "unchanged": true
+    }
+  ]
+}

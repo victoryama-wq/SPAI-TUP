@@ -1,0 +1,244 @@
+{
+  "at": "2026-10-28T19:21:13.256Z",
+  "reference": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "candidate": "0ead245f2cbb534c5eec8748e4ea8c3af7bebd20",
+  "overall": "PASS",
+  "historical": [
+    {
+      "id": "CYCLE-MULTIPLE-OPERATIVE",
+      "status": "PASS",
+      "evidence": "stage1-logic.json",
+      "actual": 1,
+      "expected": 1,
+      "reused": true
+    },
+    {
+      "id": "CYCLE-SELECTION-ORDER",
+      "status": "PASS",
+      "evidence": "stage1-logic.json",
+      "actual": "ERROR_AMBIGUOUS_CYCLE",
+      "expected": "ERROR_AMBIGUOUS_CYCLE",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Preparacion.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Preparacion.json.gz"
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Captura_cerrada.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Captura_cerrada.json.gz"
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Cerrado.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Cerrado.json.gz"
+    }
+  ],
+  "integration": [
+    {
+      "name": "Multiple existing operative cycles: no selection or mutation",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "No operative cycle / concurrent creation / unique code",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "No direct cycle write or forged control, no module-only management",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "No create in preparation / forbidden jumps",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Start capture; idempotent replay and version conflict",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Code and dates: invalid calendar or previous date has no effects",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Capture positive: create and edit",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Two commands on same version: exactly one commits",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "D1: prepared write rejected after closure; loaded assignments too",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "CYCLE-WRITE-Captura cerrada",
+        "D1-LOADED-ENROLLMENT",
+        "CYCLE-CREATE-Captura cerrada",
+        "D1-GROUP-WRITE",
+        "D1-TEACHER-WRITE",
+        "D1-BATCH"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Request for reopening and cancellation are not academic capture",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Reopen requires reason; reopening and concurrent close/write",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "D1-LOADED-ENROLLMENT"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Specials: disabled denied, enabled admitted group allowed",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "SPECIAL-DISABLED-BEFORE-COMMIT"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Specials does not permit ordinary/reclassification/Escolarizado/Ejecutivo",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "SPECIAL-NOT-ORDINARY",
+        "SPECIAL-NOT-RECLASSIFY",
+        "SPECIAL-MODALITY-Escolarizado",
+        "SPECIAL-MODALITY-Ejecutivo"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Specials actors: academic foreign enrollment, CUSTOM and delegated scope",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "CUSTOM-FOREIGN-ENROLLMENT",
+        "CUSTOM-OUTSIDE-CYCLE",
+        "ACADEMIC-OUTSIDE-CYCLE",
+        "AUX-FOREIGN-ENROLLMENT"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Specials own deletion is allowed; outside scope remains denied",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "SPECIAL-FOREIGN-DELETE"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Disable Specials: open-form confirmation denied",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "SPECIAL-DISABLED-UPDATE"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    },
+    {
+      "name": "Atomic rejection on audit and event collision",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Delegated cycle management: scope, capability, revocation and expiry",
+      "status": "PASS",
+      "source": "86caef / r02.json reused"
+    },
+    {
+      "name": "Final close / residual Specials / no transition from historical / next preparation",
+      "status": "PASS",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "resolvedRules": [
+        "SPECIAL-FINAL-CLOSE",
+        "CYCLE-CREATE-Preparacion"
+      ],
+      "source": "Prior non-Rules assertions plus exact candidate Rules traces; not a repeated suite"
+    }
+  ],
+  "unique": {
+    "R02": 23,
+    "USER_DELETION": 2,
+    "total": 25
+  },
+  "requiredInconclusive": 0,
+  "userDeletion": {
+    "rules": [
+      {
+        "id": "DELETION-OLD-TOKEN-READ",
+        "scope": "USER_DELETION",
+        "origin": "tools/users-deletion/integration.mjs token anterior",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "after": "PASS",
+        "control": "PASS",
+        "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+        "evidence": "DELETION-OLD-TOKEN-READ.json.gz",
+        "unchanged": true
+      },
+      {
+        "id": "DELETION-REENTRY-BOOTSTRAP",
+        "scope": "USER_DELETION",
+        "origin": "tools/users-deletion/integration.mjs reingreso",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "after": "PASS",
+        "control": "PASS",
+        "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+        "evidence": "DELETION-REENTRY-BOOTSTRAP.json.gz",
+        "unchanged": true
+      }
+    ],
+    "functions": "10 previous conclusive cases retained; no policy change"
+  },
+  "reused": [
+    "transactions.json",
+    "server.json",
+    "renewal-ui.json",
+    "ui.json"
+  ],
+  "policyUnchanged": true,
+  "R03": "10 incumplimientos conservados, sin implementar",
+  "production": "PENDIENTE: R04, 200 documentos, migracion, reversion y validaciones remotas Firebase",
+  "humanAcceptance": "PENDIENTE"
+}

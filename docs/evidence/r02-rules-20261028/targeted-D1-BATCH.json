@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-28T19:11:55.370Z",
+  "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+  "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "results": [
+    {
+      "id": "D1-BATCH",
+      "scope": "R02",
+      "origin": "integration.mjs D1 atomic batch",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Atomic denial: exact constituent writes each conclusively denied; batch has false allow-root and remaining deferred roots match the reproduced short-circuit diagnostic; positive batch succeeds",
+      "evidence": "D1-BATCH.json.gz",
+      "unchanged": true
+    }
+  ]
+}

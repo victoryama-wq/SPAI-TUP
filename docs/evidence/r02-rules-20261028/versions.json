@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-10-28T19:23:15.049911+00:00",
+  "node": "v22.23.2",
+  "java": "openjdk version \"25.0.2\" 2026-01-20 LTS\nOpenJDK Runtime Environment Microsoft-13053607 (build 25.0.2+10-LTS)\nOpenJDK 64-Bit Server VM Microsoft-13053607 (build 25.0.2+10-LTS, mixed mode, sharing)",
+  "firebaseTools": "15.30.0",
+  "rulesUnitTesting": "5.0.0",
+  "firebaseTestSDK": "12.13.0",
+  "emulators": {
+    "cloud-firestore-emulator-v1.22.0.jar": {
+      "bytes": 136707194,
+      "sha256": "9b6498b7f62714d67f48f59b3818883cd682dbcd46b9f59511de81c97bb5166c"
+    },
+    "cloud-storage-rules-runtime-v1.1.3.jar": {
+      "bytes": 52892936,
+      "sha256": "0cd52db6f6271d62078f805220706377c849220b73bd68aa27078d977df9c900"
+    }
+  },
+  "authFunctions": "Node implementation bundled with firebase-tools 15.30.0",
+  "nodeCompatibility": "rules-unit-testing 5 requires Node >=20 and Firebase ^12; isolated dependency package uses Node22 and Firebase12.13; no root dependency mutation"
+}

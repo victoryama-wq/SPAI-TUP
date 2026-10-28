@@ -1,0 +1,81 @@
+{
+  "identity": {
+    "uid": "rules-probe",
+    "email": "rules.probe@example.invalid",
+    "email_verified": true,
+    "firebase": {
+      "sign_in_provider": "password"
+    }
+  },
+  "fixture": {
+    "path": "probe-control/fixed",
+    "fields": {
+      "allowed": {
+        "booleanValue": true
+      }
+    }
+  },
+  "request": {
+    "fields": {
+      "label": {
+        "stringValue": "synthetic"
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "ALLOW-DYNAMIC",
+      "collection": "probe",
+      "allowed": true,
+      "expected": 200
+    },
+    {
+      "id": "DENY-DYNAMIC",
+      "collection": "probe",
+      "allowed": false,
+      "expected": 403
+    },
+    {
+      "id": "DENY-LITERAL",
+      "collection": "literal",
+      "allowed": false,
+      "expected": 403
+    },
+    {
+      "id": "ERROR-MISSING-FIELD",
+      "collection": "invalid",
+      "allowed": false,
+      "expected": 403,
+      "expectedCause": "Property deliberatelyMissing is undefined on object"
+    },
+    {
+      "id": "ALLOW-BATCH",
+      "collections": [
+        "probe",
+        "probeTwo",
+        "probeThree"
+      ],
+      "allowed": true,
+      "expected": 200
+    },
+    {
+      "id": "DENY-BATCH",
+      "collections": [
+        "probe",
+        "probeTwo",
+        "probeThree"
+      ],
+      "allowed": false,
+      "expected": 403
+    },
+    {
+      "id": "ERROR-BATCH",
+      "collections": [
+        "probe",
+        "invalid"
+      ],
+      "allowed": false,
+      "expected": 403
+    }
+  ]
+}

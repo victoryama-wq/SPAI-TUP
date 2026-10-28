@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /probe/{id} {
+      allow create: if request.auth != null
+        && request.auth.uid == 'rules-probe'
+        && request.auth.token.email_verified == true
+        && get(/databases/$(database)/documents/probe-control/fixed).data.allowed == true;
+    }
+    match /probeTwo/{id} { allow create: if request.auth != null && get(/databases/$(database)/documents/probe-control/fixed).data.allowed == true; }
+    match /probeThree/{id} { allow create: if request.auth != null && get(/databases/$(database)/documents/probe-control/fixed).data.allowed == true; }
+    match /literal/{id} { allow create: if false; }
+    match /invalid/{id} {
+      allow create: if request.resource.data.deliberatelyMissing == true;
+    }
+  }
+}
