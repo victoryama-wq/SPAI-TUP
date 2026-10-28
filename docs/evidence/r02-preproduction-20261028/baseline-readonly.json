@@ -1,0 +1,56 @@
+{
+  "checkedAt": "2026-10-28T16:53:22.298Z",
+  "remoteAcceptanceReadOnly": true,
+  "version": {
+    "baseCommit": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
+    "builtAt": "2026-10-28T14:35:11.8448287Z",
+    "dataSource": "ACEPTACION AISLADA 28080",
+    "revision": "tunnel-acceptance-5ef70c31a44f-20261028143511",
+    "humanAcceptance": "pendiente",
+    "scenario": "preparation",
+    "scenarioPreparedAt": "2026-10-28T14:24:38.093Z",
+    "isolatedFirestore": 28080
+  },
+  "roles_personalizados": [
+    {
+      "id": "demo-consulta",
+      "status": "Activo",
+      "name": "Consulta DEMO",
+      "description": "Plantilla ficticia de consulta",
+      "createdAt": "2026-09-01T15:00:00.000Z"
+    }
+  ],
+  "bitacora": [
+    {
+      "id": "baja_auth_d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "action": "BAJA_AUTH_COMPLETADA",
+      "actorId": "demo-sistemas",
+      "operationId": "d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "entityId": "demo-inactivo",
+      "createdAt": "2026-10-28T15:21:04.346Z"
+    },
+    {
+      "id": "baja_d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "action": "BAJA_USUARIO_INICIADA",
+      "actorId": "demo-sistemas",
+      "user": "Sistemas ACEPTACIÓN R02",
+      "reason": "Prueba de baja E2-R02 en demo",
+      "operationId": "d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "entityId": "demo-inactivo",
+      "createdAt": "2026-10-28T15:21:04.201Z"
+    }
+  ],
+  "operaciones_baja": [
+    {
+      "id": "d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "status": "COMPLETED",
+      "name": "Usuario inactivo ACEPTACIÓN R02",
+      "actorId": "demo-sistemas",
+      "reason": "Prueba de baja E2-R02 en demo",
+      "operationId": "d45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ff",
+      "targetId": "demo-inactivo",
+      "createdAt": "2026-10-28T15:21:04.201Z",
+      "completedAt": "2026-10-28T15:21:04.346Z"
+    }
+  ]
+}

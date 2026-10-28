@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-28T17:08:54.010Z",
+  "results": [
+    {
+      "name": "UI01: active canonical definitions counted; legacy/retired distinguished without granting access",
+      "status": "PASS"
+    },
+    {
+      "name": "U01: completed deletion displays recorded requester, target, result and reason",
+      "status": "PASS"
+    },
+    {
+      "name": "UI02: Cycles loading/error/denied/empty are distinct; loading never renders zero",
+      "status": "PASS"
+    },
+    {
+      "name": "UI02: Dashboard metrics do not expose provisional totals",
+      "status": "PASS"
+    },
+    {
+      "name": "Mobile layout retains readable metrics and full authorized directory",
+      "status": "PASS"
+    }
+  ],
+  "environment": "127.0.0.1:4207 / 39080",
+  "faultInjection": "Repository read state only for loading/error/denied/empty presentation; no policy assertion inferred",
+  "humanAcceptance": false
+}

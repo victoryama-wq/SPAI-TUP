@@ -1,5 +1,7 @@
 # E2-R02 — Entrega local de Ciclo, captura y Especiales
 
+**Revisión vigente 28/10/2026:** [preproducción, matriz y límites](E2-R02-PREPRODUCCION-2026-10-28.md), código `86caef3a966db5ab5c26931ebddffa909289c2a6`. U-01/UI-01/UI-02 corregidos y comprobados; P0-02/P0-03 comprobados localmente. P0-01 no cierra: gate R02 BLOCKED, seis históricos INCONCLUSIVE_EVALUATOR; ocho históricos = 2 PASS + 6 inconclusos. R03 conserva diez pendientes. Complemento baja = 10 PASS + 2 inconclusos de Rules, separado. Aceptación humana pendiente y producción bloqueada. La evidencia anterior se conserva como historial.
+
 **Revalidación vigente (23/10/2026):** [matriz final, escenarios y limitaciones](E2-R02-REVISION-TECNICA-FINAL-2026-10-23.md). Código evaluado `6b67bd9fb6edd7982f24d40f48863a17b441a092`. Gate 72 = 56 acreditados / 10 R03 abiertos / 6 R02 inconclusos, salida 1. Los ocho históricos R02 se contrastaron individualmente: dos PASS y seis INCONCLUSIVE_EVALUATOR. Complemento Eliminar usuario: 8 PASS y 2 inconclusos, separado. [Informe manual](E2-R02-REVISION-MANUAL-2026-10-23.md) incorporado sin aceptación funcional. **NO VALIDADA LOCALMENTE como entrega completa; aceptación humana pendiente; producción bloqueada.** Se preserva el historial de evidencia debajo.
 
 Fecha: 21/10/2026 (America/Cancun). Implementación y comprobaciones: Codex. Autorización: encargo del propietario `b83232d7-1880-412c-953c-5fc10d816863/Texto pegado.txt`.

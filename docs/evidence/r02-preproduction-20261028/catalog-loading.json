@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-28T17:29:35.054Z",
+  "results": [
+    {
+      "module": "grupos",
+      "status": "PASS",
+      "checks": [
+        "loading",
+        "error",
+        "denied",
+        "restricted",
+        "confirmedEmpty",
+        "confirmedPopulated",
+        "mobile"
+      ]
+    },
+    {
+      "module": "nomenclaturas",
+      "status": "PASS",
+      "checks": [
+        "loading",
+        "error",
+        "denied",
+        "restricted",
+        "confirmedEmpty",
+        "confirmedPopulated",
+        "mobile"
+      ]
+    },
+    {
+      "module": "asignaturas",
+      "status": "PASS",
+      "checks": [
+        "loading",
+        "error",
+        "denied",
+        "restricted",
+        "confirmedEmpty",
+        "confirmedPopulated",
+        "mobile"
+      ]
+    }
+  ],
+  "faultInjection": "Repository presentation state only; no new backend authorization result",
+  "humanAcceptance": false
+}

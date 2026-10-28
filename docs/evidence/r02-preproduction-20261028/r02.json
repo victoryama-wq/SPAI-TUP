@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-28T16:55:50.750Z",
+  "cases": [
+    {
+      "name": "Multiple existing operative cycles: no selection or mutation",
+      "status": "PASS"
+    },
+    {
+      "name": "No operative cycle / concurrent creation / unique code",
+      "status": "PASS"
+    },
+    {
+      "name": "No direct cycle write or forged control, no module-only management",
+      "status": "PASS"
+    },
+    {
+      "name": "No create in preparation / forbidden jumps",
+      "status": "PASS"
+    },
+    {
+      "name": "Start capture; idempotent replay and version conflict",
+      "status": "PASS"
+    },
+    {
+      "name": "Code and dates: invalid calendar or previous date has no effects",
+      "status": "PASS"
+    },
+    {
+      "name": "Capture positive: create and edit",
+      "status": "PASS"
+    },
+    {
+      "name": "Two commands on same version: exactly one commits",
+      "status": "PASS"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L141:22 for 'update' @ L141, false for 'update' @ L291, false for 'update' @ L141, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L141:22 for 'update' @ L141, false for 'update' @ L291, evaluation error at L165:22 for 'update' @ L165, false for 'update' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L165, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "D1: prepared write rejected after closure; loaded assignments too",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Request for reopening and cancellation are not academic capture",
+      "status": "PASS"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Concurrent write ordering",
+      "status": "OBSERVED",
+      "write": "fulfilled",
+      "note": "Successful writes may serialize before close; all subsequent writes denied"
+    },
+    {
+      "name": "Reopen requires reason; reopening and concurrent close/write",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Specials: disabled denied, enabled admitted group allowed",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Specials does not permit ordinary/reclassification/Escolarizado/Ejecutivo",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "\nevaluation error at L192:20 for 'get' @ L192, false for 'get' @ L291, false for 'get' @ L192, false for 'get' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "\nevaluation error at L192:20 for 'get' @ L192, false for 'get' @ L291, false for 'get' @ L192, false for 'get' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Specials actors: academic foreign enrollment, CUSTOM and delegated scope",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L195:22 for 'delete' @ L195, false for 'delete' @ L291, false for 'delete' @ L195, false for 'delete' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Specials own deletion is allowed; outside scope remains denied",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Disable Specials: open-form confirmation denied",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "name": "Atomic rejection on audit and event collision",
+      "status": "PASS"
+    },
+    {
+      "name": "Delegated cycle management: scope, capability, revocation and expiry",
+      "status": "PASS"
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Strict Rules denial",
+      "status": "INCONCLUSIVE_EVALUATOR",
+      "error": "7 PERMISSION_DENIED: \nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, evaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "creditedAsPolicyDenial": false
+    },
+    {
+      "name": "Final close / residual Specials / no transition from historical / next preparation",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    }
+  ]
+}

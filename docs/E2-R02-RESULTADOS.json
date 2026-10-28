@@ -588,5 +588,104 @@
     "tunnelVersionObserved": "tunnel-r02-139bf707a6e8-20261026190724",
     "isolatedURL": "http://127.0.0.1:4204/ciclos",
     "administrativeLimit": 200
+  },
+  "latestReview": "review20261028",
+  "review20261028": {
+    "evaluatedCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+    "baseCommit": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
+    "branch": "codex/e2-r02-preproduccion",
+    "technicalValidation": "NO_VALIDADA_LOCAL: R02 gate BLOCKED",
+    "humanAcceptance": "PENDIENTE",
+    "productionReadiness": "PENDIENTE_BLOQUEADA",
+    "gate": "evidence/r02-preproduction-20261028/r02-gate.json",
+    "historicalR02": [
+      {
+        "id": "CYCLE-MULTIPLE-OPERATIVE",
+        "status": "PASS",
+        "evidence": "stage1-logic.json",
+        "actual": 1,
+        "expected": 1
+      },
+      {
+        "id": "CYCLE-SELECTION-ORDER",
+        "status": "PASS",
+        "evidence": "stage1-logic.json",
+        "actual": "ERROR_AMBIGUOUS_CYCLE",
+        "expected": "ERROR_AMBIGUOUS_CYCLE"
+      },
+      {
+        "id": "CYCLE-WRITE-Preparacion",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291"
+      },
+      {
+        "id": "CYCLE-CREATE-Preparacion",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291"
+      },
+      {
+        "id": "CYCLE-WRITE-Captura cerrada",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291"
+      },
+      {
+        "id": "CYCLE-CREATE-Captura cerrada",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291"
+      },
+      {
+        "id": "CYCLE-WRITE-Cerrado",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291"
+      },
+      {
+        "id": "CYCLE-CREATE-Cerrado",
+        "status": "INCONCLUSIVE_EVALUATOR",
+        "evidence": "rules-traces.json",
+        "httpStatus": 403,
+        "unchanged": true,
+        "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291"
+      }
+    ],
+    "P001": "PARTIAL; direct Rules denials inconclusive",
+    "P002": "PASS_LOCAL",
+    "P003": "PASS_LOCAL",
+    "U01": "CORREGIDO_VERIFICADO_LOCAL",
+    "UI01": "CORREGIDO_VERIFICADO_LOCAL",
+    "UI02": "CORREGIDO_VERIFICADO_LOCAL",
+    "userDeletion": {
+      "PASS": 10,
+      "INCONCLUSIVE_EVALUATOR": 2
+    },
+    "R03Open": 10,
+    "adminLimit": 200,
+    "tunnelVersion": {
+      "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+      "builtAt": "2026-10-28T17:50:58.108Z",
+      "dataSource": "ACEPTACION AISLADA 28080; datos existentes preservados",
+      "revision": "tunnel-acceptance-86caef3a966d-20261028175058",
+      "humanAcceptance": "pendiente",
+      "technicalValidation": "R02 BLOCKED: six historical Rules cases INCONCLUSIVE_EVALUATOR",
+      "scenario": "preparation",
+      "scenarioPreparedAt": "2026-10-28T14:24:38.093Z",
+      "isolatedFirestore": 28080
+    },
+    "preservationEvidence": "evidence/r02-preproduction-20261028/preservation.json",
+    "report": "E2-R02-PREPRODUCCION-2026-10-28.md"
   }
 }

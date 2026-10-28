@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-28T18:05:26.721Z",
+  "url": "http://127.0.0.1:4207",
+  "firestore": 39080,
+  "codeCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "scenario": "preparation",
+  "accounts": [
+    "Sistemas DEMO",
+    "Auxiliar DEMO",
+    "Coordinación A DEMO",
+    "Coordinación B DEMO",
+    "Usuario inactivo DEMO",
+    "Consulta R01 DEMO"
+  ],
+  "checked": "real login, preparation visible, no automatic modal, creation disabled",
+  "suitesRunning": false
+}

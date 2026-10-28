@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-28T17:11:41.213Z",
+  "scenario": "renewal",
+  "context": {
+    "state": "NONE",
+    "cycleId": null,
+    "code": null
+  },
+  "cycles": [
+    {
+      "code": "26-3",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    },
+    {
+      "code": "27-1",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    }
+  ],
+  "references": "VALID",
+  "environment": "synthetic 39080",
+  "humanAcceptance": false
+}

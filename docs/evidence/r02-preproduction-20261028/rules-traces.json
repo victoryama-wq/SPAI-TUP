@@ -1,0 +1,113 @@
+{
+  "at": "2026-10-28T17:20:29.875Z",
+  "results": [
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "CAPTURE-POSITIVE",
+      "type": "update",
+      "expected": "allow",
+      "status": 200,
+      "strictStatus": "PASS",
+      "unchangedOnRejection": false,
+      "diagnostic": "",
+      "causes": []
+    },
+    {
+      "id": "SPECIAL-POSITIVE",
+      "type": "create",
+      "expected": "allow",
+      "status": 200,
+      "strictStatus": "PASS",
+      "unchangedOnRejection": false,
+      "diagnostic": "",
+      "causes": []
+    },
+    {
+      "id": "SPECIAL-DISABLED-BEFORE-COMMIT",
+      "type": "create",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L193:22 for 'create' @ L193, false for 'create' @ L291, false for 'create' @ L193, false for 'create' @ L291",
+      "causes": []
+    },
+    {
+      "id": "AUTH-REVOKED-BEFORE-COMMIT",
+      "type": "update",
+      "expected": "deny",
+      "status": 403,
+      "strictStatus": "INCONCLUSIVE_EVALUATOR",
+      "unchangedOnRejection": true,
+      "diagnostic": "\nevaluation error at L194:22 for 'update' @ L194, false for 'update' @ L291, false for 'update' @ L194, false for 'update' @ L291",
+      "causes": []
+    }
+  ],
+  "expectationsUnchanged": true,
+  "environment": "isolated 39080/36001; frontend 4207",
+  "humanAcceptance": false,
+  "rawEvidence": {
+    "file": "rules-traces.raw.json.gz",
+    "sha256": "ecc82f979e8544a814b02326a9268a86a22c898e51cfb2ea963667f800d5519e",
+    "uncompressedBytes": 19196721
+  }
+}

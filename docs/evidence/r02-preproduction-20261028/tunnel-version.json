@@ -1,0 +1,8 @@
+{
+  "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "builtAt": "2026-10-28T17:50:58.108Z",
+  "dataSource": "ACEPTACION AISLADA 28080; datos existentes preservados",
+  "revision": "tunnel-acceptance-86caef3a966d-20261028175058",
+  "humanAcceptance": "pendiente",
+  "technicalValidation": "R02 BLOCKED: six historical Rules cases INCONCLUSIVE_EVALUATOR"
+}

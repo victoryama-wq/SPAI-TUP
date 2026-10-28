@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-28T18:06:23.356Z",
+  "codeCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "stage": "C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-BAJA-20261021\\.local\\r02-complement-20261023",
+  "files": [
+    {
+      "file": "functions/security/user-deletion.js",
+      "normalizedSha256": "df5edcf2dfdc74cbb168caca0b51be9d85b6de45cd9085b560479ce3101a69c5"
+    },
+    {
+      "file": "src/app/core/data/audit-display.ts",
+      "normalizedSha256": "c26a0be90a8e9ba503f6c4326b1a8c70dc350991d8d81aee68876966913371f9"
+    },
+    {
+      "file": "src/app/core/data/audit-log.repository.ts",
+      "normalizedSha256": "5c27ef7d4670d702f09099166f6a7a1d266b9bd66b74236143b2d557e7609390"
+    },
+    {
+      "file": "src/app/core/data/confirmed-metric.ts",
+      "normalizedSha256": "8c28225d02a861a976d21a7c545695cbb6dd50b08d64a4d5cf2aa6773a4b7b96"
+    },
+    {
+      "file": "src/app/features/cycles/pages/cycles-page.component.html",
+      "normalizedSha256": "c27aacf3b49ab371e60992de2892490093b6b98471f30d815377923e5f12e2fe"
+    },
+    {
+      "file": "src/app/features/cycles/pages/cycles-page.component.ts",
+      "normalizedSha256": "b18722abbea415da1d084eff1b9bf3d8df3ee6f03ab275255a1813306cb94386"
+    },
+    {
+      "file": "src/app/features/dashboard/pages/dashboard-page.component.ts",
+      "normalizedSha256": "f297242192e44d0ee4c393e4e9c75e1990f737de14163b761fd2bfa1a6314dc7"
+    },
+    {
+      "file": "src/app/features/groups/pages/groups-page.component.html",
+      "normalizedSha256": "ef036238abeaeeee9ed87bcf88b6240174bb2834cb8d4bb1bd84b0c7f47446eb"
+    },
+    {
+      "file": "src/app/features/groups/pages/groups-page.component.ts",
+      "normalizedSha256": "41961243b1c1a59e4d2a8cf699529c48540ebad1252c1bc70da19a569c229520"
+    },
+    {
+      "file": "src/app/features/nomenclatures/pages/nomenclatures-page.component.html",
+      "normalizedSha256": "9f0cd7716e77512c09bbcb671e717fbc5ce321ff67505a7b6f3353ba20776734"
+    },
+    {
+      "file": "src/app/features/nomenclatures/pages/nomenclatures-page.component.ts",
+      "normalizedSha256": "233620ccf25ea274b829079df5e4cce9d2a58421cd68ddbaae76cf2772e789bc"
+    },
+    {
+      "file": "src/app/features/subjects/pages/subjects-page.component.html",
+      "normalizedSha256": "58567a4ead5b362bd702bb2426bde52f6bf044262a2ff4afa31b3e02fc6f1d75"
+    },
+    {
+      "file": "src/app/features/subjects/pages/subjects-page.component.ts",
+      "normalizedSha256": "344ef349fc71a584cc2182dc6b490ce0167c60e84f41a20f53bac335284ea348"
+    },
+    {
+      "file": "src/app/features/users/components/security-console.component.html",
+      "normalizedSha256": "f78e9f152709c3dc37816ad5d96fcdcba1115867a4653bd2119708594e168fdc"
+    },
+    {
+      "file": "src/app/features/users/components/security-console.component.ts",
+      "normalizedSha256": "350622ed1d43b7ca171f8b590cee77d873ee82576c4936598058f7f9ac18168d"
+    }
+  ]
+}

@@ -1,0 +1,402 @@
+{
+  "at": "2026-10-28T17:51:33.344Z",
+  "result": "IDENTICAL_BEFORE_PUBLIC_LOGIN",
+  "scope": "Top-level Firestore documents with updateTime and Auth accounts of both existing demos; nested collections not enumerated",
+  "before": {
+    "originalShared": {
+      "collections": {
+        "asignaciones": {
+          "count": 4,
+          "sha256": "e196efd04fac6f678d70b3a2a50a21c49b343e6067861a40bc0f468c86a0e6a8"
+        },
+        "asignaturas": {
+          "count": 2,
+          "sha256": "349882dabe5b53c1e91c544e16bbcd540d207d4f324ffdd0842028296b1d7c1d"
+        },
+        "bitacora": {
+          "count": 19,
+          "sha256": "5c3366907896ca5cf3bd9c4535775f4c43f43dbe0a2c0423020f962d4d5ab27c"
+        },
+        "ciclo_control": {
+          "count": 1,
+          "sha256": "2ebaa6be9dfbcf9a185fd4c2449ba9783a9590e1b3dcd5bfe3f91febc9454b81"
+        },
+        "ciclos": {
+          "count": 2,
+          "sha256": "8c54bd54997e7e4c6d510f3af03073760505f07d830d27827c62217e35894aa3"
+        },
+        "configuracion": {
+          "count": 2,
+          "sha256": "2d1d90274591f0962b42667b635489d630da41440d5acbfa2c8d12ac5219c537"
+        },
+        "demo_escenario": {
+          "count": 1,
+          "sha256": "8c5b9352e910062029b40d3bb56bcd0a7077ed697652e70a99a5a269e3aa1322"
+        },
+        "docentes": {
+          "count": 3,
+          "sha256": "a636e6ee4ddb536c60f4ad2882168b57c5334718e72a25e3bb19398801313645"
+        },
+        "eventos_ciclo": {
+          "count": 15,
+          "sha256": "7fb3d4e42108a5775b9c3703e8c3fa21f450343e65a70f05cbd075f05971e250"
+        },
+        "grupos": {
+          "count": 4,
+          "sha256": "452786ac95a130d4d344ca821b8f8e96c852b43df2c35e703dfad0e9c48668b6"
+        },
+        "moodle_categorias": {
+          "count": 2,
+          "sha256": "31dbdbd71171200d01167176f70d60a32e6950831f6aeed78d127343898bc7c1"
+        },
+        "moodle_plantillas": {
+          "count": 2,
+          "sha256": "9e4e234642ee7f7088bb447d84b5ad94328eed5f205cee071a0e9e303687666f"
+        },
+        "nomenclaturas_programas": {
+          "count": 2,
+          "sha256": "9b970d74c4a64be7c0e0bf0437411dc36a51928dd0b44f82a83284d87dde5a48"
+        },
+        "notificaciones": {
+          "count": 1,
+          "sha256": "30e8bbf9978caad7a68999e156f2466b5158dbdfd1294d830e3cb36500e1e8da"
+        },
+        "operaciones_ciclo": {
+          "count": 15,
+          "sha256": "aa56463f01b255c6cba29d09affbeba89653c964750c6adebe94b4af7de8e4b4"
+        },
+        "programas": {
+          "count": 2,
+          "sha256": "14626cd35302f1e6860517f971e7d7db3bdef8c0e7452de726741cc7e0d555bf"
+        },
+        "roles_personalizados": {
+          "count": 1,
+          "sha256": "60985fce89ffce95df0c7714280d0cbfb2f94d424daa21455845cac25ab7360f"
+        },
+        "solicitudes_compartidas": {
+          "count": 2,
+          "sha256": "9401b4ab8493b22c35f552609e11b0002555d9b5f36953a905d29f313d8ad471"
+        },
+        "solicitudes_sistemas": {
+          "count": 1,
+          "sha256": "a3948cd64f0e6be6f20503b9ae38559d8b01da069280053195c8f04b69919a34"
+        },
+        "usuarios": {
+          "count": 5,
+          "sha256": "f5746fb3b47022542199fd7e1e18d72aa35d0542193f6babc45a74696f3b5794"
+        }
+      },
+      "authCount": 5,
+      "authHash": "0d63f36c195298ce039b40c61f239c1bb4650bdcbfe77d0f876632c2bfd20904"
+    },
+    "acceptanceTunnel": {
+      "collections": {
+        "asignaciones": {
+          "count": 5,
+          "sha256": "22cd68eba0ee99f69d379c9a314b447108cbc06723b867cc3460e62ea28cb228"
+        },
+        "asignaturas": {
+          "count": 2,
+          "sha256": "8c56c7ec443e6ef45e8bb97bdecca5384ad256d389120a9e6560985c11e451a0"
+        },
+        "bajas_correo": {
+          "count": 1,
+          "sha256": "ca35a49ed44006f09763031f33fce0d7f1e30d9b06f99c97f6ec5d99a32881ae"
+        },
+        "bajas_usuarios": {
+          "count": 1,
+          "sha256": "ccfeb5db261324ca3a27abcff186e387d42ca9f0d2649d0cbee23a607871fc75"
+        },
+        "bitacora": {
+          "count": 10,
+          "sha256": "a4aab31f4c33941ce8c2187fc3a83a50749ca75aaffe45d9ba18d312545d431a"
+        },
+        "bloqueos_identidad": {
+          "count": 1,
+          "sha256": "dc6d73ea1d44960f47814c417ecb7efe252d608804ca868eea2148c5ef6b44c9"
+        },
+        "ciclo_control": {
+          "count": 1,
+          "sha256": "af0e555c7d6daef45fe651cbbcbc176335356da2554b0eaf85d419824f1bc174"
+        },
+        "ciclos": {
+          "count": 2,
+          "sha256": "7dc3cbb0fe0c0f688e19a63578c1c7234bf4ec78ceb2c8773f4875469e5947aa"
+        },
+        "configuracion": {
+          "count": 2,
+          "sha256": "7940812d2cc213ce1cb2c0c010dd6bfd67187d8eafdf15719a3e8b461f968078"
+        },
+        "docentes": {
+          "count": 3,
+          "sha256": "1862a6835fb58b5c71d12d2486e38621af38b412bfc127ba631b33aa1353d2a9"
+        },
+        "eventos_baja": {
+          "count": 1,
+          "sha256": "bec2c8d3b9d8d86350420ebda6332b6137eaef59cf570cefcace1ee796834178"
+        },
+        "eventos_ciclo": {
+          "count": 5,
+          "sha256": "5d9b63db91494e9a09b1dc677dcee9820e043dbd820954367af0303fe279a5c7"
+        },
+        "grupos": {
+          "count": 5,
+          "sha256": "dd930a479c90a92a03ac299539777fd0ce2e34b038fa9936c8f101193fe4015e"
+        },
+        "intentos_baja": {
+          "count": 1,
+          "sha256": "99537ca041cca36c81e94dc58b12bdc5f446c70fae9905f91004570ba01230c9"
+        },
+        "moodle_categorias": {
+          "count": 2,
+          "sha256": "d4deafb1f91e3624577c34229914a60b7823988ea5fffafcf5fa062556c862a2"
+        },
+        "moodle_plantillas": {
+          "count": 2,
+          "sha256": "3febe816c13beda97ee22b21aaa5aab3f10946ca53af56c7b2cb44298bea9a59"
+        },
+        "nomenclaturas_programas": {
+          "count": 2,
+          "sha256": "a7adaabce4f4269e9a8d8bf9f2c5bd74e04d4be5cfe0dd6bd6c702c215c04cd3"
+        },
+        "notificaciones": {
+          "count": 1,
+          "sha256": "46883b2e1673e20dd7c16ee8564442242fc91e7437fcfc7450dfaaf6415188c0"
+        },
+        "operaciones_baja": {
+          "count": 1,
+          "sha256": "c56ef751e961ef17e279b1e5d005f00dd57d6cf3b7fb591ff12063dbb43831aa"
+        },
+        "operaciones_ciclo": {
+          "count": 5,
+          "sha256": "a3cc7155d8a76bf6a7cea33b860638c0e6f1614d804ec37be51757cde88b0d93"
+        },
+        "programas": {
+          "count": 2,
+          "sha256": "2e365151f30bc85ff5661be32ac9241c16a071fc784d2138e4474d738eac31ee"
+        },
+        "roles_personalizados": {
+          "count": 1,
+          "sha256": "24b0b28afb72020e10f20fd207676e9a47226e1d9f94f46c79133a92fbed9e18"
+        },
+        "seguridad": {
+          "count": 1,
+          "sha256": "53395d2afa70f4e9d9a5840b95f142ca85dc334a7ce92ec0c4953c55e4ab8245"
+        },
+        "solicitudes_compartidas": {
+          "count": 2,
+          "sha256": "802f89517ad658185dc8e50350e095486c7752124ed28f013464c42cc3aac97c"
+        },
+        "solicitudes_sistemas": {
+          "count": 1,
+          "sha256": "5468ada395d52366167c496edf7aea7f5e6a7153309c5684bbe990f93ad26a8e"
+        },
+        "usuarios": {
+          "count": 5,
+          "sha256": "c66e68abdcc4efbbe62515c7e9dd29ba317501dc0861b9e72a234142768a9426"
+        }
+      },
+      "authCount": 4,
+      "authHash": "585d81f81f2d2ca60fd1226620254f9cb4cbc7300139647f52fa52b7558151ac"
+    }
+  },
+  "after": {
+    "originalShared": {
+      "collections": {
+        "asignaciones": {
+          "count": 4,
+          "sha256": "e196efd04fac6f678d70b3a2a50a21c49b343e6067861a40bc0f468c86a0e6a8"
+        },
+        "asignaturas": {
+          "count": 2,
+          "sha256": "349882dabe5b53c1e91c544e16bbcd540d207d4f324ffdd0842028296b1d7c1d"
+        },
+        "bitacora": {
+          "count": 19,
+          "sha256": "5c3366907896ca5cf3bd9c4535775f4c43f43dbe0a2c0423020f962d4d5ab27c"
+        },
+        "ciclo_control": {
+          "count": 1,
+          "sha256": "2ebaa6be9dfbcf9a185fd4c2449ba9783a9590e1b3dcd5bfe3f91febc9454b81"
+        },
+        "ciclos": {
+          "count": 2,
+          "sha256": "8c54bd54997e7e4c6d510f3af03073760505f07d830d27827c62217e35894aa3"
+        },
+        "configuracion": {
+          "count": 2,
+          "sha256": "2d1d90274591f0962b42667b635489d630da41440d5acbfa2c8d12ac5219c537"
+        },
+        "demo_escenario": {
+          "count": 1,
+          "sha256": "8c5b9352e910062029b40d3bb56bcd0a7077ed697652e70a99a5a269e3aa1322"
+        },
+        "docentes": {
+          "count": 3,
+          "sha256": "a636e6ee4ddb536c60f4ad2882168b57c5334718e72a25e3bb19398801313645"
+        },
+        "eventos_ciclo": {
+          "count": 15,
+          "sha256": "7fb3d4e42108a5775b9c3703e8c3fa21f450343e65a70f05cbd075f05971e250"
+        },
+        "grupos": {
+          "count": 4,
+          "sha256": "452786ac95a130d4d344ca821b8f8e96c852b43df2c35e703dfad0e9c48668b6"
+        },
+        "moodle_categorias": {
+          "count": 2,
+          "sha256": "31dbdbd71171200d01167176f70d60a32e6950831f6aeed78d127343898bc7c1"
+        },
+        "moodle_plantillas": {
+          "count": 2,
+          "sha256": "9e4e234642ee7f7088bb447d84b5ad94328eed5f205cee071a0e9e303687666f"
+        },
+        "nomenclaturas_programas": {
+          "count": 2,
+          "sha256": "9b970d74c4a64be7c0e0bf0437411dc36a51928dd0b44f82a83284d87dde5a48"
+        },
+        "notificaciones": {
+          "count": 1,
+          "sha256": "30e8bbf9978caad7a68999e156f2466b5158dbdfd1294d830e3cb36500e1e8da"
+        },
+        "operaciones_ciclo": {
+          "count": 15,
+          "sha256": "aa56463f01b255c6cba29d09affbeba89653c964750c6adebe94b4af7de8e4b4"
+        },
+        "programas": {
+          "count": 2,
+          "sha256": "14626cd35302f1e6860517f971e7d7db3bdef8c0e7452de726741cc7e0d555bf"
+        },
+        "roles_personalizados": {
+          "count": 1,
+          "sha256": "60985fce89ffce95df0c7714280d0cbfb2f94d424daa21455845cac25ab7360f"
+        },
+        "solicitudes_compartidas": {
+          "count": 2,
+          "sha256": "9401b4ab8493b22c35f552609e11b0002555d9b5f36953a905d29f313d8ad471"
+        },
+        "solicitudes_sistemas": {
+          "count": 1,
+          "sha256": "a3948cd64f0e6be6f20503b9ae38559d8b01da069280053195c8f04b69919a34"
+        },
+        "usuarios": {
+          "count": 5,
+          "sha256": "f5746fb3b47022542199fd7e1e18d72aa35d0542193f6babc45a74696f3b5794"
+        }
+      },
+      "authCount": 5,
+      "authHash": "0d63f36c195298ce039b40c61f239c1bb4650bdcbfe77d0f876632c2bfd20904"
+    },
+    "acceptanceTunnel": {
+      "collections": {
+        "asignaciones": {
+          "count": 5,
+          "sha256": "22cd68eba0ee99f69d379c9a314b447108cbc06723b867cc3460e62ea28cb228"
+        },
+        "asignaturas": {
+          "count": 2,
+          "sha256": "8c56c7ec443e6ef45e8bb97bdecca5384ad256d389120a9e6560985c11e451a0"
+        },
+        "bajas_correo": {
+          "count": 1,
+          "sha256": "ca35a49ed44006f09763031f33fce0d7f1e30d9b06f99c97f6ec5d99a32881ae"
+        },
+        "bajas_usuarios": {
+          "count": 1,
+          "sha256": "ccfeb5db261324ca3a27abcff186e387d42ca9f0d2649d0cbee23a607871fc75"
+        },
+        "bitacora": {
+          "count": 10,
+          "sha256": "a4aab31f4c33941ce8c2187fc3a83a50749ca75aaffe45d9ba18d312545d431a"
+        },
+        "bloqueos_identidad": {
+          "count": 1,
+          "sha256": "dc6d73ea1d44960f47814c417ecb7efe252d608804ca868eea2148c5ef6b44c9"
+        },
+        "ciclo_control": {
+          "count": 1,
+          "sha256": "af0e555c7d6daef45fe651cbbcbc176335356da2554b0eaf85d419824f1bc174"
+        },
+        "ciclos": {
+          "count": 2,
+          "sha256": "7dc3cbb0fe0c0f688e19a63578c1c7234bf4ec78ceb2c8773f4875469e5947aa"
+        },
+        "configuracion": {
+          "count": 2,
+          "sha256": "7940812d2cc213ce1cb2c0c010dd6bfd67187d8eafdf15719a3e8b461f968078"
+        },
+        "docentes": {
+          "count": 3,
+          "sha256": "1862a6835fb58b5c71d12d2486e38621af38b412bfc127ba631b33aa1353d2a9"
+        },
+        "eventos_baja": {
+          "count": 1,
+          "sha256": "bec2c8d3b9d8d86350420ebda6332b6137eaef59cf570cefcace1ee796834178"
+        },
+        "eventos_ciclo": {
+          "count": 5,
+          "sha256": "5d9b63db91494e9a09b1dc677dcee9820e043dbd820954367af0303fe279a5c7"
+        },
+        "grupos": {
+          "count": 5,
+          "sha256": "dd930a479c90a92a03ac299539777fd0ce2e34b038fa9936c8f101193fe4015e"
+        },
+        "intentos_baja": {
+          "count": 1,
+          "sha256": "99537ca041cca36c81e94dc58b12bdc5f446c70fae9905f91004570ba01230c9"
+        },
+        "moodle_categorias": {
+          "count": 2,
+          "sha256": "d4deafb1f91e3624577c34229914a60b7823988ea5fffafcf5fa062556c862a2"
+        },
+        "moodle_plantillas": {
+          "count": 2,
+          "sha256": "3febe816c13beda97ee22b21aaa5aab3f10946ca53af56c7b2cb44298bea9a59"
+        },
+        "nomenclaturas_programas": {
+          "count": 2,
+          "sha256": "a7adaabce4f4269e9a8d8bf9f2c5bd74e04d4be5cfe0dd6bd6c702c215c04cd3"
+        },
+        "notificaciones": {
+          "count": 1,
+          "sha256": "46883b2e1673e20dd7c16ee8564442242fc91e7437fcfc7450dfaaf6415188c0"
+        },
+        "operaciones_baja": {
+          "count": 1,
+          "sha256": "c56ef751e961ef17e279b1e5d005f00dd57d6cf3b7fb591ff12063dbb43831aa"
+        },
+        "operaciones_ciclo": {
+          "count": 5,
+          "sha256": "a3cc7155d8a76bf6a7cea33b860638c0e6f1614d804ec37be51757cde88b0d93"
+        },
+        "programas": {
+          "count": 2,
+          "sha256": "2e365151f30bc85ff5661be32ac9241c16a071fc784d2138e4474d738eac31ee"
+        },
+        "roles_personalizados": {
+          "count": 1,
+          "sha256": "24b0b28afb72020e10f20fd207676e9a47226e1d9f94f46c79133a92fbed9e18"
+        },
+        "seguridad": {
+          "count": 1,
+          "sha256": "53395d2afa70f4e9d9a5840b95f142ca85dc334a7ce92ec0c4953c55e4ab8245"
+        },
+        "solicitudes_compartidas": {
+          "count": 2,
+          "sha256": "802f89517ad658185dc8e50350e095486c7752124ed28f013464c42cc3aac97c"
+        },
+        "solicitudes_sistemas": {
+          "count": 1,
+          "sha256": "5468ada395d52366167c496edf7aea7f5e6a7153309c5684bbe990f93ad26a8e"
+        },
+        "usuarios": {
+          "count": 5,
+          "sha256": "c66e68abdcc4efbbe62515c7e9dd29ba317501dc0861b9e72a234142768a9426"
+        }
+      },
+      "authCount": 4,
+      "authHash": "585d81f81f2d2ca60fd1226620254f9cb4cbc7300139647f52fa52b7558151ac"
+    }
+  },
+  "servicesRestarted": false
+}

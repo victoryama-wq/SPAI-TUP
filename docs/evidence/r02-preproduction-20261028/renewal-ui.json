@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-28T17:11:49.198Z",
+  "environment": "39080/4207",
+  "results": [
+    {
+      "name": "CAPTURA_CERRADA → CERRADO; two histories allow form but prevent third confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "Cancel deletion leaves cycles, operations, audit and events unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "Explicit empty-history deletion and next PREPARACIÓN through product confirmations; atomic records",
+      "status": "PASS",
+      "operationIds": [
+        "45a3b1ae-6e5d-4c27-98f9-47b1ba2fc30f",
+        "4eba2a06-d121-4932-a8d9-f13f3dd16640",
+        "c27038b0-042d-4701-b0a2-0c815ce01db9"
+      ]
+    }
+  ],
+  "humanAcceptance": false
+}

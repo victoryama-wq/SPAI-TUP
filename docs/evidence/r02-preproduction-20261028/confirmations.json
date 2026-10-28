@@ -1,0 +1,69 @@
+{
+  "at": "2026-10-28T17:07:24.535Z",
+  "results": [
+    {
+      "name": "Confirmación UI start",
+      "status": "PASS",
+      "operationId": "903f2d7e-1173-43b6-96a6-636d58c04132",
+      "state": "Captura"
+    },
+    {
+      "name": "Actor autenticado distinto del consultante; snapshot conservado tras baja Auth/perfil",
+      "status": "PASS",
+      "operationId": "00291531-b3cb-487d-854a-be45835fa04c",
+      "actorId": "historical-861b0c75"
+    },
+    {
+      "name": "Duplicación visual eliminada sin modificar snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "Confirmación UI closeCapture",
+      "status": "PASS",
+      "operationId": "49156e99-6cd9-4f95-a8d8-0e66960ba854",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI specials",
+      "status": "PASS",
+      "operationId": "fcac349b-85a1-47c3-9664-a30eee199e6f",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI specials",
+      "status": "PASS",
+      "operationId": "fc587926-84db-4ec8-8faa-6adfcc6da40b",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI reopen",
+      "status": "PASS",
+      "operationId": "bdd9b26c-a475-4662-b2b5-1b9d985ba98b",
+      "state": "Captura"
+    },
+    {
+      "name": "Confirmación UI closeCapture",
+      "status": "PASS",
+      "operationId": "e25753cc-1ae1-4565-b2d3-344999f8988a",
+      "state": "Captura cerrada"
+    },
+    {
+      "name": "Confirmación UI close",
+      "status": "PASS",
+      "operationId": "bfe5f80c-8013-40aa-b7df-5ecc61f0d3ae",
+      "state": "Cerrado"
+    },
+    {
+      "name": "Confirmación UI de histórico con dependencias rechazada sin cambios",
+      "status": "PASS"
+    },
+    {
+      "name": "Baja confirmada por modal: cuenta ficticia retirada de Auth y perfil histórico conservado",
+      "status": "PASS",
+      "target": "functional-delete-6358fc11"
+    }
+  ],
+  "errors": [],
+  "environment": "isolated 39080/36001; frontend 4207",
+  "humanAcceptance": false
+}

@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-28T17:51:52.826Z",
+  "version": {
+    "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+    "builtAt": "2026-10-28T17:50:58.108Z",
+    "dataSource": "ACEPTACION AISLADA 28080; datos existentes preservados",
+    "revision": "tunnel-acceptance-86caef3a966d-20261028175058",
+    "humanAcceptance": "pendiente",
+    "technicalValidation": "R02 BLOCKED: six historical Rules cases INCONCLUSIVE_EVALUATOR",
+    "scenario": "preparation",
+    "scenarioPreparedAt": "2026-10-28T14:24:38.093Z",
+    "isolatedFirestore": 28080
+  },
+  "url": "https://q16qrh63-4206.usw3.devtunnels.ms",
+  "from": "Host laptop through public HTTPS; not a second physical computer",
+  "result": "PASS",
+  "actions": "Login and read-only UI navigation; no cycle/user writes",
+  "roles": "0 canonical ACTIVE; one preserved legacy Activo definition explicitly labeled",
+  "audits": [
+    "BAJA AUTH COMPLETADAUsuarios28-oct, 10:21 a.m.Baja en Authentication completada. Consulta la operación relacionada; este evento histórico no conserva el nombre del destinatario.Sistemas ACEPTACIÓN R02 usuarios: demo-inactivoVer detalles tecnicosIdentidad Acreditada PorRegistro de inicio de la misma operaciónOperacióN Relacionadad45354f605c738286c1347a44d8fa99a962dec9e172e0f1178a94b6bee9538ffMotivoPrueba de baja E2-R02 en demo"
+  ],
+  "consoleErrors": []
+}

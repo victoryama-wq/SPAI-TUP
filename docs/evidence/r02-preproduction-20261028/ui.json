@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-28T17:09:51.247Z",
+  "results": [
+    {
+      "name": "Automatic notice only Captura; dismiss by button, cross and Escape without cycle writes",
+      "status": "PASS"
+    },
+    {
+      "name": "No late auto-opening when entering closed capture then state changes to Captura",
+      "status": "PASS"
+    },
+    {
+      "name": "Closed capture actions, whitespace reason, keyboard tooltip, responsive evidence and cancel",
+      "status": "PASS"
+    },
+    {
+      "name": "Two histories: creation flow opens, confirmation blocked; explicit deletion modal and cancel",
+      "status": "PASS"
+    },
+    {
+      "name": "Assignment tabs: closed ordinary blocked; Specials only when enabled; live removal blocks open form",
+      "status": "PASS"
+    },
+    {
+      "name": "Real deletion flow on empty older history; server revision rejection leaves target intact",
+      "status": "PASS"
+    }
+  ],
+  "environment": "isolated 39080/36001; frontend 4207",
+  "humanAcceptance": false
+}
