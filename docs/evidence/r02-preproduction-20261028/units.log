@@ -1,0 +1,118 @@
+TAP version 13
+# Subtest: H01: identidad persistida, formatos anteriores y ausencia real; nunca se consulta al actor actual
+ok 1 - H01: identidad persistida, formatos anteriores y ausencia real; nunca se consulta al actor actual
+  ---
+  duration_ms: 85.0728
+  type: 'test'
+  ...
+# Subtest: H02: cancelar pendiente, cambiar persona y descartar respuestas tardías sin arrastre
+ok 2 - H02: cancelar pendiente, cambiar persona y descartar respuestas tardías sin arrastre
+  ---
+  duration_ms: 189.311
+  type: 'test'
+  ...
+# Subtest: H02: timeout bloquea confirmar y permite reintento, sin aceptar respuesta vencida
+ok 3 - H02: timeout bloquea confirmar y permite reintento, sin aceptar respuesta vencida
+  ---
+  duration_ms: 116.999
+  type: 'test'
+  ...
+# Subtest: H02: error, identidad distinta, cambio de sesión y destrucción no habilitan una baja
+ok 4 - H02: error, identidad distinta, cambio de sesión y destrucción no habilitan una baja
+  ---
+  duration_ms: 295.8006
+  type: 'test'
+  ...
+# Subtest: U01: historical completion uses only matching authorized initiation evidence; no mutation
+ok 5 - U01: historical completion uses only matching authorized initiation evidence; no mutation
+  ---
+  duration_ms: 1.2488
+  type: 'test'
+  ...
+# Subtest: UI02: only confirmed results render numeric metrics; load, denial, restriction and error stay explicit
+ok 6 - UI02: only confirmed results render numeric metrics; load, denial, restriction and error stay explicit
+  ---
+  duration_ms: 9.2076
+  type: 'test'
+  ...
+# Subtest: UI01: role definition statuses never turn legacy account labels into assignable roles
+ok 7 - UI01: role definition statuses never turn legacy account labels into assignable roles
+  ---
+  duration_ms: 207.2227
+  type: 'test'
+  ...
+# Subtest: La reapertura solicitada espera al servidor y no anuncia éxito si el comando se rechaza
+ok 8 - La reapertura solicitada espera al servidor y no anuncia éxito si el comando se rechaza
+  ---
+  duration_ms: 136.9524
+  type: 'test'
+  ...
+# Subtest: Reproducible two-cycle scenario, academic and notification references resolve
+ok 9 - Reproducible two-cycle scenario, academic and notification references resolve
+  ---
+  duration_ms: 4.377
+  type: 'test'
+  ...
+# Subtest: Negative multi-operative fixtures unchanged; no new capture date
+ok 10 - Negative multi-operative fixtures unchanged; no new capture date
+  ---
+  duration_ms: 1.8609
+  type: 'test'
+  ...
+# Subtest: Broken references and extra operative cycles fail validation
+ok 11 - Broken references and extra operative cycles fail validation
+  ---
+  duration_ms: 2.0163
+  type: 'test'
+  ...
+# Subtest: UUID fallback uses secure random bytes on HTTP LAN and preserves UUID v4 format
+ok 12 - UUID fallback uses secure random bytes on HTTP LAN and preserves UUID v4 format
+  ---
+  duration_ms: 21.1327
+  type: 'test'
+  ...
+# Subtest: LAN is opt-in, private, same-host and only demo-spai-tup through declared ports 4201, 4203 or 4205
+ok 13 - LAN is opt-in, private, same-host and only demo-spai-tup through declared ports 4201, 4203 or 4205
+  ---
+  duration_ms: 0.7036
+  type: 'test'
+  ...
+# Subtest: Local rejects real projects, remote hosts and incomplete endpoints before creating an app
+ok 14 - Local rejects real projects, remote hosts and incomplete endpoints before creating an app
+  ---
+  duration_ms: 0.3592
+  type: 'test'
+  ...
+# Subtest: Functions reject missing emulator configuration and never mix live projects
+ok 15 - Functions reject missing emulator configuration and never mix live projects
+  ---
+  duration_ms: 1.189
+  type: 'test'
+  ...
+# Subtest: Angular, Firebase CLI and scripts share endpoints; rules remain the original files
+ok 16 - Angular, Firebase CLI and scripts share endpoints; rules remain the original files
+  ---
+  duration_ms: 2.7718
+  type: 'test'
+  ...
+# Subtest: Fictitious fixtures are deterministic and reference existing coordinators
+ok 17 - Fictitious fixtures are deterministic and reference existing coordinators
+  ---
+  duration_ms: 4.0235
+  type: 'test'
+  ...
+# Subtest: Local email handler cannot access SMTP or secret values
+ok 18 - Local email handler cannot access SMTP or secret values
+  ---
+  duration_ms: 7.5132
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1282.3034

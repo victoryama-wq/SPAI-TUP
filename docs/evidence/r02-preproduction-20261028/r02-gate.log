@@ -1,0 +1,42 @@
+{
+  "overall": "BLOCKED",
+  "historical": [
+    {
+      "id": "CYCLE-MULTIPLE-OPERATIVE",
+      "status": "PASS"
+    },
+    {
+      "id": "CYCLE-SELECTION-ORDER",
+      "status": "PASS"
+    },
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "status": "INCONCLUSIVE_EVALUATOR"
+    }
+  ],
+  "integration": {
+    "PASS": 11,
+    "FAIL": 0,
+    "INCONCLUSIVE_EVALUATOR": 8
+  }
+}

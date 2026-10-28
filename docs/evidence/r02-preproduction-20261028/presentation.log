@@ -1,0 +1,5 @@
+PASS UI01: active canonical definitions counted; legacy/retired distinguished without granting access
+PASS U01: completed deletion displays recorded requester, target, result and reason
+PASS UI02: Cycles loading/error/denied/empty are distinct; loading never renders zero
+PASS UI02: Dashboard metrics do not expose provisional totals
+PASS Mobile layout retains readable metrics and full authorized directory
