@@ -1,0 +1,250 @@
+{
+  "at": "2026-10-29T18:12:47.063Z",
+  "method": "Read-only emulator inventory; no historical records rewritten",
+  "instances": [
+    {
+      "slot": "a",
+      "version": {
+        "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+        "branch": "codex/e2-r02-rules-diagnostico",
+        "scenario": "preparation",
+        "port": 4208,
+        "buildId": "r02-rules-aa532cbef655-a",
+        "builtAt": "2026-10-28T19:30:35.454682+00:00",
+        "scenarioPreparedAt": "2026-10-28T19:28:53.701Z",
+        "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+        "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+        "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+        "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+        "dataSource": "exclusive synthetic a",
+        "url": "https://q16qrh63-4208.usw3.devtunnels.ms"
+      },
+      "counts": {
+        "bitacora": 15,
+        "eventos_ciclo": 7,
+        "operaciones_ciclo": 7,
+        "operaciones_baja_usuario": 0,
+        "operaciones_seguridad": 3,
+        "eventos_seguridad": 3,
+        "usuarios": 6
+      },
+      "entries": [
+        {
+          "id": "demo-sistemas_1fec892b-6228-456c-b208-811787ac9718",
+          "action": "saveRole",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:28:51.925Z",
+          "entityId": "demo-r01-role-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_1fec892b-6228-456c-b208-811787ac9718"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_1fec892b-6228-456c-b208-811787ac9718",
+                "action": "saveRole",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        },
+        {
+          "id": "demo-sistemas_5642933a-0343-4343-bcf1-3f5f6fb0bb89",
+          "action": "saveUser",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:28:52.076Z",
+          "entityId": "demo-r01-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_5642933a-0343-4343-bcf1-3f5f6fb0bb89"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_5642933a-0343-4343-bcf1-3f5f6fb0bb89",
+                "action": "saveUser",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        },
+        {
+          "id": "demo-sistemas_7e61d39a-86de-4d63-b63c-586ea8683b9d",
+          "action": "assignRole",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:28:52.225Z",
+          "entityId": "demo-r01-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_7e61d39a-86de-4d63-b63c-586ea8683b9d"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_7e61d39a-86de-4d63-b63c-586ea8683b9d",
+                "action": "assignRole",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        }
+      ],
+      "reopenings": [
+        {
+          "id": "ciclo_demo-sistemas_0b92451b-f0d0-44f2-8b18-0eb17dbd9535",
+          "reason": "Prueba de aceptación R02: reapertura controlada",
+          "actorId": "demo-sistemas",
+          "actorName": "Sistemas DEMO",
+          "operationId": "0b92451b-f0d0-44f2-8b18-0eb17dbd9535",
+          "previous": "Captura cerrada",
+          "next": "Captura"
+        }
+      ]
+    },
+    {
+      "slot": "b",
+      "version": {
+        "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+        "branch": "codex/e2-r02-rules-diagnostico",
+        "scenario": "renewal",
+        "port": 4209,
+        "buildId": "r02-rules-aa532cbef655-b",
+        "builtAt": "2026-10-28T19:30:35.454682+00:00",
+        "scenarioPreparedAt": "2026-10-28T19:29:20.637Z",
+        "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+        "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+        "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+        "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+        "dataSource": "exclusive synthetic b",
+        "url": "https://q16qrh63-4209.usw3.devtunnels.ms"
+      },
+      "counts": {
+        "bitacora": 11,
+        "eventos_ciclo": 2,
+        "operaciones_ciclo": 2,
+        "operaciones_baja_usuario": 0,
+        "operaciones_seguridad": 3,
+        "eventos_seguridad": 3,
+        "usuarios": 6
+      },
+      "entries": [
+        {
+          "id": "demo-sistemas_03c0bb3d-c944-4be5-8cd6-cfdd917c8af7",
+          "action": "saveRole",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:29:18.986Z",
+          "entityId": "demo-r01-role-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_03c0bb3d-c944-4be5-8cd6-cfdd917c8af7"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_03c0bb3d-c944-4be5-8cd6-cfdd917c8af7",
+                "action": "saveRole",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        },
+        {
+          "id": "demo-sistemas_3b36fb20-9278-4f0b-8a60-695de8197e44",
+          "action": "saveUser",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:29:19.170Z",
+          "entityId": "demo-r01-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_3b36fb20-9278-4f0b-8a60-695de8197e44"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_3b36fb20-9278-4f0b-8a60-695de8197e44",
+                "action": "saveUser",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        },
+        {
+          "id": "demo-sistemas_ed58fe58-d8d9-4c82-8963-f502c7fa124a",
+          "action": "assignRole",
+          "module": "usuarios",
+          "createdAt": "2026-10-28T19:29:19.311Z",
+          "entityId": "demo-r01-consulta",
+          "missing": [
+            "description"
+          ],
+          "related": {
+            "bitacora": [],
+            "eventos_ciclo": [],
+            "operaciones_ciclo": [],
+            "operaciones_baja_usuario": [],
+            "operaciones_seguridad": [
+              {
+                "id": "demo-sistemas_ed58fe58-d8d9-4c82-8963-f502c7fa124a"
+              }
+            ],
+            "eventos_seguridad": [
+              {
+                "id": "demo-sistemas_ed58fe58-d8d9-4c82-8963-f502c7fa124a",
+                "action": "assignRole",
+                "reason": "Preparación explícita de identidad ficticia de aceptación R01: ADM / 27-1 / VIEW"
+              }
+            ],
+            "usuarios": []
+          }
+        }
+      ],
+      "reopenings": []
+    }
+  ]
+}

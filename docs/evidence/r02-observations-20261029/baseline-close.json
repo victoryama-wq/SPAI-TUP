@@ -1,0 +1,22 @@
+{
+  "component": {
+    "isSaving": false,
+    "contextReady": true,
+    "canManage": true,
+    "buttonCount": 3
+  },
+  "at": "2026-10-29T17:55:45.397Z",
+  "transport": "HTTPS origin mapped only to private C gateway for diagnostic",
+  "requests": [
+    {
+      "data": {
+        "action": "closeCapture",
+        "operationId": "17053fa2-e0ca-4a61-aa77-9f8c1fac9cab",
+        "cycleId": "demo-27-1",
+        "expectedRevision": 2
+      }
+    }
+  ],
+  "body": "ACEPTACIÓN R02 A · PREPARACIÓN — aa532cbef655 · Aceptación humana pendiente · Datos sintéticos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n1\nSD\nSistemas DEMO\nCoordinación de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\n\nCiclo en Captura cerrada: captura académica ordinaria bloqueada.\n\nADMINISTRACIÓN DE CICLOS\nRenovación de planeación académica\n\nActiva un ciclo de trabajo y conserva los anteriores como histórico de consulta.\n\nNUEVO CICLO\n2\nCiclos registrados\n0\nEn preparación\n0\nEn captura\n1\nHistóricos\nCONTROL OPERATIVO\nCiclos académicos\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\nPendiente\nCICLO\tNOMBRE\tESTADO\tCREACIÓN\tCAPTURA\tCIERRE DE CAPTURA\tCIERRE APLICADO\tCIERRE\tOBSERVACIONES\tOPERACIÓN\n27-1\tCiclo DEMO 27-1\tCaptura cerrada\t01 sep 2026\t29 oct 2026\t\t29 oct 2026\tPendiente\tFicticio para pruebas locales\t\nMotivo para reabrir\n\n26-3\tCiclo DEMO 26-3\tCerrado\t01 sep 2026\t01 sep 2026\t\t01 sep 2026\t01 sep 2026\tFicticio para pruebas locales\tSolo consulta",
+  "row": "27-1\tCiclo DEMO 27-1\tCaptura cerrada\t01 sep 2026\t29 oct 2026\t\t29 oct 2026\tPendiente\tFicticio para pruebas locales\t\nMotivo para reabrir"
+}

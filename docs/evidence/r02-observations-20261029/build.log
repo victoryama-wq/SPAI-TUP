@@ -1,0 +1,37 @@
+> Building...
+√ Building...
+Initial chunk files | Names                        |  Raw size
+chunk-MS4BCJYJ.js   | -                            |   1.38 MB | 
+chunk-KJLT7H5M.js   | -                            | 904.88 kB | 
+main.js             | main                         | 190.63 kB | 
+polyfills.js        | polyfills                    |  89.74 kB | 
+chunk-54UKOOZZ.js   | -                            |   9.77 kB | 
+chunk-DFIH5ITN.js   | -                            |   6.61 kB | 
+chunk-J57Z42FW.js   | -                            |   3.70 kB | 
+chunk-BOE3PUQB.js   | -                            |   1.92 kB | 
+styles.css          | styles                       | 691 bytes | 
+
+                    | Initial total                |   2.59 MB
+
+Lazy chunk files    | Names                        |  Raw size
+chunk-LVXJBNKH.js   | assignments-page-component   | 453.83 kB | 
+chunk-DJNWMVU2.js   | moodle-page-component        | 368.85 kB | 
+chunk-LCQDA25W.js   | security-console-component   | 339.00 kB | 
+chunk-VOX7SOQQ.js   | dashboard-page-component     | 287.43 kB | 
+chunk-Q26PGVYA.js   | teachers-page-component      | 280.20 kB | 
+chunk-R4DFSYQQ.js   | -                            | 228.48 kB | 
+chunk-FTTLYIPX.js   | subjects-page-component      | 187.99 kB | 
+chunk-WEPBEE2O.js   | groups-page-component        | 167.31 kB | 
+chunk-E7B3AIEF.js   | requests-page-component      | 162.45 kB | 
+chunk-3WF7MTO6.js   | cycles-page-component        | 132.32 kB | 
+chunk-W77ZF5KM.js   | nomenclatures-page-component | 130.19 kB | 
+chunk-WLBGHMJT.js   | audit-log-page-component     | 110.78 kB | 
+chunk-O64GTGFQ.js   | meet-links-page-component    |  85.72 kB | 
+chunk-3VKPQ5KV.js   | -                            |  21.38 kB | 
+chunk-NWBY3JRW.js   | -                            |  13.25 kB | 
+...and 8 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [17.580 seconds] - 2026-10-29T18:16:29.401Z
+
+Output location: C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-R02-RULES-20261028\dist\spai-tup-observations
+

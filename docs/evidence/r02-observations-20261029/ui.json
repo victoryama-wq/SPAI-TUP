@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-29T18:22:34.683Z",
+  "environment": "https://q16qrh63-4210.usw3.devtunnels.ms",
+  "version": {
+    "sha": "WORKTREE_UNCOMMITTED",
+    "branch": "codex/e2-r02-actualizacion-bitacora",
+    "buildId": "r02-observations-working-c",
+    "scenario": "observaciones-finales",
+    "url": "https://q16qrh63-4210.usw3.devtunnels.ms",
+    "port": 4210,
+    "builtAt": "2026-10-29T18:07:16.464Z"
+  },
+  "results": [
+    {
+      "case": "State, metrics, actions and duplicate guard without reload",
+      "status": "PASS",
+      "operationId": "5d9c5f9d-f7f8-44cc-84a4-b2aaf7737293"
+    },
+    {
+      "case": "Live restrictions in another view; Specials on/off; ordinary writes closed",
+      "status": "PASS"
+    },
+    {
+      "case": "Acknowledged mutation + injected query timeout distinguished; retry is read-only, no duplicate operation/audit/event",
+      "status": "PASS"
+    },
+    {
+      "case": "Stale confirmation rejected; current state reread; no partial audit/event and modal does not reopen",
+      "status": "PASS"
+    },
+    {
+      "case": "Persisted full reason, actor/date/transition; accessible detail, Escape/focus and mobile",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "humanAcceptance": false
+}

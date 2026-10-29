@@ -1,0 +1,113 @@
+E2-R02 — Aceptación funcional de escenarios A/B y correcciones finales
+
+El propietario confirma que revisó satisfactoriamente:
+
+- Transiciones de ciclo.
+- Modal de Captura.
+- Bloqueo de captura ordinaria.
+- Especiales.
+- Límite de dos ciclos.
+- Rechazo de eliminación con dependencias.
+- Eliminación de histórico elegible.
+- Renovación.
+- Consulta histórica de solo lectura.
+
+Registra esta aceptación funcional vinculada a la versión efectivamente servida en cada escenario. No asumas el SHA: compruébalo.
+
+La aceptación tiene las siguientes observaciones pendientes. No declares todavía el cierre formal de E2-R02 ni preparación para producción.
+
+1. ACTUALIZACIÓN AUTOMÁTICA DESPUÉS DE LAS OPERACIONES
+
+Después de confirmar una transición o acción de ciclo, la interfaz debe reflejar el resultado sin recargar manualmente la página.
+
+Revisa y corrige la causa de la desactualización. Incluye:
+
+- Estado del ciclo y habilitación de Especiales.
+- Métricas y tabla.
+- Disponibilidad de acciones y del botón NUEVO CICLO.
+- Selector de consulta y datos afectados por creación o eliminación.
+- Restricciones de Asignaciones cuando cambie el estado del ciclo.
+
+Utiliza el resultado confirmado por servidor y el mecanismo de actualización adecuado del proyecto. Evita mantener estados contradictorios entre componentes.
+
+Durante la operación:
+
+- Muestra el estado de procesamiento.
+- Evita confirmaciones duplicadas.
+- No presentes el cambio como completado antes de la confirmación del servidor.
+- Si la operación se rechaza, muestra el motivo y actualiza el estado vigente cuando corresponda.
+- Si la operación ya se confirmó pero falla la actualización de pantalla, distingue ambos resultados y ofrece reintentar la consulta, sin repetir la mutación.
+
+Conserva las validaciones de versión, permisos, concurrencia, idempotencia y bitácora.
+
+No uses una recarga completa de la página como solución habitual.
+
+Conserva el contrato del modal de Captura: se abre al entrar al módulo cuando corresponde; una actualización de datos no debe volver a abrirlo después de descartarlo.
+
+2. BITÁCORA Y EVENTOS HISTÓRICOS
+
+El propietario confirma que las operaciones nuevas ya aparecen identificadas.
+
+Conserva ese comportamiento y documenta los eventos históricos cuya información no pueda recuperarse:
+
+- Qué información falta.
+- Qué evidencia permite identificar el evento.
+- Qué fuentes se revisaron.
+- Por qué no es posible recuperar los datos.
+
+No inventes actores, motivos ni descripciones. No atribuyas eventos antiguos al usuario actualmente conectado.
+
+No reescribas registros históricos como parte de este ajuste. Si ya existe una recuperación visual sustentada en registros relacionados y autorizados, conserva su trazabilidad.
+
+Distingue una limitación histórica documentada de un defecto en las operaciones nuevas.
+
+3. MOSTRAR EL MOTIVO DE REAPERTURA EN BITÁCORA
+
+Verifica primero si el motivo ya está persistido en el registro autorizado.
+
+- Si existe, muéstralo en el listado estándar junto a la operación Reabrir captura.
+- Usa una etiqueta clara: “Motivo de reapertura”.
+- Si el texto es largo, muestra un resumen y un control accesible “Ver detalle”, mediante un modal con el texto completo.
+- Mantén visibles el actor, la fecha/hora y la transición.
+- No amplíes permisos de lectura para mostrar el motivo.
+
+Si el motivo no se está guardando en operaciones nuevas, corrige su persistencia dentro de la misma operación atómica de transición, bitácora y evento.
+
+Para registros históricos sin motivo recuperable, muestra “Motivo no disponible en el registro histórico”. No completes información por suposición.
+
+Conserva la identidad visual SPAI y evita textos técnicos innecesarios.
+
+4. VALIDACIÓN ACOTADA
+
+No repitas íntegramente los escenarios A/B ya aceptados.
+
+Comprueba específicamente:
+
+- Actualización de estado, métricas y acciones sin recarga manual.
+- Actualización de las restricciones de Asignaciones.
+- Ausencia de reapertura automática indebida del modal.
+- Manejo correcto de rechazo y de fallo de consulta posterior a una operación confirmada.
+- Motivo de reapertura visible y completo.
+- Ausencia de duplicados en operaciones, bitácoras y eventos.
+
+Amplía las pruebas únicamente si el código modificado afecta otros contratos.
+
+5. ENTREGA REMOTA Y CIERRE
+
+Trabaja en una instancia separada y conserva los escenarios aceptados, sus datos y su evidencia.
+
+Entrega los ajustes mediante túnel HTTPS, con SHA e identificador de compilación verificables. No entregues localhost ni una IP LAN como acceso de revisión.
+
+No sustituyas silenciosamente la versión aceptada. Identifica claramente el nuevo enlace y deja la versión candidata estable durante mi revisión.
+
+En el informe final separa:
+
+- Escenarios A/B: aceptación funcional confirmada por el propietario.
+- Observaciones: corregidas técnicamente y pendientes de mi comprobación.
+- Gate técnico de Rules: estado real respaldado por resultados.
+- Eventos históricos no recuperables: limitaciones documentadas.
+- Cierre formal de E2-R02: pendiente.
+
+No conviertas mi aceptación funcional en una aprobación de pruebas técnicas que no he verificado.
+
+Sin push, merge, despliegues en producción, conexiones reales ni avance a R03.

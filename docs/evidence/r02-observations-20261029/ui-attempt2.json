@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-29T18:14:57.546Z",
+  "environment": "https://q16qrh63-4210.usw3.devtunnels.ms",
+  "version": {
+    "sha": "WORKTREE_UNCOMMITTED",
+    "branch": "codex/e2-r02-actualizacion-bitacora",
+    "buildId": "r02-observations-working-c",
+    "scenario": "observaciones-finales",
+    "url": "https://q16qrh63-4210.usw3.devtunnels.ms",
+    "port": 4210,
+    "builtAt": "2026-10-29T18:07:16.464Z"
+  },
+  "results": [
+    {
+      "case": "State, metrics, actions and duplicate guard without reload",
+      "status": "PASS",
+      "operationId": "12f11525-3106-48d0-b922-5db86b7aacce"
+    },
+    {
+      "case": "Live restrictions in another view; Specials on/off; ordinary writes closed",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "humanAcceptance": false
+}

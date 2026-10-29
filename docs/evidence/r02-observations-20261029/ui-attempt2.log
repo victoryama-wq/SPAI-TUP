@@ -1,0 +1,150 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(locator).toContainText(expected) failed
+
+Locator: locator('.cycle-refresh')
+Expected substring: "La operación fue confirmada por el servidor"
+Timeout: 35000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toContainText" locator('.cycle-refresh') with timeout 35000ms
+  - waiting for locator('.cycle-refresh')
+
+    at captureRawStack (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\node_modules\playwright-core\lib\coreBundle.js:8588:17)
+    at callMatcherAsStep (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\node_modules\playwright\lib\matchers\expect.js:13310:57)
+    at Object.toContainText (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP\node_modules\playwright\lib\matchers\expect.js:13302:23)
+    at C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-R02-RULES-20261028\tools\e2-r02\observations-ui.mjs:30:46 {
+  matcherResult: {
+    name: 'toContainText',
+    expected: 'La operación fue confirmada por el servidor',
+    message: 'expect(locator).toContainText(expected) failed\n' +
+      '\n' +
+      "Locator: locator('.cycle-refresh')\n" +
+      'Expected substring: "La operación fue confirmada por el servidor"\n' +
+      'Timeout: 35000ms\n' +
+      'Error: element(s) not found\n' +
+      '\n' +
+      'Call log:\n' +
+      `  - Expect "toContainText" locator('.cycle-refresh') with timeout 35000ms\n` +
+      "  - waiting for locator('.cycle-refresh')\n",
+    pass: false,
+    actual: undefined,
+    log: [
+      `  - Expect "toContainText" locator('.cycle-refresh') with timeout 35000ms`,
+      "  - waiting for locator('.cycle-refresh')"
+    ],
+    timeout: 35000,
+    ariaSnapshot: '- status: REVISIÓN R02 C · OBSERVACIONES FINALES · En preparación · Datos sintéticos independientes\n' +
+      '- link "Saltar al contenido principal":\n' +
+      '  - /url: "#main-content"\n' +
+      '- banner:\n' +
+      '  - img "Tecnologico Universitario Playacar"\n' +
+      '  - heading "Sistema de Planeacion Academica Institucional" [level=1]\n' +
+      '  - button "Abrir notificaciones":\n' +
+      '    - strong: "1"\n' +
+      '  - button "Abrir menu de usuario":\n' +
+      '    - text: SD\n' +
+      '    - strong: Sistemas DEMO\n' +
+      '    - text: Coordinación de Sistemas\n' +
+      '- region "Navegacion del sistema":\n' +
+      '  - button "Ocultar encabezado"\n' +
+      '  - navigation "Navegacion principal":\n' +
+      '    - link "Dashboard":\n' +
+      '      - /url: /\n' +
+      '    - link "Usuarios":\n' +
+      '      - /url: /usuarios\n' +
+      '    - link "Ciclos":\n' +
+      '      - /url: /ciclos\n' +
+      '    - link "Nomenclaturas":\n' +
+      '      - /url: /nomenclaturas\n' +
+      '    - link "Grupos":\n' +
+      '      - /url: /grupos\n' +
+      '    - link "Docentes":\n' +
+      '      - /url: /docentes\n' +
+      '    - link "Asignaturas":\n' +
+      '      - /url: /asignaturas\n' +
+      '    - link "Asignaciones":\n' +
+      '      - /url: /asignaciones\n' +
+      '    - link "Solicitudes":\n' +
+      '      - /url: /solicitudes\n' +
+      '    - link "Ligas Meet":\n' +
+      '      - /url: /ligas-meet\n' +
+      '    - link "Moodle":\n' +
+      '      - /url: /moodle\n' +
+      '    - link "Bitacora":\n' +
+      '      - /url: /bitacora\n' +
+      '- main:\n' +
+      '  - region "Resumen de ciclos":\n' +
+      '    - text: Administración de ciclos\n' +
+      '    - heading "Renovación de planeación académica" [level=2]\n' +
+      '    - paragraph: Activa un ciclo de trabajo y conserva los anteriores como histórico de consulta.\n' +
+      '    - group "Nuevo ciclo no disponible":\n' +
+      '      - button "Nuevo ciclo" [disabled]\n' +
+      '    - article:\n' +
+      '      - strong: "2"\n' +
+      '      - text: Ciclos registrados\n' +
+      '    - article:\n' +
+      '      - strong: "0"\n' +
+      '      - text: En preparación\n' +
+      '    - article:\n' +
+      '      - strong: "1"\n' +
+      '      - text: En captura\n' +
+      '    - article:\n' +
+      '      - strong: "1"\n' +
+      '      - text: Históricos\n' +
+      '  - region "Tabla de ciclos":\n' +
+      '    - text: Control operativo\n' +
+      '    - heading "Ciclos académicos" [level=3]\n' +
+      '    - complementary "Estado del ciclo activo":\n' +
+      '      - text: Ciclo activo\n' +
+      '      - strong: 27-1\n' +
+      '      - text: Cierre de captura\n' +
+      '      - strong: Pendiente\n' +
+      '    - table:\n' +
+      '      - rowgroup:\n' +
+      '        - row "Ciclo Nombre Estado Creación Captura Cierre de Captura Cierre aplicado Cierre Observaciones Operación":\n' +
+      '          - columnheader "Ciclo"\n' +
+      '          - columnheader "Nombre"\n' +
+      '          - columnheader "Estado"\n' +
+      '          - columnheader "Creación"\n' +
+      '          - columnheader "Captura"\n' +
+      '          - columnheader "Cierre de Captura"\n' +
+      '          - columnheader "Cierre aplicado"\n' +
+      '          - columnheader "Cierre"\n' +
+      '          - columnheader "Observaciones"\n' +
+      '          - columnheader "Operación"\n' +
+      '      - rowgroup:\n' +
+      '        - row "27-1 Ciclo DEMO 27-1 Captura 01 sep 2026 29 oct 2026 Pendiente Pendiente Ficticio para pruebas locales Cerrar captura":\n' +
+      '          - cell "27-1":\n' +
+      '            - strong: 27-1\n' +
+      '          - cell "Ciclo DEMO 27-1"\n' +
+      '          - cell "Captura"\n' +
+      '          - cell "01 sep 2026"\n' +
+      '          - cell "29 oct 2026"\n' +
+      '          - cell:\n' +
+      '            - textbox "Cierre de Captura"\n' +
+      '          - cell "Pendiente"\n' +
+      '          - cell "Pendiente"\n' +
+      '          - cell "Ficticio para pruebas locales"\n' +
+      '          - cell "Cerrar captura":\n' +
+      '            - button "Cerrar captura"\n' +
+      '        - row "26-3 Ciclo DEMO 26-3 Cerrado 01 sep 2026 01 sep 2026 2026-09-30 01 sep 2026 01 sep 2026 Ficticio para pruebas locales Solo consulta":\n' +
+      '          - cell "26-3":\n' +
+      '            - strong: 26-3\n' +
+      '          - cell "Ciclo DEMO 26-3"\n' +
+      '          - cell "Cerrado"\n' +
+      '          - cell "01 sep 2026"\n' +
+      '          - cell "01 sep 2026"\n' +
+      '          - cell "2026-09-30":\n' +
+      '            - textbox "Cierre de Captura" [disabled]: 2026-09-30\n' +
+      '          - cell "01 sep 2026"\n' +
+      '          - cell "01 sep 2026"\n' +
+      '          - cell "Ficticio para pruebas locales"\n' +
+      '          - cell "Solo consulta"'
+  }
+}
+
+Node.js v22.23.2

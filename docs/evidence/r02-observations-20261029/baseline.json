@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-29T17:54:45.495Z",
+  "transport": "HTTPS origin mapped only to private C gateway for diagnostic",
+  "requests": [
+    {
+      "data": {
+        "action": "start",
+        "operationId": "6e364b79-d290-4a99-844e-b9c222adc7e8",
+        "cycleId": "demo-27-1",
+        "expectedRevision": 1
+      }
+    }
+  ],
+  "body": "ACEPTACIÓN R02 A · PREPARACIÓN — aa532cbef655 · Aceptación humana pendiente · Datos sintéticos · Correos simulados · demo-spai-tup\n\nSaltar al contenido principal\nSistema de Planeacion Academica Institucional\n1\nSD\nSistemas DEMO\nCoordinación de Sistemas\nOcultar encabezado\nDashboard\nUsuarios\nCiclos\nNomenclaturas\nGrupos\nDocentes\nAsignaturas\nAsignaciones\nSolicitudes\nLigas Meet\nMoodle\nBitacora\nADMINISTRACIÓN DE CICLOS\nRenovación de planeación académica\n\nActiva un ciclo de trabajo y conserva los anteriores como histórico de consulta.\n\nNUEVO CICLO\n2\nCiclos registrados\n0\nEn preparación\n1\nEn captura\n1\nHistóricos\nCONTROL OPERATIVO\nCiclos académicos\nCICLO ACTIVO\n27-1\nCIERRE DE CAPTURA\nPendiente\nCICLO\tNOMBRE\tESTADO\tCREACIÓN\tCAPTURA\tCIERRE DE CAPTURA\tCIERRE APLICADO\tCIERRE\tOBSERVACIONES\tOPERACIÓN\n27-1\tCiclo DEMO 27-1\tCaptura\t01 sep 2026\t29 oct 2026\t\tPendiente\tPendiente\tFicticio para pruebas locales\t\n\n26-3\tCiclo DEMO 26-3\tCerrado\t01 sep 2026\t01 sep 2026\t\t01 sep 2026\t01 sep 2026\tFicticio para pruebas locales\tSolo consulta",
+  "row": "27-1\tCiclo DEMO 27-1\tCaptura\t01 sep 2026\t29 oct 2026\t\tPendiente\tPendiente\tFicticio para pruebas locales\t"
+}

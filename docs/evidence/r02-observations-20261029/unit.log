@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: H01: identidad persistida, formatos anteriores y ausencia real; nunca se consulta al actor actual
+ok 1 - H01: identidad persistida, formatos anteriores y ausencia real; nunca se consulta al actor actual
+  ---
+  duration_ms: 57.5742
+  type: 'test'
+  ...
+# Subtest: H02: cancelar pendiente, cambiar persona y descartar respuestas tardías sin arrastre
+ok 2 - H02: cancelar pendiente, cambiar persona y descartar respuestas tardías sin arrastre
+  ---
+  duration_ms: 128.6989
+  type: 'test'
+  ...
+# Subtest: H02: timeout bloquea confirmar y permite reintento, sin aceptar respuesta vencida
+ok 3 - H02: timeout bloquea confirmar y permite reintento, sin aceptar respuesta vencida
+  ---
+  duration_ms: 120.4577
+  type: 'test'
+  ...
+# Subtest: H02: error, identidad distinta, cambio de sesión y destrucción no habilitan una baja
+ok 4 - H02: error, identidad distinta, cambio de sesión y destrucción no habilitan una baja
+  ---
+  duration_ms: 164.8977
+  type: 'test'
+  ...
+# Subtest: baseline delayed listener: acknowledged operation did not refresh; candidate reads confirmed state without waiting for listener
+ok 5 - baseline delayed listener: acknowledged operation did not refresh; candidate reads confirmed state without waiting for listener
+  ---
+  duration_ms: 167.1798
+  type: 'test'
+  ...
+# Subtest: confirmed mutation plus read failure is not a failed mutation; retry queries only, preserving idempotency identity
+ok 6 - confirmed mutation plus read failure is not a failed mutation; retry queries only, preserving idempotency identity
+  ---
+  duration_ms: 26.1777
+  type: 'test'
+  ...
+# Subtest: server rejection remains rejection even when refresh also fails; no false completion
+ok 7 - server rejection remains rejection even when refresh also fails; no false completion
+  ---
+  duration_ms: 20.602
+  type: 'test'
+  ...
+# Subtest: reopening text and transition come only from authorized record; no inferred historical motive
+ok 8 - reopening text and transition come only from authorized record; no inferred historical motive
+  ---
+  duration_ms: 21.2506
+  type: 'test'
+  ...
+# Subtest: profile-driven component recreation is not a new visit; navigation and actor changes reset presentation only
+ok 9 - profile-driven component recreation is not a new visit; navigation and actor changes reset presentation only
+  ---
+  duration_ms: 9.6682
+  type: 'test'
+  ...
+# Subtest: creation and purge refresh the authorized list; consultation keeps valid choice and replaces deleted choice without a listener
+ok 10 - creation and purge refresh the authorized list; consultation keeps valid choice and replaces deleted choice without a listener
+  ---
+  duration_ms: 50.1021
+  type: 'test'
+  ...
+# Subtest: U01: historical completion uses only matching authorized initiation evidence; no mutation
+ok 11 - U01: historical completion uses only matching authorized initiation evidence; no mutation
+  ---
+  duration_ms: 1.1451
+  type: 'test'
+  ...
+# Subtest: UI02: only confirmed results render numeric metrics; load, denial, restriction and error stay explicit
+ok 12 - UI02: only confirmed results render numeric metrics; load, denial, restriction and error stay explicit
+  ---
+  duration_ms: 5.8127
+  type: 'test'
+  ...
+# Subtest: UI01: role definition statuses never turn legacy account labels into assignable roles
+ok 13 - UI01: role definition statuses never turn legacy account labels into assignable roles
+  ---
+  duration_ms: 163.2666
+  type: 'test'
+  ...
+# Subtest: acceptance-a independent complete tuple and blocked mixed tuple
+ok 14 - acceptance-a independent complete tuple and blocked mixed tuple
+  ---
+  duration_ms: 84.2144
+  type: 'test'
+  ...
+# Subtest: acceptance-b independent complete tuple and blocked mixed tuple
+ok 15 - acceptance-b independent complete tuple and blocked mixed tuple
+  ---
+  duration_ms: 85.0278
+  type: 'test'
+  ...
+# Subtest: acceptance-c independent complete tuple and blocked mixed tuple
+ok 16 - acceptance-c independent complete tuple and blocked mixed tuple
+  ---
+  duration_ms: 87.3144
+  type: 'test'
+  ...
+# Subtest: exact HTTPS tunnel origin only
+ok 17 - exact HTTPS tunnel origin only
+  ---
+  duration_ms: 0.3619
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 902.7639

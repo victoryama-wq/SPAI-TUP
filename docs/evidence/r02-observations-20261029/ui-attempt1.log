@@ -1,0 +1,63 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 35000ms exceeded.
+Call log:
+  - waiting for locator('tbody tr').filter({ has: locator('.cycle-code').filter({ hasText: '27-1' }) }).getByRole('button', { name: 'Cerrar captura', exact: true })
+    - locator resolved to <button type="button" class="cycle-close-action" _ngcontent-ng-c193817101="" aria-label="Cerrar captura">…</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    66 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+    at command (C:\Users\Admin\Documents\ChatGPT\Api-Spai-Moodle\SPAI-TUP-R02-RULES-20261028\tools\e2-r02\observations-ui.mjs:17:143)
+    at async file:///C:/Users/Admin/Documents/ChatGPT/Api-Spai-Moodle/SPAI-TUP-R02-RULES-20261028/tools/e2-r02/observations-ui.mjs:25:35 {
+  log: [
+    "  - waiting for locator('tbody tr').filter({ has: locator('.cycle-code').filter({ hasText: '27-1' }) }).getByRole('button', { name: 'Cerrar captura', exact: true })",
+    '    - locator resolved to <button type="button" class="cycle-close-action" _ngcontent-ng-c193817101="" aria-label="Cerrar captura">…</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is visible, enabled and stable',
+    '      - scrolling into view if needed',
+    '      - done scrolling',
+    '      - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is visible, enabled and stable',
+    '      - scrolling into view if needed',
+    '      - done scrolling',
+    '      - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    66 × waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <dialog open="" class="cycle-notice" _ngcontent-ng-c193817101="" aria-labelledby="cycle-dialog-title">…</dialog> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.2

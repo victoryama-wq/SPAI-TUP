@@ -5,8 +5,8 @@
   "branch": "codex/e2-r02-captura-especiales",
   "deliveryCommit": "El commit local que incorpora este archivo; fuentes verificables mediante sha256",
   "implementation": "IMPLEMENTACION_LOCAL_CON_PENDIENTES",
-  "technicalValidation": "NO_VALIDADA_LOCAL",
-  "humanAcceptance": "PENDIENTE",
+  "technicalValidation": "PASS_LOCAL_R02_RULES_REUTILIZADO_Y_OBSERVACIONES_DIRIGIDAS",
+  "humanAcceptance": "APROBADA_ESCENARIOS_AB_CON_OBSERVACIONES",
   "productionReadiness": "PENDIENTE_BLOQUEADA",
   "sourceSha256": {
     "firestore.indexes.json": "8897a59b29ff39d22e083b80c816ef460fc0f6fb2a2de7719e93df1eb52ee08b",
@@ -589,7 +589,7 @@
     "isolatedURL": "http://127.0.0.1:4204/ciclos",
     "administrativeLimit": 200
   },
-  "latestReview": "review20261028",
+  "latestReview": "review20261029",
   "review20261028": {
     "evaluatedCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
     "baseCommit": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
@@ -687,5 +687,166 @@
     },
     "preservationEvidence": "evidence/r02-preproduction-20261028/preservation.json",
     "report": "E2-R02-PREPRODUCCION-2026-10-28.md"
+  },
+  "headerHistorical20261021": {
+    "recordedAt": "2026-10-21T22:27:18.250344+00:00",
+    "baseCommit": "94eeffa90bdb97886f05a88127d3abc59cbcac80",
+    "acceptedR01Commit": "8ae650b8c3c59390a2290bf819d61d195710c35a",
+    "branch": "codex/e2-r02-captura-especiales",
+    "deliveryCommit": "El commit local que incorpora este archivo; fuentes verificables mediante sha256",
+    "implementation": "IMPLEMENTACION_LOCAL_CON_PENDIENTES",
+    "technicalValidation": "NO_VALIDADA_LOCAL",
+    "humanAcceptance": "PENDIENTE",
+    "productionReadiness": "PENDIENTE_BLOQUEADA"
+  },
+  "formalClosure": "PENDIENTE",
+  "review20261029": {
+    "at": "2026-10-29T18:35:17.734Z",
+    "evaluatedSha": "d2f139dbd56d997815496036b1b95685bf9c05d2",
+    "branch": "codex/e2-r02-actualizacion-bitacora",
+    "status": "PASS_LOCAL_DIRECTED",
+    "unit": {
+      "pass": 17,
+      "fail": 0,
+      "evidence": "unit.log"
+    },
+    "ui": {
+      "pass": 5,
+      "fail": 0,
+      "evidence": "ui.json",
+      "binding": "candidate-build.json; same compiled JS/CSS despite temporary working metadata"
+    },
+    "build": "PASS",
+    "syntax": "PASS",
+    "rulesGate": {
+      "status": "PASS",
+      "evaluatedSha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "reused": true,
+      "evidence": "../r02-rules-20261028/r02-gate.json",
+      "R02": 23,
+      "userDeletion": 2,
+      "requiredInconclusive": 0,
+      "policyDiff": "",
+      "unchangedPaths": [
+        "firestore.rules",
+        "storage.rules",
+        "functions/cycles",
+        "functions/security",
+        "functions/index.js",
+        "src/app/core/data/authorized-query.ts",
+        "src/app/features/assignments"
+      ]
+    },
+    "historical": [
+      {
+        "id": "CYCLE-MULTIPLE-OPERATIVE",
+        "status": "PASS",
+        "evidence": "stage1-logic.json",
+        "actual": 1,
+        "expected": 1,
+        "reused": true
+      },
+      {
+        "id": "CYCLE-SELECTION-ORDER",
+        "status": "PASS",
+        "evidence": "stage1-logic.json",
+        "actual": "ERROR_AMBIGUOUS_CYCLE",
+        "expected": "ERROR_AMBIGUOUS_CYCLE",
+        "reused": true
+      },
+      {
+        "id": "CYCLE-WRITE-Preparacion",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-WRITE-Preparacion.json.gz"
+      },
+      {
+        "id": "CYCLE-CREATE-Preparacion",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-CREATE-Preparacion.json.gz"
+      },
+      {
+        "id": "CYCLE-WRITE-Captura cerrada",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-WRITE-Captura_cerrada.json.gz"
+      },
+      {
+        "id": "CYCLE-CREATE-Captura cerrada",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-CREATE-Captura_cerrada.json.gz"
+      },
+      {
+        "id": "CYCLE-WRITE-Cerrado",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-WRITE-Cerrado.json.gz"
+      },
+      {
+        "id": "CYCLE-CREATE-Cerrado",
+        "before": "INCONCLUSIVE_EVALUATOR",
+        "status": "PASS",
+        "evidence": "CYCLE-CREATE-Cerrado.json.gz"
+      }
+    ],
+    "R03Open": 10,
+    "adminLimit": 200,
+    "ABHumanAcceptance": "APROBADA_CON_OBSERVACIONES",
+    "candidateHumanAcceptance": "PENDIENTE",
+    "formalClosure": "PENDIENTE",
+    "productionReadiness": "PENDIENTE_BLOQUEADA",
+    "ownerAcceptance": {
+      "date": "2026-10-29",
+      "source": "ACEPTACION-FUNCIONAL-E2-R02-2026-10-29.txt",
+      "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "scenarios": [
+        "A4208",
+        "B4209"
+      ],
+      "scope": [
+        "transiciones",
+        "modal Captura",
+        "bloqueo ordinario",
+        "Especiales",
+        "limite dos ciclos",
+        "dependencias rechazadas",
+        "eliminacion elegible",
+        "renovacion",
+        "historicos solo lectura"
+      ],
+      "doesNotCertifyTechnicalTests": true
+    },
+    "candidate": {
+      "sha": "d2f139dbd56d997815496036b1b95685bf9c05d2",
+      "branch": "codex/e2-r02-actualizacion-bitacora",
+      "buildId": "r02-observations-d2f139dbd56d-c",
+      "scenario": "observaciones-finales",
+      "url": "https://q16qrh63-4210.usw3.devtunnels.ms",
+      "port": 4210,
+      "builtAt": "2026-10-29T18:16:29.401Z",
+      "publishedAt": "2026-10-29T18:30:16.869Z",
+      "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+      "acceptedABSha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "technicalGate": "PASS_LOCAL dirigido; evidencia Rules reutilizada",
+      "humanAcceptance": "OBSERVACIONES PENDIENTES DE COMPROBACION",
+      "production": "PENDIENTE"
+    },
+    "userDeletion": {
+      "separate": true,
+      "functionsPassReused": 10,
+      "rulesPassReused": 2,
+      "humanAcceptance": "NO INCLUIDA EN ESTA DECLARACION"
+    },
+    "historicalLimitations": {
+      "missingDescriptions": 6,
+      "unknownActorsFound": 0,
+      "missingReopeningReasonsFound": 0,
+      "evidence": "evidence/r02-observations-20261029/accepted-version-and-history.json",
+      "scope": "only inventoried A/B; not all previous backups"
+    },
+    "report": "E2-R02-OBSERVACIONES-2026-10-29.md",
+    "dataPreserved": true
   }
 }

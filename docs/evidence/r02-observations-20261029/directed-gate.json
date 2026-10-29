@@ -1,0 +1,98 @@
+{
+  "at": "2026-10-29T18:35:17.734Z",
+  "evaluatedSha": "d2f139dbd56d997815496036b1b95685bf9c05d2",
+  "branch": "codex/e2-r02-actualizacion-bitacora",
+  "status": "PASS_LOCAL_DIRECTED",
+  "unit": {
+    "pass": 17,
+    "fail": 0,
+    "evidence": "unit.log"
+  },
+  "ui": {
+    "pass": 5,
+    "fail": 0,
+    "evidence": "ui.json",
+    "binding": "candidate-build.json; same compiled JS/CSS despite temporary working metadata"
+  },
+  "build": "PASS",
+  "syntax": "PASS",
+  "rulesGate": {
+    "status": "PASS",
+    "evaluatedSha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+    "reused": true,
+    "evidence": "../r02-rules-20261028/r02-gate.json",
+    "R02": 23,
+    "userDeletion": 2,
+    "requiredInconclusive": 0,
+    "policyDiff": "",
+    "unchangedPaths": [
+      "firestore.rules",
+      "storage.rules",
+      "functions/cycles",
+      "functions/security",
+      "functions/index.js",
+      "src/app/core/data/authorized-query.ts",
+      "src/app/features/assignments"
+    ]
+  },
+  "historical": [
+    {
+      "id": "CYCLE-MULTIPLE-OPERATIVE",
+      "status": "PASS",
+      "evidence": "stage1-logic.json",
+      "actual": 1,
+      "expected": 1,
+      "reused": true
+    },
+    {
+      "id": "CYCLE-SELECTION-ORDER",
+      "status": "PASS",
+      "evidence": "stage1-logic.json",
+      "actual": "ERROR_AMBIGUOUS_CYCLE",
+      "expected": "ERROR_AMBIGUOUS_CYCLE",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Preparacion.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Preparacion.json.gz"
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Captura_cerrada.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Captura_cerrada.json.gz"
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-WRITE-Cerrado.json.gz"
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "status": "PASS",
+      "evidence": "CYCLE-CREATE-Cerrado.json.gz"
+    }
+  ],
+  "R03Open": 10,
+  "adminLimit": 200,
+  "ABHumanAcceptance": "APROBADA_CON_OBSERVACIONES",
+  "candidateHumanAcceptance": "PENDIENTE",
+  "formalClosure": "PENDIENTE",
+  "productionReadiness": "PENDIENTE_BLOQUEADA"
+}

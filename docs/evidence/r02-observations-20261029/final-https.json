@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-29T18:31:19.983Z",
+  "versions": [
+    {
+      "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "branch": "codex/e2-r02-rules-diagnostico",
+      "scenario": "preparation",
+      "port": 4208,
+      "buildId": "r02-rules-aa532cbef655-a",
+      "builtAt": "2026-10-28T19:30:35.454682+00:00",
+      "scenarioPreparedAt": "2026-10-28T19:28:53.701Z",
+      "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+      "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+      "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+      "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+      "dataSource": "exclusive synthetic a",
+      "url": "https://q16qrh63-4208.usw3.devtunnels.ms"
+    },
+    {
+      "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "branch": "codex/e2-r02-rules-diagnostico",
+      "scenario": "renewal",
+      "port": 4209,
+      "buildId": "r02-rules-aa532cbef655-b",
+      "builtAt": "2026-10-28T19:30:35.454682+00:00",
+      "scenarioPreparedAt": "2026-10-28T19:29:20.637Z",
+      "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+      "functionsSha256": "1465627469b2745b708e7de1ac3ff7d1ef258c1d2eee87d57c2867b79e767b2c",
+      "technicalGate": "R02 PASS_LOCAL; human acceptance PENDING; production NOT_READY",
+      "baseApplication": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+      "dataSource": "exclusive synthetic b",
+      "url": "https://q16qrh63-4209.usw3.devtunnels.ms"
+    },
+    {
+      "sha": "d2f139dbd56d997815496036b1b95685bf9c05d2",
+      "branch": "codex/e2-r02-actualizacion-bitacora",
+      "buildId": "r02-observations-d2f139dbd56d-c",
+      "scenario": "observaciones-finales",
+      "url": "https://q16qrh63-4210.usw3.devtunnels.ms",
+      "port": 4210,
+      "builtAt": "2026-10-29T18:16:29.401Z",
+      "publishedAt": "2026-10-29T18:30:16.869Z",
+      "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+      "acceptedABSha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "technicalGate": "PASS_LOCAL dirigido; evidencia Rules reutilizada",
+      "humanAcceptance": "OBSERVACIONES PENDIENTES DE COMPROBACION",
+      "production": "PENDIENTE"
+    }
+  ],
+  "requestsToOtherOrigins": [],
+  "cycleCommands": 0,
+  "errors": [],
+  "result": "PASS",
+  "scope": "Final HTTPS metadata, unchanged A/B version and read-only candidate capture; no cycle commands"
+}
