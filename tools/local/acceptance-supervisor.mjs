@@ -10,7 +10,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { config, root, localEnvironment, recoveryTest, isolatedTest, testOffset, cliConfigFile, sessionFile, verifyHub, loggingPort, websocketPort, acceptanceSlot } from './config.mjs';
 
 const r02Review = true;
-assert(isolatedTest && [43000,44000].includes(acceptanceSlot), 'Solo instancias independientes de aceptación A/B.');
+assert(isolatedTest && [43000,44000,46000].includes(acceptanceSlot), 'Solo instancias independientes de aceptación A/B.');
 assert.equal(process.versions.node.split('.')[0], '22');
 const dir = resolve(root, '.local/acceptance-saved');
 const latestFile = resolve(dir, 'latest.json');
@@ -94,7 +94,7 @@ const server = createServer(async (req, res) => {
   finally { busy = false; }
 });
 try {
-  const deadline = Date.now() + 180000;
+  const deadline = Date.now() + 300000;
   while (Date.now() < deadline) {
     if (child.exitCode !== null) throw Error('Emuladores terminaron; consulta .local/tunnel-recovery/emulators.log');
     try {

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { afterRenderEffect, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { auditReopenReason, auditCycleTransition } from '../../../core/data/audit-display';
 import { FormsModule } from '@angular/forms';
 import {
   AuditLogEntry,
@@ -25,6 +26,32 @@ interface SummaryRow {
   styleUrl: './audit-log-page.component.css',
 })
 export class AuditLogPageComponent {
+  readonly reasonDialog = viewChild<ElementRef<HTMLDialogElement>>('reasonDialog');
+  private readonly reasonEntryId = signal<string | null>(null);
+  private reasonOpener: HTMLElement | null = null;
+  readonly reasonEntry = computed(() => this.entries().find(entry => entry.id === this.reasonEntryId()) ?? null);
+  constructor() {
+    afterRenderEffect(() => {
+      const dialog = this.reasonDialog()?.nativeElement;
+      if (!dialog) return;
+      if (this.reasonEntry()) {
+        if (!dialog.open) { dialog.showModal(); dialog.querySelector<HTMLElement>('[data-initial-focus]')?.focus(); }
+      } else if (dialog.open) {
+        dialog.close();
+        if (this.reasonOpener?.isConnected) this.reasonOpener.focus();
+        this.reasonOpener = null;
+      }
+    });
+  }
+  reopenReason(entry: AuditLogEntry): string | null { return auditReopenReason(entry as unknown as Record<string, unknown>); }
+  cycleTransition(entry: AuditLogEntry): string { return auditCycleTransition(entry as unknown as Record<string, unknown>); }
+  reasonSummary(reason: string): string { return reason.length > 160 ? reason.slice(0, 160) + '…' : reason; }
+  showReason(entry: AuditLogEntry, event: Event): void {
+    if (!this.entries().some(current => current.id === entry.id) || !this.reopenReason(entry)) return;
+    this.reasonOpener = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+    this.reasonEntryId.set(entry.id);
+  }
+  closeReason(event?: Event): void { event?.preventDefault(); this.reasonEntryId.set(null); }
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly cyclesRepository = inject(CyclesRepository);
   private readonly userSessionService = inject(UserSessionService);
@@ -278,6 +305,12 @@ export class AuditLogPageComponent {
       status: 'Cambio de estado',
       validate: 'Validacion',
       validated: 'Validacion',
+      start: 'Iniciar captura',
+      closecapture: 'Cerrar captura',
+      reopen: 'Reabrir captura',
+      close: 'Cerrar ciclo',
+      specials: 'Cambio de Especiales',
+      purge: 'Eliminar ciclo histórico',
     };
 
     return labels[this.normalizeKey(value)] ?? this.toReadableLabel(value);
@@ -354,6 +387,7 @@ export class AuditLogPageComponent {
         entry.action,
         this.actionLabel(entry.action),
         entry.description,
+        entry.reason ?? '',
         entry.user,
         entry.userRole,
         entry.entity,

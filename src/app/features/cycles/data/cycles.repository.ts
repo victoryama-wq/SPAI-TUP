@@ -4,6 +4,7 @@ import { orderBy } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { FirestoreRepository } from '../../../core/data/firestore.repository';
 import { FIREBASE_DB, FIREBASE_FUNCTIONS } from '../../../core/firebase/firebase.tokens';
+import { UserSessionService } from '../../../core/auth/user-session.service';
 export type CycleStatus = 'Preparacion' | 'Captura' | 'Captura cerrada' | 'Cerrado';
 export interface AcademicCycle {
   id: string; code: string; label: string; status: CycleStatus; notes: string;
@@ -16,6 +17,7 @@ export const CYCLES_COLLECTION = 'ciclos';
 @Injectable({ providedIn: 'root' })
 export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   private readonly functions = inject(FIREBASE_FUNCTIONS);
+  private readonly session = inject(UserSessionService);
   readonly cycles = this.items;
   readonly operativeCycles = computed(() => this.cycles().filter(c => ['Preparacion','Captura','Captura cerrada'].includes(c.status)));
   readonly multipleOperative = computed(() => this.operativeCycles().length > 1);
@@ -24,6 +26,13 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   readonly activeCycle = computed(() => this.operativeCycles().length === 1 ? this.operativeCycles()[0] : null);
   readonly contextError = signal('');
   readonly contextReady = signal(false);
+  readonly refreshing = signal(false);
+  readonly refreshError = signal('');
+  readonly confirmedPendingRefresh = signal(false);
+  private readonly contextVersion = computed(() => JSON.stringify({
+    actor: this.session.session(),
+    cycles: this.cycles().map(c => [c.id, c.revision, c.code, c.status, c.specialsEnabled]),
+  }));
   readonly captureMessage = computed(() => !this.ready() ? this.readMessage() : this.contextError() || (this.inconsistent()
     ? (this.overLimit() ? 'Inconsistencia: hay más de dos ciclos registrados. No se eliminará ningún registro automáticamente; solicita revisión a Sistemas.' : 'Inconsistencia: hay varios ciclos operativos. No se seleccionó ninguno; solicita revisión a Sistemas.')
     : !this.activeCycle() ? 'No hay ciclo operativo. Los históricos continúan disponibles para consulta.'
@@ -31,20 +40,47 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   constructor() {
     super(inject(FIREBASE_DB), CYCLES_COLLECTION, orderBy('createdAt', 'desc'));
     effect(onCleanup => {
-      const rows = this.cycles(); const ready = this.ready();
+      const version = this.contextVersion(); const ready = this.ready();
       this.contextReady.set(false); this.contextError.set(''); let cancelled = false;
       onCleanup(() => { cancelled = true; });
       if (!ready) return;
-      void rows;
+      // Metadata-only snapshots and identical query results do not require
+      // another context write. Permission/profile changes still invalidate it.
+      void version;
       httpsCallable(this.functions, 'cycleContext')({}).then(() => { if (!cancelled) this.contextReady.set(true); })
-        .catch(() => { if (!cancelled) this.contextError.set('No se pudo verificar el ciclo en servidor. Recarga para reintentar.'); });
+        .catch(() => { if (!cancelled) this.contextError.set('No se pudo verificar el ciclo en servidor. Reintenta la consulta.'); });
     });
   }
   /** A prepared command keeps its revision and id across confirmation/retries. */
   prepare(action: string, cycle?: AcademicCycle, extra: Record<string, unknown> = {}) {
     return {action, operationId:randomId(), ...(cycle ? {cycleId:cycle.id,expectedRevision:cycle.revision??0} : {}), ...extra};
   }
-  async confirm(command: Record<string, unknown>): Promise<void> { await httpsCallable(this.functions, 'cycleCommand')(command); }
+  async confirm(command: Record<string, unknown>): Promise<void> {
+    // An acknowledged mutation and a failed read are different outcomes. Never
+    // retry cycleCommand just because its subsequent query failed.
+    try { await httpsCallable(this.functions, 'cycleCommand')(command); }
+    catch (error) {
+      await this.refreshFromServer().catch(() => undefined);
+      throw error;
+    }
+    this.confirmedPendingRefresh.set(true);
+    await this.refreshFromServer().catch(() => undefined);
+  }
+  override async refreshFromServer(): Promise<void> {
+    this.refreshing.set(true);
+    this.refreshError.set('');
+    try {
+      // Same authorized query as the live subscription; all consumers derive
+      // their state from this repository, including assignment restrictions.
+      await super.refreshFromServer();
+      this.confirmedPendingRefresh.set(false);
+    } catch (error) {
+      this.refreshError.set(this.confirmedPendingRefresh()
+        ? 'La operación fue confirmada por el servidor, pero no se pudo actualizar la vista. Reintenta la consulta; no repitas la operación.'
+        : 'No se pudo actualizar el estado vigente. Reintenta la consulta.');
+      throw error;
+    } finally { this.refreshing.set(false); }
+  }
   async createCycle(payload: CreateCyclePayload): Promise<void> { await this.confirm(this.prepare('create',undefined,{payload})); }
   startCapture(id: string): Promise<void> { return this.change('start',id); }
   closeCapture(id: string): Promise<void> { return this.change('closeCapture',id); }

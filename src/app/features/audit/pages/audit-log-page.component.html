@@ -101,6 +101,7 @@
       <div class="audit-list" *ngIf="visibleEntries().length; else emptyLog">
         <article
           class="audit-entry"
+          [attr.data-entry-id]="entry.id"
           *ngFor="let entry of visibleEntries(); trackBy: trackByEntryId"
           [class]="'audit-entry ' + entryTone(entry)"
         >
@@ -117,6 +118,14 @@
             </div>
 
             <p>{{ entry.description || 'Movimiento registrado sin descripcion.' }}</p>
+            @if (cycleTransition(entry); as transition) { <p class="cycle-transition">{{ entry.cycle }} · {{ transition }}</p> }
+            @if (reopenReason(entry); as reason) {
+              <div class="reopen-reason">
+                <strong>Motivo de reapertura</strong>
+                <p>{{ reasonSummary(reason) }}</p>
+                @if (reason.length > 160) { <button type="button" class="reason-detail" (click)="showReason(entry, $event)" aria-haspopup="dialog">Ver detalle</button> }
+              </div>
+            }
 
             <div class="entry-meta">
               <span>{{ entry.user || 'Usuario no identificado' }}</span>
@@ -243,3 +252,14 @@
   </section>
   }
 </section>
+<dialog #reasonDialog class="reason-dialog" aria-labelledby="reopen-reason-title" (cancel)="closeReason($event)">
+  @if (reasonEntry(); as entry) {
+    <header><div><span>Bitácora institucional</span><h2 id="reopen-reason-title" tabindex="-1" data-initial-focus>Motivo de reapertura</h2></div><button type="button" aria-label="Cerrar detalle" (click)="closeReason()">×</button></header>
+    <div class="reason-dialog-body">
+      <p><strong>{{ entry.user || 'Usuario no identificado' }}</strong> · {{ formatDate(entry.createdAt) }}</p>
+      <p>{{ entry.cycle }} · {{ cycleTransition(entry) }}</p>
+      <p class="full-reason">{{ reopenReason(entry) }}</p>
+    </div>
+    <footer><button type="button" class="reason-detail" (click)="closeReason()">Cerrar</button></footer>
+  }
+</dialog>

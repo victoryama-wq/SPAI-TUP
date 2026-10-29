@@ -9,6 +9,8 @@ import {
 } from '../data/cycles.repository';
 import { UserSessionService } from '../../../core/auth/user-session.service';
 import { ConfirmationDialogService } from '../../../shared/confirmation/confirmation-dialog.service';
+import { Router } from '@angular/router';
+import { CycleVisitService } from '../data/cycle-visit.service';
 
 @Component({
   selector: 'spai-cycles-page',
@@ -25,10 +27,15 @@ export class CyclesPageComponent {
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly cycleDialog = viewChild<ElementRef<HTMLDialogElement>>('cycleDialog');
   readonly confirmation = this.confirmationDialogService.dialog;
-  readonly informationDismissed = signal(false);
-  private informationShown = false;
-  private entranceResolved = false;
-  private entranceCycleId: string | null = null;
+  private readonly visit = inject(CycleVisitService);
+  private readonly router = inject(Router);
+  readonly informationDismissed = this.visit.dismissed;
+  private get informationShown(): boolean { return this.visit.shown; }
+  private set informationShown(value: boolean) { this.visit.shown = value; }
+  private get entranceResolved(): boolean { return this.visit.resolved; }
+  private set entranceResolved(value: boolean) { this.visit.resolved = value; }
+  private get entranceCycleId(): string | null { return this.visit.cycleId; }
+  private set entranceCycleId(value: string | null) { this.visit.cycleId = value; }
   private dialogStep: unknown = null;
   private dialogOpener: HTMLElement | null = null;
   readonly informationCycle = computed(() => this.cyclesRepository.ready()
@@ -60,6 +67,10 @@ export class CyclesPageComponent {
   readonly cyclesReady = this.cyclesRepository.ready;
   readonly cyclesReadState = this.cyclesRepository.readState;
   readonly cyclesReadMessage = this.cyclesRepository.readMessage;
+  readonly refreshing = this.cyclesRepository.refreshing;
+  readonly refreshError = this.cyclesRepository.refreshError;
+  readonly contextError = this.cyclesRepository.contextError;
+  retryQuery(): void { if (!this.refreshing()) void this.cyclesRepository.refreshFromServer().catch(() => undefined); }
   readonly currentAccessDiagnostic = computed(() => {
     const session = this.userSessionService.session();
     const appUser = session?.appUser;
@@ -104,12 +115,21 @@ export class CyclesPageComponent {
 
   isFormOpen = false;
   duplicateCode = false;
-  isSaving = false;
-  formError = '';
+  // Firebase promises can settle outside Angular's event turn. These flags
+  // participate in rendering instead of waiting for another click or reload.
+  private readonly savingState = signal(false);
+  get isSaving(): boolean { return this.savingState(); }
+  set isSaving(value: boolean) { this.savingState.set(value); }
+  private readonly errorState = signal('');
+  get formError(): string { return this.errorState(); }
+  set formError(value: string) { this.errorState.set(value); }
+  readonly processing = signal(false);
 
   constructor() {
-    // One visit is one component instance. Live updates may refresh an open
-    // notice, but never reopen a dismissed notice or pick an ambiguous cycle.
+    this.visit.enter(this.userSessionService.session()?.authUid ?? '',
+      this.router.getCurrentNavigation()?.id ?? this.router.lastSuccessfulNavigation?.id ?? 0);
+    // A fresh profile snapshot can recreate this component in the same visit.
+    // Preserve dismissal, while every render still checks current authorization.
     afterRenderEffect(() => {
       const dialog = this.cycleDialog()?.nativeElement;
       if (!dialog) return;
@@ -177,7 +197,8 @@ export class CyclesPageComponent {
     this.isFormOpen = true;
   }
 
-  closeForm(): void {
+  closeForm(confirmed = false): void {
+    if (this.isSaving && !confirmed) return;
     this.isFormOpen = false;
     this.duplicateCode = false;
     this.formError = '';
@@ -210,15 +231,17 @@ export class CyclesPageComponent {
     }
 
     this.isSaving = true;
+    this.processing.set(true);
 
     try {
       await this.cyclesRepository.createCycle(payload);
-      this.closeForm();
+      this.closeForm(true);
     } catch (error) {
       console.error('No se pudo guardar el ciclo', error);
       this.formError = this.getSaveErrorMessage(error);
     } finally {
       this.isSaving = false;
+      this.processing.set(false);
     }
   }
 
@@ -235,9 +258,9 @@ export class CyclesPageComponent {
     this.isSaving=true; this.formError='';
     try {
       const confirmed=await this.confirmationDialogService.confirm({title,message:action === 'closeCapture' ? 'Al cerrar la captura, se bloquearán las operaciones académicas ordinarias del ciclo.' : `${title} para ${cycle.code}. Se comprobarán los permisos, el estado y la versión vigentes antes de confirmar.`,confirmLabel:title,cancelLabel:'Cancelar'});
-      if(confirmed) await this.cyclesRepository.confirm(command);
+      if(confirmed) { this.processing.set(true); await this.cyclesRepository.confirm(command); }
     } catch(error) { this.formError=this.getSaveErrorMessage(error); }
-    finally {this.isSaving=false;delete this.reopenReason[cycle.id];}
+    finally {this.processing.set(false);this.isSaving=false;delete this.reopenReason[cycle.id];}
   }
 
   deleteReason = '';
@@ -257,18 +280,19 @@ export class CyclesPageComponent {
     const command=this.cyclesRepository.prepare('purge',cycle);
     try {
       const accepted=await this.confirmationDialogService.confirm({title:'Eliminar ciclo histórico',message:`${cycle.code} · ${cycle.label}. Se eliminará únicamente un histórico anterior sin dependencias. El último histórico se conserva para consulta. Si existen registros asociados, el servidor bloqueará la eliminación. La bitácora conservará el documento completo y el motivo.`,confirmLabel:'Eliminar ciclo',cancelLabel:'Cancelar',tone:'danger'});
-      if (accepted) await this.cyclesRepository.confirm({...command,reason:this.deleteReason.trim()});
+      if (accepted) { this.processing.set(true); await this.cyclesRepository.confirm({...command,reason:this.deleteReason.trim()}); }
     } catch(error) { this.formError=this.getSaveErrorMessage(error); }
-    finally {this.isSaving=false;this.deleteReason='';this.deletionTarget.set(null);}
+    finally {this.processing.set(false);this.isSaving=false;this.deleteReason='';this.deletionTarget.set(null);}
   }
   validDeleteReason(): boolean {return this.deleteReason.trim().length >= 4 && this.deleteReason.trim().length <= 1000;}
   setDeleteReason(event: Event): void {this.deleteReason=(event.target as HTMLTextAreaElement).value;}
 
   async updateTentativeCaptureClose(cycle: AcademicCycle, event: Event): Promise<void> {
-    if (!this.canManage()) { this.formError = 'No tienes delegación vigente para administrar ciclos.'; return; }
+    if (!this.canOperate(cycle)) { this.formError = 'No tienes autorización vigente o hay una operación en curso.'; return; }
     const input = event.target as HTMLInputElement;
     const tentativeCaptureCloseAt = input.value || null;
 
+    this.isSaving = true; this.processing.set(true);
     try {
       await this.cyclesRepository.updateTentativeCaptureClose(cycle.id, tentativeCaptureCloseAt);
     } catch (error) {
@@ -278,7 +302,7 @@ export class CyclesPageComponent {
         title: 'No se pudo actualizar',
         message: this.getSaveErrorMessage(error),
       });
-    }
+    } finally { this.processing.set(false); this.isSaving = false; }
   }
 
   dateInputValue(value: string | null | undefined): string {

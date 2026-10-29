@@ -921,3 +921,18 @@ dd {
     display: none;
   }
 }
+
+.reopen-reason { padding: .75rem 1rem; margin: .75rem 0; background: #f4f8ff; border: 1px solid #cddfff; border-radius: .6rem; overflow-wrap: anywhere; }
+.reopen-reason strong, .cycle-transition { color: #123969; }
+.reopen-reason p { margin: .4rem 0; white-space: pre-wrap; }
+.reason-detail { padding: .6rem .9rem; border: 1px solid #adc8ee; border-radius: .5rem; background: #fff; color: #174ab5; font: inherit; font-weight: 700; cursor: pointer; }
+.reason-detail:focus-visible, .reason-dialog button:focus-visible { outline: 3px solid #00a6c8; outline-offset: 3px; }
+.reason-dialog { width: min(42rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid #cddfff; border-radius: .85rem; color: #163958; }
+.reason-dialog::backdrop { background: rgb(6 22 52 / 55%); }
+.reason-dialog header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.25rem; background: #0c2a61; color: #fff; border-top: 4px solid #24c6df; }
+.reason-dialog header span { color: #a3eaff; text-transform: uppercase; font-weight: 800; font-size: .75rem; letter-spacing: .08em; }
+.reason-dialog h2 { margin: .35rem 0 0; font-size: 1.4rem; }
+.reason-dialog header button { background: transparent; color: #fff; border: 1px solid #91b4df; border-radius: .5rem; min-width: 2.75rem; min-height: 2.75rem; font-size: 1.5rem; cursor: pointer; }
+.reason-dialog-body { padding: 1.25rem; overflow-wrap: anywhere; }
+.full-reason { white-space: pre-wrap; }
+.reason-dialog footer { position: sticky; bottom: 0; padding: 1rem 1.25rem; background: #fff; border-top: 1px solid #cddfff; display: flex; justify-content: flex-end; }

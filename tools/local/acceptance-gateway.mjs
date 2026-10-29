@@ -4,8 +4,8 @@ import { resolve, sep, extname } from 'node:path';
 import { config, root, sessionFile, recoveryTest, isolatedTest, testOffset, verifyHub, acceptanceSlot } from './config.mjs';
 import { tunnelOrigin, target } from './tunnel-policy.mjs';
 
-if (!isolatedTest || ![43000,44000].includes(acceptanceSlot)) throw Error('Solo aceptación independiente A/B.');
-const gatewayPort = acceptanceSlot === 43000 ? 4208 : 4209;
+if (!isolatedTest || ![43000,44000,46000].includes(acceptanceSlot)) throw Error('Solo aceptación independiente A/B.');
+const gatewayPort = acceptanceSlot === 43000 ? 4208 : acceptanceSlot === 44000 ? 4209 : 4210;
 const originFile = resolve(root, '.local/acceptance-origin.json');
 const build = resolve(root, 'dist/spai-tup-acceptance/browser');
 const version = JSON.parse(readFileSync(resolve(build,'demo-version.json')));

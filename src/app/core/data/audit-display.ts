@@ -1,4 +1,20 @@
 // Read only the identity captured in the event, never the current viewer/profile.
+export function auditReopenReason(entry: Record<string, unknown>): string | null {
+  if (entry['action'] !== 'reopen' || entry['module'] !== 'Ciclos') return null;
+  return typeof entry['reason'] === 'string' && entry['reason'].trim()
+    ? entry['reason'].trim() : 'Motivo no disponible en el registro histórico';
+}
+
+export function auditCycleTransition(entry: Record<string, unknown>): string {
+  if (entry['module'] !== 'Ciclos') return '';
+  const status = (value: unknown) => {
+    const raw = value && typeof value === 'object' ? (value as Record<string, unknown>)['status'] : null;
+    return typeof raw === 'string' ? raw === 'Preparacion' ? 'Preparación' : raw : '';
+  };
+  const before = status(entry['previous']), after = status(entry['next']);
+  return before && after ? `${before} → ${after}` : '';
+}
+
 export function auditIdentity(entry: Record<string, unknown>): { user: string; userRole: string } {
   const text = (value: unknown) => typeof value === 'string' ? value.trim() : '';
   const actor = entry['actor'] && typeof entry['actor'] === 'object'

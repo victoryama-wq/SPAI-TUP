@@ -807,3 +807,7 @@ th {
 .deletion-reason { display:grid; gap:8px; margin-top:20px; font-weight:700; }
 .deletion-reason textarea { width:100%; box-sizing:border-box; border:1px solid #bdd1ed; border-radius:8px; padding:12px; font:inherit; }
 .deletion-reason small { font-weight:400; color:#40577a; }
+
+.cycle-processing, .cycle-refresh { padding: .85rem 1rem; border: 1px solid #cddfff; border-radius: .65rem; background: #f4f8ff; color: #163958; }
+.cycle-refresh { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.cycle-refresh p { flex: 1 1 20rem; margin: 0; }

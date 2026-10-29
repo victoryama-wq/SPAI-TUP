@@ -15,6 +15,10 @@ export interface AuditLogEntry {
   entityId: string;
   metadata: Record<string, unknown>;
   createdAt: string;
+  reason?: string;
+  cycle?: string;
+  previous?: Record<string, unknown>;
+  next?: Record<string, unknown> | null;
   source?: 'SERVIDOR' | 'CLIENTE';
   integrity?: 'VERIFICADO_SERVIDOR' | 'NO_VERIFICADO';
 }

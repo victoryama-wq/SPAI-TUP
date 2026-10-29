@@ -1,5 +1,12 @@
 @if (cycleMessage()) { <p class="form-error" role="status">{{ cycleMessage() }}</p> }
 @if (formError && !isFormOpen) { <p class="form-error" role="alert">{{ formError }}</p> }
+@if (processing()) { <p class="cycle-processing" role="status">{{ refreshing() ? 'Actualizando el estado confirmado…' : 'Procesando la operación…' }}</p> }
+@if (refreshError() || contextError() || cyclesReadState() === 'error' || cyclesReadState() === 'denied') {
+  <div class="cycle-refresh" role="alert">
+    <p>{{ refreshError() || contextError() || cyclesReadMessage() }}</p>
+    <button class="secondary-action" type="button" [disabled]="refreshing() || processing()" (click)="retryQuery()">Reintentar consulta</button>
+  </div>
+}
 <section class="cycles-overview" aria-label="Resumen de ciclos">
   <section class="cycles-header">
     <div>
