@@ -5,8 +5,8 @@ function repo(source=fs.readFileSync('src/app/features/cycles/data/cycles.reposi
  const calls=[];let rejectMutation=false,failRead=false;let stored='Captura',displayed='Captura';
  class Base {async refreshFromServer(){calls.push('query');if(failRead)throw Error('read unavailable');displayed=stored;}}
  const {CyclesRepository:C}=compile(source,name=>name==='@angular/core'?{Injectable:()=>c=>c}:name==='firebase/functions'?{httpsCallable:()=>async command=>{calls.push(['mutation',command]);if(rejectMutation)throw Error('VERSION_CONFLICT');stored='Captura cerrada';return {data:{status:stored,revision:2}};}}:name.endsWith('firestore.repository')?{FirestoreRepository:Base}:{});
- const h=Object.create(C.prototype);Object.assign(h,{functions:{},refreshing:signal(false),refreshError:signal(''),confirmedPendingRefresh:signal(false)});
- return {h,calls,setReadFailure:v=>failRead=v,setRejected:v=>rejectMutation=v,state:()=>({stored,displayed})};
+ const h=Object.create(C.prototype);Object.assign(h,{functions:{},refreshing:signal(false),refreshError:signal(''),confirmedPendingRefresh:signal(false),mutationPending:signal(false),contextError:signal(''),refreshAttempt:0});
+ h.updating=()=>h.refreshing()||h.mutationPending();return {h,calls,setReadFailure:v=>failRead=v,setRejected:v=>rejectMutation=v,state:()=>({stored,displayed})};
 }
 test('baseline delayed listener: acknowledged operation did not refresh; candidate reads confirmed state without waiting for listener',async()=>{
  const old=repo(execFileSync('git',['show','aa532cbef655c9decf7ee0865b82db9f665de5cf:src/app/features/cycles/data/cycles.repository.ts'],{encoding:'utf8'}));
@@ -14,11 +14,11 @@ test('baseline delayed listener: acknowledged operation did not refresh; candida
  const current=repo();await current.h.confirm({action:'closeCapture',operationId:'same-command'});assert.equal(current.state().displayed,'Captura cerrada');assert.deepEqual(current.calls.map(c=>Array.isArray(c)?c[0]:c),['mutation','query']);
 });
 test('confirmed mutation plus read failure is not a failed mutation; retry queries only, preserving idempotency identity',async()=>{
- const {h,calls,setReadFailure,state}=repo();setReadFailure(true);await h.confirm({action:'closeCapture',operationId:'stable-id',expectedRevision:1});assert.equal(state().stored,'Captura cerrada');assert.equal(h.confirmedPendingRefresh(),true);assert.match(h.refreshError(),/fue confirmada/);assert.equal(h.refreshing(),false);
+ const {h,calls,setReadFailure,state}=repo();setReadFailure(true);await h.confirm({action:'closeCapture',operationId:'stable-id',expectedRevision:1});assert.equal(state().stored,'Captura cerrada');assert.equal(h.confirmedPendingRefresh(),true);assert.match(h.refreshError(),/se confirmó/);assert.equal(h.refreshing(),false);
  setReadFailure(false);await h.refreshFromServer();assert.equal(h.confirmedPendingRefresh(),false);assert.equal(h.refreshError(),'');assert.equal(calls.filter(Array.isArray).length,1);assert.equal(state().displayed,'Captura cerrada');
 });
 test('server rejection remains rejection even when refresh also fails; no false completion',async()=>{
- const {h,calls,setRejected,setReadFailure,state}=repo();setRejected(true);setReadFailure(true);await assert.rejects(h.confirm({operationId:'rejected'}),/VERSION_CONFLICT/);assert.equal(h.confirmedPendingRefresh(),false);assert.doesNotMatch(h.refreshError(),/fue confirmada/);assert.equal(state().stored,'Captura');assert.equal(calls.filter(Array.isArray).length,1);
+ const {h,calls,setRejected,setReadFailure,state}=repo();setRejected(true);setReadFailure(true);await assert.rejects(h.confirm({operationId:'rejected'}),/VERSION_CONFLICT/);assert.equal(h.confirmedPendingRefresh(),false);assert.doesNotMatch(h.refreshError(),/se confirmó/);assert.equal(state().stored,'Captura');assert.equal(calls.filter(Array.isArray).length,1);
 });
 test('reopening text and transition come only from authorized record; no inferred historical motive',()=>{
  const {auditReopenReason:reason,auditCycleTransition:transition,auditPresentation}=compile(fs.readFileSync('src/app/core/data/audit-display.ts','utf8'),()=>({}));
@@ -34,7 +34,8 @@ test('creation and purge refresh the authorized list; consultation keeps valid c
  let rows=[{id:'old',status:'Cerrado'},{id:'recent',status:'Cerrado'}],shown=rows;
  class Base {async refreshFromServer(){shown=rows;}}
  const {CyclesRepository:C}=compile(fs.readFileSync('src/app/features/cycles/data/cycles.repository.ts','utf8'),name=>name==='@angular/core'?{Injectable:()=>c=>c}:name==='firebase/functions'?{httpsCallable:()=>async command=>{rows=command.action==='purge'?rows.filter(c=>c.id!==command.cycleId):[...rows,{id:'new',status:'Preparacion'}];}}:name.endsWith('firestore.repository')?{FirestoreRepository:Base}:{});
- const h=Object.create(C.prototype);Object.assign(h,{functions:{},refreshing:signal(false),refreshError:signal(''),confirmedPendingRefresh:signal(false)});
+ const h=Object.create(C.prototype);Object.assign(h,{functions:{},refreshing:signal(false),refreshError:signal(''),confirmedPendingRefresh:signal(false),mutationPending:signal(false),contextError:signal(''),refreshAttempt:0});
+ h.updating=()=>h.refreshing()||h.mutationPending();
  // Evaluate the existing selector computation, rather than copying its policy.
  const source=fs.readFileSync('src/app/features/assignments/data/assignments.repository.ts','utf8');
  const ast=ts.createSourceFile('selection.ts',source,ts.ScriptTarget.Latest,true);let selector;

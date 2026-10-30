@@ -30,6 +30,8 @@ export abstract class FirestoreRepository<T extends { id: string }> {
   private collectionQuery: Query | null = null;
   private readonly userSession = inject(UserSessionService);
   private generation = 0;
+  private refreshSequence = 0;
+  private snapshotSequence = 0;
   private readonly dataOwner = signal<UserSession | null>(null);
   private readonly dataSelection = signal('');
 
@@ -81,17 +83,18 @@ export abstract class FirestoreRepository<T extends { id: string }> {
         (snapshot) => {
           if (generation !== this.generation || owner !== this.userSession.session() || selection !== this.selectionKey()) return;
           if (snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
+          const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as T);
+          if (this.retainVerifiedRowsOnRefresh() && !this.acceptsRefreshedRows(rows, this.itemsSignal(), false)) return;
+          ++this.snapshotSequence;
           clearTimeout(initialLoadTimeout);
           this.readErrorSignal.set('');
           this.loadingSignal.set(false);
           this.stateSignal.set('ready');
-          this.itemsSignal.set(
-            snapshot.docs
-              .map((item) => ({ id: item.id, ...item.data() }) as T),
-          );
+          this.itemsSignal.set(rows);
         },
         (error) => {
           if (generation !== this.generation || owner !== this.userSession.session() || selection !== this.selectionKey()) return;
+          ++this.refreshSequence;
           clearTimeout(initialLoadTimeout);
           this.itemsSignal.set([]);
           console.error(`No se pudo leer ${this.collectionPath}`, error);
@@ -115,28 +118,39 @@ export abstract class FirestoreRepository<T extends { id: string }> {
 
   protected selectionConstraints(): QueryConstraint[] { return []; }
 
+  /** Opt-in background refresh. Never retains rows across owner/scope changes. */
+  protected retainVerifiedRowsOnRefresh(): boolean { return false; }
+  protected acceptsRefreshedRows(_next: T[], _current: T[], newerSnapshot: boolean): boolean { return !newerSnapshot; }
+
   refreshFromServer(): Promise<void> {
     const generation = this.generation;
     const selection = this.selectionKey();
+    const owner = this.userSession.session();
+    const request = ++this.refreshSequence;
+    const snapshotSequence = this.snapshotSequence;
     if (!this.collectionQuery || this.dataOwner() !== this.userSession.session()) return Promise.reject(new Error('PERMISO_REVOCADO o módulo sin autorización vigente.'));
-    this.loadingSignal.set(true);
-    this.stateSignal.set('loading');
+    const retained = this.retainVerifiedRowsOnRefresh() && this.ready();
+    const current = () => generation === this.generation && selection === this.selectionKey()
+      && owner === this.userSession.session() && request === this.refreshSequence;
+    if (!retained) { this.loadingSignal.set(true); this.stateSignal.set('loading'); }
 
     return this.withReadTimeout(
       getDocsFromServer(this.collectionQuery),
       `La consulta de ${this.collectionPath} no respondio a tiempo.`,
     )
       .then((snapshot) => {
-        if (generation !== this.generation || selection !== this.selectionKey()) return;
+        if (!current()) throw new Error('La sesión, la selección o la consulta cambiaron. Reintenta la actualización.');
+        const rows = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as T);
+        if (retained && !this.acceptsRefreshedRows(rows, this.itemsSignal(), snapshotSequence !== this.snapshotSequence)) return;
         this.readErrorSignal.set('');
         this.stateSignal.set('ready');
-        this.itemsSignal.set(
-          snapshot.docs
-            .map((item) => ({ id: item.id, ...item.data() }) as T),
-        );
+        this.itemsSignal.set(rows);
       })
       .catch((error) => {
-        if (generation !== this.generation || selection !== this.selectionKey()) return;
+        if (!current()) throw error;
+        // A transport failure does not turn the last verified cycle into an
+        // empty/historical selection. Permission denial still withdraws data.
+        if (retained && error.code !== 'permission-denied') throw error;
         this.itemsSignal.set([]);
         console.error(`No se pudo actualizar ${this.collectionPath} desde servidor`, error);
         this.stateSignal.set(error.code === 'permission-denied' ? 'denied' : 'error');
@@ -144,7 +158,7 @@ export abstract class FirestoreRepository<T extends { id: string }> {
         throw error;
       })
       .finally(() => {
-        if (generation === this.generation) this.loadingSignal.set(false);
+        if (current() && !retained) this.loadingSignal.set(false);
       });
   }
 

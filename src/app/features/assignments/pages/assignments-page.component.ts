@@ -290,6 +290,9 @@ export class AssignmentsPageComponent implements OnDestroy {
   readonly cyclesReadState = this.cyclesRepository.readState;
   readonly cyclesReadMessage = this.cyclesRepository.readMessage;
   readonly cyclesReady = this.cyclesRepository.ready;
+  readonly cycleUpdating = this.cyclesRepository.updating;
+  readonly cycleRefreshError = this.cyclesRepository.refreshError;
+  retryCycleUpdate(): void { if (!this.cycleUpdating()) void this.cyclesRepository.refreshFromServer().catch(() => undefined); }
   readonly selectableOperative = computed(() => this.consultableCycles().find(c => c.id === this.operativeCycle()?.id));
   readonly historicalCycles = computed(() => this.consultableCycles().filter(c => c.status === 'Cerrado'));
   retryCycles(): void { void this.cyclesRepository.refreshFromServer().catch(() => undefined); }

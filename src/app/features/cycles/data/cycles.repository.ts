@@ -25,29 +25,36 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   readonly inconsistent = computed(() => this.multipleOperative() || this.overLimit());
   readonly activeCycle = computed(() => this.operativeCycles().length === 1 ? this.operativeCycles()[0] : null);
   readonly contextError = signal('');
-  readonly contextReady = signal(false);
+  private readonly verifiedContext = signal('');
   readonly refreshing = signal(false);
   readonly refreshError = signal('');
   readonly confirmedPendingRefresh = signal(false);
+  readonly mutationPending = signal(false);
+  private refreshAttempt = 0;
   private readonly contextVersion = computed(() => JSON.stringify({
     actor: this.session.session(),
     cycles: this.cycles().map(c => [c.id, c.revision, c.code, c.status, c.specialsEnabled]),
   }));
-  readonly captureMessage = computed(() => !this.ready() ? this.readMessage() : this.contextError() || (this.inconsistent()
+  private readonly contextRetry = signal(0);
+  readonly contextReady = computed(() => this.ready() && this.verifiedContext() === this.contextVersion()
+    && !this.refreshing() && !this.mutationPending() && !this.confirmedPendingRefresh() && !this.refreshError());
+  readonly updating = computed(() => this.refreshing() || this.mutationPending());
+  readonly captureMessage = computed(() => !this.ready() ? this.readMessage() : this.refreshError()
+    || (this.updating() ? 'Actualizando el estado autorizado…' : '') || this.contextError() || (this.inconsistent()
     ? (this.overLimit() ? 'Inconsistencia: hay más de dos ciclos registrados. No se eliminará ningún registro automáticamente; solicita revisión a Sistemas.' : 'Inconsistencia: hay varios ciclos operativos. No se seleccionó ninguno; solicita revisión a Sistemas.')
     : !this.activeCycle() ? 'No hay ciclo operativo. Los históricos continúan disponibles para consulta.'
     : this.activeCycle()?.status === 'Captura' ? '' : `Ciclo en ${this.activeCycle()?.status}: captura académica ordinaria bloqueada.`));
   constructor() {
     super(inject(FIREBASE_DB), CYCLES_COLLECTION, orderBy('createdAt', 'desc'));
     effect(onCleanup => {
-      const version = this.contextVersion(); const ready = this.ready();
-      this.contextReady.set(false); this.contextError.set(''); let cancelled = false;
+      const version = this.contextVersion(); const ready = this.ready(); this.contextRetry();
+      this.verifiedContext.set(''); this.contextError.set(''); let cancelled = false;
       onCleanup(() => { cancelled = true; });
       if (!ready) return;
       // Metadata-only snapshots and identical query results do not require
       // another context write. Permission/profile changes still invalidate it.
       void version;
-      httpsCallable(this.functions, 'cycleContext')({}).then(() => { if (!cancelled) this.contextReady.set(true); })
+      httpsCallable(this.functions, 'cycleContext')({}).then(() => { if (!cancelled) this.verifiedContext.set(version); })
         .catch(() => { if (!cancelled) this.contextError.set('No se pudo verificar el ciclo en servidor. Reintenta la consulta.'); });
     });
   }
@@ -58,28 +65,41 @@ export class CyclesRepository extends FirestoreRepository<AcademicCycle> {
   async confirm(command: Record<string, unknown>): Promise<void> {
     // An acknowledged mutation and a failed read are different outcomes. Never
     // retry cycleCommand just because its subsequent query failed.
-    try { await httpsCallable(this.functions, 'cycleCommand')(command); }
-    catch (error) {
+    if (this.updating() || this.confirmedPendingRefresh() || this.refreshError()) throw new Error('Espera a que se verifique la actualización antes de confirmar otra operación.');
+    this.mutationPending.set(true);
+    try {
+      try { await httpsCallable(this.functions, 'cycleCommand')(command); }
+      catch (error) {
+        await this.refreshFromServer().catch(() => undefined);
+        throw error;
+      }
+      this.confirmedPendingRefresh.set(true);
       await this.refreshFromServer().catch(() => undefined);
-      throw error;
-    }
-    this.confirmedPendingRefresh.set(true);
-    await this.refreshFromServer().catch(() => undefined);
+    } finally { this.mutationPending.set(false); }
   }
   override async refreshFromServer(): Promise<void> {
+    const attempt = ++this.refreshAttempt;
     this.refreshing.set(true);
     this.refreshError.set('');
     try {
       // Same authorized query as the live subscription; all consumers derive
       // their state from this repository, including assignment restrictions.
       await super.refreshFromServer();
+      if (attempt !== this.refreshAttempt) return;
       this.confirmedPendingRefresh.set(false);
+      if (this.contextError()) this.contextRetry.update(value => value + 1);
     } catch (error) {
+      if (attempt !== this.refreshAttempt) throw error;
       this.refreshError.set(this.confirmedPendingRefresh()
-        ? 'La operación fue confirmada por el servidor, pero no se pudo actualizar la vista. Reintenta la consulta; no repitas la operación.'
-        : 'No se pudo actualizar el estado vigente. Reintenta la consulta.');
+        ? 'La operación se confirmó; no pudimos actualizar la vista.'
+        : 'No pudimos actualizar el estado vigente. Reintenta la actualización.');
       throw error;
-    } finally { this.refreshing.set(false); }
+    } finally { if (attempt === this.refreshAttempt) this.refreshing.set(false); }
+  }
+  protected override retainVerifiedRowsOnRefresh(): boolean { return true; }
+  protected override acceptsRefreshedRows(next: AcademicCycle[], current: AcademicCycle[], newerSnapshot: boolean): boolean {
+    if (newerSnapshot && (next.length !== current.length || current.some(c => !next.some(n => n.id === c.id)))) return false;
+    return current.every(c => !next.some(n => n.id === c.id && (n.revision ?? 0) < (c.revision ?? 0)));
   }
   async createCycle(payload: CreateCyclePayload): Promise<void> { await this.confirm(this.prepare('create',undefined,{payload})); }
   startCapture(id: string): Promise<void> { return this.change('start',id); }

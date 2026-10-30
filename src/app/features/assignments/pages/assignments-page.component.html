@@ -1,4 +1,11 @@
 
+@if (cycleUpdating()) { <p role="status" class="feedback standalone-feedback">Actualizando el estado autorizado…</p> }
+@if (cycleRefreshError()) {
+  <div role="alert" class="feedback standalone-feedback">
+    <span>{{ cycleRefreshError() }}</span>
+    <button type="button" [disabled]="cycleUpdating()" (click)="retryCycleUpdate()">Reintentar actualización</button>
+  </div>
+}
 @if (formMessage && !isAssignmentModalOpen) {
   <div class="feedback standalone-feedback">
     <strong>{{ formMessage }}</strong>

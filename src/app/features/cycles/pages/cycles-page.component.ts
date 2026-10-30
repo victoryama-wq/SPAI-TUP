@@ -45,7 +45,7 @@ export class CyclesPageComponent {
   readonly mayCreate = computed(() => hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES'));
   readonly creationLimitReached = computed(() => this.cycles().length >= 2);
   readonly canManage = computed(() => this.cyclesRepository.contextReady() && hasAccess(this.userSessionService.session()?.appUser, 'ciclos', true) && hasCapability(this.userSessionService.session()?.appUser, 'MANAGE_CYCLES') && !this.cyclesRepository.inconsistent());
-  readonly cycleMessage = this.cyclesRepository.captureMessage;
+  readonly cycleMessage = computed(() => this.cyclesRepository.updating() || this.cyclesRepository.refreshError() ? '' : this.cyclesRepository.captureMessage());
   readonly contextReady = this.cyclesRepository.contextReady;
   readonly inconsistent = this.cyclesRepository.inconsistent;
   readonly canCreateCycle = computed(() => this.cyclesRepository.ready()
@@ -60,6 +60,7 @@ export class CyclesPageComponent {
     return '';
   });
   reopenReason: Record<string, string> = {};
+  showOperativeActions(cycle: AcademicCycle): boolean { const user=this.userSessionService.session()?.appUser; return this.mayCreate() && !this.inconsistent() && (user?.baseRole==='ADMIN_GENERAL' || Boolean(user?.scope?.cycles?.some(c=>c==='*'||c===cycle.code))); }
   canOperate(cycle: AcademicCycle): boolean { const user=this.userSessionService.session()?.appUser; return this.canManage() && !this.isSaving && (user?.baseRole==='ADMIN_GENERAL' || Boolean(user?.scope?.cycles?.some(c=>c==='*'||c===cycle.code))); }
   validReopenReason(cycle: AcademicCycle): boolean { const reason=(this.reopenReason[cycle.id] || '').trim(); return reason.length >= 4 && reason.length <= 1000; }
   setReason(id: string, event: Event): void { this.reopenReason[id]=(event.target as HTMLInputElement).value; }
@@ -68,6 +69,7 @@ export class CyclesPageComponent {
   readonly cyclesReadState = this.cyclesRepository.readState;
   readonly cyclesReadMessage = this.cyclesRepository.readMessage;
   readonly refreshing = this.cyclesRepository.refreshing;
+  readonly updating = this.cyclesRepository.updating;
   readonly refreshError = this.cyclesRepository.refreshError;
   readonly contextError = this.cyclesRepository.contextError;
   retryQuery(): void { if (!this.refreshing()) void this.cyclesRepository.refreshFromServer().catch(() => undefined); }
