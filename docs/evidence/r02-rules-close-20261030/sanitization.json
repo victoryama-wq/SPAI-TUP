@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-30T18:55:07.269Z",
+  "filesChecked": 25,
+  "status": "PASS",
+  "criteria": "No JWTs or password/idToken/refreshToken values; synthetic claims retained"
+}

@@ -1,0 +1,122 @@
+E2-R02 — Aceptación funcional confirmada y cierre del gate técnico de Rules
+
+El propietario confirma que quedaron atendidas sus observaciones:
+
+- Especiales se actualiza sin recargar la página.
+- Las restricciones de Asignaciones se actualizan correctamente.
+- Bitácora muestra el motivo de reapertura, actor, fecha/hora y transición.
+
+Registra la aceptación funcional del 30 de octubre de 2026, vinculada al SHA y compilación efectivamente revisados. Conserva también la aceptación previa de los escenarios A/B.
+
+Esta aceptación no sustituye la validación técnica de Rules.
+
+1. ALCANCE EXCLUSIVO
+
+Resuelve los casos de Rules antes clasificados como INCONCLUSIVE_EVALUATOR.
+
+Trabaja sobre la versión candidata actual que contiene las correcciones aceptadas. Conserva 86caef3a966db5ab5c26931ebddffa909289c2a6 como referencia histórica reproducible; no retrocedas la aplicación ni pierdas cambios posteriores.
+
+Utiliza un checkout y emuladores independientes. No modifiques los túneles, datos ni servicios de aceptación.
+
+No repitas A/B ni las suites ya aprobadas salvo que una modificación afecte directamente sus garantías. No avances a R03.
+
+2. INVENTARIO Y MATRIZ POR REQUISITO
+
+Recupera el inventario completo e incluye:
+
+- Los seis casos históricos de R02.
+- Los casos adicionales tras revocación y deshabilitación de Especiales.
+- Los dos casos del complemento Eliminar usuario, en una sección separada.
+
+Deduplica los casos compartidos entre suites sin perder su correspondencia con cada requisito.
+
+Para cada caso registra:
+
+- Identificador y requisito contractual.
+- Suite y archivo.
+- Operación, identidad ficticia y condiciones evaluadas.
+- Resultado esperado.
+- Resultado anterior.
+- Causa comprobada o todavía indeterminada.
+- Resultado final.
+- Archivo de evidencia y comando de reproducción.
+
+No reduzcas el inventario para obtener un gate aprobado.
+
+3. EVIDENCIA REPRODUCIBLE
+
+Reutiliza primero la evidencia existente que corresponda a la versión evaluada. Completa únicamente lo que falte o haya quedado invalidado por cambios.
+
+Para cada caso o grupo con causa común, entrega:
+
+- Fixture mínimo y Rules mínimas de diagnóstico.
+- Control positivo autorizado y control negativo denegado.
+- Identidades y claims ficticios.
+- Comandos ejecutables.
+- Versiones exactas de herramientas y emuladores.
+- Solicitud, respuesta y trazas sanitizadas.
+- Explicación de la causa y de cualquier corrección.
+
+Los controles deben usar el mismo arnés. Si la escritura estudiada está prohibida para todos los clientes, utiliza como control positivo una operación permitida por el contrato; no abras permisos para fabricar ese control.
+
+Demuestra cómo el diagnóstico mínimo explica los casos reales y ejecuta las comprobaciones afectadas contra las Rules completas de la versión candidata.
+
+No publiques credenciales, tokens ni datos institucionales.
+
+4. CRITERIOS PARA CERRAR EL GATE
+
+Clasifica cada caso como:
+
+- PASS: decisión correcta conforme al contrato, con evidencia suficiente.
+- FAIL: decisión contraria al contrato o defecto comprobado de ejecución de las Rules.
+- INCONCLUSIVE_EVALUATOR: resultado cuya causa o interpretación sigue sin determinarse.
+
+Un HTTP 403, permission-denied o ausencia de cambios no bastan por sí solos.
+
+Para aprobar una denegación, demuestra que:
+
+- Se evaluó la operación exacta.
+- La prueba esperaba esa denegación.
+- El control positivo funciona.
+- La traza corresponde al caso.
+- No existe un fallo de ejecución sin explicar que haya provocado una denegación accidental.
+
+Si corriges el clasificador, justifica la modificación con controles y trazas. No ignores genéricamente errores del evaluador ni debilites las Rules.
+
+Actualiza el gate de R02 a PASS únicamente cuando todos sus casos requeridos sean concluyentes y satisfactorios. El comando del gate debe terminar con código 0 por esas comprobaciones, no por exclusiones o cambios artificiales de expectativas.
+
+Mantén separado el resultado del complemento Eliminar usuario. Sus pendientes no deben desaparecer dentro del resultado de R02.
+
+5. PROTECCIÓN DE LA ACEPTACIÓN FUNCIONAL
+
+No alteres la versión servida en los túneles aceptados ni recargues sus fixtures.
+
+Si el diagnóstico exige modificar Rules o código de autorización:
+
+- Ejecuta las regresiones directamente afectadas.
+- Identifica qué garantías o recorridos necesitan revalidación.
+- Conserva la aceptación existente para los aspectos no afectados.
+- Entrega cualquier revisión humana necesaria mediante un túnel HTTPS independiente, nunca mediante IP LAN o localhost.
+
+Si solo cambia el arnés o clasificador de pruebas, documenta que la aplicación y sus políticas permanecen sin cambios y justifica la conservación de la evidencia funcional.
+
+6. ENTREGA
+
+Entrega un informe final con:
+
+- SHA completo evaluado y rama.
+- Hash de las Rules completas evaluadas.
+- Inventario único y conteos sin duplicados.
+- Causa comprobada de cada grupo.
+- Matriz final por requisito.
+- Archivos ejecutables, comandos y trazas sanitizadas.
+- Cambios realizados y validaciones afectadas.
+- Resultado y código de salida del gate de R02.
+- Estado separado de Eliminar usuario.
+- Limitaciones pendientes.
+
+Si no puedes resolver algún caso localmente, conserva BLOCKED y entrega el impedimento reproducible. Puedes proponer una validación remota en un proyecto de pruebas, pero no ejecutarla sin autorización posterior.
+
+La aceptación funcional está confirmada. Puedes declarar cerrado el gate técnico de Rules cuando la evidencia cumpla todos los criterios anteriores; no declares preparación para producción.
+
+Sin push, merge, despliegues en producción, conexiones reales, modificaciones de entornos compartidos ni avance a R03.

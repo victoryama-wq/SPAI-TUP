@@ -1,0 +1,103 @@
+[2026-10-30T18:47:30.526Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x44571c37 error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L5:24 for 'create' @ L5, false for 'create' @ L5
+[2026-10-30T18:47:30.614Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x44571c38 error. Code: 7 Message: 7 PERMISSION_DENIED:
+false for 'create' @ L12
+[2026-10-30T18:47:30.708Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x44571c39 error. Code: 7 Message: 7 PERMISSION_DENIED:
+Property deliberatelyMissing is undefined on object. for 'create' @ L14, Property deliberatelyMissing is undefined on object. for 'create' @ L14
+[2026-10-30T18:47:30.907Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x44571c3b error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L5:24 for 'create' @ L5, evaluation error at L10:45 for 'create' @ L10, evaluation error at L11:47 for 'create' @ L11, false for 'create' @ L10
+[2026-10-30T18:47:30.977Z]  @firebase/firestore: Firestore (12.13.0): GrpcConnection RPC 'Write' stream 0x44571c3c error. Code: 7 Message: 7 PERMISSION_DENIED:
+evaluation error at L5:24 for 'create' @ L5, Property deliberatelyMissing is undefined on object. for 'create' @ L14, false for 'create' @ L5
+[
+  {
+    id: 'ALLOW-DYNAMIC',
+    transport: 'REST_AUTH',
+    status: 200,
+    message: 'authorized'
+  },
+  {
+    id: 'DENY-DYNAMIC',
+    transport: 'REST_AUTH',
+    status: 403,
+    message: "\nevaluation error at L5:24 for 'create' @ L5, false for 'create' @ L5"
+  },
+  {
+    id: 'DENY-LITERAL',
+    transport: 'REST_AUTH',
+    status: 403,
+    message: "\nfalse for 'create' @ L12"
+  },
+  {
+    id: 'ERROR-MISSING-FIELD',
+    transport: 'REST_AUTH',
+    status: 403,
+    message: '\n' +
+      "Property deliberatelyMissing is undefined on object. for 'create' @ L14, Property deliberatelyMissing is undefined on object. for 'create' @ L14"
+  },
+  {
+    id: 'ALLOW-BATCH',
+    transport: 'REST_AUTH',
+    status: 200,
+    message: 'authorized'
+  },
+  {
+    id: 'DENY-BATCH',
+    transport: 'REST_AUTH',
+    status: 403,
+    message: '\n' +
+      "evaluation error at L5:24 for 'create' @ L5, evaluation error at L10:45 for 'create' @ L10, evaluation error at L11:47 for 'create' @ L11, false for 'create' @ L11"
+  },
+  {
+    id: 'ERROR-BATCH',
+    transport: 'REST_AUTH',
+    status: 403,
+    message: '\n' +
+      "evaluation error at L5:24 for 'create' @ L5, Property deliberatelyMissing is undefined on object. for 'create' @ L14, false for 'create' @ L5"
+  },
+  {
+    id: 'ALLOW-DYNAMIC',
+    transport: 'RULES_UNIT_TESTING',
+    status: 200,
+    message: 'authorized'
+  },
+  {
+    id: 'DENY-DYNAMIC',
+    transport: 'RULES_UNIT_TESTING',
+    status: 403,
+    message: '7 PERMISSION_DENIED: \n' +
+      "evaluation error at L5:24 for 'create' @ L5, false for 'create' @ L5"
+  },
+  {
+    id: 'DENY-LITERAL',
+    transport: 'RULES_UNIT_TESTING',
+    status: 403,
+    message: "7 PERMISSION_DENIED: \nfalse for 'create' @ L12"
+  },
+  {
+    id: 'ERROR-MISSING-FIELD',
+    transport: 'RULES_UNIT_TESTING',
+    status: 403,
+    message: '7 PERMISSION_DENIED: \n' +
+      "Property deliberatelyMissing is undefined on object. for 'create' @ L14, Property deliberatelyMissing is undefined on object. for 'create' @ L14"
+  },
+  {
+    id: 'ALLOW-BATCH',
+    transport: 'RULES_UNIT_TESTING',
+    status: 200,
+    message: 'authorized'
+  },
+  {
+    id: 'DENY-BATCH',
+    transport: 'RULES_UNIT_TESTING',
+    status: 403,
+    message: '7 PERMISSION_DENIED: \n' +
+      "evaluation error at L5:24 for 'create' @ L5, evaluation error at L10:45 for 'create' @ L10, evaluation error at L11:47 for 'create' @ L11, false for 'create' @ L10"
+  },
+  {
+    id: 'ERROR-BATCH',
+    transport: 'RULES_UNIT_TESTING',
+    status: 403,
+    message: '7 PERMISSION_DENIED: \n' +
+      "evaluation error at L5:24 for 'create' @ L5, Property deliberatelyMissing is undefined on object. for 'create' @ L14, false for 'create' @ L5"
+  }
+]

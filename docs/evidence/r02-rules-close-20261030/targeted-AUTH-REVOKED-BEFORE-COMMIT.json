@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-30T18:48:09.598Z",
+  "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+  "baseCommit": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "results": [
+    {
+      "id": "AUTH-REVOKED-BEFORE-COMMIT",
+      "scope": "R02",
+      "origin": "rules-trace.mjs",
+      "before": "INCONCLUSIVE_EVALUATOR",
+      "after": "PASS",
+      "control": "PASS",
+      "reason": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "evidence": "AUTH-REVOKED-BEFORE-COMMIT.json.gz",
+      "unchanged": true
+    }
+  ]
+}

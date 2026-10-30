@@ -3,7 +3,7 @@ import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
 const dir=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(dir,'../../..'),port=Number(process.env.DIAGNOSTIC_FIRESTORE_PORT||48080),authPort=49099;
 assert([48080,48180].includes(port));assert.equal(process.env.SPAI_LOCAL_TEST_SLOT,'rules-diagnostic');
 const project='demo-spai-tup',base=`http://127.0.0.1:${port}`,docs=base+`/v1/projects/${project}/databases/(default)/documents`,rules=fs.readFileSync(path.join(dir,'minimal.rules'),'utf8').replace(/^\uFEFF/,''),fixture=JSON.parse(fs.readFileSync(path.join(dir,'minimal-fixture.json'),'utf8').replace(/^\uFEFF/,''));
-const out=path.join(root,'docs/evidence/r02-rules-20261028');fs.mkdirSync(out,{recursive:true});
+const out=path.resolve(root,process.env.RULES_EVIDENCE_DIR || 'docs/evidence/r02-rules-20261028');assert(out.startsWith(path.resolve(root,'docs/evidence')+path.sep),'Evidence must stay inside this checkout');fs.mkdirSync(out,{recursive:true});
 const original=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');const load=async content=>{const r=await fetch(base+`/emulator/v1/projects/${project}:securityRules`,{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({rules:{files:[{name:'firestore.rules',content}]}})});assert.equal(r.status,200,await r.text());};
 const req=async(url,method,body,token='owner')=>{const r=await fetch(url,{method,headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});return {status:r.status,body:await r.json()};};
 const password=randomUUID()+'aA1!'; // Ephemeral synthetic secret, never persisted in evidence.

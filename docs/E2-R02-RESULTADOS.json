@@ -5,8 +5,8 @@
   "branch": "codex/e2-r02-captura-especiales",
   "deliveryCommit": "El commit local que incorpora este archivo; fuentes verificables mediante sha256",
   "implementation": "IMPLEMENTACION_LOCAL_CON_PENDIENTES",
-  "technicalValidation": "PASS_LOCAL_R02_RULES_REUTILIZADO_Y_OBSERVACIONES_DIRIGIDAS",
-  "humanAcceptance": "APROBADA_ESCENARIOS_AB_CON_OBSERVACIONES",
+  "technicalValidation": "PASS_LOCAL_GATE_RULES_R02_23",
+  "humanAcceptance": "APROBADA_R02_AB_Y_OBSERVACIONES_2026-10-30",
   "productionReadiness": "PENDIENTE_BLOQUEADA",
   "sourceSha256": {
     "firestore.indexes.json": "8897a59b29ff39d22e083b80c816ef460fc0f6fb2a2de7719e93df1eb52ee08b",
@@ -883,6 +883,72 @@
       "C4210",
       "shared-demo",
       "private-backup"
+    ]
+  },
+  "rulesClosure20261030": {
+    "date": "2026-10-30",
+    "reference": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+    "evaluatedSha": "819e80b3bbcef27279c69608b89f5de8f685ccd0",
+    "applicationBranch": "codex/e2-r02-refresco-autorizado",
+    "diagnosticBranch": "codex/e2-r02-cierre-rules-20261030",
+    "buildId": "r02-refresh-819e80b3bbce",
+    "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+    "functionalAcceptance": {
+      "status": "APROBADA",
+      "by": "Propietario",
+      "source": "ACEPTACION-FUNCIONAL-E2-R02-2026-10-30.txt",
+      "scope": [
+        "Especiales sin recarga",
+        "restricciones de Asignaciones actualizadas",
+        "Bitácora con motivo de reapertura, actor, fecha/hora y transición"
+      ],
+      "ABPreserved": true
+    },
+    "R02": {
+      "total": 23,
+      "PASS": 23,
+      "FAIL": 0,
+      "INCONCLUSIVE_EVALUATOR": 0,
+      "overall": "PASS",
+      "exitCode": 0,
+      "technicalGate": "CERRADO_LOCALMENTE"
+    },
+    "userDeletion": {
+      "total": 2,
+      "PASS": 2,
+      "FAIL": 0,
+      "INCONCLUSIVE_EVALUATOR": 0,
+      "overall": "PASS",
+      "separate": true,
+      "exitCode": 0,
+      "functionsPreviousPass": 10,
+      "humanAcceptance": "NO_INCLUIDA_EN_DECLARACION"
+    },
+    "inventory": {
+      "R02": 23,
+      "USER_DELETION": 2,
+      "total": 25,
+      "observations": 30,
+      "duplicates": 5
+    },
+    "tests": {
+      "gate": 8,
+      "minimalControls": 14,
+      "fullNew": 5,
+      "fullReused": 20
+    },
+    "applicationUnchanged": true,
+    "classifierUnchanged": true,
+    "acceptanceEnvironmentsUnchanged": true,
+    "report": "E2-R02-CIERRE-RULES-2026-10-30.md",
+    "pending": [
+      "200 documentos",
+      "R04 depuración con dependencias",
+      "migración",
+      "reversión",
+      "validaciones remotas Firebase",
+      "producción",
+      "10 R03"
     ]
   }
 }

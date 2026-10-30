@@ -1,5 +1,8 @@
 # R02 — Trazabilidad de las comprobaciones
 
+**Estado vigente 30/10/2026:** [aceptación funcional confirmada y cierre local de Rules](E2-R02-CIERRE-RULES-2026-10-30.md). El propietario acepta las observaciones de refresco, restricciones de Asignaciones y Bitácora en `819e80b3bbcef27279c69608b89f5de8f685ccd0` / `r02-refresh-819e80b3bbce`; A/B aceptados se conservan. Gate Rules: **23 R02 PASS, 0 FAIL, 0 inconclusos, salida 0**. Complemento baja separado: **2 Rules PASS, salida 0**; aceptación de baja no incluida. Aplicación, políticas y túneles sin modificación. Producción, 200 documentos, R04 y diez R03 pendientes. Las secciones anteriores por fecha se conservan como historial.
+
+
 **Actualización 30/10/2026 — refresco dirigido:** [informe y evidencia](E2-R02-REFRESCO-2026-10-30.md). SHA `819e80b3bbcef27279c69608b89f5de8f685ccd0`, candidata independiente HTTPS 4211, build `r02-refresh-819e80b3bbce`. 22 pruebas Node y 2 grupos UI PASS; compilación y verificación HTTPS PASS. A/B aceptados conservados; aceptación de esta corrección, observaciones de Bitácora y cierre formal R02 pendientes. Gate Rules previo conservado con su evidencia específica, no repetido ni acreditado por estos ensayos. 200 documentos, R04 y diez R03 abiertos.
 
 

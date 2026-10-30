@@ -1,0 +1,4302 @@
+{
+  "at": "2026-10-30T18:49:33.895Z",
+  "candidate": "819e80b3bbcef27279c69608b89f5de8f685ccd0",
+  "branch": "codex/e2-r02-cierre-rules-20261030",
+  "reference": "86caef3a966db5ab5c26931ebddffa909289c2a6",
+  "rulesSha256": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+  "policyUnchanged": true,
+  "applicationUnchanged": true,
+  "unique": {
+    "R02": 23,
+    "USER_DELETION": 2,
+    "total": 25,
+    "observations": 30,
+    "duplicates": 5
+  },
+  "R02": {
+    "total": 23,
+    "PASS": 23,
+    "FAIL": 0,
+    "INCONCLUSIVE_EVALUATOR": 0,
+    "overall": "PASS"
+  },
+  "userDeletion": {
+    "total": 2,
+    "PASS": 2,
+    "FAIL": 0,
+    "INCONCLUSIVE_EVALUATOR": 0,
+    "overall": "PASS",
+    "separate": true
+  },
+  "diagnostics": [
+    {
+      "id": "ALLOW-DYNAMIC",
+      "transport": "REST_AUTH",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-DYNAMIC",
+      "transport": "REST_AUTH",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-LITERAL",
+      "transport": "REST_AUTH",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "ERROR-MISSING-FIELD",
+      "transport": "REST_AUTH",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "pass": true
+    },
+    {
+      "id": "ALLOW-BATCH",
+      "transport": "REST_AUTH",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-BATCH",
+      "transport": "REST_AUTH",
+      "expected": "INCONCLUSIVE_EVALUATOR",
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "pass": true,
+      "note": "Single classifier intentionally remains inconclusive for deferred roots; exact full-policy D1-BATCH requires all constituent controls/traces."
+    },
+    {
+      "id": "ERROR-BATCH",
+      "transport": "REST_AUTH",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "pass": true
+    },
+    {
+      "id": "ALLOW-DYNAMIC",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-DYNAMIC",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-LITERAL",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "ERROR-MISSING-FIELD",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "pass": true
+    },
+    {
+      "id": "ALLOW-BATCH",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "PASS",
+      "actual": "PASS",
+      "pass": true
+    },
+    {
+      "id": "DENY-BATCH",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "INCONCLUSIVE_EVALUATOR",
+      "actual": "INCONCLUSIVE_EVALUATOR",
+      "pass": true,
+      "note": "Single classifier intentionally remains inconclusive for deferred roots; exact full-policy D1-BATCH requires all constituent controls/traces."
+    },
+    {
+      "id": "ERROR-BATCH",
+      "transport": "RULES_UNIT_TESTING",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "pass": true
+    }
+  ],
+  "results": [
+    {
+      "id": "CYCLE-WRITE-Preparacion",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "teacherName": {
+                    "stringValue": "FICTICIO CAMBIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "teacherName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Preparacion"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-WRITE-Preparacion.json.gz",
+      "sha256": "9b77bdf157d127814d289662fa58be247d2b63900cf59eec2592c8a652b82bda",
+      "reproduce": "$env:RULES_CASE='CYCLE-WRITE-Preparacion'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-CREATE-Preparacion",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "create",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-new",
+                "fields": {
+                  "createdAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "updatedAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "cycle": {
+                    "stringValue": "27-1"
+                  },
+                  "program": {
+                    "stringValue": "ADM"
+                  },
+                  "group": {
+                    "stringValue": "27-1 ADM 11 01"
+                  },
+                  "subjectId": {
+                    "stringValue": "DEMO101"
+                  },
+                  "subjectName": {
+                    "stringValue": "INTRODUCCION DEMO"
+                  },
+                  "moodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "normalizedMoodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "teacherMoodleUser": {
+                    "stringValue": "demo-docente-1"
+                  },
+                  "teacherName": {
+                    "stringValue": "DOCENTE FICTICIO 1"
+                  },
+                  "status": {
+                    "stringValue": "EN_CAPTURA"
+                  },
+                  "observations": {
+                    "stringValue": "Ficticia"
+                  },
+                  "assignmentType": {
+                    "stringValue": "REGULAR"
+                  },
+                  "shared": {
+                    "booleanValue": false
+                  },
+                  "sourceAssignmentId": {
+                    "stringValue": ""
+                  },
+                  "sharedGroups": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "sharedPrograms": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "special": {
+                    "booleanValue": false
+                  },
+                  "studentEnrollments": {
+                    "stringValue": "demo-estudiante-001"
+                  },
+                  "createdBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "createdByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "createdByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "createdByPrograms": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "ADM"
+                        }
+                      ]
+                    }
+                  },
+                  "updatedBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "updatedByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "updatedByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "deletedAt": {
+                    "nullValue": null
+                  },
+                  "deletedBy": {
+                    "stringValue": ""
+                  },
+                  "deletedByName": {
+                    "stringValue": ""
+                  },
+                  "deletedByRole": {
+                    "stringValue": ""
+                  }
+                }
+              },
+              "currentDocument": {
+                "exists": false
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Preparacion"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-CREATE-Preparacion.json.gz",
+      "sha256": "048638e5e69daa368c9d1a4ab9d37b87101b84cee5fe6d9398a44b5f54026c2f",
+      "reproduce": "$env:RULES_CASE='CYCLE-CREATE-Preparacion'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-WRITE-Captura cerrada",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "teacherName": {
+                    "stringValue": "FICTICIO CAMBIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "teacherName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-WRITE-Captura_cerrada.json.gz",
+      "sha256": "173c5604fe8f768673de456e1d63a5b00e5f825c71db0269bfd007fe8ada3915",
+      "reproduce": "$env:RULES_CASE='CYCLE-WRITE-Captura cerrada'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-CREATE-Captura cerrada",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "create",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-new",
+                "fields": {
+                  "createdAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "updatedAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "cycle": {
+                    "stringValue": "27-1"
+                  },
+                  "program": {
+                    "stringValue": "ADM"
+                  },
+                  "group": {
+                    "stringValue": "27-1 ADM 11 01"
+                  },
+                  "subjectId": {
+                    "stringValue": "DEMO101"
+                  },
+                  "subjectName": {
+                    "stringValue": "INTRODUCCION DEMO"
+                  },
+                  "moodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "normalizedMoodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "teacherMoodleUser": {
+                    "stringValue": "demo-docente-1"
+                  },
+                  "teacherName": {
+                    "stringValue": "DOCENTE FICTICIO 1"
+                  },
+                  "status": {
+                    "stringValue": "EN_CAPTURA"
+                  },
+                  "observations": {
+                    "stringValue": "Ficticia"
+                  },
+                  "assignmentType": {
+                    "stringValue": "REGULAR"
+                  },
+                  "shared": {
+                    "booleanValue": false
+                  },
+                  "sourceAssignmentId": {
+                    "stringValue": ""
+                  },
+                  "sharedGroups": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "sharedPrograms": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "special": {
+                    "booleanValue": false
+                  },
+                  "studentEnrollments": {
+                    "stringValue": "demo-estudiante-001"
+                  },
+                  "createdBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "createdByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "createdByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "createdByPrograms": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "ADM"
+                        }
+                      ]
+                    }
+                  },
+                  "updatedBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "updatedByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "updatedByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "deletedAt": {
+                    "nullValue": null
+                  },
+                  "deletedBy": {
+                    "stringValue": ""
+                  },
+                  "deletedByName": {
+                    "stringValue": ""
+                  },
+                  "deletedByRole": {
+                    "stringValue": ""
+                  }
+                }
+              },
+              "currentDocument": {
+                "exists": false
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-CREATE-Captura_cerrada.json.gz",
+      "sha256": "60f0a78a7d9c6c91d590bed44382355d7bbceb0de59817bb4420d149c1b48f99",
+      "reproduce": "$env:RULES_CASE='CYCLE-CREATE-Captura cerrada'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-WRITE-Cerrado",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "teacherName": {
+                    "stringValue": "FICTICIO CAMBIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "teacherName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "state": "NONE",
+            "status": "Cerrado"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-WRITE-Cerrado.json.gz",
+      "sha256": "b62bae1d8b527ab2ba0f8297b7616e15ee24332e130d46ff0d7a8fc817fffa4e",
+      "reproduce": "$env:RULES_CASE='CYCLE-WRITE-Cerrado'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CYCLE-CREATE-Cerrado",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "tools/stage1/rules.mjs; tools/e2-r02/rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "create",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-new",
+                "fields": {
+                  "createdAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "updatedAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "cycle": {
+                    "stringValue": "27-1"
+                  },
+                  "program": {
+                    "stringValue": "ADM"
+                  },
+                  "group": {
+                    "stringValue": "27-1 ADM 11 01"
+                  },
+                  "subjectId": {
+                    "stringValue": "DEMO101"
+                  },
+                  "subjectName": {
+                    "stringValue": "INTRODUCCION DEMO"
+                  },
+                  "moodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "normalizedMoodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "teacherMoodleUser": {
+                    "stringValue": "demo-docente-1"
+                  },
+                  "teacherName": {
+                    "stringValue": "DOCENTE FICTICIO 1"
+                  },
+                  "status": {
+                    "stringValue": "EN_CAPTURA"
+                  },
+                  "observations": {
+                    "stringValue": "Ficticia"
+                  },
+                  "assignmentType": {
+                    "stringValue": "REGULAR"
+                  },
+                  "shared": {
+                    "booleanValue": false
+                  },
+                  "sourceAssignmentId": {
+                    "stringValue": ""
+                  },
+                  "sharedGroups": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "sharedPrograms": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "special": {
+                    "booleanValue": false
+                  },
+                  "studentEnrollments": {
+                    "stringValue": "demo-estudiante-001"
+                  },
+                  "createdBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "createdByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "createdByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "createdByPrograms": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "ADM"
+                        }
+                      ]
+                    }
+                  },
+                  "updatedBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "updatedByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "updatedByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "deletedAt": {
+                    "nullValue": null
+                  },
+                  "deletedBy": {
+                    "stringValue": ""
+                  },
+                  "deletedByName": {
+                    "stringValue": ""
+                  },
+                  "deletedByRole": {
+                    "stringValue": ""
+                  }
+                }
+              },
+              "currentDocument": {
+                "exists": false
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "state": "NONE",
+            "status": "Cerrado"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CYCLE-CREATE-Cerrado.json.gz",
+      "sha256": "096bd5095ad2716a644c7a4d1f9d725021817a2a06da9ab978636bd187b5c15d",
+      "reproduce": "$env:RULES_CASE='CYCLE-CREATE-Cerrado'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-DISABLED-BEFORE-COMMIT",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "rules-trace.mjs; integration.mjs Specials disabled/create",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "create",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-new",
+                "fields": {
+                  "createdAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "updatedAt": {
+                    "stringValue": "2026-09-01T15:00:00.000Z"
+                  },
+                  "cycle": {
+                    "stringValue": "27-1"
+                  },
+                  "program": {
+                    "stringValue": "ADM"
+                  },
+                  "group": {
+                    "stringValue": "27-1 ADM 11 C.A"
+                  },
+                  "subjectId": {
+                    "stringValue": "DEMO101"
+                  },
+                  "subjectName": {
+                    "stringValue": "INTRODUCCION DEMO"
+                  },
+                  "moodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "normalizedMoodleId": {
+                    "stringValue": "diag-new"
+                  },
+                  "teacherMoodleUser": {
+                    "stringValue": "demo-docente-1"
+                  },
+                  "teacherName": {
+                    "stringValue": "DOCENTE FICTICIO 1"
+                  },
+                  "status": {
+                    "stringValue": "EN_CAPTURA"
+                  },
+                  "observations": {
+                    "stringValue": "Ficticia"
+                  },
+                  "assignmentType": {
+                    "stringValue": "ESPECIAL"
+                  },
+                  "shared": {
+                    "booleanValue": false
+                  },
+                  "sourceAssignmentId": {
+                    "stringValue": ""
+                  },
+                  "sharedGroups": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "sharedPrograms": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "special": {
+                    "booleanValue": true
+                  },
+                  "studentEnrollments": {
+                    "stringValue": "demo-estudiante-001"
+                  },
+                  "createdBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "createdByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "createdByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "createdByPrograms": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "ADM"
+                        }
+                      ]
+                    }
+                  },
+                  "updatedBy": {
+                    "stringValue": "demo-coord-a"
+                  },
+                  "updatedByName": {
+                    "stringValue": "Coordinación A DEMO"
+                  },
+                  "updatedByRole": {
+                    "stringValue": "Coordinación Académica"
+                  },
+                  "deletedAt": {
+                    "nullValue": null
+                  },
+                  "deletedBy": {
+                    "stringValue": ""
+                  },
+                  "deletedByName": {
+                    "stringValue": ""
+                  },
+                  "deletedByRole": {
+                    "stringValue": ""
+                  }
+                }
+              },
+              "currentDocument": {
+                "exists": false
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada",
+            "specialsEnabled": false
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-DISABLED-BEFORE-COMMIT.json.gz",
+      "sha256": "dbb7e049bdae1aa27d26277e502a1ed41f2e80e3f7bae13c9dcb0efd67803d8d",
+      "reproduce": "$env:RULES_CASE='SPECIAL-DISABLED-BEFORE-COMMIT'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "AUTH-REVOKED-BEFORE-COMMIT",
+      "scope": "R02",
+      "requirement": "E2-C01: revocación efectiva",
+      "suite": "rules-trace.mjs",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "teacherName": {
+                    "stringValue": "FICTICIO CAMBIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "teacherName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Inactivo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "status": "Captura",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ]
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "AUTH-REVOKED-BEFORE-COMMIT.json.gz",
+      "sha256": "a52f1aa81c47e872dfb66bf647ef6d85ea627e829b967c311be4ec82a4ab7264",
+      "reproduce": "$env:RULES_CASE='AUTH-REVOKED-BEFORE-COMMIT'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": false
+    },
+    {
+      "id": "D1-LOADED-ENROLLMENT",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs D1 loaded; Reopen then close",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/D1-LOADED-ENROLLMENT.json.gz",
+      "sha256": "724b574cff46d9536202f0bb028aa0f72833c822e75a70ce59336a25917492e8",
+      "reproduce": "$env:RULES_CASE='D1-LOADED-ENROLLMENT'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "D1-GROUP-WRITE",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs D1",
+      "actor": {
+        "uid": "demo-sistemas",
+        "email": "demo-sistemas@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/grupos/27_1_ADM_11_01",
+                "fields": {
+                  "programName": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "programName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-sistemas",
+          "email": "demo-sistemas@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-sistemas",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Sistemas DEMO",
+            "baseRole": "ADMIN_GENERAL",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "VIEW",
+              "ciclos": "VIEW",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "VIEW",
+              "moodle": "VIEW",
+              "bitacora": "VIEW"
+            },
+            "scope": {
+              "programs": [],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-sistemas",
+            "name": "Sistemas DEMO",
+            "email": "demo.sistemas@tecplayacar.edu.mx",
+            "role": "Coordinación de Sistemas",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [],
+            "access": {
+              "dashboard": true,
+              "usuarios": true,
+              "ciclos": true,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": true,
+              "moodle": true,
+              "bitacora": true
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/D1-GROUP-WRITE.json.gz",
+      "sha256": "31530211615a457ca2b60187166489e9a3e0460b59738b6af22a034f4f11401e",
+      "reproduce": "$env:RULES_CASE='D1-GROUP-WRITE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "D1-TEACHER-WRITE",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs D1",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/docentes/demo-docente-1",
+                "fields": {
+                  "fullName": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "fullName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/D1-TEACHER-WRITE.json.gz",
+      "sha256": "9a17bd9b0be3e84c6fbdcc4249acf1e220842ec5515141c231668c34fdcc0504",
+      "reproduce": "$env:RULES_CASE='D1-TEACHER-WRITE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "D1-BATCH",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs D1 atomic batch",
+      "actor": {
+        "uid": "demo-sistemas",
+        "email": "demo-sistemas@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/grupos/27_1_ADM_11_01",
+                "fields": {
+                  "programName": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "programName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            },
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/docentes/demo-docente-1",
+                "fields": {
+                  "fullName": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "fullName"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            },
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-sistemas",
+          "email": "demo-sistemas@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-sistemas",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Sistemas DEMO",
+            "baseRole": "ADMIN_GENERAL",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "VIEW",
+              "ciclos": "VIEW",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "VIEW",
+              "moodle": "VIEW",
+              "bitacora": "VIEW"
+            },
+            "scope": {
+              "programs": [],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-sistemas",
+            "name": "Sistemas DEMO",
+            "email": "demo.sistemas@tecplayacar.edu.mx",
+            "role": "Coordinación de Sistemas",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [],
+            "access": {
+              "dashboard": true,
+              "usuarios": true,
+              "ciclos": true,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": true,
+              "moodle": true,
+              "bitacora": true
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Atomic denial: exact constituent writes each conclusively denied; batch has false allow-root and remaining deferred roots match the reproduced short-circuit diagnostic; positive batch succeeds",
+      "positive": "PASS",
+      "evidence": "D1-BATCH.json.gz",
+      "sha256": "f88c6c88b8bd3bad88d4ce918f169dcb99bb678d7ac12cc639cb5f3e9db6785e",
+      "reproduce": "$env:RULES_CASE='D1-BATCH'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": false
+    },
+    {
+      "id": "SPECIAL-NOT-ORDINARY",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Specials ordinary",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-NOT-ORDINARY.json.gz",
+      "sha256": "43e271fede7d2578448c0a65a14386deb198813fc1915c48d6274f910af28c80",
+      "reproduce": "$env:RULES_CASE='SPECIAL-NOT-ORDINARY'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-NOT-RECLASSIFY",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Specials reclassification",
+      "actor": {
+        "uid": "demo-sistemas",
+        "email": "demo-sistemas@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+                "fields": {
+                  "assignmentType": {
+                    "stringValue": "ESPECIAL"
+                  },
+                  "special": {
+                    "booleanValue": true
+                  },
+                  "group": {
+                    "stringValue": "27-1 ADM 11 C.A"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "assignmentType",
+                  "special",
+                  "group"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-sistemas",
+          "email": "demo-sistemas@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-sistemas",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Sistemas DEMO",
+            "baseRole": "ADMIN_GENERAL",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "VIEW",
+              "ciclos": "VIEW",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "VIEW",
+              "moodle": "VIEW",
+              "bitacora": "VIEW"
+            },
+            "scope": {
+              "programs": [],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-sistemas",
+            "name": "Sistemas DEMO",
+            "email": "demo.sistemas@tecplayacar.edu.mx",
+            "role": "Coordinación de Sistemas",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [],
+            "access": {
+              "dashboard": true,
+              "usuarios": true,
+              "ciclos": true,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": true,
+              "moodle": true,
+              "bitacora": true
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-NOT-RECLASSIFY.json.gz",
+      "sha256": "b580fcbfdea5b35a4ea2dbeaf6fb61d001b3293dd532617354fe9e02d6d0575a",
+      "reproduce": "$env:RULES_CASE='SPECIAL-NOT-RECLASSIFY'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-MODALITY-Escolarizado",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Specials modality",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-special",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-MODALITY-Escolarizado.json.gz",
+      "sha256": "ce49966cc28770a1fd855c2b20200c297776edf9fe08127bef4c82a5642e1f00",
+      "reproduce": "$env:RULES_CASE='SPECIAL-MODALITY-Escolarizado'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-MODALITY-Ejecutivo",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Specials modality",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-special",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-MODALITY-Ejecutivo.json.gz",
+      "sha256": "ff1d924d0901e674f60c300d3b30f6617c5dd22d1e815066a43110b0792390ca",
+      "reproduce": "$env:RULES_CASE='SPECIAL-MODALITY-Ejecutivo'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CUSTOM-FOREIGN-ENROLLMENT",
+      "scope": "R02",
+      "requirement": "E2-C01 / E2-C02 / E2-C03: ámbito autorizado",
+      "suite": "integration.mjs CUSTOM scope",
+      "actor": {
+        "uid": "diag-custom",
+        "email": "diag-custom@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-foreign",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "diag-custom",
+          "email": "diag-custom@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/diag-custom",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "CUSTOM",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "diag-custom",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CUSTOM-FOREIGN-ENROLLMENT.json.gz",
+      "sha256": "a2cdc44c21b1996fb160566c30a327c63d72534e980d7c586f5bc5d06756593a",
+      "reproduce": "$env:RULES_CASE='CUSTOM-FOREIGN-ENROLLMENT'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "CUSTOM-OUTSIDE-CYCLE",
+      "scope": "R02",
+      "requirement": "E2-C01 / E2-C02 / E2-C03: ámbito autorizado",
+      "suite": "integration.mjs cycle scope",
+      "actor": {
+        "uid": "diag-custom",
+        "email": "diag-custom@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "get",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-outside",
+        "method": "GET",
+        "identity": {
+          "uid": "diag-custom",
+          "email": "diag-custom@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/diag-custom",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "CUSTOM",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "diag-custom",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "status": "Captura",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ]
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/CUSTOM-OUTSIDE-CYCLE.json.gz",
+      "sha256": "2a82fdfc5d3336a244d9e0161c47fc31d7d7758952cd61bda5665625039bd457",
+      "reproduce": "$env:RULES_CASE='CUSTOM-OUTSIDE-CYCLE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "ACADEMIC-OUTSIDE-CYCLE",
+      "scope": "R02",
+      "requirement": "E2-C01 / E2-C02 / E2-C03: ámbito autorizado",
+      "suite": "integration.mjs cycle scope",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "get",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-outside",
+        "method": "GET",
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo",
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "teachers": [],
+              "fields": [],
+              "cycles": [
+                "27-1"
+              ]
+            }
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "status": "Captura",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ]
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/ACADEMIC-OUTSIDE-CYCLE.json.gz",
+      "sha256": "b39097c1629484380d503677742189bcfd25e513180f475a57429dc8cc64d7da",
+      "reproduce": "$env:RULES_CASE='ACADEMIC-OUTSIDE-CYCLE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "AUX-FOREIGN-ENROLLMENT",
+      "scope": "R02",
+      "requirement": "E2-C01 / E2-C02 / E2-C03: ámbito autorizado",
+      "suite": "integration.mjs auxiliary scope",
+      "actor": {
+        "uid": "diag-aux",
+        "email": "diag-aux@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-foreign",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "diag-aux",
+          "email": "diag-aux@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/diag-aux",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Sistemas DEMO",
+            "baseRole": "ADMIN_OPERATIVO",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "VIEW",
+              "ciclos": "VIEW",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "VIEW",
+              "moodle": "VIEW",
+              "bitacora": "VIEW"
+            },
+            "scope": {
+              "programs": [],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "diag-aux",
+            "name": "Auxiliar DEMO",
+            "email": "demo.auxiliar@tecplayacar.edu.mx",
+            "role": "Auxiliar de Sistemas",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [],
+            "access": {
+              "dashboard": true,
+              "usuarios": true,
+              "ciclos": true,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": true,
+              "moodle": true,
+              "bitacora": true
+            },
+            "status": "Activo",
+            "delegationId": "diag-grant"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/AUX-FOREIGN-ENROLLMENT.json.gz",
+      "sha256": "bdd6029c4e0e69d6b3ade088ff1a8d6b2c5063c214e8477c90cebcecae8a3597",
+      "reproduce": "$env:RULES_CASE='AUX-FOREIGN-ENROLLMENT'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-FOREIGN-DELETE",
+      "scope": "R02",
+      "requirement": "E2-C01 / E2-C02 / E2-C03: ámbito autorizado",
+      "suite": "integration.mjs Specials deletion",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "delete",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "delete": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-foreign"
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "status": "Captura cerrada"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-FOREIGN-DELETE.json.gz",
+      "sha256": "03917c57b3ab7914a57319231cce872b84e7cd77d6e36571ab8b1bdf7778e579",
+      "reproduce": "$env:RULES_CASE='SPECIAL-FOREIGN-DELETE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "SPECIAL-DISABLED-UPDATE",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Disable Specials",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-special",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "status": "Captura cerrada",
+            "specialsEnabled": false
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "SPECIAL-DISABLED-UPDATE.json.gz",
+      "sha256": "fce2720d2446c667595d81ec70678542ba84814d6d611d5c7ef90294ba5ba03a",
+      "reproduce": "$env:RULES_CASE='SPECIAL-DISABLED-UPDATE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": false
+    },
+    {
+      "id": "SPECIAL-FINAL-CLOSE",
+      "scope": "R02",
+      "requirement": "E2-C02 / E2-C03 / D1: captura y Especiales",
+      "suite": "integration.mjs Final close residual Specials",
+      "actor": {
+        "uid": "demo-coord-a",
+        "email": "demo-coord-a@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "update",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-special",
+                "fields": {
+                  "studentEnrollments": {
+                    "stringValue": "FICTICIO"
+                  }
+                }
+              },
+              "updateMask": {
+                "fieldPaths": [
+                  "studentEnrollments"
+                ]
+              },
+              "currentDocument": {
+                "exists": true
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "demo-coord-a",
+          "email": "demo-coord-a@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "usuarios/demo-coord-a",
+          "data": {
+            "createdAt": "2026-09-01T15:00:00.000Z",
+            "updatedAt": "2026-09-01T15:00:00.000Z",
+            "permissionSchemaVersion": 2,
+            "revision": 1,
+            "area": "Académica DEMO",
+            "baseRole": "COORDINACION_ACADEMICA",
+            "permissions": {
+              "dashboard": "VIEW",
+              "usuarios": "NONE",
+              "ciclos": "NONE",
+              "nomenclaturas": "VIEW",
+              "grupos": "VIEW",
+              "docentes": "EDIT",
+              "asignaturas": "VIEW",
+              "asignaciones": "EDIT",
+              "solicitudes": "EDIT",
+              "ligasMeet": "NONE",
+              "moodle": "NONE",
+              "bitacora": "NONE"
+            },
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "*"
+              ],
+              "teachers": [],
+              "fields": []
+            },
+            "authUid": "demo-coord-a",
+            "name": "Coordinación A DEMO",
+            "email": "demo.coordinacion.a@tecplayacar.edu.mx",
+            "role": "Coordinación Académica",
+            "greetingGender": "Femenino",
+            "assignedPrograms": [
+              "ADM"
+            ],
+            "access": {
+              "dashboard": true,
+              "usuarios": false,
+              "ciclos": false,
+              "nomenclaturas": true,
+              "grupos": true,
+              "docentes": true,
+              "asignaturas": true,
+              "asignaciones": true,
+              "solicitudes": true,
+              "ligasMeet": false,
+              "moodle": false,
+              "bitacora": false
+            },
+            "status": "Activo"
+          }
+        },
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ],
+            "specialsEnabled": true,
+            "state": "NONE",
+            "status": "Cerrado"
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "../r02-rules-20261028/SPECIAL-FINAL-CLOSE.json.gz",
+      "sha256": "ab8695615f807200709bfbe6c8da5de3f817f8c5cd6ad3a808f28ef26bfb5eb5",
+      "reproduce": "$env:RULES_CASE='SPECIAL-FINAL-CLOSE'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": true
+    },
+    {
+      "id": "DELETION-OLD-TOKEN-READ",
+      "scope": "USER_DELETION",
+      "requirement": "Complemento Eliminar usuario: bloqueo posterior y no recreación",
+      "suite": "tools/users-deletion/integration.mjs token anterior",
+      "actor": {
+        "uid": "diag-deleted",
+        "email": "diag-deleted@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "get",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents/asignaciones/diag-ordinary",
+        "method": "GET",
+        "identity": {
+          "uid": "diag-deleted",
+          "email": "diag-deleted@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "status": "Captura",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ]
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "DELETION-OLD-TOKEN-READ.json.gz",
+      "sha256": "b50b7836705a47a9b07d7019a60f88194d39a711345f2bff6514b9f17f25b7d2",
+      "reproduce": "$env:RULES_CASE='DELETION-OLD-TOKEN-READ'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": false
+    },
+    {
+      "id": "DELETION-REENTRY-BOOTSTRAP",
+      "scope": "USER_DELETION",
+      "requirement": "Complemento Eliminar usuario: bloqueo posterior y no recreación",
+      "suite": "tools/users-deletion/integration.mjs reingreso",
+      "actor": {
+        "uid": "diag-reentry",
+        "email": "diag-reentry@example.invalid",
+        "email_verified": true,
+        "iss": "https://securetoken.google.com/demo-spai-tup",
+        "aud": "demo-spai-tup",
+        "provider": "password"
+      },
+      "operation": "create",
+      "request": {
+        "url": "http://127.0.0.1:48080/v1/projects/demo-spai-tup/databases/(default)/documents:commit",
+        "method": "POST",
+        "body": {
+          "writes": [
+            {
+              "update": {
+                "name": "projects/demo-spai-tup/databases/(default)/documents/usuarios/diag-reentry",
+                "fields": {
+                  "authUid": {
+                    "stringValue": "diag-reentry"
+                  },
+                  "name": {
+                    "stringValue": "FICTICIO"
+                  },
+                  "email": {
+                    "stringValue": "diag-reentry@example.invalid"
+                  },
+                  "role": {
+                    "stringValue": "Pendiente de autorizacion"
+                  },
+                  "status": {
+                    "stringValue": "Inactivo"
+                  },
+                  "assignedPrograms": {
+                    "arrayValue": {
+                      "values": []
+                    }
+                  },
+                  "access": {
+                    "mapValue": {
+                      "fields": {
+                        "dashboard": {
+                          "booleanValue": false
+                        }
+                      }
+                    }
+                  },
+                  "createdAt": {
+                    "stringValue": "2026-10-28"
+                  },
+                  "updatedAt": {
+                    "stringValue": "2026-10-28"
+                  }
+                }
+              },
+              "currentDocument": {
+                "exists": false
+              }
+            }
+          ]
+        },
+        "identity": {
+          "uid": "diag-reentry",
+          "email": "diag-reentry@example.invalid",
+          "email_verified": true,
+          "iss": "https://securetoken.google.com/demo-spai-tup",
+          "aud": "demo-spai-tup",
+          "provider": "password"
+        },
+        "authorization": "ephemeral synthetic token omitted"
+      },
+      "conditions": [
+        {
+          "path": "delegaciones/diag-grant",
+          "data": {
+            "userId": "diag-aux",
+            "status": "ACTIVE",
+            "permissions": {
+              "asignaciones": "EDIT"
+            },
+            "capabilities": [],
+            "scope": {
+              "programs": [
+                "ADM"
+              ],
+              "cycles": [
+                "27-1"
+              ],
+              "teachers": [],
+              "fields": [
+                "studentEnrollments"
+              ]
+            }
+          }
+        },
+        {
+          "path": "ciclo_control/operativo",
+          "data": {
+            "state": "READY",
+            "cycleId": "demo-27-1",
+            "code": "27-1",
+            "status": "Captura",
+            "specialsEnabled": false,
+            "specialGroups": [
+              "27-1 ADM 11 C.A",
+              "27-1 DER 11 C.A"
+            ]
+          }
+        }
+      ],
+      "expected": "deny",
+      "historical": "INCONCLUSIVE_EVALUATOR",
+      "previous": "PASS",
+      "final": "PASS",
+      "cause": "Expected denial with exact false allow-root, positive control and no execution cause; generic diagnostic matches the controlled minimal comparison",
+      "positive": "PASS",
+      "evidence": "DELETION-REENTRY-BOOTSTRAP.json.gz",
+      "sha256": "aaa9e1b90530f5373c4962305f9928b1717ad40e497b3ba6943b6c78d139cc9e",
+      "reproduce": "$env:RULES_CASE='DELETION-REENTRY-BOOTSTRAP'; node tools/e2-r02/rules-diagnostic/full-cases.mjs",
+      "reused": false
+    }
+  ],
+  "humanAcceptance": "APROBADA_2026-10-30; previa A/B conservada",
+  "production": "PENDIENTE",
+  "R03Open": 10
+}

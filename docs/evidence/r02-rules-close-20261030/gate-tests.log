@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: Fixed inventory keeps 23 R02 + 2 deletion, including revocation, disabled Specials and six historical cases
+ok 1 - Fixed inventory keeps 23 R02 + 2 deletion, including revocation, disabled Specials and six historical cases
+  ---
+  duration_ms: 1.2898
+  type: 'test'
+  ...
+# Subtest: All exact archived controls/traces bind to the candidate Rules and remain conclusive
+ok 2 - All exact archived controls/traces bind to the candidate Rules and remain conclusive
+  ---
+  duration_ms: 507.6334
+  type: 'test'
+  ...
+# Subtest: 403 from different policy or without coverage cannot certify a denial
+ok 3 - 403 from different policy or without coverage cannot certify a denial
+  ---
+  duration_ms: 28.3799
+  type: 'test'
+  ...
+# Subtest: Different actor, operation or request from control is rejected
+ok 4 - Different actor, operation or request from control is rejected
+  ---
+  duration_ms: 44.6429
+  type: 'test'
+  ...
+# Subtest: Actual data changes cannot pass as expected denial
+ok 5 - Actual data changes cannot pass as expected denial
+  ---
+  duration_ms: 15.1192
+  type: 'test'
+  ...
+# Subtest: Failed positive control never makes 403 conclusive
+ok 6 - Failed positive control never makes 403 conclusive
+  ---
+  duration_ms: 18.7372
+  type: 'test'
+  ...
+# Subtest: Missing batch components stays inconclusive; wrong component identity rejected
+ok 7 - Missing batch components stays inconclusive; wrong component identity rejected
+  ---
+  duration_ms: 70.6734
+  type: 'test'
+  ...
+# Subtest: Explicit execution defect or unexpected success is FAIL
+ok 8 - Explicit execution defect or unexpected success is FAIL
+  ---
+  duration_ms: 37.7561
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 810.6902
