@@ -1,5 +1,8 @@
 # E2-R02 — Entrega local de Ciclo, captura y Especiales
 
+**Actualización 30/10/2026 — refresco dirigido:** [informe y evidencia](E2-R02-REFRESCO-2026-10-30.md). SHA `819e80b3bbcef27279c69608b89f5de8f685ccd0`, candidata independiente HTTPS 4211, build `r02-refresh-819e80b3bbce`. 22 pruebas Node y 2 grupos UI PASS; compilación y verificación HTTPS PASS. A/B aceptados conservados; aceptación de esta corrección, observaciones de Bitácora y cierre formal R02 pendientes. Gate Rules previo conservado con su evidencia específica, no repetido ni acreditado por estos ensayos. 200 documentos, R04 y diez R03 abiertos.
+
+
 **Estado vigente 29/10/2026:** [aceptación A/B y observaciones finales](E2-R02-OBSERVACIONES-2026-10-29.md). El propietario aprobó funcionalmente A/B servidos en `aa532cbef655c9decf7ee0865b82db9f665de5cf`, con observaciones. Candidata separada `d2f139dbd56d997815496036b1b95685bf9c05d2`: 17 pruebas dirigidas y 5 grupos UI PASS, compilación PASS; comprobación del propietario pendiente. Gate Rules vigente del 28/10: PASS_LOCAL, 23 R02 + 2 baja, cero inconclusos; ocho históricos R02 PASS. Diez R03 abiertos, 200 documentos y R04 pendientes. **Cierre formal y producción pendientes.** Las secciones siguientes conservan el historial; sus estados no sustituyen esta actualización.
 
 

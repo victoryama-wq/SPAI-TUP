@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-30T15:17:21.460Z",
+  "base": "https://q16qrh63-4211.usw3.devtunnels.ms",
+  "version": {
+    "sha": "WORKTREE_UNCOMMITTED",
+    "branch": "codex/e2-r02-refresco-autorizado",
+    "buildId": "r02-refresh-working",
+    "scenario": "refresco-autorizado",
+    "port": 4211,
+    "builtAt": "2026-10-30T15:13:05.434Z"
+  },
+  "results": [
+    {
+      "case": "Transition: retained operative row/selection, pending actions blocked, final metrics/actions and Assignments updated without reload",
+      "status": "PASS"
+    },
+    {
+      "case": "Specials confirmed + injected query failure: exact notice, pending writes blocked, read-only retry from Assignments, no duplicate operation/audit/event",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "external": [],
+  "commands": [
+    {
+      "action": "start",
+      "operationId": "8ddccd09-a5cc-4f46-9828-5b1ee1ea1839",
+      "cycleId": "demo-27-1",
+      "expectedRevision": 1
+    },
+    {
+      "action": "closeCapture",
+      "operationId": "e55dfa59-36a0-4605-a3c8-26e538a9260d",
+      "cycleId": "demo-27-1",
+      "expectedRevision": 2
+    },
+    {
+      "action": "specials",
+      "operationId": "1f51671a-5989-42d7-98dc-a45ebd737dc7",
+      "cycleId": "demo-27-1",
+      "expectedRevision": 3,
+      "enabled": true
+    }
+  ],
+  "documentRequests": 1,
+  "result": "PASS"
+}

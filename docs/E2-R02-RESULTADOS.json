@@ -848,5 +848,41 @@
     },
     "report": "E2-R02-OBSERVACIONES-2026-10-29.md",
     "dataPreserved": true
+  },
+  "refreshReview20261030": {
+    "date": "2026-10-30",
+    "responsible": "Codex",
+    "sha": "819e80b3bbcef27279c69608b89f5de8f685ccd0",
+    "branch": "codex/e2-r02-refresco-autorizado",
+    "buildId": "r02-refresh-819e80b3bbce",
+    "url": "https://q16qrh63-4211.usw3.devtunnels.ms",
+    "unit": {
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0
+    },
+    "ui": {
+      "pass": 2,
+      "fail": 0,
+      "scope": "directed transition and Specials; real isolated callables, injected post-confirmation read failure"
+    },
+    "build": "PASS",
+    "https": "PASS_FROM_HOST",
+    "humanAcceptance": "PENDIENTE",
+    "ABAcceptance": "CONSERVADA",
+    "formalClosure": "PENDIENTE",
+    "production": "PENDIENTE_BLOQUEADA",
+    "auditObservations": "PENDIENTES_NO_MODIFICADAS",
+    "rulesGate": "PREVIOUS_SPECIFIC_EVIDENCE_PRESERVED_NOT_RERUN",
+    "R03Open": 10,
+    "adminLimit": 200,
+    "report": "E2-R02-REFRESCO-2026-10-30.md",
+    "preserved": [
+      "A4208",
+      "B4209",
+      "C4210",
+      "shared-demo",
+      "private-backup"
+    ]
   }
 }

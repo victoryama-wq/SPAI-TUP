@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-30T15:16:00.146Z",
+  "base": "http://127.0.0.1:4211",
+  "version": {
+    "sha": "WORKTREE_UNCOMMITTED",
+    "branch": "codex/e2-r02-refresco-autorizado",
+    "buildId": "r02-refresh-working",
+    "scenario": "refresco-autorizado",
+    "port": 4211,
+    "builtAt": "2026-10-30T15:13:05.434Z"
+  },
+  "results": [],
+  "pageErrors": [],
+  "external": [],
+  "commands": [],
+  "documentRequests": 1,
+  "result": "FAIL",
+  "error": "locator.selectOption: Timeout 35000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Cuenta ficticia del emulador')\u001b[22m\n\n    at C:\\Users\\Admin\\Documents\\ChatGPT\\Api-Spai-Moodle\\SPAI-TUP-R02-RULES-20261028\\tools\\e2-r02\\refresh-ui.mjs:21:78"
+}

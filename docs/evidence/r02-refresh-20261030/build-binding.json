@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-30T15:37:02.326Z",
+  "sha": "819e80b3bbcef27279c69608b89f5de8f685ccd0",
+  "assets": {
+    "chunk-2PKAXLAP.js": "47a0104a9f003bb0d9db894350a3674ecebad434e0bf588a46d06695918dc4aa",
+    "chunk-34EUMOIF.js": "e14666d6748bf38ed40ddc38b8ae74c07fcbcf7d2ca15f52fa0efdc189cf1bc0",
+    "chunk-35K2Q7IV.js": "ddc16bad46c5d2b5dcaa91e4793cd28123b8bbe9db49b136f419abf8072d3d30",
+    "chunk-4ASCWWWB.js": "db6e9bbe7819308dc0a9a762cdad5839620ddeda7cd6c18260da81ebe65bd196",
+    "chunk-5YAFH4UP.js": "0b9fb642d0931e30c8725b8e9f7a424d7c0d18013dd8c61487baf10d96e8a08f",
+    "chunk-7BJH3MGB.js": "096a67d754905f7c2e7dea7687d804a56ebf995410998d90bfc13e1b36272f60",
+    "chunk-BFKK42E3.js": "134a9830a2230d10f133eb0b1fcdb35bbcc64e14b97c6f7b01a5eb9d91bbcf81",
+    "chunk-BOE3PUQB.js": "183881e320cfb314c42f59ce4ba968f5737a2e5ad57c9fc3640783fb9dc3febb",
+    "chunk-BUBGGXM7.js": "a14bb17ab23fdbc8e731a39c4e4c691984119dd5175eb5c3943a6803bb7ff11c",
+    "chunk-CXQ4BG3J.js": "79ef3752fcadb66e52bae0d50e46fc9730cecf169d0d590db4a62c109623599b",
+    "chunk-D4J5JKZA.js": "c77912472c58440c14dd9cec955f3273bc8a90fd420f650bc80b0a550ab525bf",
+    "chunk-DFGFAIMQ.js": "35ec36a2abf3b8ae5487fa64573157ecf03e3a33538c9ff16bb0af27846839e8",
+    "chunk-ECNA7QL7.js": "83f31df4d35cd634ae364dc332dc6558c2582d899b3af11a58ab20dfbb74cffb",
+    "chunk-EUZ3DVE2.js": "7a775848fdd8ac4ca51928312d3f952a493eb9236fb4ef4cb1ba3e12c8effa28",
+    "chunk-HKNYUF67.js": "285bfeeb49a723cf6ff8c2e97fe08c5ddab9017d2ae60c9845e88834d8fb9615",
+    "chunk-IGSXQE4G.js": "7f72dfe31f8f925f0700d819809ce9d8dd8be8f5c33e79ad82d0a574bbef4610",
+    "chunk-J57Z42FW.js": "43d07d7223e78b93b2afc91ee5a269d48d3273cdc077a76c054d10c550365361",
+    "chunk-JAXYGDZ7.js": "b236c4bdcefa5edafd3182519b5e7a2986f9f5e96044bbbc980302f5708b8762",
+    "chunk-K7JVZLQ2.js": "b80187f7886608dd9461b48a6f7b74dd0ce475a8f6a7eca3b1c6a5c8dea7d2c0",
+    "chunk-KJLT7H5M.js": "5b3b8582d9e633aabb1c43c732d7dfa8253ac6b98d478866a96540e558d56eda",
+    "chunk-KXZDQSIU.js": "9288e73b0431252e4026711059eb010ecbda0ff0addba0c2d315e013b9768410",
+    "chunk-MJKHGMIF.js": "d35245708401073572aa612d21cc3a61e8eab8d3cca5d66c1c5ec17cc22b1090",
+    "chunk-NBS3KUUU.js": "8260b8796772b9a706f76a306c8f46d5dbb0c7d6d22a3a15929fc8d737dd94ca",
+    "chunk-OESSWXMI.js": "a85091368a87fa5c398211ef019c2c64bf9036bc093ec95e9135276495cf188c",
+    "chunk-QQ2E7BIO.js": "f555c985f8ae32997f287781bfd83ca32c12154b86da385d66ee2561d20f5cb4",
+    "chunk-TIBXM7MW.js": "fcf3c7b3f0bf4027a9204b2cb210be8ca16cb00121eec638fdb7e9b891680a74",
+    "chunk-TRSP35F7.js": "d15a715da41b22bdc560a7badd7bdc66968a4fead366c8cd8a1a867c47ce0671",
+    "chunk-YYG2IL6P.js": "77088ab6ee610adc61be3b9f8dfb987947d117a207c8bb48225b561c64d2648e",
+    "chunk-ZEOHHDG5.js": "a73a765acb67e87cd0b24dd7e2ce72b2c3c195a41fa47dd13d41abafbed5d16d",
+    "main.js": "4e74ff4b2fb7626c5d1f25fe22417822388a7d6ab67e985450096b3f82444732",
+    "polyfills.js": "21fe6a24a98271dcf463c201b2b87df230db555eb731c133d1a13e850bc60145",
+    "styles.css": "48a9602f6e955f99ea75cc21cda2fcc62ffdbeea4ec0b7b4eb50137ff3d72f45"
+  },
+  "preserved": [
+    {
+      "instance": "review-a",
+      "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "assetsUnchanged": 44
+    },
+    {
+      "instance": "review-b",
+      "sha": "aa532cbef655c9decf7ee0865b82db9f665de5cf",
+      "assetsUnchanged": 44
+    },
+    {
+      "instance": "review-c",
+      "sha": "d2f139dbd56d997815496036b1b95685bf9c05d2",
+      "assetsUnchanged": 95
+    }
+  ]
+}
