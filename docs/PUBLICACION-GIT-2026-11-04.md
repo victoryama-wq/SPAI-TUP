@@ -41,7 +41,18 @@ Puntas existentes antes del commit documental de continuidad. La punta final de 
 
 ## Comprobación de recepción
 
-La publicación se verifica comparando cada referencia remota con su punta local, además del estado limpio de los worktrees y de `main` sin cambios. Consultar el resultado final de la ejecución y las acciones de GitHub; no inferir éxito de CI a partir de un push exitoso.
+**Publicación comprobada el 04/11/2026:** push atómico exitoso de las once ramas. Se recibieron los 47 commits que ya existían localmente y dos commits de conservación/documentación preparados en esta sesión (49 commits salientes). `git ls-remote --heads origin` confirmó igualdad SHA por SHA en las once referencias y `main` permaneció en `6e40eb988f5a9f2d6cb9471595f7383acc3fb5e2`. Los siete worktrees quedaron limpios.
+
+Commits nuevos de la primera publicación:
+
+- `e8a58b25e73e33eff0be0dfce492cdc5d2ad8b0a`: evidencia histórica BAJA, preparadores y exclusiones de exportaciones.
+- `d92ead02f374cb4640fd27e66f9811f8b12400d7`: documentación reunida, continuidad y README en la rama de cierre.
+
+Esta constancia de recepción se registra en un commit documental adicional en la misma rama de cierre. Por ello, su punta final será posterior a d92ead02; no cambia el SHA de la aplicación aceptada ni el resto de las ramas.
+
+Barrido final anterior al push: **1.427 blobs, 103.560.998 bytes, cero coincidencias de los patrones revisados**. Los exports quedaron fuera del conjunto saliente. No hubo diferencias en `src`, `functions`, `firestore.rules` o `storage.rules` respecto de la candidata aceptada.
+
+**CI:** la consulta a GitHub Actions inmediatamente después de verificar el push no devolvió ejecuciones. No se declara CI aprobado ni se habilitan/modifican workflows para aparentar validación. La evidencia técnica local del 30/10 conserva su alcance propio. Consultar Actions para cualquier ejecución posterior; el gate general mantiene los pendientes R03.
 
 ```powershell
 git fetch origin --prune
