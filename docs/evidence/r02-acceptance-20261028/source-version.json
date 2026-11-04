@@ -1,0 +1,12 @@
+{
+  "evaluatedSha": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
+  "branch": "codex/usuarios-baja-complemento",
+  "applicationFilesCompared": 100,
+  "applicationDifferences": [],
+  "rulesIdentical": true,
+  "configurationOnly": [
+    "acceptance account labels/emails",
+    "index banner",
+    "scenario preparation"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "beforeAt": "2026-10-22T21:25:54.581Z",
+  "afterAt": "2026-10-22T21:35:43.227Z",
+  "firestore": "127.0.0.1:48080",
+  "documents": 40,
+  "delegations": 2,
+  "beforeSha256": "a5e1c7b69f4e332de5c160a577e92d9695e922766152ccd75607fb96fecce7f8",
+  "afterSha256": "a5e1c7b69f4e332de5c160a577e92d9695e922766152ccd75607fb96fecce7f8",
+  "unchanged": true,
+  "privateBackupAccessed": false
+}

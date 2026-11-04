@@ -39,4 +39,11 @@ temp/
 # Estado de emuladores y copias privadas de la BD; nunca versionar
 .local/
 .local-emulators.isolated.json
+.local-emulators.recovery.json
 functions/.secret.local
+
+# Exportaciones de emuladores: estado local, nunca publicar en Git
+firebase-export-*/
+auth_export/
+firestore_export/
+storage_export/

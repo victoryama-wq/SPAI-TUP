@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-23T17:24:06.532Z",
+  "status": "PASS",
+  "origin": "https://q16qrh63-4206.usw3.devtunnels.ms",
+  "version": {
+    "revision": "tunnel-r02-complement-20261023-01",
+    "baseCommit": "16671e2b5b9021fa2069e2b0587e595338f7fb29",
+    "localChanges": true,
+    "builtAt": "2026-10-23T17:22:19.392Z",
+    "dataSource": "r02-two-cycles-v1; sesión sintética preservada 18080",
+    "humanAcceptance": "pendiente"
+  },
+  "realPublicTunnel": true,
+  "checkedFrom": "host computer browser, not a second physical computer",
+  "login": true,
+  "twoCycles": true,
+  "closedCaptureNoModal": true,
+  "contextualActions": true,
+  "sharedDataUnchanged": true,
+  "newCycleDisabled": true,
+  "httpsSameOrigin": true,
+  "adminEndpointsBlocked": true,
+  "cycleCommands": 0,
+  "errors": []
+}

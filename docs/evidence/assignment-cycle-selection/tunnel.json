@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-23T22:43:29.011Z",
+  "status": "PASS",
+  "version": {
+    "revision": "tunnel-r02-consulta-ciclo-20261023-01",
+    "baseCommit": "16671e2b5b9021fa2069e2b0587e595338f7fb29",
+    "localChanges": true,
+    "builtAt": "2026-10-23T22:41:33.289211+00:00",
+    "dataSource": "r02-two-cycles-v1; sesión sintética preservada 18080",
+    "humanAcceptance": "pendiente"
+  },
+  "origin": "https://q16qrh63-4206.usw3.devtunnels.ms",
+  "checkedFrom": "host browser through HTTPS; not another computer",
+  "sharedDataUnchanged": true,
+  "cycleStates": [
+    {
+      "id": "demo-26-3",
+      "code": "26-3",
+      "status": "Cerrado"
+    },
+    {
+      "id": "demo-27-1",
+      "code": "27-1",
+      "status": "Cerrado"
+    }
+  ],
+  "mutatingCommands": 0,
+  "errors": []
+}
