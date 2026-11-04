@@ -1,0 +1,8 @@
+{
+  "src/app/features/assignments/data/assignments.repository.ts": "8881fda39e7cd8563a883c384d4a9361c8b120ff016a381d847d002f1f90ed06",
+  "src/app/features/assignments/pages/assignments-page.component.ts": "cfff84f7b873d51adbfe94e4bf82eb0a58bd6883ab4a6eaf5de8dda0254fdd91",
+  "src/app/features/assignments/pages/assignments-page.component.html": "20a4525460dcb57411e3efb44a8d4ad74839d63d227d6573c461367ab2555810",
+  "src/app/features/assignments/pages/assignments-page.component.css": "7834a5c5219f23d3cfb367951ecec47f3453d4489dc157c127c8eb5093ead226",
+  "tools/e2-r02/assignment-cycle-selection.mjs": "f248b101afeb97d6f6ba7f5aadb79d121bc6120a9c3a9d2c19ec6edff1dad2ea",
+  "tools/e2-r02/assignment-cycle-tunnel.mjs": "3b7a7c33853b7ac2b46b46b6d5df39338bd9290a7799db29453873e5ab0806f6"
+}

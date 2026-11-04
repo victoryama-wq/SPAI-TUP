@@ -1,0 +1,41 @@
+{
+  "dependencies": {
+    "grupos": 0,
+    "asignaciones": 0,
+    "solicitudes_compartidas": 0,
+    "solicitudes_sistemas": 0,
+    "ligas_meet": 0,
+    "notificaciones": 0,
+    "agenda_operativa_equipo": 0,
+    "docentes": 0,
+    "asignaturas": 0,
+    "programas": 0,
+    "nomenclaturas_programas": 0,
+    "moodle_categorias": 0,
+    "moodle_plantillas": 0,
+    "configuracion": 0
+  },
+  "at": "2026-10-28T14:16:48.161Z",
+  "scenario": "renewal",
+  "context": {
+    "state": "NONE",
+    "cycleId": null,
+    "code": null
+  },
+  "cycles": [
+    {
+      "code": "26-3",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    },
+    {
+      "code": "27-1",
+      "status": "Cerrado",
+      "specialsEnabled": false
+    }
+  ],
+  "references": "VALID",
+  "environment": "synthetic acceptance 28080",
+  "evaluatedSha": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
+  "humanAcceptance": false
+}

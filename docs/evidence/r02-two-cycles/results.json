@@ -1,0 +1,76 @@
+{
+  "at": "2026-10-22T21:34:23.857Z",
+  "base": "16671e2b5b9021fa2069e2b0587e595338f7fb29 + local changes",
+  "status": "PASS",
+  "url": "http://127.0.0.1:4202/ciclos",
+  "project": "demo-spai-tup",
+  "firestore": 18080,
+  "namedDatabase": "r02-two-8fa22928",
+  "cases": [
+    {
+      "name": "Preparation rerun verifies without modifying existing data",
+      "kind": "real isolated Firestore",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP rejects caller without cycle management, no partial writes",
+      "kind": "real callable",
+      "status": "PASS"
+    },
+    {
+      "name": "Captura and Captura cerrada block creation; definitive close enables it; concurrent creation only one succeeds",
+      "kind": "real server service / named emulator DB",
+      "status": "PASS"
+    },
+    {
+      "name": "Real multiple-operative inconsistency blocks commands without partial writes",
+      "kind": "real server service / named emulator DB",
+      "status": "PASS"
+    },
+    {
+      "name": "Valid scenario, modal once per visit, Enter/close/Escape, table action after dismiss, responsive screenshots",
+      "kind": "real browser / isolated review",
+      "status": "PASS"
+    },
+    {
+      "name": "Cancel confirmation preserves state; close via row blocks new cycle and keeps reopen/final-close actions; reopen returns Captura",
+      "kind": "real browser + HTTP callable",
+      "status": "PASS"
+    },
+    {
+      "name": "Prepared confirmation rejected after server revision change; contextual error, no false success",
+      "kind": "real browser + HTTP callable",
+      "status": "PASS"
+    },
+    {
+      "name": "Loading, failure, Prep, closed capture, historical-only, multiple: correct creation gate without opening permanent card",
+      "kind": "presentation-only in memory / server cases above",
+      "status": "PASS"
+    },
+    {
+      "name": "No date: accurate modal fallback on module entry",
+      "kind": "real browser + isolated callable",
+      "status": "PASS"
+    }
+  ],
+  "final": {
+    "scenario": "r02-two-cycles-v1",
+    "documents": 65,
+    "cycles": [
+      {
+        "code": "26-3",
+        "status": "Cerrado",
+        "date": "2026-09-30"
+      },
+      {
+        "code": "27-1",
+        "status": "Captura",
+        "date": "2026-09-30"
+      }
+    ],
+    "groups": 4,
+    "assignments": 4,
+    "references": "VALID"
+  },
+  "scope": "Demo scenario correction, NOT full R02 validation or owner acceptance"
+}

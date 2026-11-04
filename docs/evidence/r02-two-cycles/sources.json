@@ -1,0 +1,13 @@
+{
+  "base": "16671e2b5b9021fa2069e2b0587e595338f7fb29",
+  "scenario": "r02-two-cycles-v1",
+  "sha256": {
+    "tools/e2-r02/review-fixtures.mjs": "b306fc16fc4e52573f09e31b579e42a309abac99b0e40c80c3acfa140944be1b",
+    "tools/e2-r02/prepare-review.mjs": "f8229b6340d633691ec032b78ffec85a8968563f1a0e5375799eb2bfca50c18b",
+    "tools/e2-r02/review.ps1": "d89062c37977f0165a6b62cd9c1c2ac98299ef1c6add8d1dfd80661613abf44f",
+    "tools/local/run.mjs": "3cf235c5a413576a69b75de801a67b5f702e25138f16b3e960e044c312032c35",
+    "tools/e2-r02/review-fixtures.test.mjs": "ef4ba7c1b95aa13c5a602f33c5fdbe53d404e2eb012649f6b6913d7b7dc5663e",
+    "tools/e2-r02/review-scenario.mjs": "675568f9da5538ccd9c301e265d7fc66ee7ca3cfdadf2a52c19634ad9572fd04",
+    "tools/e2-r02/review-readonly.mjs": "32e9b94bd94a7b2a9aff9b4a1a40a4a2511502eb31333e9d4b8ff0bb018768de"
+  }
+}

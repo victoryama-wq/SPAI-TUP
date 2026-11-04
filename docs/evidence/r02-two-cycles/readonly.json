@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-22T21:38:15.852Z",
+  "status": "PASS",
+  "sizes": [
+    1280,
+    768,
+    390,
+    320
+  ],
+  "keyboardFocusContained": true,
+  "modalToConfirmationWithoutOverlap": true,
+  "cancelledWithoutCommand": true,
+  "rowActionAfterDismiss": true,
+  "undelegatedAuxiliaryAccessRestricted": true,
+  "commands": 0
+}

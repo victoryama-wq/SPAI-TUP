@@ -1,0 +1,41 @@
+[
+  {
+    "uid": "demo-sistemas",
+    "email": "demo.aceptacion.sistemas@tecplayacar.edu.mx",
+    "name": "Sistemas ACEPTACIÓN R02",
+    "role": "Coordinación de Sistemas",
+    "programs": []
+  },
+  {
+    "uid": "demo-auxiliar",
+    "email": "demo.aceptacion.auxiliar@tecplayacar.edu.mx",
+    "name": "Auxiliar ACEPTACIÓN R02",
+    "role": "Auxiliar de Sistemas",
+    "programs": []
+  },
+  {
+    "uid": "demo-coord-a",
+    "email": "demo.aceptacion.coordinacion.a@tecplayacar.edu.mx",
+    "name": "Coordinación A ACEPTACIÓN R02",
+    "role": "Coordinación Académica",
+    "programs": [
+      "ADM"
+    ]
+  },
+  {
+    "uid": "demo-coord-b",
+    "email": "demo.aceptacion.coordinacion.b@tecplayacar.edu.mx",
+    "name": "Coordinación B ACEPTACIÓN R02",
+    "role": "Coordinación Académica",
+    "programs": [
+      "DER"
+    ]
+  },
+  {
+    "uid": "demo-inactivo",
+    "email": "demo.aceptacion.inactivo@tecplayacar.edu.mx",
+    "name": "Usuario inactivo ACEPTACIÓN R02",
+    "role": "Coordinación Académica",
+    "programs": []
+  }
+]

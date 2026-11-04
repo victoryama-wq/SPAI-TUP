@@ -1,0 +1,18 @@
+{
+  "src/app/features/assignments/pages/assignments-page.component.html": "fcc8df9aa7953fc7030bd46eb671b7e3209ad0af069882f8a90832ff816d694a",
+  "tools/e2-r02/complement-ui.mjs": "4c7205553e83eaacc8175e488103cbfc33901ef2bef6be732176ad4ec1ca447d",
+  "tools/e2-r02/complement-server.mjs": "c067721c433123d4005419b9eb973b6e4b7c330a67326dc9bac76e5d9ade1127",
+  "src/app/features/cycles/pages/cycles-page.component.ts": "f0615e053ada6ab6b773a9af6614024d44594925b1f6d733c5d41f5a89aba18d",
+  "tools/e2-r02/complement-rules.mjs": "9378198e5e3574e854bb5b8a8141a7c4de3e3bb19ca9c4954fb98ed974ff86cd",
+  "src/app/features/cycles/pages/cycles-page.component.css": "c6a4c6931808079800a6327679b0660011f1d666522bcd8883358bb833051552",
+  "src/app/features/assignments/pages/assignments-page.component.ts": "8732a8c21ac102f57156c11fb1bc3d996cbb2adf40de01b358607bbc20b0a80c",
+  "src/app/features/cycles/pages/cycles-page.component.html": "106416854da4b5b5a69ac2ca6ed37c8b646324cdc0b1f178fdfbce5371868777",
+  "src/app/features/assignments/pages/assignments-page.component.css": "fe19a465d0ce8c09a3ee489224169be93e70ee4d1b3be69f1781455289b422e5",
+  "functions/cycles/service.js": "675b33e89bfdcfbe1b2008db4809aa9bb49ff0aba83021e4d2bc8e3d6fe76b10",
+  "firestore.rules": "81fe03609738b95902fb54d906d63b408f9017acbab6ba804b2cafb878e045a9",
+  "functions/cycles/dependencies.js": "1df9928f92d066162cf292439d725203db23c8fac130d7cd3e10feac8edcb52b",
+  "src/app/features/cycles/data/cycles.repository.ts": "d8d0c87ee6d675e355d12b351808b7dfbb10b0df72e3bf76dcbd28af7564eaaf",
+  "tools/local/config.mjs": "1fc9e126c457affb33f9ebbd378cc948b0bccb29f3a313a0c79026e727015b87",
+  "tools/local/build-tunnel.mjs": "7a2e4b0ec609292d3e8f0db32063a700c40149ecb716a4b84292146efda2e3d3",
+  "tools/local/tests/r02-complement-tunnel-browser.mjs": "96c39de5f4a52c2a0d569c33c8dcd0c9c45eafd74123bac2c4423a3cc915a19c"
+}

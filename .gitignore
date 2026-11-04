@@ -43,3 +43,10 @@ functions/.secret.local
 
 # Separate synthetic validation configuration (never shared data)
 .local-emulators.complement.json
+.local-emulators.recovery.json
+
+# Exportaciones de emuladores: estado local, nunca publicar en Git
+firebase-export-*/
+auth_export/
+firestore_export/
+storage_export/

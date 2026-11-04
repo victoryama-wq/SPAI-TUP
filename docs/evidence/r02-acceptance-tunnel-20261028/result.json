@@ -1,0 +1,120 @@
+{
+  "at": "2026-10-28T14:45:11.926Z",
+  "version": {
+    "baseCommit": "5ef70c31a44fdc9a11a3ca02b8925f7677b46c91",
+    "builtAt": "2026-10-28T14:35:11.8448287Z",
+    "dataSource": "ACEPTACION AISLADA 28080",
+    "revision": "tunnel-acceptance-5ef70c31a44f-20261028143511",
+    "humanAcceptance": "pendiente",
+    "scenario": "preparation",
+    "scenarioPreparedAt": "2026-10-28T14:24:38.093Z",
+    "isolatedFirestore": 28080
+  },
+  "origin": "https://q16qrh63-4206.usw3.devtunnels.ms",
+  "status": "PASS",
+  "login": true,
+  "scenario": "preparation",
+  "initiateCaptureEnabled": true,
+  "newCycleDisabled": true,
+  "onlyPublicHTTPS": true,
+  "intermediaryExternalBlocked": [
+    {
+      "origin": "https://fonts.googleapis.com",
+      "path": "/css2"
+    }
+  ],
+  "adminPathsBlocked": true,
+  "cycleMutations": 0,
+  "checkedFrom": "Host browser over real HTTPS tunnel, not another physical computer",
+  "errors": [],
+  "sharedCollectionsUnchanged": {
+    "asignaciones": {
+      "count": 4,
+      "sha256": "49ed6841d38e3a015e3bbb0861207f53c08e14edfcdba9888444858063366e7b"
+    },
+    "asignaturas": {
+      "count": 2,
+      "sha256": "562682f27a365ea107fd977cb165908d73f28e6c50bcb63f35c9a1f6feb8cbe5"
+    },
+    "bitacora": {
+      "count": 19,
+      "sha256": "5416255b43f1399336704e2fae78ecc2545e38b50141c3fa6271a7cf3c18877a"
+    },
+    "ciclo_control": {
+      "count": 1,
+      "sha256": "7be9c5b9f8d797549727c1753c1889d0d0fb4ea6903439296330f21aefec9d5d"
+    },
+    "ciclos": {
+      "count": 2,
+      "sha256": "27268559fc29e89fa5ac30abdc63daa91a139afa2e690fd98bfaf2697a20addd"
+    },
+    "configuracion": {
+      "count": 2,
+      "sha256": "219b4999ad3cb02becffe08b13eac75efab90b959cf03918d96dd862b9b3496a"
+    },
+    "demo_escenario": {
+      "count": 1,
+      "sha256": "2e1af8230c9bd29e707c08b72a1b33247152867d78b5d4b87b6b29800d9670d1"
+    },
+    "docentes": {
+      "count": 3,
+      "sha256": "ab53b27969b853f02b96db634551bdf38747d6a3143cf487e9a066512dd41bb7"
+    },
+    "eventos_ciclo": {
+      "count": 15,
+      "sha256": "1ea8a444b96261ec3aca373d39ea7a6cd6a124eb465d69056f7b7376356bfc87"
+    },
+    "grupos": {
+      "count": 4,
+      "sha256": "3a8d3a35bfb64939d1f7d698d3fac140ba2dcaeb81ee747b3d24975b04b03dbf"
+    },
+    "moodle_categorias": {
+      "count": 2,
+      "sha256": "a6d8e33302e7ed41403c1b5f4430d7f6770a285b459f0f20268ff9a14db2c9fb"
+    },
+    "moodle_plantillas": {
+      "count": 2,
+      "sha256": "d68a19f0b3e10dab08a6c2d06b42567d928488a8ae65932bf432fb434f7fadf9"
+    },
+    "nomenclaturas_programas": {
+      "count": 2,
+      "sha256": "d41588f0a3e9c6d6d6dc94e383ea321839381d00a5a06104b334d2769f4d5038"
+    },
+    "notificaciones": {
+      "count": 1,
+      "sha256": "64c67a428cdedb7a2a78b1275e9f2749e432a9ccec9dbffbed95a0a1ab726d0e"
+    },
+    "operaciones_ciclo": {
+      "count": 15,
+      "sha256": "b169481b362984b7975fba374fb637d5d48fc361c3432e2d9c8138b3ff057a6d"
+    },
+    "programas": {
+      "count": 2,
+      "sha256": "8cb76fccfea3e5d644d6a75b13e4d4645576b6ada96137398aef0ca32c57c9f3"
+    },
+    "roles_personalizados": {
+      "count": 1,
+      "sha256": "cc1cbb9f849fdbbf4c4952ab0f2394faaf5e24fcd9961b15b6f2bc35381a141f"
+    },
+    "solicitudes_compartidas": {
+      "count": 2,
+      "sha256": "75cbdc9e34308abe3a6ce306741f1456d4efc74e9c22ea7025fe2fcf1b66d737"
+    },
+    "solicitudes_sistemas": {
+      "count": 1,
+      "sha256": "2581fe8339a7b997d75549a04e14554010e03983a0ea580f9261c953246d6f3e"
+    },
+    "usuarios": {
+      "count": 5,
+      "sha256": "746c3c9a03573ce5c43a145f1ddf6154800a49ff891780f3a04b0610e81b84e8"
+    }
+  },
+  "sharedProcessesPreserved": {
+    "firestore": 27268,
+    "gatewayReplacedOnly": true
+  },
+  "harnessNotes": [
+    "Primera comprobación mezcló una fuente de la página intermedia del túnel con tráfico SPAI; se separó ese tramo y no se permitió el origen externo.",
+    "Un segundo intento agotó la espera de carga; el recorrido final HTTPS completo pasó sin errores de aplicación."
+  ]
+}

@@ -2,6 +2,15 @@
 
 Sistema de Planeacion Academica Institucional del Tecnologico Universitario Playacar.
 
+## Continuidad del trabajo — 4 de noviembre de 2026
+
+Leer primero [el documento de continuidad de SPAI](docs/CONTINUIDAD-SPAI-2026-11-04.md).
+Contiene las versiones aceptadas, evidencia, ramas, pendientes y conservación de los
+emuladores. La base de continuidad es `codex/e2-r02-cierre-rules-20261030`;
+`main` conserva una versión anterior. La aceptación de R01/R02 no autoriza producción.
+Las instrucciones de instalación que siguen preparan desarrollo local nuevo: no usarlas
+para restablecer las instancias aceptadas, cuyos datos se recuperan de su propia exportación.
+
 ## Stack
 
 - Angular 20
